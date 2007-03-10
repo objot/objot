@@ -268,6 +268,7 @@ public final class Setting
 			String n = utf();
 			Field f = null;
 			Type t = null;
+			Object v;
 			if (cla != HashMap.class)
 			{
 				Property g = objot.sets(cla).get(n);
@@ -277,61 +278,74 @@ public final class Setting
 					throw new Err("setting " + cla.getName() + "." + n + " not allowed for "
 						+ forClass.getName());
 				f = g.f;
+				t = f.getGenericType();
 			}
 			bxy();
 			c = chr();
 			if (c == 0 || c == '[' || c == '/' || c == '+')
 				bxy();
+
 			if (c == 0)
-				set(o, n, f, utf());
+				v = utf();
 			else if (c == '[')
 				if (f != null && f.getType().isArray())
-					set(o, n, f, list(null, f.getType().getComponentType()));
+					v = list(null, f.getType().getComponentType());
 				else if (f != null && List.class.isAssignableFrom(f.getType())
-					&& (t = f.getGenericType()) instanceof ParameterizedType)
+					&& t instanceof ParameterizedType)
 				{
 					t = ((ParameterizedType)t).getActualTypeArguments()[0];
-					set(o, n, f, list(t instanceof Class ? (Class)t : Object.class, null));
+					v = list(t instanceof Class ? (Class)t : Object.class, null);
 				}
 				else
-					set(o, n, f, list(Object.class, null));
+					v = list(Object.class, null);
 			else if (c == '/')
-				set(o, n, f, object(f == null ? Object.class : f.getType()));
+				v = object(f == null ? Object.class : f.getType());
 			else if (c == '+')
-				set(o, n, f, ref());
+				v = ref();
 			else if (c == '.')
-				set(o, n, f, null);
+				v = null;
 			else if (c == '<')
-				set(o, n, f, false);
+				v = false;
 			else if (c == '>')
-				set(o, n, f, true);
-			else if (f != null
-				&& (f.getType() == double.class || f.getType() == Double.class))
-				set(o, n, f, number());
-			else if (f != null && (f.getType() == float.class || f.getType() == Float.class))
-				set(o, n, f, (float)number());
+				v = true;
+			else if (isInt())
+				if (t == int.class)
+				{
+					f.setInt(o, integer());
+					continue;
+				}
+				else
+					v = integer();
+			else if (t == double.class)
+			{
+				f.setDouble(o, number());
+				continue;
+			}
+			else if (t == Double.class)
+				v = number();
+			else if (t == float.class)
+			{
+				f.setFloat(o, (float)number());
+				continue;
+			}
 			else
-				set(o, n, f, integer());
+				v = Float.valueOf((float)number());
+
+			if (f == null)
+				((HashMap)o).put(n, v);
+			else
+				try
+				{
+					f.set(o, v);
+				}
+				catch (IllegalArgumentException e)
+				{
+					throw new Err(o.getClass().getName() + "." + n + ": "
+						+ (v != null ? v.getClass().getName() : "null") + " not allowed for "
+						+ f.getType());
+				}
 		}
 		return o;
 
-	}
-
-	@SuppressWarnings("unchecked")
-	private void set(Object o, String p, Field f, Object v) throws Exception
-	{
-		if (f == null)
-			((HashMap)o).put(p, v);
-		else
-			try
-			{
-				f.set(o, v);
-			}
-			catch (IllegalArgumentException e)
-			{
-				throw new Err(o.getClass().getName() + "." + p + ": "
-					+ (v != null ? v.getClass().getName() : "null") + " not allowed for "
-					+ f.getType());
-			}
 	}
 }
