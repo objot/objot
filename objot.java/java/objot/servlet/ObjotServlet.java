@@ -60,6 +60,24 @@ public class ObjotServlet
 		return c.newInstance();
 	}
 
+	protected Object serviceDo(Method sm, Object so, Object o, HttpServletRequest req,
+		HttpServletResponse res) throws Throwable
+	{
+		try
+		{
+			return sm.invoke(so, o);
+		}
+		catch (InvocationTargetException e)
+		{
+			throw e.getCause();
+		}
+	}
+
+	protected Object serviceError(Exception e) throws Exception
+	{
+		throw e;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	private ConcurrentHashMap<String, Class<?>> clas //
@@ -116,7 +134,7 @@ public class ObjotServlet
 				clas.put(name, sc);
 				meths.put(name, sm);
 			}
-			Object s = serviceObject(sc, sm, req, res);
+			Object so = serviceObject(sc, sm, req, res);
 
 			Object o = null;
 			int len = req.getContentLength();
@@ -127,18 +145,17 @@ public class ObjotServlet
 				for (int from = 0, done; from < len; from += done)
 					if ((done = in.read(b, from, len - from)) < 0)
 						throw new EOFException();
-				Setting.go(objot, sc, b);
+				o = Setting.go(objot, sc, b);
 			}
-			try
+			o = serviceDo(sm, so, o, req, res);
+			if (o == null)
+				res.setContentLength(0);
+			else
 			{
-				o = sm.invoke(s, o);
+				byte[] b = Getting.go(objot, sc, o);
+				res.setContentLength(b.length);
+				res.getOutputStream().write(b);
 			}
-			catch (InvocationTargetException e)
-			{
-				throw e.getCause();
-			}
-			if (o != null)
-				res.getOutputStream().write(Getting.go(objot, sc, o));
 		}
 		catch (RuntimeException e)
 		{
