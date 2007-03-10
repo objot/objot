@@ -14,7 +14,7 @@ import java.util.Map;
 public final class Getting
 {
 	/** @param o must not be changed since un-synchronized */
-	public static byte[] go(Objot objot, Class<?> for_, Object o)
+	public static byte[] go(Objot objot, Class<?> for_, Object o) throws Exception
 	{
 		return new Getting(objot, for_).go(o);
 	}
@@ -36,33 +36,22 @@ public final class Getting
 		refn = 0;
 	}
 
-	private byte[] go(Object o)
+	private byte[] go(Object o) throws Exception
 	{
-		try
-		{
-			refs(o);
-			StringBuilder s = new StringBuilder(1000);
-			if (o instanceof List || o.getClass().isArray())
-				list(o, s.append('['));
-			else
-				object(o, s.append('/'));
-			return utf(s);
-		}
-		catch (Fail e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new Fail(e);
-		}
+		refs(o);
+		StringBuilder s = new StringBuilder(1000);
+		if (o instanceof List || o.getClass().isArray())
+			list(o, s.append('['));
+		else
+			object(o, s.append('/'));
+		return utf(s);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void refs(Object o) throws Exception
 	{
 		if (o instanceof String && ((String)o).indexOf(S) >= 0)
-			throw new Fail("String must not contain \20 \\20");
+			throw new RuntimeException("String must not contain \20 \\20");
 		if (o == null || ref(o, - 1) < 0)
 			return;
 		if (o instanceof Map)

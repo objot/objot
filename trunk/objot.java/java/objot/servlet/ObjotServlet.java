@@ -14,12 +14,14 @@ import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.GenericServlet;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import objot.Err;
 import objot.Getting;
 import objot.Objot;
 import objot.Setting;
@@ -31,8 +33,15 @@ public class ObjotServlet
 	protected Objot objot;
 	protected String serviceMethodDefaultName = "index";
 
+	protected void log(Throwable e)
+	{
+		log("", e);
+	}
+
 	/** set {@link #objot} */
-	protected void doInit() throws Exception
+	@SuppressWarnings("unused")
+	@Override
+	public void init() throws ServletException
 	{
 		objot = new Objot();
 	}
@@ -67,11 +76,6 @@ public class ObjotServlet
 		}
 	}
 
-	protected Object serviceError(Exception e) throws Exception
-	{
-		throw e;
-	}
-
 	private static final long serialVersionUID = 1L;
 
 	private ConcurrentHashMap<String, Class<?>> clas //
@@ -80,26 +84,11 @@ public class ObjotServlet
 	= new ConcurrentHashMap<String, Method>(128, 0.8f, 32);
 
 	@Override
-	public final void init() throws ServletException
+	public final void init(ServletConfig c) throws ServletException
 	{
-		try
-		{
-			log("-------- " + ObjotServlet.class.getName() + " initializing --------");
-			doInit();
-			log("-------- " + ObjotServlet.class.getName() + " initialized --------");
-		}
-		catch (RuntimeException e)
-		{
-			throw e;
-		}
-		catch (ServletException e)
-		{
-			throw e;
-		}
-		catch (Exception e)
-		{
-			throw new ServletException(e);
-		}
+		log("-------- " + ObjotServlet.class.getName() + " initializing --------");
+		super.init(c);
+		log("-------- " + ObjotServlet.class.getName() + " initialized --------");
 	}
 
 	@Override
@@ -109,14 +98,14 @@ public class ObjotServlet
 		HttpServletRequest req = (HttpServletRequest)req_;
 		HttpServletResponse res = (HttpServletResponse)res_;
 		String uri = req.getRequestURI();
+		Class<?> sc = null;
+		Method sm;
+		byte[] bs;
+		Object o = null;
 		try
 		{
-			res.setContentType("application/octet-stream");
-			res.setHeader("Cache-Control", "no-cache");
-
 			String name = uri.substring(uri.lastIndexOf('/') + 1);
-			Class<?> sc = clas.get(name);
-			Method sm;
+			sc = clas.get(name);
 			if (sc != null)
 				sm = meths.get(name);
 			else
@@ -128,39 +117,17 @@ public class ObjotServlet
 				clas.put(name, sc);
 				meths.put(name, sm);
 			}
-
-			Object o = null;
 			int len = req.getContentLength();
 			if (len > 0)
 			{
 				InputStream in = req.getInputStream();
-				byte[] b = new byte[len];
+				bs = new byte[len];
 				for (int from = 0, done; from < len; from += done)
-					if ((done = in.read(b, from, len - from)) < 0)
+					if ((done = in.read(bs, from, len - from)) < 0)
 						throw new EOFException();
-				o = Setting.go(objot, sc, b);
+				o = Setting.go(objot, sc, bs);
 			}
 			o = serviceDo(sc, sm, o, req, res);
-			if (o == null)
-				res.setContentLength(0);
-			else
-			{
-				byte[] b = Getting.go(objot, sc, o);
-				res.setContentLength(b.length);
-				res.getOutputStream().write(b);
-			}
-		}
-		catch (RuntimeException e)
-		{
-			throw e;
-		}
-		catch (ServletException e)
-		{
-			throw e;
-		}
-		catch (IOException e)
-		{
-			throw e;
 		}
 		catch (Error e)
 		{
@@ -168,7 +135,30 @@ public class ObjotServlet
 		}
 		catch (Throwable e)
 		{
-			throw new ServletException(e);
+			log(e);
+			o = new Err(e);
+		}
+
+		res.setContentType("application/octet-stream");
+		res.setHeader("Cache-Control", "no-cache");
+		if (o == null)
+			res.setContentLength(0);
+		else
+		{
+			try
+			{
+				bs = Getting.go(objot, sc != null ? sc : getClass(), o);
+			}
+			catch (RuntimeException e)
+			{
+				throw e;
+			}
+			catch (Exception e)
+			{
+				throw new ServletException(e);
+			}
+			res.setContentLength(bs.length);
+			res.getOutputStream().write(bs);
 		}
 	}
 }
