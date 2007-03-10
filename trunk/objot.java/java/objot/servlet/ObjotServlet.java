@@ -31,7 +31,8 @@ public class ObjotServlet
 	extends GenericServlet
 {
 	protected Objot objot;
-	protected String serviceMethodDefaultName = "index";
+	protected String classNamePrefix = null;
+	protected String methodNameDefault = "index";
 
 	protected void log(Throwable e)
 	{
@@ -50,7 +51,7 @@ public class ObjotServlet
 	protected Class<?> serviceClass(String name, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
-		return Class.forName(name);
+		return Class.forName(classNamePrefix == null ? name : classNamePrefix + name);
 	}
 
 	/** multi thread, may be cached */
@@ -86,9 +87,9 @@ public class ObjotServlet
 	@Override
 	public final void init(ServletConfig c) throws ServletException
 	{
-		log("-------- " + ObjotServlet.class.getName() + " initializing --------");
 		super.init(c);
-		log("-------- " + ObjotServlet.class.getName() + " initialized --------");
+		log("========########@@@@@@@@$$$$$$$$ " + ObjotServlet.class.getName()
+			+ " started $$$$$$$$@@@@@@@@########========");
 	}
 
 	@Override
@@ -112,8 +113,8 @@ public class ObjotServlet
 			{
 				int dot = name.lastIndexOf('-');
 				sc = serviceClass(name.substring(0, dot < 0 ? name.length() : dot), req, res);
-				sm = serviceMethod(sc, dot < 0 || dot == name.length()
-					? serviceMethodDefaultName : name.substring(dot + 1), req, res);
+				sm = serviceMethod(sc, dot < 0 || dot == name.length() ? methodNameDefault
+					: name.substring(dot + 1), req, res);
 				clas.put(name, sc);
 				meths.put(name, sm);
 			}
