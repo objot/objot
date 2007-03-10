@@ -58,18 +58,18 @@ public final class Setting
 				o = object(Object.class);
 			}
 			else
-				throw new Err("array or object expected but " + chr() + " at 0");
+				throw new Fail("array or object expected but " + chr() + " at 0");
 		}
-		catch (Err e)
+		catch (Fail e)
 		{
 			throw e;
 		}
 		catch (Exception e)
 		{
-			throw new Err(e);
+			throw new Fail(e);
 		}
 		if (by < bs.length)
-			throw new Err("termination expected but " + (char)(bs[by] & 0xFF) + " at " + by);
+			throw new Fail("termination expected but " + (char)(bs[by] & 0xFF) + " at " + by);
 		return o;
 	}
 
@@ -77,7 +77,7 @@ public final class Setting
 	{
 		bx = ++by;
 		if (bx >= bs.length)
-			throw new Err("termination unexpected");
+			throw new Fail("termination unexpected");
 		while (by < bs.length && bs[by] != Objot.S)
 			by++;
 		return bx;
@@ -87,7 +87,7 @@ public final class Setting
 	{
 		int i = integer();
 		if (i < 0 || i >= refs.length || refs[i] == null)
-			throw new Err("reference " + i + " not found");
+			throw new Fail("reference " + i + " not found");
 		return refs[i];
 	}
 
@@ -190,7 +190,7 @@ public final class Setting
 		{
 			for (char c; (c = chr()) != ';'; bxy())
 				if (c != '<' && c != '>')
-					throw new Err("bool expected for boolean[] but " + c + " at " + bx);
+					throw new Fail("bool expected for boolean[] but " + c + " at " + bx);
 				else
 					lb[i++] = c == '>';
 			return l;
@@ -200,7 +200,7 @@ public final class Setting
 			for (char c; (c = chr()) != ';'; bxy())
 				if (c == 0 || c == '[' || c == '/' || c == '+' || c == '.' || c == '<'
 					|| c == '>')
-					throw new Err("integer expected for int[] but " + c + " at " + bx);
+					throw new Fail("integer expected for int[] but " + c + " at " + bx);
 				else
 					li[i++] = integer();
 			return l;
@@ -240,7 +240,7 @@ public final class Setting
 	private void set(Object[] l, int i, Object o, Class<?> cla)
 	{
 		if (! cla.isAssignableFrom(o.getClass()))
-			throw new Err(o.getClass().getName() + " not allowed for " + cla.getName());
+			throw new Fail(o.getClass().getName() + " not allowed for " + cla.getName());
 		l[i] = o;
 	}
 
@@ -251,7 +251,7 @@ public final class Setting
 		Class<?> cla = cName.length() > 0 ? objot.classByName(cName) : HashMap.class;
 		bxy();
 		if (! cla0.isAssignableFrom(cla))
-			throw new Err(cla.getName() + " not allowed for " + cla0.getName());
+			throw new Fail(cla.getName() + " not allowed for " + cla0.getName());
 		int ref = - 1;
 		if (chr() == '=')
 		{
@@ -273,9 +273,9 @@ public final class Setting
 			{
 				Property g = objot.sets(cla).get(n);
 				if (g == null)
-					throw new Err(cla.getName() + "." + n + " not found or not setable");
+					throw new Fail(cla.getName() + "." + n + " not found or not setable");
 				if (! g.in(forClass))
-					throw new Err("setting " + cla.getName() + "." + n + " not allowed for "
+					throw new Fail("setting " + cla.getName() + "." + n + " not allowed for "
 						+ forClass.getName());
 				f = g.f;
 				t = f.getGenericType();
@@ -340,7 +340,7 @@ public final class Setting
 				}
 				catch (IllegalArgumentException e)
 				{
-					throw new Err(o.getClass().getName() + "." + n + ": "
+					throw new Fail(o.getClass().getName() + "." + n + ": "
 						+ (v != null ? v.getClass().getName() : "null") + " not allowed for "
 						+ f.getType());
 				}
