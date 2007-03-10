@@ -43,7 +43,7 @@ public final class Objot
 				Get g = f.getAnnotation(Get.class);
 				GetSet gs = f.getAnnotation(GetSet.class);
 				if (g != null || gs != null)
-					inf.put(f.getName(), new Property(f, g, gs));
+					new Property(f, g, gs).into(inf);
 			}
 			gets.put(c, inf);
 		}
@@ -61,7 +61,7 @@ public final class Objot
 				Set s = f.getAnnotation(Set.class);
 				GetSet gs = f.getAnnotation(GetSet.class);
 				if (s != null || gs != null)
-					inf.put(f.getName(), new Property(f, s, gs));
+					new Property(f, s, gs).into(inf);
 			}
 			sets.put(c, inf);
 		}
