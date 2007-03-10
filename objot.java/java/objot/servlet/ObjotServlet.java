@@ -54,18 +54,12 @@ public class ObjotServlet
 		throw new ServletException("no service found : " + c.getName() + "." + name);
 	}
 
-	protected Object serviceObject(Class<?> c, Method m, HttpServletRequest req,
-		HttpServletResponse res) throws Exception
-	{
-		return c.newInstance();
-	}
-
-	protected Object serviceDo(Method sm, Object so, Object o, HttpServletRequest req,
+	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
 		HttpServletResponse res) throws Throwable
 	{
 		try
 		{
-			return sm.invoke(so, o);
+			return m.invoke(null, o);
 		}
 		catch (InvocationTargetException e)
 		{
@@ -134,7 +128,6 @@ public class ObjotServlet
 				clas.put(name, sc);
 				meths.put(name, sm);
 			}
-			Object so = serviceObject(sc, sm, req, res);
 
 			Object o = null;
 			int len = req.getContentLength();
@@ -147,7 +140,7 @@ public class ObjotServlet
 						throw new EOFException();
 				o = Setting.go(objot, sc, b);
 			}
-			o = serviceDo(sm, so, o, req, res);
+			o = serviceDo(sc, sm, o, req, res);
 			if (o == null)
 				res.setContentLength(0);
 			else
