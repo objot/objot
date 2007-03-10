@@ -19,7 +19,7 @@ import java.util.List;
 
 public final class Setting
 {
-	public static Object go(Objot o, Class<?> for_, byte[] s)
+	public static Object go(Objot o, Class<?> for_, byte[] s) throws Exception
 	{
 		return new Setting(o, for_, s).go();
 	}
@@ -38,38 +38,28 @@ public final class Setting
 		bs = s;
 	}
 
-	private Object go()
+	private Object go() throws Exception
 	{
 		bx = 0;
 		by = - 1;
 		bxy();
 		refs = new Object[28];
 		Object o;
-		try
+		if (bs[0] == '[')
 		{
-			if (bs[0] == '[')
-			{
-				bxy();
-				o = list(Object.class, null);
-			}
-			else if (bs[0] == '/')
-			{
-				bxy();
-				o = object(Object.class);
-			}
-			else
-				throw new Fail("array or object expected but " + chr() + " at 0");
+			bxy();
+			o = list(Object.class, null);
 		}
-		catch (Fail e)
+		else if (bs[0] == '/')
 		{
-			throw e;
+			bxy();
+			o = object(Object.class);
 		}
-		catch (Exception e)
-		{
-			throw new Fail(e);
-		}
+		else
+			throw new RuntimeException("array or object expected but " + chr() + " at 0");
 		if (by < bs.length)
-			throw new Fail("termination expected but " + (char)(bs[by] & 0xFF) + " at " + by);
+			throw new RuntimeException("termination expected but " + (char)(bs[by] & 0xFF)
+				+ " at " + by);
 		return o;
 	}
 
@@ -77,7 +67,7 @@ public final class Setting
 	{
 		bx = ++by;
 		if (bx >= bs.length)
-			throw new Fail("termination unexpected");
+			throw new RuntimeException("termination unexpected");
 		while (by < bs.length && bs[by] != Objot.S)
 			by++;
 		return bx;
@@ -87,7 +77,7 @@ public final class Setting
 	{
 		int i = integer();
 		if (i < 0 || i >= refs.length || refs[i] == null)
-			throw new Fail("reference " + i + " not found");
+			throw new RuntimeException("reference " + i + " not found");
 		return refs[i];
 	}
 
@@ -190,7 +180,8 @@ public final class Setting
 		{
 			for (char c; (c = chr()) != ';'; bxy())
 				if (c != '<' && c != '>')
-					throw new Fail("bool expected for boolean[] but " + c + " at " + bx);
+					throw new RuntimeException("bool expected for boolean[] but " + c
+						+ " at " + bx);
 				else
 					lb[i++] = c == '>';
 			return l;
@@ -200,7 +191,8 @@ public final class Setting
 			for (char c; (c = chr()) != ';'; bxy())
 				if (c == 0 || c == '[' || c == '/' || c == '+' || c == '.' || c == '<'
 					|| c == '>')
-					throw new Fail("integer expected for int[] but " + c + " at " + bx);
+					throw new RuntimeException("integer expected for int[] but " + c + " at "
+						+ bx);
 				else
 					li[i++] = integer();
 			return l;
@@ -240,7 +232,8 @@ public final class Setting
 	private void set(Object[] l, int i, Object o, Class<?> cla)
 	{
 		if (! cla.isAssignableFrom(o.getClass()))
-			throw new Fail(o.getClass().getName() + " not allowed for " + cla.getName());
+			throw new RuntimeException(o.getClass().getName() + " forbidden for "
+				+ cla.getName());
 		l[i] = o;
 	}
 
@@ -251,7 +244,7 @@ public final class Setting
 		Class<?> cla = cName.length() > 0 ? objot.classByName(cName) : HashMap.class;
 		bxy();
 		if (! cla0.isAssignableFrom(cla))
-			throw new Fail(cla.getName() + " not allowed for " + cla0.getName());
+			throw new RuntimeException(cla.getName() + " forbidden for " + cla0.getName());
 		int ref = - 1;
 		if (chr() == '=')
 		{
@@ -273,10 +266,11 @@ public final class Setting
 			{
 				Property g = objot.sets(cla).get(n);
 				if (g == null)
-					throw new Fail(cla.getName() + "." + n + " not found or not setable");
+					throw new RuntimeException(cla.getName() + "." + n
+						+ " not found or not setable");
 				if (! g.in(forClass))
-					throw new Fail("setting " + cla.getName() + "." + n + " not allowed for "
-						+ forClass.getName());
+					throw new RuntimeException("setting " + cla.getName() + "." + n
+						+ " forbidden for " + forClass.getName());
 				f = g.f;
 				t = f.getGenericType();
 			}
@@ -331,19 +325,18 @@ public final class Setting
 			else
 				v = Float.valueOf((float)number());
 
-			if (f == null)
-				((HashMap)o).put(n, v);
-			else
-				try
-				{
+			try
+			{
+				if (f == null)
+					((HashMap)o).put(n, v);
+				else
 					f.set(o, v);
-				}
-				catch (IllegalArgumentException e)
-				{
-					throw new Fail(o.getClass().getName() + "." + n + ": "
-						+ (v != null ? v.getClass().getName() : "null") + " not allowed for "
-						+ f.getType());
-				}
+			}
+			catch (IllegalArgumentException e)
+			{
+				throw new RuntimeException(cla.getName() + "." + n + " : " + //
+					(v != null ? v.getClass().getName() : "null") + " forbidden for " + t);
+			}
 		}
 		return o;
 
