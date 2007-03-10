@@ -7,6 +7,7 @@
 package objot;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -39,12 +40,13 @@ public final class Objot
 		{
 			inf = new HashMap<String, Property>();
 			for (Field f: c.getFields())
-			{
-				Get g = f.getAnnotation(Get.class);
-				GetSet gs = f.getAnnotation(GetSet.class);
-				if (g != null || gs != null)
-					new Property(f, g, gs).into(inf);
-			}
+				if ((f.getModifiers() & Modifier.STATIC) == 0)
+				{
+					Get g = f.getAnnotation(Get.class);
+					GetSet gs = f.getAnnotation(GetSet.class);
+					if (g != null || gs != null)
+						new Property(f, g, gs).into(inf);
+				}
 			gets.put(c, inf);
 		}
 		return inf;
@@ -57,12 +59,13 @@ public final class Objot
 		{
 			inf = new HashMap<String, Property>();
 			for (Field f: c.getFields())
-			{
-				Set s = f.getAnnotation(Set.class);
-				GetSet gs = f.getAnnotation(GetSet.class);
-				if (s != null || gs != null)
-					new Property(f, s, gs).into(inf);
-			}
+				if ((f.getModifiers() & Modifier.STATIC) == 0)
+				{
+					Set s = f.getAnnotation(Set.class);
+					GetSet gs = f.getAnnotation(GetSet.class);
+					if (s != null || gs != null)
+						new Property(f, s, gs).into(inf);
+				}
 			sets.put(c, inf);
 		}
 		return inf;
