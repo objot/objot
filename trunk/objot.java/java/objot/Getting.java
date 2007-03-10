@@ -48,13 +48,13 @@ public final class Getting
 				object(o, s.append('/'));
 			return utf(s);
 		}
-		catch (Err e)
+		catch (Fail e)
 		{
 			throw e;
 		}
 		catch (Exception e)
 		{
-			throw new Err(e);
+			throw new Fail(e);
 		}
 	}
 
@@ -62,7 +62,7 @@ public final class Getting
 	private void refs(Object o) throws Exception
 	{
 		if (o instanceof String && ((String)o).indexOf(S) >= 0)
-			throw new Err("String must not contain \20 \\20");
+			throw new Fail("String must not contain \20 \\20");
 		if (o == null || ref(o, - 1) < 0)
 			return;
 		if (o instanceof Map)

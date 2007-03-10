@@ -21,7 +21,7 @@ final class Property
 	{
 		f = f_;
 		if (g != null && gs != null)
-			throw new Err(Get.class.getName() + " not allowed since already "
+			throw new Fail(Get.class.getName() + " not allowed since already "
 				+ GetSet.class.getName() + " for " + f);
 		clas = g != null ? g.value() : gs.value();
 		g = f.getDeclaringClass().getAnnotation(Get.class);
@@ -29,7 +29,7 @@ final class Property
 		if (g != null || gs != null)
 		{
 			if (g != null && gs != null)
-				throw new Err(Get.class.getName() + " not allowed since already "
+				throw new Fail(Get.class.getName() + " not allowed since already "
 					+ GetSet.class.getName() + " for " + f.getDeclaringClass());
 			clas = Objot.concat(g != null ? g.value() : gs.value(), clas);
 		}
@@ -40,7 +40,7 @@ final class Property
 	{
 		f = f_;
 		if (s != null && gs != null)
-			throw new Err(Set.class.getName() + " not allowed since already "
+			throw new Fail(Set.class.getName() + " not allowed since already "
 				+ GetSet.class.getName() + " for " + f);
 		clas = s != null ? s.value() : gs.value();
 		s = f.getDeclaringClass().getAnnotation(Set.class);
@@ -48,7 +48,7 @@ final class Property
 		if (s != null || gs != null)
 		{
 			if (s != null && gs != null)
-				throw new Err(Set.class.getName() + " not allowed since already "
+				throw new Fail(Set.class.getName() + " not allowed since already "
 					+ GetSet.class.getName() + " for " + f.getDeclaringClass());
 			clas = Objot.concat(s != null ? s.value() : gs.value(), clas);
 		}
@@ -73,7 +73,7 @@ final class Property
 	{
 		Property p = m.get(name);
 		if (p != null)
-			throw new Err("duplicate name " + name + " : " + f);
+			throw new Fail("duplicate name " + name + " : " + f);
 		m.put(name, this);
 	}
 

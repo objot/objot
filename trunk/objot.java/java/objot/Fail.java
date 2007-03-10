@@ -6,26 +6,26 @@
 //
 package objot;
 
-public class Err
+public class Fail
 	extends RuntimeException
 {
 	private static final long serialVersionUID = 1L;
 
-	public Err()
+	public Fail()
 	{
 	}
 
-	public Err(String message)
+	public Fail(String message)
 	{
 		super(message);
 	}
 
-	public Err(Throwable cause)
+	public Fail(Throwable cause)
 	{
 		super(cause);
 	}
 
-	public Err(String message, Throwable cause)
+	public Fail(String message, Throwable cause)
 	{
 		super(message, cause);
 	}
