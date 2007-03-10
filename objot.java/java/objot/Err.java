@@ -9,7 +9,7 @@ package objot;
 public class Err
 {
 	@Get
-	String hint;
+	public final String hint;
 
 	public Err(String hint_)
 	{
@@ -18,6 +18,6 @@ public class Err
 
 	public Err(Throwable e)
 	{
-		hint = e.getMessage();
+		hint = e.toString();
 	}
 }
