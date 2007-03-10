@@ -7,11 +7,13 @@
 package objot;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
 
 final class Property
 {
 	Field f;
+	String name;
 	Class<?>[] clas;
 	boolean[] ins;
 
@@ -31,7 +33,7 @@ final class Property
 					+ GetSet.class.getName() + " for " + f.getDeclaringClass());
 			clas = Objot.concat(g != null ? g.value() : gs.value(), clas);
 		}
-		ins();
+		init2();
 	}
 
 	Property(Field f_, Set s, GetSet gs)
@@ -50,11 +52,13 @@ final class Property
 					+ GetSet.class.getName() + " for " + f.getDeclaringClass());
 			clas = Objot.concat(s != null ? s.value() : gs.value(), clas);
 		}
-		ins();
+		init2();
 	}
 
-	void ins()
+	private void init2()
 	{
+		Name n = f.getAnnotation(Name.class);
+		name = n != null ? n.value() : f.getName();
 		if (clas.length == 0)
 			return;
 		ins = new boolean[clas.length];
@@ -62,6 +66,15 @@ final class Property
 		for (int x = 0; x < clas.length; x++)
 			ins[x] = clas[x] == In.class ? (in = true) : clas[x] == Out.class ? (in = false)
 				: in;
+	}
+
+	/** not thread safe */
+	void into(HashMap<String, Property> m)
+	{
+		Property p = m.get(name);
+		if (p != null)
+			throw new Err("duplicate name " + name + " : " + f);
+		m.put(name, this);
 	}
 
 	boolean in(Class<?> c)
