@@ -6,6 +6,7 @@
 //
 package objot;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -78,8 +79,12 @@ public final class Getting
 		else if (! o.getClass().isArray())
 		{
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
-				if (! pv.getValue().f.getType().isPrimitive() && pv.getValue().in(forClass))
+			{
+				Class<?> c = pv.getValue().f.getType();
+				if (! c.isPrimitive() && ! Number.class.isAssignableFrom(c)
+					&& c != Boolean.class && pv.getValue().in(forClass))
 					refs(pv.getValue().f.get(o));
+			}
 		}
 		else if (! o.getClass().getComponentType().isPrimitive())
 			for (Object v: (Object[])o)
@@ -179,7 +184,21 @@ public final class Getting
 			ref(o, s);
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
 				if (pv.getValue().in(forClass))
-					value(pv.getValue().f.get(o), s.append(S).append(pv.getKey()));
+				{
+					s.append(S).append(pv.getKey());
+					Field f = pv.getValue().f;
+					Class<?> c = f.getType();
+					if (c == double.class)
+						s.append(S).append(f.getDouble(o));
+					else if (c == float.class)
+						s.append(S).append(f.getFloat(o));
+					else if (c == int.class)
+						s.append(S).append(f.getInt(o));
+					else if (c == boolean.class)
+						s.append(S).append(f.getBoolean(o) ? '>' : '<');
+					else
+						value(f.get(o), s);
+				}
 		}
 		s.append(S).append(';');
 	}
@@ -196,16 +215,16 @@ public final class Getting
 		int ref;
 		if (v == null)
 			s.append(S).append('.');
+		else if (v instanceof String)
+			s.append(S).append(S).append((String)v);
+		else if (v instanceof Boolean)
+			s.append(S).append((Boolean)v ? '>' : '<');
 		else if (v instanceof Double)
 			s.append(S).append((double)(Double)v);
 		else if (v instanceof Float)
 			s.append(S).append((float)(Float)v);
 		else if (v instanceof Number)
 			s.append(S).append((int)(Integer)v);
-		else if (v instanceof Boolean)
-			s.append(S).append((Boolean)v ? '>' : '<');
-		else if (v instanceof String)
-			s.append(S).append(S).append((String)v);
 		else if ((ref = ref(v, 0)) > 0)
 			s.append(S).append('+').append(S).append(ref);
 		else if (v instanceof List || v.getClass().isArray())
