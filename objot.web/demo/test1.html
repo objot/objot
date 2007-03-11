@@ -28,9 +28,9 @@ window.onerror = function(m,f,l){
 	return $fox ? alert(m, $.throwStack(f, l)) : alert(m, f, l), true;
 }
 
-window.div = document.getElementById('div');
-window.url = document.getElementById('url');
-window.text = document.getElementById('text');
+window.div = $id('div');
+window.url = $id('url');
+window.text = $id('text');
 
 function demoG(){
 	x.a2 = text.value;
