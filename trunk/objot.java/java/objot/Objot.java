@@ -12,20 +12,20 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public final class Objot
+public class Objot
 {
 	public static final char S = '\20';
 
-	/** multi thread */
-	public String className(Class<?> c)
-	{
-		return c.getName();
-	}
-
-	/** multi thread */
-	public Class<?> classByName(String name) throws Exception
+	/** multi thread, may be cached */
+	protected Class<?> classByName(String name) throws Exception
 	{
 		return Class.forName(name);
+	}
+
+	/** multi thread, may be cached */
+	protected String className(Class<?> c)
+	{
+		return c.getName();
 	}
 
 	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> gets //
