@@ -10,6 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import objot.Err;
 import objot.Objot;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Service;
@@ -52,6 +53,8 @@ public final class Servlet
 			@Override
 			protected String className(Class<?> c)
 			{
+				if (c == Err.class)
+					return "Error";
 				String n;
 				// cache needless for this simple demo
 				// n = claNames.get(c);
