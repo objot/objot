@@ -47,14 +47,14 @@ public class ObjotServlet
 		objot = new Objot();
 	}
 
-	/** multi thread, may be cached */
+	/** multi thread, will be cached */
 	protected Class<?> serviceClass(String name, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
 		return Class.forName(classNamePrefix == null ? name : classNamePrefix + name);
 	}
 
-	/** multi thread, may be cached */
+	/** multi thread, will be cached */
 	protected Method serviceMethod(Class<?> c, String name, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
@@ -93,7 +93,7 @@ public class ObjotServlet
 	}
 
 	@Override
-	public final void service(ServletRequest req_, ServletResponse res_)
+	public void service(ServletRequest req_, ServletResponse res_)
 		throws ServletException, IOException
 	{
 		HttpServletRequest req = (HttpServletRequest)req_;
