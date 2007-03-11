@@ -371,14 +371,13 @@ window.alert = function (s) {
 	return $fox ? $.alert.call(window, s) : $.alert(s), s;
 }
 
-if ($fox)
-	$.throwStack = function (file, line) {
-		if (! $throw.err)
-			return file + ':' + line;
-		var s = $throw.err.stack;
-		s = s.substr(s.indexOf('\n') + 1);
-		return s.substr(s.indexOf('\n') + 1);
-	}
+$.throwStack = $fox ? function (file, line) {
+	var s = $throw.err && $throw.err.stack || '';
+	s = s.substr(s.indexOf('\n') + 1);
+	return '-- ' + file + ':' + line + '\n' + s.substr(s.indexOf('\n') + 1);
+} : function (file, line) {
+	return file + ' @' + line;
+}
 
 /* must be not-null object (including list, excluding function) */
 $.o = function (x) {
