@@ -12,59 +12,25 @@
 </style>
 <script src=../objot1.js></script>
 
-<body style="margin:0; padding:0; overflow:hidden">
-<div class="whole" style="overflow:auto">
-<div style="padding:1em">
-
+<body>
 <div id=div style="float:left">
 <input type=button onclick="demoG.call(this,event)" value=get><br>
 <input type=button onclick="demoH.call(this,event)" value=http><br>
 <input type=button onclick="demoS.call(this,event)" value=set><br>
 <input type=button onclick="demoE.call(this,event)" value=eval><br>
-<select><option>asdfasdfjsa</option></select><br>
-<object type="application/x-shockwave-flash" width=60 height=60 loop=true quality=low bgcolor=#003399
-	data="http://ad4.sina.com.cn/200701/31/81432_100x100.swf"> 
-	<param name="movie" value="http://ad4.sina.com.cn/200701/31/81432_100x100.swf">
-</object><br>
-<input type=text><br>
-<br><br><br><br><br>
-<input type=button onclick="$dom.disp.call(popup, true)" value="popup">
 </div>
+<input id=url type=text size=60><br>
 <textarea id=text rows=40 cols=50></textarea>
-
-</div></div>
-<div id="popup" class="whole" style="position:fixed!important; position:absolute; z-index:1000; display:none"
-	ondblclick="$dom.disp.call(popup,false)">
-<iframe class="whole posAb" style="z-index:-1; filter:alpha(opacity=0)"></iframe>
-<div class="whole posAb" style="z-index:-1; background-color:black; opacity:0.5; filter:alpha(opacity=50)"></div>
-<div class="whole" style="overflow:auto">
-<table class="whole"><tr><td><tr height=70%><td><td valign=top width=70%
-style="background-color:#ccccff; padding:1em; border:1px blue solid;">
-
-<div style="width:30em"></div>
-<center>Double Click to Close</center><br>
-1234 <input type=text><input type=button><br>
-asdf <input type=text><input type=button><br>
-fsd <input type=text><input type=button><br>
-<input type=text><input type=button><br>
-<input type=text><input type=button><br>
-1234 <input type=text><input type=button><br>
-aasdf <input type=text><input type=button><br>
-fsd <input type=text><input type=button><br>
-<input type=text><input type=button><br>
-<input type=text><input type=button><br>
-1sdf <input type=text><input type=button><br>
-
-<td><tr><td></table></div></div>
 </body>
 <script>
+
 window.onerror = function(m,f,l){
 	return $fox ? alert(m, $.throwStack(f, l)) : alert(m, f, l), true;
 }
 
 window.div = document.getElementById('div');
+window.url = document.getElementById('url');
 window.text = document.getElementById('text');
-window.popup = document.getElementById('popup');
 
 function demoG(){
 	x.a2 = text.value;
@@ -72,7 +38,8 @@ function demoG(){
 	text.value = G;
 }
 function demoH(){
-	$http(location.href.replace(/[^/]*$/, 'get'), null, -1, function (code, data, http){
+	$http(location.protocol + '//' + location.host + url.value, null, -1
+	, function (code, data, http){
 		$d.title = code + ' ' + data.length;
 		text.value = U = data;
 	}, function (code, http){
