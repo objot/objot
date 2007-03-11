@@ -22,10 +22,10 @@ public class Objot
 		return Class.forName(name);
 	}
 
-	/** multi thread, may be cached */
+	/** multi thread, may be cached, {@link Err} treated as "Error" */
 	protected String className(Class<?> c)
 	{
-		return c.getName();
+		return c == Err.class ? "Error" : c.getName();
 	}
 
 	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> gets //
