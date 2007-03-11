@@ -13,7 +13,10 @@ import java.util.Map;
 
 public final class Getting
 {
-	/** @param o must not be changed since un-synchronized */
+	/**
+	 * @param o the whole gettable object graph must keep unchanged since the references
+	 *            detection is not thread safe
+	 */
 	public static byte[] go(Objot objot, Class<?> for_, Object o) throws Exception
 	{
 		return new Getting(objot, for_).go(o);

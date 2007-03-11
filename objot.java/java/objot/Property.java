@@ -22,7 +22,8 @@ final class Property
 		f = f_;
 		if (g != null && gs != null)
 			throw new RuntimeException("duplicate " + Get.class.getName() + " for " + f);
-		clas = g != null ? g.value() : gs.value();
+		Class<?>[] fcs = g != null ? g.value() : gs.value();
+		Class<?>[] ccs = null;
 		g = f.getDeclaringClass().getAnnotation(Get.class);
 		gs = f.getDeclaringClass().getAnnotation(GetSet.class);
 		if (g != null || gs != null)
@@ -30,9 +31,9 @@ final class Property
 			if (g != null && gs != null)
 				throw new RuntimeException("duplicate " + Get.class.getName() + " for "
 					+ f.getDeclaringClass());
-			clas = Objot.concat(g != null ? g.value() : gs.value(), clas);
+			ccs = g != null ? g.value() : gs.value();
 		}
-		init2();
+		init(ccs, fcs);
 	}
 
 	Property(Field f_, Set s, GetSet gs)
@@ -40,7 +41,8 @@ final class Property
 		f = f_;
 		if (s != null && gs != null)
 			throw new RuntimeException("duplicate " + Set.class.getName() + " for " + f);
-		clas = s != null ? s.value() : gs.value();
+		Class<?>[] fcs = s != null ? s.value() : gs.value();
+		Class<?>[] ccs = null;
 		s = f.getDeclaringClass().getAnnotation(Set.class);
 		gs = f.getDeclaringClass().getAnnotation(GetSet.class);
 		if (s != null || gs != null)
@@ -48,22 +50,48 @@ final class Property
 			if (s != null && gs != null)
 				throw new RuntimeException("duplicate " + Set.class.getName() + " for "
 					+ f.getDeclaringClass());
-			clas = Objot.concat(s != null ? s.value() : gs.value(), clas);
+			ccs = s != null ? s.value() : gs.value();
 		}
-		init2();
+		init(ccs, fcs);
 	}
 
-	private void init2()
+	private void init(Class<?>[] ccs, Class<?>[] fcs)
 	{
-		Name n = f.getAnnotation(Name.class);
-		name = n != null ? n.value() : f.getName();
-		if (clas.length == 0)
-			return;
-		ins = new boolean[clas.length];
+		Name name_ = f.getAnnotation(Name.class);
+		name = name_ != null ? name_.value() : f.getName();
+		int n = 0;
+		for (Class<?> c: ccs)
+			if (c != In.class && c != Out.class)
+				n++;
+		for (Class<?> c: fcs)
+			if (c != In.class && c != Out.class)
+				n++;
+		clas = n == ccs.length ? ccs : n == fcs.length ? fcs : new Class<?>[n];
+		ins = new boolean[n];
 		boolean in = true;
-		for (int x = 0; x < clas.length; x++)
-			ins[x] = clas[x] == In.class ? (in = true) : clas[x] == Out.class ? (in = false)
-				: in;
+		n = 0;
+		for (Class<?> c: ccs)
+			if (c == In.class)
+				in = true;
+			else if (c == Out.class)
+				in = false;
+			else
+			{
+				clas[n] = c;
+				ins[n] = in;
+				n++;
+			}
+		for (Class<?> c: ccs)
+			if (c == In.class)
+				in = true;
+			else if (c == Out.class)
+				in = false;
+			else
+			{
+				clas[n] = c;
+				ins[n] = in;
+				n++;
+			}
 	}
 
 	/** not thread safe */
