@@ -10,7 +10,7 @@
 
 	<servlet>
 		<servlet-name>servlet</servlet-name>
-		<servlet-class>objot.servlet.ObjotServlet</servlet-class>
+		<servlet-class>chat.service.Servlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
