@@ -180,7 +180,7 @@ $set.l = function (s, x) {
 $set.o = function (s, x, p, v) {
 	var c = $.c(s[x++]), o = new c;
 	s[x] === '=' && (this.r[s[++x]] = o, x++);
-	while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== ';';)
+	while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== ';')
 		switch (v = s[x++]) {
 			case '': o[p] = s[x++]; break; case '.': o[p] = null; break;
 			case '<': o[p] = false; break; case '>': o[p] = true; break;
@@ -239,6 +239,10 @@ $http = function (url, data, timeout, onOk, onOther) {
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 $d = document;
+
+$id = function (id) {
+	return $d.getElementById(id);
+}
 
 /* create a dom element, and set properties */
 $tag = function (tagName, x, props) {
