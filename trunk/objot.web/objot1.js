@@ -161,10 +161,10 @@ $set = function (s) {
 		throw $set.r.length = 0, _;
 	}
 }
-$set.l = function (s, x, v) {
+$set.l = function (s, x) {
 	var o = new Array(s[x++] - 0);
 	s[x] === '=' && (this.r[s[++x]] = o, x++);
-	for (var i = 0; x >= s.length ? $throw('; expected but terminated')
+	for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
 		: (v = s[x++]) !== ';'; i++)
 		switch(v) {
 			case '': o[i] = s[x++]; break; case '.': o[i] = null; break;
@@ -178,9 +178,9 @@ $set.l = function (s, x, v) {
 	return x;
 }
 $set.o = function (s, x, p, v) {
-	var o = new ($.c(s[x++]));
+	var c = $.c(s[x++]), o = new c;
 	s[x] === '=' && (this.r[s[++x]] = o, x++);
-	while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== ';')
+	while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== ';';)
 		switch (v = s[x++]) {
 			case '': o[p] = s[x++]; break; case '.': o[p] = null; break;
 			case '<': o[p] = false; break; case '>': o[p] = true; break;
@@ -189,6 +189,7 @@ $set.o = function (s, x, p, v) {
 			case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 			default: (o[p] = v - 0) != NaN || $throw('illegal number ' + $$(v));
 		}
+	c === Error && (o.description = o.message);
 	s.o = o;
 	return x;
 }
@@ -399,7 +400,7 @@ $.c = function ($_$, _$_) {
 		: $throw($$($_$) + ' must be function');
 }
 /* class cache */
-$.cs = { '': Object, Object: Object }
+$.cs = { '': Object, Object: Object, Error:Error }
 
 /* copy another's properties */
 $.copy = function (to, from) {

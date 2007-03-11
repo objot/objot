@@ -9,15 +9,20 @@ package objot;
 public class Err
 {
 	@Get
-	public final String hint;
+	public final String message;
 
-	public Err(String hint_)
+	public Err(String message_)
 	{
-		hint = hint_;
+		message = message_;
 	}
 
 	public Err(Throwable e)
 	{
-		hint = e.toString();
+		message = e.toString();
+	}
+
+	public Err(String message_, Throwable e)
+	{
+		message = message_ + " : " + e.toString();
 	}
 }
