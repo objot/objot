@@ -8,10 +8,10 @@ public class Ok
 	public static final Ok OK = new Ok("");
 
 	@Get
-	String hint;
+	String message;
 
-	public Ok(String hint_)
+	public Ok(String message_)
 	{
-		hint = hint_;
+		message = message_;
 	}
 }

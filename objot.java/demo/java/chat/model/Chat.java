@@ -2,6 +2,7 @@ package chat.model;
 
 import objot.Get;
 import objot.GetSet;
+import objot.Name;
 import chat.service.DoChat;
 
 
@@ -18,6 +19,7 @@ public class Chat
 
 	// @ManyToOne
 	@GetSet
+	@Name("In")
 	public User in;
 
 	@Get
