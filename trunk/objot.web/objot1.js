@@ -8,14 +8,22 @@ if (window.$ === undefined) {
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
-$ = function () {
+/* return x, or '' if null/undefined */
+$ = function (x) {
+	return x == null ? '' : String(x);
 }
 
-/* return x, or a short string followed by ... */
+/* return x, or cached {} if null/undefined */
 $$ = function (x) {
+	return x == null ? $$.o : x;
+}
+$$.o = {};
+
+/* return x, or a short string followed by ... */
+$S = function (x) {
 	return typeof x === 'string' || typeof x === 'function' ? (x = String(x)
 		, (x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'))
-		: x instanceof Array ? x.length + '[' + $$(String(x)) + '...]' : x;
+		: x instanceof Array ? x.length + '[' + $S(String(x)) + '...]' : x;
 }
 
 $fox = navigator.userAgent.indexOf('Gecko') >= 0;
@@ -25,6 +33,8 @@ $ie6 = !$fox && !$ie7;
 $throw = function (x) {
 	throw $fox ? $throw.err = Error(x) : Error(0, x);
 }
+
+////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 /* make class with super class by prototype and interfaces by copying prototype */
 $class = function (ctorName, sup, interfaces) {
@@ -40,7 +50,7 @@ $class = function (ctorName, sup, interfaces) {
 		ctor.prototype.constructor = ctor;
 	}
 	if (ctor.prototype.constructor !== ctor)
-		$throw(ctor.name + ' inconsistent with ' + $$(ctor.prototype.constructor));
+		$throw(ctor.name + ' inconsistent with ' + $S(ctor.prototype.constructor));
 	for (var x = 2; x < arguments.length; x++)
 		$.copy(ctor.prototype, arguments[x].prototype);
 	$.cs[ctor.name] = ctor;
@@ -51,25 +61,27 @@ $class.get = function (clazz, forClass, gets) {
 		clazz.$get = [], clazz.$gets = [];
 	for (var x = 1; x < arguments.length; ) {
 		typeof (forClass = arguments[x++]) === 'function' ? clazz.$get.push(forClass)
-			: $throw($$(forClass) + ' must be function');
+			: $throw($S(forClass) + ' must be function');
 		if ((gets = arguments[x++]) === null)
 			clazz.$gets.push(null);
 		else if (gets instanceof Array) {
 			for (var y = 0; y < gets.length; y++)
 				if (typeof gets[y] !== 'string')
-					$throw($$(gets) + ' must not contain ' + $$(gets[y]));
+					$throw($S(gets) + ' must not contain ' + $S(gets[y]));
 			clazz.$gets.push(gets);
 		}
 		else
-			$throw($$(gets) + ' must be array or null');
+			$throw($S(gets) + ' must be array or null');
 	}
 }
+
+////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 /* get string from object graph, with class and reference */
 $get = function (o, forClass, onlyTree) {
 	var s = [o instanceof Array ? '[' : '/'];
 	s.clazz = typeof forClass === 'function' ? forClass
-		: $throw($$(forClass) + ' must be function');
+		: $throw($S(forClass) + ' must be function');
 	try {
 		onlyTree || ($get.refX = 0, $get.ref(o));
 		o instanceof Array ? $get.l(o, s, 1) : $get.o(o, s, 1);
@@ -82,17 +94,17 @@ $get = function (o, forClass, onlyTree) {
 }
 $get.ref = function (o, ox) {
 	if (o instanceof String || o instanceof Boolean || o instanceof Number)
-		$throw($$(x) + ' must be not-String-Boolean-Number object');
+		$throw($S(x) + ' must be not-String-Boolean-Number object');
 	if (o[''] = '' in o) // whether and set multi references
 		return;
 	if (o instanceof Array)
 		for (var x = 0; x < o.length; x ++) ox = o[x],
 			typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
-				: ox.indexOf('\20') < 0 || $throw($$(ox) + ' must NOT contain \20 \\20');
+				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 	else for (var x in o)
 		if (o.hasOwnProperty(x)) ox = o[x],
 			typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
-				: ox.indexOf('\20') < 0 || $throw($$(ox) + ' must NOT contain \20 \\20');
+				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 }
 $get.unref = function (o, ox) {
 	if ('' in o && /*true*/delete o[''])
@@ -155,7 +167,7 @@ $set = function (s) {
 	try {
 		s = $.s(s).split('\20'/* Ctrl-P in vim */);
 		var x = s[0] === '[' ? $set.l(s, 1) : s[0] === '/' ? $set.o(s, 1) : -1;
-		return x < s.length ? $throw('termination expected but ' + $$(s[x]))
+		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
 			: $set.r.length = 0, s.o;
 	} catch(_) {
 		throw $set.r.length = 0, _;
@@ -172,7 +184,7 @@ $set.l = function (s, x) {
 			case '[': x = this.l(s, x); o[i] = s.o; break;
 			case '/': x = this.o(s, x); o[i] = s.o; break;
 			case '+': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
-			default: (o[i] = v - 0) != NaN || $throw('illegal number ' + $$(v));
+			default: (o[i] = v - 0) != NaN || $throw('illegal number ' + $S(v));
 		}
 	s.o = o;
 	return x;
@@ -187,7 +199,7 @@ $set.o = function (s, x, p, v) {
 			case '[': x = this.l(s, x); o[p] = s.o; break;
 			case '/': x = this.o(s, x); o[p] = s.o; break;
 			case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
-			default: (o[p] = v - 0) != NaN || $throw('illegal number ' + $$(v));
+			default: (o[p] = v - 0) != NaN || $throw('illegal number ' + $S(v));
 		}
 	c === Error && (o.description = o.message);
 	s.o = o;
@@ -195,6 +207,7 @@ $set.o = function (s, x, p, v) {
 }
 $set.r = [];
 
+////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 $http = function (url, data, timeout, onOk, onOther) {
 	if ($fox && location.protocol === 'file:'
@@ -238,17 +251,18 @@ $http = function (url, data, timeout, onOk, onOther) {
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
-$d = document;
+$D = document;
 
 $id = function (id) {
-	return $d.getElementById(id);
+	return $D.getElementById(id);
 }
 
 /* create a dom element, and set properties */
-$tag = function (tagName, x, props) {
-	var g = $d.createElement(tagName);
+$tag = function (tagName, x_, props_) {
+	var g = $D.createElement(tagName);
 	g.constructor ? g.constructor[''] || $.copy(g.constructor.prototype, $dom)
 		: $.copy(g, $dom);
+	var x = x_, props = props_;
 	x >= 0 || (x = 1, props = arguments);
 	for (var v, p; x < props.length; x++)
 		if (typeof (p = props[x]) === 'string')
@@ -263,44 +277,56 @@ $tag = function (tagName, x, props) {
 				pp === 'style' ? g.style.cssText = v : g[pp] = v;
 	return g;
 }
-$tag.s1 = {
-	$div:'div', $tab:'table', $tr:'tr', $td:'td', $inp:'input', $sel:'select', $opt:'option',
-	$lines:'textarea'
-}
-$tag.s2 = { $button:'button', $submit:'submit', $line:'text', $check:'check', $radio:'radio'
-}
-eval(function (f1, f2) {
-	for (var x in $tag.s1)
-		window[x] = f1($tag.s1[x]);
-	for (var x in $tag.s2)
-		window[x] = f2($tag.s2[x]);
-})(function (g) {
-	return function () {
-		return $tag(g, 0, arguments);
+eval(function (s1, f1, s2, f2) {
+	for (var x in s1)
+		window[x] = f1(s1[x]);
+	for (var x in s2)
+		window[x] = f2(s2[x]);
+})(
+{ $a:'a', $s:'span', $b:'br', $d:'div', $p:'p',
+  $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
+  $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
+	function (g) {
+		return function () {
+			return $tag(g, 0, arguments);
+		}
+	},
+{ $bn:'button', $ln:'text', $chk:'check', $rad:'radio' },
+	function (ty) {
+		return function () {
+			return $tag('input', 0, arguments).att('type', ty);
+		}
 	}
-}, function (ty) {
-	return function () {
-		return $tag('input', 0, arguments).attr('type', ty);
-	}
-});
+);
+$tx = function (text) {
+	return $d.createTextNode(text);
+}
+
+////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 /* something added into dom element created by $tag */
 $dom = {
-	/* appendChild */
-	add: function (child) {
-		return this.appendChild(child), this;
+	/* appendChild(s) */
+	add: function (child, child2) {
+		for (var x = 0; x < arguments.length; x++)
+			this.appendChild(arguments[x]);
+		return this;
 	},
 	/* removeChild */
 	rem: function (child) {
 		return this.removeChild(child), this;
 	},
 	/* getAttribute, setAttribute, removeAttribute */
-	attr: function (a, v) {
-		return v === undefined ? this.getAttribute(a)
-			: (v === null ? this.removeAttribute(a) : this.setAttribute(a, v), this);
+	att: function (a, v) {
+		if (arguments.length <= 1)
+			return this.getAttribute(a);
+		for (var x = 0; x < arguments.length; x++)
+			a = arguments[x ++], v = arguments[x],
+			v === null ? this.removeAttribute(a) : this.setAttribute(a, v);
+		return this;
 	},
 	/* get/set textContent for Firefox, innerText for IE */
-	text: $fox ? function (v) {
+	tx: $fox ? function (v) {
 		return v === undefined ? this.textContent : (this.textContent = v, this);
 	} : function (v) {
 		return v === undefined ? this.innerText : (this.innerText = v, this);
@@ -311,12 +337,12 @@ $dom = {
 		return v === undefined ? d : !v !== d ? this
 			: (s.display = v ? this._disp || '' : (this._disp = s.display, 'none'), this);
 	},
-	/* get/set style.cssFloat for Firefox, style.styleFloat for IE */
-	Float: $fox ? function (v) {
-		return v === undefined ? this.style.cssFloat : (this.style.cssFloat = v, this);
-	} : function (v) {
-		return v === undefined ? this.style.styleFloat : (this.style.styleFloat = v, this);
-	},
+//	/* get/set style.cssFloat for Firefox, style.styleFloat for IE */
+//	Float: $fox ? function (v) {
+//		return v === undefined ? this.style.cssFloat : (this.style.cssFloat = v, this);
+//	} : function (v) {
+//		return v === undefined ? this.style.styleFloat : (this.style.styleFloat = v, this);
+//	},
 	/* get/set style.opacity for Firefox, style.filter for IE */
 	opacity: $fox ? function (v) {
 		return v === undefined ? this.style.opacity
@@ -329,36 +355,37 @@ $dom = {
 	},
 	/* attach event handler */
 	attach: function (ontype, handler) {
-		var x, t, s = m[''] || (m[''] = [1, 0, 9]); // [free, next, handler, ... ]
+		var x, t, s = this[''] || (this[''] = [1, 0, 9]); // [free, next, handler, ... ]
 		if (x = s[t = ontype.substr(2)])
 			do if (s[x + 1] === handler)
 				return handler;
 			while (s[x] && (x = s[x]))
 		else
-			$fox ? m.addEventListener(t, $.event, false) : m.attachEvent(ontype, $.event);
+			$fox ? this.addEventListener(t, $.event, false)
+				: this.attachEvent(ontype, $.event);
 		s[x || t] = x = s[0], s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
 		return this;
 	},
 	/* detach event handler */
 	detach: function (ontype, handler) {
-		if (s = m[''])
+		if (s = this[''])
 			for (var x = ontype.substr(2), y; y = s[x]; x = y)
 				if (s[y + 1] !== handler)
 					return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
 		return this;
 	},
-	/* detach event handlers and some references for no IE memory leak, nothing for Firefox */
-	noleak: $ie6 ? function (m) {
-		(m[''] && (m[''] =null), m.$ && (m.$ =null), m._ && (m._ =null), m.o && (m.o =null));
-		for (m = m.firstChild; m !== null; m = m.nextSibling)
-			$noleak(m);
+	/* detach event handlers for no IE memory leak, do nothing for Firefox */
+	noleak: $ie6 ? function () {
+		this[''] && (this[''] = null);
+		for (var x = this.firstChild; x !== null; x = x.nextSibling)
+			this.noleak.call(x);
 		return this;
 	} : function () {
 		return this;
-	}
+	},
 }
 if ($fox)
-	$dom[''] = true;
+	$dom[''] = false; // for constructor, be false for event attach
 
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
@@ -382,25 +409,25 @@ $.throwStack = $fox ? function (file, line) {
 /* must be not-null object (including list, excluding function) */
 $.o = function (x) {
 	return x !== null && typeof x === 'object' ? x
-		: $throw($$(x) + ' must be not-null object');
+		: $throw($S(x) + ' must be not-null object');
 }
 /* must be string */
 $.s = function (x) {
-	return typeof x === 'string' ? x : $throw($$(x) + ' must be string');
+	return typeof x === 'string' ? x : $throw($S(x) + ' must be string');
 }
 /* must be function */
 $.f = function (x) {
-	return typeof x === 'function' ? x : $throw($$(x) + ' must be function');
+	return typeof x === 'function' ? x : $throw($S(x) + ' must be function');
 }
 
 /* get function from class cache, or eval */
 $.c = function ($_$, _$_) {
 	if ($_$ in this.cs)
 		return this.cs[$_$];
-	_$_ || $throw($$($_$) + ' class not found');
+	_$_ || $throw($S($_$) + ' class not found');
 	with(window) _$_ = eval($_$);
 	return typeof _$_ === 'function' ? this.cs[$_$] = _$_
-		: $throw($$($_$) + ' must be function');
+		: $throw($S($_$) + ' must be function');
 }
 /* class cache */
 $.cs = { '': Object, Object: Object, Error:Error }
@@ -442,4 +469,5 @@ $.event = function (e, s, x) {
 //
 // String(x) convert x to string (not String) unless x is already string
 //
+// function (a, b) { b = a; // then arguments[1] == arguments[0]  
 }
