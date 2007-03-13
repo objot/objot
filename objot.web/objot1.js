@@ -209,7 +209,7 @@ $set.r = [];
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
-$http = function (url, data, timeout, onOk, onOther) {
+$http = function (url, timeout, data, onDone, onUndone) {
 	if ($fox && location.protocol === 'file:'
 		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0)
 		netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
@@ -224,9 +224,9 @@ $http = function (url, data, timeout, onOk, onOther) {
 					clearTimeout(timeout);
 				if (h.status === 200 || h.status === 0 &&
 						url.charCodeAt(0) == 102 && url.indexOf('file://') == 0)
-					onOk(h.status, h.responseText, h);
+					onDone(h.status, h.responseText, h);
 				else
-					onOther(h.status, h);
+					onUndone(h.status, h);
 				h.abort(), h = null;
 			} catch(_) {
 				try { h.abort(); } catch(_) {}
@@ -237,7 +237,8 @@ $http = function (url, data, timeout, onOk, onOther) {
 		timeout = setTimeout(function () {
 			if (h)
 				try {
-					onOther(-1, h);
+					h.onreadystatechange = null;
+					onUndone('timeout', h);
 					h.abort(), h = null;
 				} catch(_) {
 					try { h.abort(); } catch(_) {}
@@ -307,15 +308,15 @@ $tx = function (text) {
 
 /* something added into dom element created by $tag */
 $dom = {
-	/* appendChild(s) */
-	add: function (child, child2) {
-		for (var x = 0; x < arguments.length; x++)
-			this.appendChild(arguments[x]);
+	/* appendChild(s) or removeChild(s) if first argument is false */
+	ins: function (childOrFalse, child2) {
+		if (childOrFalse === false)
+			for (var x = 1; x < arguments.length; x++)
+				this.removeChild(arguments[x]);
+		else
+			for (var x = 0; x < arguments.length; x++)
+				this.appendChild(arguments[x]);
 		return this;
-	},
-	/* removeChild */
-	rem: function (child) {
-		return this.removeChild(child), this;
 	},
 	/* getAttribute, setAttribute, removeAttribute */
 	att: function (a, v) {
@@ -370,9 +371,10 @@ $dom = {
 	},
 	/* detach event handler */
 	detach: function (ontype, handler) {
-		if (s = this[''])
+		var s = this[''];
+		if (s)
 			for (var x = ontype.substr(2), y; y = s[x]; x = y)
-				if (s[y + 1] !== handler)
+				if (s[y + 1] === handler)
 					return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
 		return this;
 	},

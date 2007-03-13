@@ -38,7 +38,7 @@ function demoG(){
 	text.value = G;
 }
 function demoH(){
-	$http(location.protocol + '//' + location.host + url.value, null, -1
+	$http(location.protocol + '//' + location.host + url.value, -1, null
 	, function (code, data, http){
 		$d.title = code + ' ' + data.length;
 		text.value = U = data;
