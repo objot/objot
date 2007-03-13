@@ -1,4 +1,4 @@
-function onerror(m, f, l) {
+onerror = function(m, f, l) {
 	alert('Error! You could report the following details to http://objot.info\n',
 		m, $.throwStack(f, l));
 	return true;
@@ -33,7 +33,7 @@ DoSign: {
 
 	out: function () {
 		
-	},
+	}
 },
 
 DoUser: {
@@ -44,17 +44,23 @@ DoUser: {
 
 function signIn(outer) {
 	var This = this;
-	$dom.add.call(outer, this.shell = $tab().add($tb().add(
-		$tr().add($td().tx('User name'), $td(), $td().add(
-			this.name = $ln('style', 'width:100%'))),
-		$tr().add($td()),
-		$tr().add($td().tx('Password'), $td(), $td().add(
-			this.pass = $inp('type', 'password', 'style', 'width:100%'))),
-		$tr().add($td()),
-		$tr().add($td().att('colspan', 99, 'align', 'center').add(
-			$bn('value', 'Signin / Signup', 'onclick', function () {
-			})))
-	)));
+	var go = function () {
+		This.submit.tx('Signing ... ').add($img('src', 'loading.gif')).add($tx(' Cancel ?'))
+			.retach('onclick', go, stop);
+	};
+	var stop = function () {
+		This.submit.tx('Signin / Signup').retach('onclick', stop, go);
+	};
+	$dom.add.call(outer,
+		$l('style', 'width:12ex').tx('User name'),
+		this.name = $ln('style', 'width:20ex'),
+		$p(),
+		$l('style', 'width:12ex').tx('Password'),
+		this.pass = $inp('type', 'password', 'style', 'width:20ex'),
+		$p(),
+		$d('style', 'text-align:center').add(
+			this.submit = $bn('onclick', go).tx('Signin / Signup'))
+	);
 	return this;
 }
 

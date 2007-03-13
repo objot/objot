@@ -283,15 +283,16 @@ eval(function (s1, f1, s2, f2) {
 	for (var x in s2)
 		window[x] = f2(s2[x]);
 })(
-{ $a:'a', $s:'span', $b:'br', $d:'div', $p:'p',
+{ $a:'a', $s:'span', $b:'br', $l:'label', $d:'div', $p:'p',
   $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
-  $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
+  $img:'img', $ul:'ul', $ol:'ol', $li:'li',
+  $bn:'button', $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
 	function (g) {
 		return function () {
 			return $tag(g, 0, arguments);
 		}
 	},
-{ $bn:'button', $ln:'text', $chk:'check', $rad:'radio' },
+{ $ln:'text', $chk:'check', $rad:'radio' },
 	function (ty) {
 		return function () {
 			return $tag('input', 0, arguments).att('type', ty);
@@ -299,7 +300,7 @@ eval(function (s1, f1, s2, f2) {
 	}
 );
 $tx = function (text) {
-	return $d.createTextNode(text);
+	return $D.createTextNode(text);
 }
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
@@ -360,9 +361,10 @@ $dom = {
 			do if (s[x + 1] === handler)
 				return handler;
 			while (s[x] && (x = s[x]))
-		else
-			$fox ? this.addEventListener(t, $.event, false)
-				: this.attachEvent(ontype, $.event);
+		else if ($fox) // more events available than this[ontype] = $.event 
+			this.addEventListener(t, $.event, false);
+		else // 'this' in $.event works, but it doesn't if attachEvent  
+			this[ontype] = $.event; 	
 		s[x || t] = x = s[0], s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
 		return this;
 	},
@@ -374,6 +376,9 @@ $dom = {
 					return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
 		return this;
 	},
+	retach: function (ontype, old, New) {
+		return this.detach(ontype, old).attach(ontype, New);
+	},
 	/* detach event handlers for no IE memory leak, do nothing for Firefox */
 	noleak: $ie6 ? function () {
 		this[''] && (this[''] = null);
@@ -382,7 +387,7 @@ $dom = {
 		return this;
 	} : function () {
 		return this;
-	},
+	}
 }
 if ($fox)
 	$dom[''] = false; // for constructor, be false for event attach
@@ -446,10 +451,9 @@ $.copyOwn = function (to, from) {
 }
 
 /* event dispatcher */
-$.event = function (e, s, x) {
-	if ((s = this['']) && (x = s[e.type])) {
-		e = e;
-		var r = 0;
+$.event = function (e, s, x, r) {
+	if ((s = this['']) && (x = s[(e || (e = window.event)).type])) {
+		r = 0;
 		do r |= !s[x + 1].call(this, e);
 		while (x = s[x]);
 		return !r;
@@ -469,5 +473,5 @@ $.event = function (e, s, x) {
 //
 // String(x) convert x to string (not String) unless x is already string
 //
-// function (a, b) { b = a; // then arguments[1] == arguments[0]  
+// function (a, b) { b = a; // then arguments[1] == arguments[0]
 }
