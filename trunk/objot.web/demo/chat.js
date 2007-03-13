@@ -11,10 +11,10 @@ Ok: function () {
 	this.message;
 },
 
-User: function () {
-	this.id;
-	this.name;
-	this.password;
+User: function (id, name, pass) {
+	this.id = id;
+	this.name = name;
+	this.password = pass;
 	this.friends;
 },
 
@@ -25,6 +25,8 @@ Chat: function () {
 	this.text;
 },
 
+Url: '/objot/service/',
+Timeout: 1,
 
 DoSign: {
 	
@@ -43,23 +45,35 @@ DoUser: {
 
 
 function signIn(outer) {
-	var This = this;
-	var go = function () {
-		This.submit.tx('Signing ... ').add($img('src', 'loading.gif')).add($tx(' Cancel ?'))
-			.retach('onclick', go, stop);
-	};
+	var _ = this;
+	var click = function () {
+		_.submit.retach('onclick', click, stop).att('title', 'Cancel').tx('Signing ')
+			.ins($img('src', 'loading.gif', 'style', 'vertical-align:middle'));
+		$http(chat.Url + 'DoSign-inUp', chat.Timeout,
+			new chat.User(0, _.name.value, _.pass.value),
+			done, undone);
+	}
 	var stop = function () {
-		This.submit.tx('Signin / Signup').retach('onclick', stop, go);
-	};
-	$dom.add.call(outer,
+		_.submit.retach('onclick', stop, click).att('title', null).tx('Signin / Signup');
+	}
+	var done = function (code, data, http) {
+		if (data instanceof chat.Ok)
+			location.href = location.href.replace(/[^\/]*$/, 'chat.html');
+		else
+			stop(), $throw(data.message);
+	}
+	var undone = function (code, http) {
+		stop(), $throw('HTTP ' + code);
+	}
+	$dom.ins.call(outer,
 		$l('style', 'width:12ex').tx('User name'),
 		this.name = $ln('style', 'width:20ex'),
 		$p(),
 		$l('style', 'width:12ex').tx('Password'),
 		this.pass = $inp('type', 'password', 'style', 'width:20ex'),
 		$p(),
-		$d('style', 'text-align:center').add(
-			this.submit = $bn('onclick', go).tx('Signin / Signup'))
+		$d('style', 'text-align:center').ins
+			(this.submit = $bn('onclick', click).tx('Signin / Signup'))
 	);
 	return this;
 }
