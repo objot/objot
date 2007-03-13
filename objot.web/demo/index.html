@@ -1,20 +1,26 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
 <html>
 <head>
 <meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
 <title>Chat - Objot demo</title>
-<script src=../objot1.js></script>
-<script src=chat.js></script>
+<script src="../objot1.js"></script>
+<script src="chat.js"></script>
+<style>
+label {
+	display:-moz-inline-box; display:inline-block;
+}
+</style>
 </head>
 
 <body>
 <center>
-<p><h1 style="text-align:center">Chat - Objot demo</h1>
-<p id=sign>
+<h1>Chat - Objot demo</h1>
+<span id=sign style="display:table-cell; display:inline-block; padding:1em; text-align:left; background:#e8f0ff; border:1px blue solid">
+</span>
 </center>
-</body>
+
 <script>
-sign = new signIn($id('sign'));
-sign.shell.style.cssText = 'background:#e8f0ff; padding:1em; border:1px blue solid';
+window.sign = new signIn($id('sign'));
 </script>
+</body>
 </html>

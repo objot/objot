@@ -1,6 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
 <html>
 <style>
+html, body {
+	width:100%; height:100%; margin:0; padding: 0; overflow:hidden;
+}
 .whole {
 	width:100%; height:100%;
 	left:0; top:0;
@@ -11,11 +14,11 @@
 }
 </style>
 
-<body style="margin:0; padding:0; overflow:hidden">
+<body>
 <div class="whole" style="overflow:auto">
 <div style="padding:1em">
 
-<div id=div style1="float:left">
+<div id=div style="float:left">
 <select><option>asdfasdfjsa</option></select><br>
 <object type="application/x-shockwave-flash" width=60 height=60 loop=true quality=low bgcolor=#003399
 	data="http://ad4.sina.com.cn/200701/31/81432_100x100.swf"> 
@@ -23,22 +26,19 @@
 </object><br>
 <input type=text><br>
 <br><br><br><br><br>
-<input type=button onclick="popup.style.display=''" value="popup">
+<input type=button onclick="document.getElementById('popup').style.display=''" value="popup">
 </div>
 <textarea id=text rows=40 cols=50></textarea>
 
 </div></div>
 <div id="popup" class="whole" style="position:absolute; z-index:1000; display:none"
-	ondblclick="popup.style.display='none'">
-<div class="whole posAb" style="z-index:-1; filter:alpha(opacity=0)"></div>
+	ondblclick="document.getElementById('popup').style.display='none'">
+<iframe class="whole posAb" style="z-index:-1; filter:alpha(opacity=0); display:none; #display:block"></iframe>
 <div class="whole posAb" style="z-index:-1; background-color:black; opacity:0.5; filter:alpha(opacity=50)"></div>
-<div class="whole" style="overflow:auto">
-<table class="whole"><tr><td><tr height=70%><td><td valign=top width=70%
-style="background-color:#ccccff; padding:1em; border:1px blue solid;">
+<div class="whole" style="overflow:auto"><table class="whole"><tr><td valign=center align=center>
+<span style="display:table; #display:inline-block; width_:70%; height_:70%; text-align:left; padding:1em; background:#ccccff; border:1px blue solid;">
 
-<div style="width:30em;"></div>
-<center>Double Click to Close</center><br>
-1234 <input type=text><input type=button><br>
+<div style="width:30em; text-align:center">Double Click to Close</div><br>
 asdf <input type=text><input type=button><br>
 fsd <input type=text><input type=button><br>
 <input type=text><input type=button><br>
@@ -50,9 +50,6 @@ fsd <input type=text><input type=button><br>
 <input type=text><input type=button><br>
 1sdf <input type=text><input type=button><br>
 
-<td><tr><td></table></div></div>
+</span></table></div></div>
 </body>
-<script>
-window.popup = document.getElementById('popup');
-</script>
 </html>
