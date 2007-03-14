@@ -6,9 +6,9 @@
 //
 package objot;
 
-public final class Out
+public final class Yes
 {
-	private Out()
+	private Yes()
 	{
 	}
 }
