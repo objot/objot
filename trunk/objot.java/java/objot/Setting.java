@@ -268,7 +268,7 @@ public final class Setting
 				if (g == null)
 					throw new RuntimeException(cla.getName() + "." + n
 						+ " not found or not setable");
-				if (! g.in(forClass))
+				if (! g.yes(forClass))
 					throw new RuntimeException("setting " + cla.getName() + "." + n
 						+ " forbidden for " + forClass.getName());
 				f = g.f;

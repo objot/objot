@@ -65,7 +65,7 @@ public class ObjotServlet
 	}
 
 	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
-		HttpServletResponse res) throws Throwable
+		HttpServletResponse res) throws Exception
 	{
 		return m.invoke(null, o);
 	}
@@ -127,20 +127,18 @@ public class ObjotServlet
 			}
 			catch (IllegalArgumentException e)
 			{
-				if (! (e.getCause() instanceof ClassCastException))
-					throw e;
-				throw new ClassCastException("@ " + sm.getName()).initCause(e);
+				String _ = "can not apply " + (o == null ? "null" : o.getClass().getName())
+					+ " to " + sc.getName() + "-" + sm.getName() + " : " + e.getMessage();
+				log(_, e);
+				o = new Err(_);
 			}
 			catch (InvocationTargetException e)
 			{
-				throw e.getCause();
+				log(e.getCause());
+				o = new Err(e.getCause());
 			}
 		}
-		catch (Error e)
-		{
-			throw e;
-		}
-		catch (Throwable e)
+		catch (Exception e)
 		{
 			log(e);
 			o = new Err(e);

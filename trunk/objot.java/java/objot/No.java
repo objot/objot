@@ -6,9 +6,9 @@
 //
 package objot;
 
-public final class In
+public final class No
 {
-	private In()
+	private No()
 	{
 	}
 }

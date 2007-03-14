@@ -15,7 +15,7 @@ final class Property
 	Field f;
 	String name;
 	Class<?>[] clas;
-	boolean[] ins;
+	boolean[] yes;
 
 	Property(Field f_, Get g, GetSet gs)
 	{
@@ -61,35 +61,35 @@ final class Property
 		name = name_ != null ? name_.value() : f.getName();
 		int n = 0;
 		for (Class<?> c: ccs)
-			if (c != In.class && c != Out.class)
+			if (c != Yes.class && c != No.class)
 				n++;
 		for (Class<?> c: fcs)
-			if (c != In.class && c != Out.class)
+			if (c != Yes.class && c != No.class)
 				n++;
 		clas = n == ccs.length ? ccs : n == fcs.length ? fcs : new Class<?>[n];
-		ins = new boolean[n];
+		yes = new boolean[n];
 		boolean in = true;
 		n = 0;
 		for (Class<?> c: ccs)
-			if (c == In.class)
+			if (c == Yes.class)
 				in = true;
-			else if (c == Out.class)
+			else if (c == No.class)
 				in = false;
 			else
 			{
 				clas[n] = c;
-				ins[n] = in;
+				yes[n] = in;
 				n++;
 			}
 		for (Class<?> c: ccs)
-			if (c == In.class)
+			if (c == Yes.class)
 				in = true;
-			else if (c == Out.class)
+			else if (c == No.class)
 				in = false;
 			else
 			{
 				clas[n] = c;
-				ins[n] = in;
+				yes[n] = in;
 				n++;
 			}
 	}
@@ -103,11 +103,11 @@ final class Property
 		m.put(name, this);
 	}
 
-	boolean in(Class<?> c)
+	boolean yes(Class<?> c)
 	{
 		for (int x = clas.length - 1; x >= 0; x--)
 			if (clas[x].isAssignableFrom(c))
-				return ins[x];
-		return clas.length == 0 || ! ins[0];
+				return yes[x];
+		return clas.length == 0 || ! yes[0];
 	}
 }
