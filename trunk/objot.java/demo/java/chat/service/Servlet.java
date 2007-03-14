@@ -69,7 +69,7 @@ public final class Servlet
 
 	@Override
 	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
-		HttpServletResponse res) throws Throwable
+		HttpServletResponse res) throws Exception
 	{
 		return m.invoke(null, o, req.getSession());
 	}
