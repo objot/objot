@@ -6,33 +6,43 @@ onerror = function(m, f, l) {
 
 
 chat = {
+}
 
-Ok: function () {
+chat.Ok = function () {
 	this.message;
-},
+}
+$class('chat.Ok');
 
-User: function (id, name, pass) {
+chat.User = function (id, name, pass) {
 	this.id = id;
 	this.name = name;
 	this.password = pass;
 	this.friends;
-},
+}
+$class('chat.User');
 
-Chat: function () {
+chat.Chat = function () {
 	this.out;
 	this.In;
 	this.datime;
 	this.text;
-},
-
-Url: '/objot/service/',
-Timeout: 5000,
-
-DoSign: function () {},
-DoUser: function () {}
-
-
 }
+$class('chat.Chat');
+
+chat.Url = '/objot/service/';
+chat.Timeout = 5000;
+
+chat.DoSign = function () {
+}
+$class('chat.DoSign');
+
+chat.DoUser = function () {
+}
+$class('chat.DoUser');
+
+
+$class.get(chat.User, Object, ['id'], chat.DoSign, ['name', 'password'],
+	chat.DoUser, ['friends']);
 
 
 /** @return an image node */
@@ -43,8 +53,7 @@ function http(outer, service, hint, data, dataFor, onDone, This) {
 	return outer;
 }
 function done(code, res) {
-	return code === 0 || code === 500 ? $set(res) :
-		code < 0 ? null : new Error('HTTP ' + code + ' : ' + res); 
+	return code == 0 ? $set(res) : code < 0 ? null : new Error('HTTP ' + code + ' : ' + res);
 }
 
 function SignIn(outer) {
@@ -58,8 +67,11 @@ function SignIn(outer) {
 	);
 	this.submit.$ = this;
 }
+$class('SignIn', chat.DoSign);
 SignIn.prototype.on = function () {
-	this.submit.disabled = true;
+	if (this.submit.disabled)
+		return;
+	this.submit.disabled = true, this.submit.blur();
 	this.http = http(this.submit.parentNode, 'DoSign-inUp', 'Signing ...',
 		new chat.User(0, this.name.value, this.pass.value), chat.DoSign,
 		function (code, res, This) {
@@ -72,17 +84,3 @@ SignIn.prototype.on = function () {
 		}, this);
 }
 
-
-function demoH(){
-	$http(location.protocol + '//' + location.host + url.value, null, -1
-	, function (code, data, http){
-		$d.title = code + ' ' + data.length;
-		text.value = U = data;
-	}, function (code, http){
-		$d.title = code;
-	});
-}
-
-//$class('A');
-//$class('B', A);
-//$class.get(B, demoG, ['a1'], Object, null);

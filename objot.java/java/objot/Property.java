@@ -15,7 +15,7 @@ final class Property
 	Field f;
 	String name;
 	Class<?>[] clas;
-	boolean[] yes;
+	boolean[] allows;
 
 	Property(Field f_, Get g, GetSet gs)
 	{
@@ -67,29 +67,29 @@ final class Property
 			if (c != Yes.class && c != No.class)
 				n++;
 		clas = n == ccs.length ? ccs : n == fcs.length ? fcs : new Class<?>[n];
-		yes = new boolean[n];
-		boolean in = true;
+		allows = new boolean[n];
+		boolean allow = true;
 		n = 0;
 		for (Class<?> c: ccs)
 			if (c == Yes.class)
-				in = true;
+				allow = true;
 			else if (c == No.class)
-				in = false;
+				allow = false;
 			else
 			{
 				clas[n] = c;
-				yes[n] = in;
+				allows[n] = allow;
 				n++;
 			}
-		for (Class<?> c: ccs)
+		for (Class<?> c: fcs)
 			if (c == Yes.class)
-				in = true;
+				allow = true;
 			else if (c == No.class)
-				in = false;
+				allow = false;
 			else
 			{
 				clas[n] = c;
-				yes[n] = in;
+				allows[n] = allow;
 				n++;
 			}
 	}
@@ -103,11 +103,11 @@ final class Property
 		m.put(name, this);
 	}
 
-	boolean yes(Class<?> c)
+	boolean allow(Class<?> c)
 	{
 		for (int x = clas.length - 1; x >= 0; x--)
 			if (clas[x].isAssignableFrom(c))
-				return yes[x];
-		return clas.length == 0 || ! yes[0];
+				return allows[x];
+		return clas.length == 0 || ! allows[0];
 	}
 }

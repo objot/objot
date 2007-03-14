@@ -40,20 +40,20 @@ $throw = function (x) {
 $class = function (ctorName, sup, interfaces) {
 	$.s(ctorName);
 	var ctor = $.c(ctorName, 1);
-	ctor.name !== ctorName && (ctor.name = ctorName);
-	ctor.classed && $throw('duplicate class ' + ctor.name);
+	ctor.Name !== ctorName && (ctor.Name = ctorName);
+	ctor.classed && $throw('duplicate class ' + ctor.Name);
 	if (sup) {
-		$.f(sup).classed || $throw('super class ' + sup.name + ' not ready');
+		$.f(sup).classed || $throw('super class ' + sup.Name + ' not ready');
 		var c = function () {};
 		c.prototype = sup.prototype;
 		ctor.prototype = new c();
 		ctor.prototype.constructor = ctor;
 	}
 	if (ctor.prototype.constructor !== ctor)
-		$throw(ctor.name + ' inconsistent with ' + $S(ctor.prototype.constructor));
+		$throw(ctor.Name + ' inconsistent with ' + $S(ctor.prototype.constructor));
 	for (var x = 2; x < arguments.length; x++)
 		$.copy(ctor.prototype, arguments[x].prototype);
-	$.cs[ctor.name] = ctor;
+	$.cs[ctor.Name] = ctor;
 	ctor.classed = true;
 }
 $class.get = function (clazz, forClass, gets) {
@@ -124,7 +124,7 @@ $get.l = function (o, s, x) {
 	return x;
 }
 $get.o = function (o, s, x) {
-	var v, t = o.constructor.name || 'Object', get;
+	var v, t = o.constructor.Name || 'Object', get;
 	s[x++] = t === 'Object' ? '' : t;
 	o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 	G: {
@@ -146,6 +146,7 @@ $get.o = function (o, s, x) {
 					}
 					break;
 				}
+			break G;
 		}
 	for (var p in o)
 		if (o.hasOwnProperty(p) && p.length && (v = o[p], t = typeof v) !== 'function')
@@ -216,32 +217,35 @@ $http = function (url, timeout, data, onDone, This) {
 	h.setRequestHeader('Content-Type', 'application/octet-stream');
 	h.setRequestHeader('Cache-Control', 'no-cache');
 	h.onreadystatechange = function () {
-		if (h && h.readyState === 4)
+		if (h && h.readyState == 4)
 			try {
-				if (h.status === 200 || h.status === 0 &&
-						url.charCodeAt(0) == 102 && url.indexOf('file://') == 0)
-					onDone(0, h.responseText, This);
-				else
-					onDone(h.status, h.statusText, This);
+				var s, t;
+				try {
+					s = h.status, s = s == 200 || s == 0 ? 0 : s;
+					t = s == 0 ? h.responseText : h.statusText;
+				} catch (_) { // stupid Firefox XMLHttpRequest bug
+					s = 9999, t = 'Firefox bug';
+				}
+				onDone(s, t, This);
 				onDone = null, abort();
 			} catch(_) {
 				onDone = null, abort();
-				if ($fox && onerror)
-					_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
-						: onerror(_, 0, 0);
-				throw _;
+				if (!$fox || !onerror)
+					throw _;
+				_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
+					: onerror(_, 0, 0);
 			}
 	};
 	var abort = function (time) {
 		if (h) {
 			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
 			h = null, clearTimeout(timeout);
-			onDone && onDone(time ? 1 : -1, time ? 'timeout' : 'abort', This);
+			onDone && onDone(time > 0 ? 1 : -1, time > 0 ? 'timeout' : 'abort', This);
 			onDone = This = null;
 		}
 	}
 	timeout > 0 && setTimeout(function () {
-		abort(true);
+		abort(1);
 	}, timeout);
 	h.send(data != null ? data : '');
 	return url = data = null, abort;
@@ -264,7 +268,9 @@ $tag = function (tagName, x_, props_) {
 	var x = x_, props = props_;
 	x >= 0 || (x = 1, props = arguments);
 	for (var v, p; x < props.length; x++)
-		if (typeof (p = props[x]) === 'string')
+		if ((p = props[x]) === undefined)
+			$throw('arguments[' + x + '] must not be undefined');
+		else if (typeof p === 'string')
 			if (typeof (v = props[++x]) === 'function')
 				g.attach(p, v);
 			else
@@ -481,6 +487,8 @@ $.opacity = $fox ? function (d, v) {
 
 // hints
 //
+// In Firefox, predefined function(){}.name can only be assigned to no '.' name
+//
 // && || ! ? if(x), 1 '0' [] are true, 0 NaN '' null undefined are false
 //   do NOT use x == true/false, sometimes String(x) sometimes not
 //
@@ -490,4 +498,11 @@ $.opacity = $fox ? function (d, v) {
 // String(x) convert x to string (not String) unless x is already string
 //
 // function (a, b) { b = a; // then arguments[1] == arguments[0]
+//
+// while Firefox and IE alert() events and callbacks such as onclick
+//   and XMLHttpRequest.onreadystatechange may still be fired in very little probability
+//   maybe a big trouble ...
+//
+// Firefox XMLHttpRequest status maybe unavailable when readyState is 4 !
+//
 }

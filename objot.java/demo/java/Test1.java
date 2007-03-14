@@ -6,7 +6,7 @@ import objot.Objot;
 import objot.Setting;
 
 
-public class Demo
+public class Test1
 {
 	public static final void main(String[] args) throws Exception
 	{

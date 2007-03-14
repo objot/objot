@@ -74,7 +74,7 @@ public final class Getting
 			{
 				Class<?> c = pv.getValue().f.getType();
 				if (! c.isPrimitive() && ! Number.class.isAssignableFrom(c)
-					&& c != Boolean.class && pv.getValue().yes(forClass))
+					&& c != Boolean.class && pv.getValue().allow(forClass))
 					refs(pv.getValue().f.get(o));
 			}
 		}
@@ -175,7 +175,7 @@ public final class Getting
 			s.append(S).append(objot.className(o.getClass()));
 			ref(o, s);
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
-				if (pv.getValue().yes(forClass))
+				if (pv.getValue().allow(forClass))
 				{
 					s.append(S).append(pv.getKey());
 					Field f = pv.getValue().f;
