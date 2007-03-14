@@ -28,6 +28,8 @@ public class Objot
 		return c == Err.class ? "Error" : c.getName();
 	}
 
+	static final Class<?>[] CS0 = {};
+
 	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> gets //
 	= new ConcurrentHashMap<Class<?>, HashMap<String, Property>>(64, 0.8f, 32);
 	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> sets //

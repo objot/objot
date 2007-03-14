@@ -31,6 +31,7 @@ window.onerror = function(m,f,l){
 window.div = $id('div');
 window.url = $id('url');
 window.text = $id('text');
+url.value = location.protocol + '//' + location.host + '/';
 
 function demoG(){
 	x.a2 = text.value;
@@ -38,12 +39,9 @@ function demoG(){
 	text.value = G;
 }
 function demoH(){
-	$http(location.protocol + '//' + location.host + url.value, -1, null
-	, function (code, data, http){
-		$d.title = code + ' ' + data.length;
+	$http(url.value, 0, null, function (code, data) {
+		$D.title = code + ' ' + data.length;
 		text.value = U = data;
-	}, function (code, http){
-		$d.title = code;
 	});
 }
 function demoS(){
