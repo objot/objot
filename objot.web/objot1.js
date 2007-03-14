@@ -21,9 +21,8 @@ $$.o = {};
 
 /* return x, or a short string followed by ... */
 $S = function (x) {
-	return typeof x === 'string' || typeof x === 'function' ? (x = String(x)
-		, (x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'))
-		: x instanceof Array ? x.length + '[' + $S(String(x)) + '...]' : x;
+	return x instanceof Array ? x.length + '[' + $S(String(x)) + '...]' : (x = String(x),
+		(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
 }
 
 $fox = navigator.userAgent.indexOf('Gecko') >= 0;
@@ -31,7 +30,8 @@ $ie7 = navigator.userAgent.indexOf('MSIE 7') >= 0;
 $ie6 = !$fox && !$ie7;
 
 $throw = function (x) {
-	throw $fox ? $throw.err = Error(x) : Error(0, x);
+	throw $fox ? $throw.err = Error(x instanceof Error ? x.message : x)
+		: x instanceof Error ? x : Error(0, x);
 }
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
@@ -60,8 +60,7 @@ $class.get = function (clazz, forClass, gets) {
 	if (arguments.length > 1)
 		clazz.$get = [], clazz.$gets = [];
 	for (var x = 1; x < arguments.length; ) {
-		typeof (forClass = arguments[x++]) === 'function' ? clazz.$get.push(forClass)
-			: $throw($S(forClass) + ' must be function');
+		clazz.$get.push($.f(arguments[x++]));
 		if ((gets = arguments[x++]) === null)
 			clazz.$gets.push(null);
 		else if (gets instanceof Array) {
@@ -80,8 +79,7 @@ $class.get = function (clazz, forClass, gets) {
 /* get string from object graph, with class and reference */
 $get = function (o, forClass, onlyTree) {
 	var s = [o instanceof Array ? '[' : '/'];
-	s.clazz = typeof forClass === 'function' ? forClass
-		: $throw($S(forClass) + ' must be function');
+	s.clazz = $.f(forClass);
 	try {
 		onlyTree || ($get.refX = 0, $get.ref(o));
 		o instanceof Array ? $get.l(o, s, 1) : $get.o(o, s, 1);
@@ -209,44 +207,44 @@ $set.r = [];
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
-$http = function (url, timeout, data, onDone, onUndone) {
-	if ($fox && location.protocol === 'file:'
-		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0)
-		netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
-	var h = $ie6 ? new ActiveXObject('Microsoft.XMLHTTP') : new XMLHttpRequest;
+$http = function (url, timeout, data, onDone, This) {
+	$fox && location.protocol === 'file:'
+		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
+		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+	var h = $ie6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
 	h.open('POST', url, true);
 	h.setRequestHeader('Content-Type', 'application/octet-stream');
 	h.setRequestHeader('Cache-Control', 'no-cache');
 	h.onreadystatechange = function () {
 		if (h && h.readyState === 4)
 			try {
-				if (timeout > 0)
-					clearTimeout(timeout);
 				if (h.status === 200 || h.status === 0 &&
 						url.charCodeAt(0) == 102 && url.indexOf('file://') == 0)
-					onDone(h.status, h.responseText, h);
+					onDone(0, h.responseText, This);
 				else
-					onUndone(h.status, h);
-				h.abort(), h = null;
+					onDone(h.status, h.statusText, This);
+				onDone = null, abort();
 			} catch(_) {
-				try { h.abort(); } catch(_) {}
-				throw h = null, _;
+				onDone = null, abort();
+				if ($fox && onerror)
+					_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
+						: onerror(_, 0, 0);
+				throw _;
 			}
 	};
-	if (timeout > 0)
-		timeout = setTimeout(function () {
-			if (h)
-				try {
-					h.onreadystatechange = null;
-					onUndone('timeout', h);
-					h.abort(), h = null;
-				} catch(_) {
-					try { h.abort(); } catch(_) {}
-					throw h = null, _;
-				}
-		}, timeout);
+	var abort = function (time) {
+		if (h) {
+			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
+			h = null, clearTimeout(timeout);
+			onDone && onDone(time ? 1 : -1, time ? 'timeout' : 'abort', This);
+			onDone = This = null;
+		}
+	}
+	timeout > 0 && setTimeout(function () {
+		abort(true);
+	}, timeout);
 	h.send(data != null ? data : '');
-	return h;
+	return url = data = null, abort;
 }
 
 
@@ -308,9 +306,12 @@ $tx = function (text) {
 
 /* something added into dom element created by $tag */
 $dom = {
-	/* appendChild(s) or removeChild(s) if first argument is false */
-	ins: function (childOrFalse, child2) {
-		if (childOrFalse === false)
+	/* appendChild(s), or removeChild(s) if first argument is 0,
+	 * or remove self from parent if no argument */
+	ins: function (childOr0, child2) {
+		if (arguments.length === 0)
+			this.parentNode.removeChild(this);
+		else if (childOr0 === 0)
 			for (var x = 1; x < arguments.length; x++)
 				this.removeChild(arguments[x]);
 		else
@@ -318,12 +319,13 @@ $dom = {
 				this.appendChild(arguments[x]);
 		return this;
 	},
+
 	/* getAttribute, setAttribute, removeAttribute */
 	att: function (a, v) {
 		if (arguments.length <= 1)
 			return this.getAttribute(a);
 		for (var x = 0; x < arguments.length; x++)
-			a = arguments[x ++], v = arguments[x],
+			a = arguments[x ++], v = arguments[x]
 			v === null ? this.removeAttribute(a) : this.setAttribute(a, v);
 		return this;
 	},
@@ -334,38 +336,32 @@ $dom = {
 		return v === undefined ? this.innerText : (this.innerText = v, this);
 	},
 	/* get/set style.display == 'none' */
-	disp: function (v) {
-		var s = this.style, d = s.display !== 'none';
-		return v === undefined ? d : !v !== d ? this
-			: (s.display = v ? this._disp || '' : (this._disp = s.display, 'none'), this);
+	show: function (v) {
+		var s = this.style.display !== 'none';
+		if (v === undefined)
+			return s;
+		if (s && !v)
+			this._disp = this.style.display, this.style.display = 'none';
+		else if (v && !s)
+			this.style.display = this._disp || '';
+		return this;
 	},
-//	/* get/set style.cssFloat for Firefox, style.styleFloat for IE */
-//	Float: $fox ? function (v) {
-//		return v === undefined ? this.style.cssFloat : (this.style.cssFloat = v, this);
-//	} : function (v) {
-//		return v === undefined ? this.style.styleFloat : (this.style.styleFloat = v, this);
-//	},
-	/* get/set style.opacity for Firefox, style.filter for IE */
-	opacity: $fox ? function (v) {
-		return v === undefined ? this.style.opacity
-			: (this.style.opacity = v < 1 ? v : '', this);
-	} : function (v) {
-		var s = this.style, f = s.filter;
-		return v === undefined ? f ? f.match(/opacity=([^)]*)/)[1] /100 : 1
-			: (s.zoom = 1, s.filter = v >= 1 ? f.replace(/alpha\([^)]*\)/g, '')
-				: f.replace(/alpha\([^)]*\)/g, 'alpha(opacity=' + v * 100 + ')'), this);
-	},
-	/* attach event handler */
-	attach: function (ontype, handler) {
+
+	/* attach event handler which 'this' will be this node.$ if available or this node
+	 * if newHandler then handler is detached and newHandler is attached */
+	attach: function (ontype, handler, newHandler) {
+		if (newHandler)
+			detach(ontype, handler), handler = newHandler;
 		var x, t, s = this[''] || (this[''] = [1, 0, 9]); // [free, next, handler, ... ]
 		if (x = s[t = ontype.substr(2)])
 			do if (s[x + 1] === handler)
 				return handler;
 			while (s[x] && (x = s[x]))
-		else if ($fox) // more events available than this[ontype] = $.event 
-			this.addEventListener(t, $.event, false);
-		else // 'this' in $.event works, but it doesn't if attachEvent  
-			this[ontype] = $.event; 	
+// this causes window.onerror no effect for exceptions from handler
+//		else if ($fox) // more events available than this[ontype] = $.event 
+//			this.addEventListener(t, $.event, false);
+		else // 'this' in $.event works, but it doesn't if attachEvent
+			this[ontype] = $.event;
 		s[x || t] = x = s[0], s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
 		return this;
 	},
@@ -378,12 +374,10 @@ $dom = {
 					return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
 		return this;
 	},
-	retach: function (ontype, old, New) {
-		return this.detach(ontype, old).attach(ontype, New);
-	},
-	/* detach event handlers for no IE memory leak, do nothing for Firefox */
+
+	/* detach event handlers and $ for no IE memory leak, do nothing for Firefox */
 	noleak: $ie6 ? function () {
-		this[''] && (this[''] = null);
+		this[''] && (this[''] = null), this.$ && (this.$ = null);
 		for (var x = this.firstChild; x !== null; x = x.nextSibling)
 			this.noleak.call(x);
 		return this;
@@ -410,7 +404,7 @@ $.throwStack = $fox ? function (file, line) {
 	s = s.substr(s.indexOf('\n') + 1);
 	return '-- ' + file + ':' + line + '\n' + s.substr(s.indexOf('\n') + 1);
 } : function (file, line) {
-	return file + ' @' + line;
+	return file + ' : ' + line;
 }
 
 /* must be not-null object (including list, excluding function) */
@@ -452,14 +446,34 @@ $.copyOwn = function (to, from) {
 	return to;
 }
 
+////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+
 /* event dispatcher */
-$.event = function (e, s, x, r) {
+$.event = function (e, s, x, r, $) {
 	if ((s = this['']) && (x = s[(e || (e = window.event)).type])) {
-		r = 0;
-		do r |= !s[x + 1].call(this, e);
+		$ = this.$ || this, r = 0;
+		do r |= !s[x + 1].call($, e);
 		while (x = s[x]);
 		return !r;
 	}
+}
+
+/* get/set style.cssFloat for Firefox, style.styleFloat for IE */
+$.Float = $fox ? function (d, v) {
+	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
+} : function (v) {
+	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
+}
+/* get/set style.opacity for Firefox, style.filter for IE */
+$.opacity = $fox ? function (d, v) {
+	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
+} : function (v) {
+	var s = d.style, f = s.filter;
+	if (v === undefined)
+		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
+	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g,
+		v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')');
+	return d;
 }
 
 

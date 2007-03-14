@@ -67,14 +67,7 @@ public class ObjotServlet
 	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
 		HttpServletResponse res) throws Throwable
 	{
-		try
-		{
-			return m.invoke(null, o);
-		}
-		catch (InvocationTargetException e)
-		{
-			throw e.getCause();
-		}
+		return m.invoke(null, o);
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -128,7 +121,20 @@ public class ObjotServlet
 						throw new EOFException();
 				o = Setting.go(objot, sc, bs);
 			}
-			o = serviceDo(sc, sm, o, req, res);
+			try
+			{
+				o = serviceDo(sc, sm, o, req, res);
+			}
+			catch (IllegalArgumentException e)
+			{
+				if (! (e.getCause() instanceof ClassCastException))
+					throw e;
+				throw new ClassCastException("@ " + sm.getName()).initCause(e);
+			}
+			catch (InvocationTargetException e)
+			{
+				throw e.getCause();
+			}
 		}
 		catch (Error e)
 		{

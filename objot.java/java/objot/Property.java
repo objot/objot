@@ -23,7 +23,7 @@ final class Property
 		if (g != null && gs != null)
 			throw new RuntimeException("duplicate " + Get.class.getName() + " for " + f);
 		Class<?>[] fcs = g != null ? g.value() : gs.value();
-		Class<?>[] ccs = null;
+		Class<?>[] ccs = Objot.CS0;
 		g = f.getDeclaringClass().getAnnotation(Get.class);
 		gs = f.getDeclaringClass().getAnnotation(GetSet.class);
 		if (g != null || gs != null)
@@ -42,7 +42,7 @@ final class Property
 		if (s != null && gs != null)
 			throw new RuntimeException("duplicate " + Set.class.getName() + " for " + f);
 		Class<?>[] fcs = s != null ? s.value() : gs.value();
-		Class<?>[] ccs = null;
+		Class<?>[] ccs = Objot.CS0;
 		s = f.getDeclaringClass().getAnnotation(Set.class);
 		gs = f.getDeclaringClass().getAnnotation(GetSet.class);
 		if (s != null || gs != null)

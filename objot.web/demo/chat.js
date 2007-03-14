@@ -26,56 +26,50 @@ Chat: function () {
 },
 
 Url: '/objot/service/',
-Timeout: 1,
+Timeout: 5000,
 
-DoSign: {
-	
-	inUp: function () {
-	},
+DoSign: function () {},
+DoUser: function () {}
 
-	out: function () {
-		
-	}
-},
-
-DoUser: {
-}
 
 }
 
 
-function signIn(outer) {
-	var _ = this;
-	var click = function () {
-		_.submit.retach('onclick', click, stop).att('title', 'Cancel').tx('Signing ')
-			.ins($img('src', 'loading.gif', 'style', 'vertical-align:middle'));
-		$http(chat.Url + 'DoSign-inUp', chat.Timeout,
-			new chat.User(0, _.name.value, _.pass.value),
-			done, undone);
-	}
-	var stop = function () {
-		_.submit.retach('onclick', stop, click).att('title', null).tx('Signin / Signup');
-	}
-	var done = function (code, data, http) {
-		if (data instanceof chat.Ok)
-			location.href = location.href.replace(/[^\/]*$/, 'chat.html');
-		else
-			stop(), $throw(data.message);
-	}
-	var undone = function (code, http) {
-		stop(), $throw('HTTP ' + code);
-	}
+/** @return an image node */
+function http(outer, service, hint, data, dataFor, onDone, This) {
+	outer.ins(outer = $img('src', 'loading.gif', 'className', 'http',
+		'title', $(hint) + ' Abort?', 'ondblclick',
+		$http(chat.Url + service, chat.Timeout, $get(data, dataFor), onDone, This)));
+	return outer;
+}
+function done(code, res) {
+	return code === 0 || code === 500 ? $set(res) :
+		code < 0 ? null : new Error('HTTP ' + code + ' : ' + res); 
+}
+
+function SignIn(outer) {
 	$dom.ins.call(outer,
-		$l('style', 'width:12ex').tx('User name'),
-		this.name = $ln('style', 'width:20ex'),
+		this.nameL = $l().tx('User name'), this.name = $ln(),
 		$p(),
-		$l('style', 'width:12ex').tx('Password'),
-		this.pass = $inp('type', 'password', 'style', 'width:20ex'),
+		this.passL = $l().tx('Password'), this.pass = $inp('type', 'password'),
 		$p(),
 		$d('style', 'text-align:center').ins
-			(this.submit = $bn('onclick', click).tx('Signin / Signup'))
+			(this.submit = $bn('onclick', this.on).tx('Signin / Signup'))
 	);
-	return this;
+	this.submit.$ = this;
+}
+SignIn.prototype.on = function () {
+	this.submit.disabled = true;
+	this.http = http(this.submit.parentNode, 'DoSign-inUp', 'Signing ...',
+		new chat.User(0, this.name.value, this.pass.value), chat.DoSign,
+		function (code, res, This) {
+			res = done(code, res);
+			if (res instanceof chat.Ok)
+				location.href = location.href.replace(/[^\/]*$/, 'chat.html');
+			else
+				This.submit.disabled = false, This.http.noleak().ins(),
+				res === null || $throw(res);
+		}, this);
 }
 
 

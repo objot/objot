@@ -1,7 +1,6 @@
 package chat.service;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.servlet.ServletException;
@@ -72,14 +71,7 @@ public final class Servlet
 	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
 		HttpServletResponse res) throws Throwable
 	{
-		try
-		{
-			return m.invoke(null, o, req.getSession());
-		}
-		catch (InvocationTargetException e)
-		{
-			throw e.getCause();
-		}
+		return m.invoke(null, o, req.getSession());
 	}
 
 	/**
