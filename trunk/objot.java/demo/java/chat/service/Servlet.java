@@ -1,3 +1,9 @@
+//
+// Objot 1
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package chat.service;
 
 import java.io.IOException;
@@ -71,7 +77,8 @@ public final class Servlet
 	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
-		return m.invoke(null, o, req.getSession());
+		return o == null ? m.invoke(null, req.getSession()) //
+			: m.invoke(null, o, req.getSession());
 	}
 
 	/**

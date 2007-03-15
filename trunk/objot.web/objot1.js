@@ -1,9 +1,9 @@
-/*
- * Objot 11a
- *
- * Copyright 2007 Qianyan Cai
- * Under the terms of The GNU General Public License version 2
- */
+//
+// Objot 1
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 if (window.$ === undefined) {
 
 
@@ -225,9 +225,9 @@ $http = function (url, timeout, data, onDone, This) {
 					s = h.status, s = s == 200 || s == 0 ? 0 : s;
 					t = s == 0 ? h.responseText : h.statusText;
 				} catch (_) { // stupid Firefox XMLHttpRequest bug
-					s = 9999, t = 'Firefox bug';
+					s = 9999, t = 'Network Failed';
 				}
-				onDone(s, t, This);
+				onDone.call(This, s, t);
 				onDone = null, abort();
 			} catch(_) {
 				onDone = null, abort();
@@ -241,7 +241,7 @@ $http = function (url, timeout, data, onDone, This) {
 		if (h) {
 			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
 			h = null, clearTimeout(timeout);
-			onDone && onDone(time > 0 ? 1 : -1, time > 0 ? 'timeout' : 'abort', This);
+			onDone && onDone.call(This, time > 0 ? 1 : -1, time > 0 ? 'timeout' : 'abort');
 			onDone = This = null;
 		}
 	}
@@ -428,9 +428,17 @@ window.alert = function (s) {
 	return $fox ? $.alert.call(window, s) : $.alert(s), s;
 }
 
+Error.prototype.Stack = function (s) {
+	if (!(s = this.stack))
+		return 'no details';
+	s = this.stack.split('\n');
+	for (var x = 0; x < s.length; x++)
+		s[x] = s[x].substr(0, s[x].indexOf('(') +1) + s[x].substr(s[x].lastIndexOf(')') +1);
+	return (s[s.length - 2] !== '@:0' ? s : (s.length -= 2, s)).join('\n');
+}
+
 $.throwStack = function (file, line) {
-	var s = file === undefined ? $fox ? new Error().stack : 'no details'
-		: $throw.err ? $throw.err.stack : 'no details';
+	var s = file !== undefined && $throw.err ? $throw.err.Stack() : new Error().Stack();
 	s = s.substr(s.indexOf('\n') + 1);
 	return (file === undefined || $throw.err ? '-- ' :
 		'-- ' + file + ':' + line + '\n') + s.substr(s.indexOf('\n') + 1);
@@ -530,10 +538,10 @@ $.opacity = $fox ? function (d, v) {
 // function (a, b) { b = a; // then arguments[1] == arguments[0]
 //
 // while Firefox and IE alert(), events and callbacks such as onclick
-//   and XMLHttpRequest.onreadystatechange may still be fired in very little probability
+//   and XMLHttpRequest.onreadystatechange may still be fired in not little probability
 //   maybe a big trouble ...
 //
-// Firefox XMLHttpRequest status maybe unavailable when readyState is 4 !
+// when Firefox XMLHttpRequest fails, readyState is 4 and status is unavailable
 //
 // \n unsupported in Firefox(not IE) element tooltip and textContent proprety, stupid
 //

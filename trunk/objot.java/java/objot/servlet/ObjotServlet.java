@@ -1,5 +1,5 @@
 //
-// Objot 11a
+// Objot 1
 //
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
@@ -67,7 +67,7 @@ public class ObjotServlet
 	protected Object serviceDo(Class<?> c, Method m, Object o, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
-		return m.invoke(null, o);
+		return o == null ? m.invoke(null, (Object[])null) : m.invoke(null, o);
 	}
 
 	private static final long serialVersionUID = 1L;
