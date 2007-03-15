@@ -9,20 +9,26 @@ package objot;
 public class Err
 {
 	@Get
-	public final String message;
+	public final String hint;
 
-	public Err(String message_)
+	public Err(String hint_)
 	{
-		message = message_;
+		hint = hint_ == null ? "" : hint_;
 	}
 
 	public Err(Throwable e)
 	{
-		message = e.toString();
+		hint = e.getMessage() == null ? e.getClass().getName() //
+			: e.getMessage() + "  [" + e.getClass().getName() + "]";
 	}
 
-	public Err(String message_, Throwable e)
+	public Err(String hint_, Throwable e)
 	{
-		message = message_ + " : " + e.toString();
+		if (hint_ == null)
+			hint = e.getMessage() == null ? e.getClass().getName() //
+				: e.getMessage() + "  [" + e.getClass().getName() + "]";
+		else
+			hint = e.getMessage() == null ? hint_ + " : " + e.getClass().getName() //
+			: hint_ + " : " + e.getMessage() + "  [" + e.getClass().getName() + "]";
 	}
 }

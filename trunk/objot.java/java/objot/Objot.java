@@ -22,10 +22,10 @@ public class Objot
 		return Class.forName(name);
 	}
 
-	/** multi thread, may be cached, {@link Err} treated as "Error" */
+	/** multi thread, may be cached */
 	protected String className(Class<?> c)
 	{
-		return c == Err.class ? "Error" : c.getName();
+		return c.getName();
 	}
 
 	static final Class<?>[] CS0 = {};

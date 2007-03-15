@@ -19,8 +19,8 @@ public class DoSign
 	@Service
 	public static Ok inUp(User u_, HttpSession ses) throws Exception
 	{
-		u_.name = noEmpty(u_.name);
-		u_.password = noEmpty(u_.password, false);
+		u_.name = noEmpty("name", u_.name);
+		u_.password = noEmpty("password", u_.password, false);
 		User u = User.NAMES.get(u_.name); // PO
 		// sign up
 		if (u == null)

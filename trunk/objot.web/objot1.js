@@ -6,7 +6,9 @@
  */
 if (window.$ === undefined) {
 
+
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+
 
 /* return x, or '' if null/undefined */
 $ = function (x) {
@@ -46,7 +48,7 @@ $class = function (ctorName, sup, interfaces) {
 		$.f(sup).classed || $throw('super class ' + sup.Name + ' not ready');
 		var c = function () {};
 		c.prototype = sup.prototype;
-		ctor.prototype = new c();
+		ctor.prototype = $.copy(new c(), ctor.prototype);
 		ctor.prototype.constructor = ctor;
 	}
 	if (ctor.prototype.constructor !== ctor)
@@ -200,7 +202,6 @@ $set.o = function (s, x, p, v) {
 			case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 			default: (o[p] = v - 0) != NaN || $throw('illegal number ' + $S(v));
 		}
-	c === Error && (o.description = o.message);
 	s.o = o;
 	return x;
 }
@@ -254,6 +255,7 @@ $http = function (url, timeout, data, onDone, This) {
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
+
 $D = document;
 
 $id = function (id) {
@@ -261,8 +263,8 @@ $id = function (id) {
 }
 
 /* create a dom element, and set properties */
-$tag = function (tagName, x_, props_) {
-	var g = $D.createElement(tagName);
+$tag = function (tag, x_, props_) {
+	var g = typeof tag === 'string' ? $D.createElement(tag) : tag;
 	g.constructor ? g.constructor[''] || $.copy(g.constructor.prototype, $dom)
 		: $.copy(g, $dom);
 	var x = x_, props = props_;
@@ -290,7 +292,7 @@ eval(function (s1, f1, s2, f2) {
 })(
 { $a:'a', $s:'span', $b:'br', $l:'label', $d:'div', $p:'p',
   $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
-  $img:'img', $ul:'ul', $ol:'ol', $li:'li',
+  $img:'img', $ul:'ul', $ol:'ol', $li:'li', $h1:'h1', $h2:'h2', $h3:'h3', $h4:'h4',
   $bn:'button', $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
 	function (g) {
 		return function () {
@@ -304,26 +306,34 @@ eval(function (s1, f1, s2, f2) {
 		}
 	}
 );
-$tx = function (text) {
-	return $D.createTextNode(text);
+$tx = function (singleLine) {
+	return $D.createTextNode(singleLine);
 }
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 /* something added into dom element created by $tag */
 $dom = {
-	/* appendChild(s), or removeChild(s) if first argument is 0,
-	 * or remove self from parent if no argument */
-	ins: function (childOr0, child2) {
-		if (arguments.length === 0)
-			this.parentNode.removeChild(this);
-		else if (childOr0 === 0)
-			for (var x = 1; x < arguments.length; x++)
-				this.removeChild(arguments[x]);
+	/* appendChild(s), or prepend if first argument is 0,
+	 * or replaced by second argument if first argument is -1 */
+	add: function (child, child2) {
+		if (child === 0)
+			for (var _ = this.firstChild, x = 1; x < arguments.length; x++)
+				this.insertBefore(arguments[x], _);
+		else if (child === -1)
+			this.parentNode.replaceChild(child2, this);
 		else
 			for (var x = 0; x < arguments.length; x++)
 				this.appendChild(arguments[x]);
 		return this;
+	},
+	/* removeChild(s), or remove self if no argument */
+	rem: function (child, child2) {
+		if (arguments.length === 0)
+			this.parentNode.removeChild(this);
+		else
+			for (var x = 1; x < arguments.length; x++)
+				this.removeChild(arguments[x]);
 	},
 
 	/* getAttribute, setAttribute, removeAttribute */
@@ -335,20 +345,32 @@ $dom = {
 			v === null ? this.removeAttribute(a) : this.setAttribute(a, v);
 		return this;
 	},
-	/* get/set textContent for Firefox, innerText for IE */
+	/* get/set textContent in Firefox, innerText in IE,
+	 * get only single-line in Firefox unless the text is set by this method */
 	tx: $fox ? function (v) {
-		return v === undefined ? this.textContent : (this.textContent = v, this);
+		if (v === undefined)
+			return this.textContent; // single line for stupid Firefox
+		if (v.indexOf('\n')) { // stupid Firefox, '\n' unsupported
+			v = v.split('\n');
+			this.textContent = v.length > 0 ? v[0].replace(/  /g, ' \u00a0') : '';
+			for (var x = 1; x < v.length; x++)
+				this.appendChild($D.createElement('br')).textContent = '\n',
+				this.appendChild($D.createTextNode(v[x].replace(/  /g, ' \u00a0')));
+		}
+		else
+			this.textContent = v;
+		return this;
 	} : function (v) {
 		return v === undefined ? this.innerText : (this.innerText = v, this);
 	},
-	/* get/set style.display == 'none' */
+	/* get/set style.display == 'none', or set null to switch */
 	show: function (v) {
 		var s = this.style.display !== 'none';
 		if (v === undefined)
 			return s;
 		if (s && !v)
 			this._disp = this.style.display, this.style.display = 'none';
-		else if (v && !s)
+		else if (!s && (v || v === null))
 			this.style.display = this._disp || '';
 		return this;
 	},
@@ -381,7 +403,7 @@ $dom = {
 		return this;
 	},
 
-	/* detach event handlers and $ for no IE memory leak, do nothing for Firefox */
+	/* detach event handlers and $ for no IE memory leak, do nothing in Firefox */
 	noleak: $ie6 ? function () {
 		this[''] && (this[''] = null), this.$ && (this.$ = null);
 		for (var x = this.firstChild; x !== null; x = x.nextSibling)
@@ -397,6 +419,7 @@ if ($fox)
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
+
 $.alert = window.alert;
 /* alert multi lines */
 window.alert = function (s) {
@@ -405,12 +428,12 @@ window.alert = function (s) {
 	return $fox ? $.alert.call(window, s) : $.alert(s), s;
 }
 
-$.throwStack = $fox ? function (file, line) {
-	var s = $throw.err && $throw.err.stack || '';
+$.throwStack = function (file, line) {
+	var s = file === undefined ? $fox ? new Error().stack : 'no details'
+		: $throw.err ? $throw.err.stack : 'no details';
 	s = s.substr(s.indexOf('\n') + 1);
-	return '-- ' + file + ':' + line + '\n' + s.substr(s.indexOf('\n') + 1);
-} : function (file, line) {
-	return file + ' : ' + line;
+	return (file === undefined || $throw.err ? '-- ' :
+		'-- ' + file + ':' + line + '\n') + s.substr(s.indexOf('\n') + 1);
 }
 
 /* must be not-null object (including list, excluding function) */
@@ -437,15 +460,21 @@ $.c = function ($_$, _$_) {
 		: $throw($S($_$) + ' must be function');
 }
 /* class cache */
-$.cs = { '': Object, Object: Object, Error:Error }
+$.cs = { '': Object, Object: Object }
 
-/* copy another's properties */
+/**
+ * copy another's properties
+ * @return to
+ */
 $.copy = function (to, from) {
 	for (var x in from)
 		to[x] = from[x];
 	return to;
 }
-/* copy another's own properties */
+/**
+ * copy another's own properties
+ * @return to
+ */
 $.copyOwn = function (to, from) {
 	for (var x in from)
 		from.hasOwnProperty(x) && (to[x] = from[x]);
@@ -464,13 +493,13 @@ $.event = function (e, s, x, r, $) {
 	}
 }
 
-/* get/set style.cssFloat for Firefox, style.styleFloat for IE */
+/* get/set style.cssFloat in Firefox, style.styleFloat in IE */
 $.Float = $fox ? function (d, v) {
 	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
 } : function (v) {
 	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
 }
-/* get/set style.opacity for Firefox, style.filter for IE */
+/* get/set style.opacity in Firefox, style.filter in IE */
 $.opacity = $fox ? function (d, v) {
 	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
 } : function (v) {
@@ -485,24 +514,27 @@ $.opacity = $fox ? function (d, v) {
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
+
 // hints
 //
-// In Firefox, predefined function(){}.name can only be assigned to no '.' name
+// in Firefox, predefined function(){}.name can only be assigned without '.'
 //
 // && || ! ? if(x), 1 '0' [] are true, 0 NaN '' null undefined are false
 //   do NOT use x == true/false, sometimes String(x) sometimes not
 //
-// for IE 6(7?), event handler codes may need try { ... } finally {}
-//   otherwise the finally { ... } inside the codes may be ignored.
+// in IE 6(7?), event handler codes may need try { ... } finally {}
+//   otherwise the finally { ... } inside the codes may be ignored, stupid
 //
 // String(x) convert x to string (not String) unless x is already string
 //
 // function (a, b) { b = a; // then arguments[1] == arguments[0]
 //
-// while Firefox and IE alert() events and callbacks such as onclick
+// while Firefox and IE alert(), events and callbacks such as onclick
 //   and XMLHttpRequest.onreadystatechange may still be fired in very little probability
 //   maybe a big trouble ...
 //
 // Firefox XMLHttpRequest status maybe unavailable when readyState is 4 !
+//
+// \n unsupported in Firefox(not IE) element tooltip and textContent proprety, stupid
 //
 }

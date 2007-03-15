@@ -6,28 +6,49 @@
 <script src="../objot1.js"></script>
 <script src="chat.js"></script>
 <style>
+p {
+	margin:1em 0;
+}
 label {
 	display:-moz-inline-box; display:inline-block;
 }
 button {
 	background:#f0d060;
 }
-img.http {
-	margin-left:1ex; vertical-align:middle;
+
+img.http, img.error {
+	margin:0 1ex; vertical-align:middle; width:16px; height:16px;
 }
+span.error {
+	display:table-cell; display:inline-block; color:red;
+}
+
+#sign {
+	display:table-cell; display:inline-block;
+	padding:0 1em; text-align:left;
+	background:#e8f0ff; border:1px blue solid;
+}
+#sign label {
+	width:12ex;
+}
+#sign input {
+	#width: 20ex;
+}
+#sign span.error {
+	padding-top: 1em;
+}
+
 </style>
 </head>
 
 <body>
 <center>
 <h1>Chat - Objot demo</h1>
-<span id=sign style="display:table-cell; display:inline-block; padding:1em; text-align:left; background:#e8f0ff; border:1px blue solid">
-</span>
+<span id=sign></span>
 </center>
 
 <script>
-window.sign = new SignIn($id('sign'));
-sign.nameL.style.width = sign.passL.style.width = '12ex';
+window.sign = new SignIn($tag($id('sign')));
 </script>
 </body>
 </html>

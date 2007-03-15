@@ -53,7 +53,7 @@ public final class Servlet
 			protected String className(Class<?> c)
 			{
 				if (c == Err.class)
-					return "Error";
+					return "chat.Err";
 				String n;
 				// cache needless for this simple demo
 				// n = claNames.get(c);

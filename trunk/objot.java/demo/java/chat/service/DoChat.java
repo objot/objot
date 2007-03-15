@@ -41,7 +41,7 @@ public class DoChat
 	@Service
 	public static Chat post(Chat c, HttpSession ses) throws Exception
 	{
-		c.text = noEmpty(c.text, false);
+		c.text = noEmpty("text", c.text, false);
 		User self = DoSign.self(ses);
 		c.out = self;
 		c.in = User.IDS.get(c.in.id);
