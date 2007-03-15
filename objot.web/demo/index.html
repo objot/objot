@@ -1,4 +1,12 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Objot 1
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
+-->
 <html>
 <head>
 <meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
@@ -49,6 +57,9 @@ span.error {
 
 <script>
 window.sign = new SignIn($tag($id('sign')));
+sign.done = function () {
+	location.href = location.href.replace(/[^\/]*$/, 'chat.html');
+}
 </script>
 </body>
 </html>

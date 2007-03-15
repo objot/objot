@@ -1,3 +1,9 @@
+//
+// Objot 1
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package chat.service;
 
 import java.util.ArrayList;
@@ -42,7 +48,7 @@ public class DoSign
 	}
 
 	@Service
-	public static Ok out(Void Void, HttpSession ses) throws Exception
+	public static Ok out(HttpSession ses) throws Exception
 	{
 		ses.invalidate(); // fire the unbound event immediately
 		return Ok.OK;

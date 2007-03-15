@@ -1,3 +1,9 @@
+//
+// Objot 1
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 onerror = function(m, f, l) {
 	alert('Error! You could report the following details to http://objot.info\n',
 		m, $.throwStack(f, l));
@@ -41,12 +47,12 @@ $class('chat.Chat');
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
 chat.DoSign = function () {
-	this.doneInUp;
-	this.doneOut;
+	this.doInUpDone;
+	this.doOutDone;
 }
 chat.DoSign.prototype.doInUp = function (name, pass) {
 	this.http = http('DoSign-inUp', 'Signing ...',
-		new chat.User(0, name, pass), chat.DoSign, this.doneInUp, this);
+		new chat.User(0, name, pass), chat.DoSign, this.doInUpDone, this);
 }
 
 chat.DoUser = function () {
@@ -71,11 +77,10 @@ $class.get(chat.Chat, chat.DoChat, ['out', 'In', 'text']);
 function http(service, hint, data, dataFor, onDone, This) {
 	return $img('src', 'http.gif', 'className', 'http',
 		'title', $(hint) + ' Abort?', 'ondblclick',
-		$http(chat.Url + service, chat.Timeout, $get(data, dataFor), onDone, This));
-}
-function done(code, res) {
-	return code == 0 ? $set(res) : code < 0 ? null
-		: new chat.Err('HTTP ' + code + ' : ' + res);
+		$http(chat.Url + service, chat.Timeout, $get(data, dataFor), function (code, res) {
+			onDone.call(This, code, code == 0 ? $set(res) : code < 0 ? null
+				: new chat.Err('HTTP Error ' + code + ' : ' + res));
+		}));
 }
 /** @return a span node */
 function error(err, hide) {
@@ -103,16 +108,17 @@ SignIn.prototype.on = function () {
 	if (this.submit.disabled)
 		return;
 	this.submit.disabled = true, this.submit.blur();
-	this.err.innerHTML = '';
+	this.err.add(-1, this.err = $s());
 	this.doInUp(this.name.value, this.pass.value);
 	this.submit.parentNode.add(this.http);
 }
-SignIn.prototype.doneInUp = function (code, res, This) {
-	res = done(code, res);
+SignIn.prototype.doInUpDone = function (code, res) {
+	this.submit.disabled = false;
+	 this.http.noleak().rem();
 	if (res instanceof chat.Ok)
-		location.href = location.href.replace(/[^\/]*$/, 'chat.html');
-	else
-		This.submit.disabled = false, This.http.noleak().rem(),
-		res === null || This.err.add(-1, This.err = error(res));
+		this.done.call(this.doneThis);
+	else if (res !== null)
+		this.err.add(-1, this.err = error(res));
 }
 $class('SignIn', chat.DoSign);
+

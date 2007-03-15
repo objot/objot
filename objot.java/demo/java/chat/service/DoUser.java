@@ -1,3 +1,9 @@
+//
+// Objot 1
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package chat.service;
 
 import java.util.ListIterator;
@@ -14,7 +20,7 @@ public class DoUser
 {
 	/** @return self PO */
 	@Service
-	public static User self(Void Void, HttpSession ses) throws Exception
+	public static User self(HttpSession ses) throws Exception
 	{
 		return DoSign.self(ses).clone();
 	}
