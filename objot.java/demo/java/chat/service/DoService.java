@@ -22,10 +22,10 @@ public abstract class DoService
 	 * 
 	 * @return trimed
 	 */
-	public static String noEmpty(String s)
+	public static String noEmpty(String name, String s) throws Exception
 	{
 		if (s == null || (s = s.trim()).length() <= 0)
-			throw new StringIndexOutOfBoundsException("empty string");
+			throw new Exception(name + " must not be empty");
 		return s;
 	}
 
@@ -34,10 +34,10 @@ public abstract class DoService
 	 * 
 	 * @return original
 	 */
-	public static String noEmpty(String s, boolean trim)
+	public static String noEmpty(String name, String s, boolean trim) throws Exception
 	{
 		if (s == null || (trim ? s.trim() : s).length() <= 0)
-			throw new StringIndexOutOfBoundsException("empty string");
+			throw new Exception(name + " must not be empty");
 		return s;
 	}
 }
