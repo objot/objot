@@ -209,7 +209,7 @@ $set.r = [];
 
 ////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
 
-$http = function (url, timeout, data, onDone, This) {
+$http = function (url, timeout, data, done, This) {
 	$fox && location.protocol === 'file:'
 		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
 		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
@@ -227,10 +227,10 @@ $http = function (url, timeout, data, onDone, This) {
 				} catch (_) { // stupid Firefox XMLHttpRequest bug
 					s = 9999, t = 'Network Failed';
 				}
-				onDone.call(This, s, t);
-				onDone = null, abort();
+				done.call(This, s, t);
+				done = null, abort();
 			} catch(_) {
-				onDone = null, abort();
+				done = null, abort();
 				if (!$fox || !onerror)
 					throw _;
 				_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
@@ -241,8 +241,8 @@ $http = function (url, timeout, data, onDone, This) {
 		if (h) {
 			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
 			h = null, clearTimeout(timeout);
-			onDone && onDone.call(This, time > 0 ? 1 : -1, time > 0 ? 'timeout' : 'abort');
-			onDone = This = null;
+			done && done.call(This, time > 0 ? 1 : -1, time > 0 ? 'timeout' : 'abort');
+			done = This = null;
 		}
 	}
 	timeout > 0 && setTimeout(function () {
@@ -350,7 +350,7 @@ $dom = {
 	tx: $fox ? function (v) {
 		if (v === undefined)
 			return this.textContent; // single line for stupid Firefox
-		if (v.indexOf('\n')) { // stupid Firefox, '\n' unsupported
+		if ((v = String(v)).indexOf('\n')) { // stupid Firefox, '\n' unsupported
 			v = v.split('\n');
 			this.textContent = v.length > 0 ? v[0].replace(/  /g, ' \u00a0') : '';
 			for (var x = 1; x < v.length; x++)
@@ -430,18 +430,18 @@ window.alert = function (s) {
 
 Error.prototype.Stack = function (s) {
 	if (!(s = this.stack))
-		return 'no details';
-	s = this.stack.split('\n');
-	for (var x = 0; x < s.length; x++)
-		s[x] = s[x].substr(0, s[x].indexOf('(') +1) + s[x].substr(s[x].lastIndexOf(')') +1);
-	return (s[s.length - 2] !== '@:0' ? s : (s.length -= 2, s)).join('\n');
+		return '';
+	(s = this.stack.split('\n')).pop();
+	for (var x = s.length - 1; x >= 0; x--)
+		(s[x] = s[x].substr(s[x].lastIndexOf(')') + 1)) == '@:0' && s.splice(x, 1);
+	return s.join('\n');
 }
 
 $.throwStack = function (file, line) {
-	var s = file !== undefined && $throw.err ? $throw.err.Stack() : new Error().Stack();
+	var s = arguments.length == 0 ? new Error().Stack()
+		: $throw.err ? $throw.err.Stack() : '';
 	s = s.substr(s.indexOf('\n') + 1);
-	return (file === undefined || $throw.err ? '-- ' :
-		'-- ' + file + ':' + line + '\n') + s.substr(s.indexOf('\n') + 1);
+	return arguments.length == 0 || $throw.err ? s : '@' + file + ':' + line + '\n' + s;
 }
 
 /* must be not-null object (including list, excluding function) */
@@ -504,18 +504,18 @@ $.event = function (e, s, x, r, $) {
 /* get/set style.cssFloat in Firefox, style.styleFloat in IE */
 $.Float = $fox ? function (d, v) {
 	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
-} : function (v) {
+} : function (d, v) {
 	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
 }
 /* get/set style.opacity in Firefox, style.filter in IE */
 $.opacity = $fox ? function (d, v) {
 	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
-} : function (v) {
+} : function (d, v) {
 	var s = d.style, f = s.filter;
 	if (v === undefined)
 		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
-	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g,
-		v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')');
+	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
+		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')');
 	return d;
 }
 

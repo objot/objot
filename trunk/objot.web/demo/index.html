@@ -11,9 +11,21 @@
 <head>
 <meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
 <title>Chat - Objot demo</title>
-<script src="../objot1.js"></script>
-<script src="chat.js"></script>
+
+
+<!--////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\-->
+
+
 <style>
+html, body {
+	width:100%; height:100%; margin:0; padding: 0; overflow:hidden;
+}
+.body {
+	width:100%; height:100%; overflow:auto;
+}
+
+/*////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\*/
+
 p {
 	margin:1em 0;
 }
@@ -21,8 +33,23 @@ label {
 	display:-moz-inline-box; display:inline-block;
 }
 button {
-	background:#f0d060;
+	background:#f0d060; border:#6060ff 1px solid;
 }
+
+.posAbs {
+	position:absolute;
+}
+.posFix {
+	position:fixed;
+}
+.sizeAll {
+	width:100%; height:100%;
+}
+.leftTop {
+	left:0; top:0;
+}
+
+/*////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\*/
 
 img.http, img.error {
 	margin:0 1ex; vertical-align:middle; width:16px; height:16px;
@@ -30,35 +57,53 @@ img.http, img.error {
 span.error {
 	display:table-cell; display:inline-block; color:red;
 }
+.popupBack {
+	background:black; opacity:0.6; filter:alpha(opacity=60);
+}
 
-#sign {
+/*////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\*/
+
+#SignIn {
 	display:table-cell; display:inline-block;
 	padding:0 1em; text-align:left;
 	background:#e8f0ff; border:1px blue solid;
 }
-#sign label {
+#SignIn label {
 	width:12ex;
 }
-#sign input {
+#SignIn input {
 	#width: 20ex;
 }
-#sign span.error {
+#SignIn span.error {
 	padding-top: 1em;
 }
 
 </style>
 </head>
 
-<body>
-<center>
-<h1>Chat - Objot demo</h1>
-<span id=sign></span>
-</center>
 
+<!--////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\-->
+
+
+<body><div class=body>
+<h1 align=center>Chat - Objot demo</h1>
+<table cellspacing=0 cellpadding=0 width=100%>
+</table>
+</div>
+
+
+<!--////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\-->
+
+
+<script src="../objot1.js"></script>
+<script src="chat.js"></script>
 <script>
-window.sign = new SignIn($tag($id('sign')));
-sign.done = function () {
-	location.href = location.href.replace(/[^\/]*$/, 'chat.html');
+window.onload = $D.body.onload = function () {
+	window.popup && window.popup.box.noleak().rem();
+	var sign = new SignIn();
+	sign.onDone = onload;
+	window.popup = new Popup(sign.box);
+	sign.name.focus();
 }
 </script>
 </body>
