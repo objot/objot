@@ -12,6 +12,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpSession;
 
 import objot.servlet.Service;
+import chat.model.ErrUnsigned;
 import chat.model.Ok;
 import chat.model.User;
 
@@ -57,7 +58,7 @@ public class DoSign
 	@Service
 	public static boolean[] signed(int[] ids, HttpSession ses) throws Exception
 	{
-		self(ses);
+		me(ses);
 		boolean[] s = new boolean[ids.length];
 		for (int i = 0; i < s.length; i++)
 			s[i] = S.containsKey(ids[i]);
@@ -65,11 +66,11 @@ public class DoSign
 	}
 
 	/** @return PO */
-	static User self(HttpSession ses) throws Exception
+	static User me(HttpSession ses) throws Exception
 	{
 		User u = (User)ses.getAttribute("signed");
 		if (u == null)
-			throw err("not signed in");
+			throw err(new ErrUnsigned().hint("not signed in"));
 		return u;
 	}
 }

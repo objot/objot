@@ -18,18 +18,18 @@ import chat.model.User;
 public class DoUser
 	extends DoService
 {
-	/** @return self PO */
+	/** @return me PO */
 	@Service
-	public static User self(HttpSession ses) throws Exception
+	public static User me(HttpSession ses) throws Exception
 	{
-		return DoSign.self(ses).clone();
+		return DoSign.me(ses).clone();
 	}
 
 	/** @return PO by {@link User#name} */
 	@Service
 	public static User[] getByName(String[] names, HttpSession ses) throws Exception
 	{
-		DoSign.self(ses);
+		DoSign.me(ses);
 		User[] s = new User[names.length];
 		for (int i = 0; i < names.length; i++)
 			s[i] = User.NAMES.get(names[i]);
@@ -40,12 +40,12 @@ public class DoUser
 	@Service
 	public static Ok update(User u, HttpSession ses) throws Exception
 	{
-		User self = DoSign.self(ses);
+		User me = DoSign.me(ses);
 		if (u.friends != null)
 		{
 			for (ListIterator<User> i = u.friends.listIterator(); i.hasNext();)
 				i.set(User.IDS.get(i.next().id - 1));
-			self.friends = u.friends;
+			me.friends = u.friends;
 		}
 		return Ok.OK;
 	}

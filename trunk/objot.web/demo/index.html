@@ -13,19 +13,17 @@
 <title>Chat - Objot demo</title>
 
 
-<!--////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\-->
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
 <style>
-html, body {
-	width:100%; height:100%; margin:0; padding: 0; overflow:hidden;
+html,
+body {
+	width:100%; height:100%; margin:0; padding:0;
 }
-.body {
-	width:100%; height:100%; overflow:auto;
+h2 {
+	margin-top: 0; padding-top:1em; text-align:center;
 }
-
-/*////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\*/
-
 p {
 	margin:1em 0;
 }
@@ -33,7 +31,10 @@ label {
 	display:-moz-inline-box; display:inline-block;
 }
 button {
-	background:#f0d060; border:#6060ff 1px solid;
+	background:#f0d060; border:1px solid #6060ff;
+}
+table {
+	width:100%;
 }
 
 .posAbs {
@@ -42,31 +43,37 @@ button {
 .posFix {
 	position:fixed;
 }
-.sizeAll {
+.max,
+.max0 {
 	width:100%; height:100%;
 }
-.leftTop {
+.pos0,
+.max0 {
 	left:0; top:0;
 }
 
-/*////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\*/
+/*********************************************************************************************/
 
-img.http, img.error {
+img.http,
+img.error {
 	margin:0 1ex; vertical-align:middle; width:16px; height:16px;
 }
 span.error {
 	display:table-cell; display:inline-block; color:red;
 }
-.popupBack {
+p.error {
+	color:red;
+}
+.Popup .back {
 	background:black; opacity:0.6; filter:alpha(opacity=60);
 }
 
-/*////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\*/
+/*********************************************************************************************/
 
 #SignIn {
 	display:table-cell; display:inline-block;
 	padding:0 1em; text-align:left;
-	background:#e8f0ff; border:1px blue solid;
+	background:#e8f0ff; border:1px solid blue;
 }
 #SignIn label {
 	width:12ex;
@@ -74,37 +81,63 @@ span.error {
 #SignIn input {
 	#width: 20ex;
 }
-#SignIn span.error {
-	padding-top: 1em;
+
+/*********************************************************************************************/
+
+#Me {
+	width:33%; border:1em solid #e8f0ff;
+}
+#Me .min {
+	width:16em; height:0;
+}
+#Me .me {
+	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1%;
+}
+#Me .left {
+	display:block; clear:both; float:left;
+}
+#Me .right {
+	display:block; float:right;
 }
 
+/*********************************************************************************************/
+
+#Chat {
+	border:0.5ex solid yellow;
+}
+#Chat .min {
+	width:30em; height:0;
+}
 </style>
 </head>
 
 
-<!--////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\-->
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
-<body><div class=body>
-<h1 align=center>Chat - Objot demo</h1>
-<table cellspacing=0 cellpadding=0 width=100%>
+<body>
+<h2>Chat - Objot demo</h2>
+<table cellspacing=0 cellpadding=0><tr>
+<td id=Me><div class=min><!--stupid IE--></div>
+<td id=Chat><div class=min><!--stupid IE--></div>
 </table>
-</div>
 
 
-<!--////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\-->
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
-
+<noscript>Javascript is required</noscript>
 <script src="../objot1.js"></script>
 <script src="chat.js"></script>
 <script>
-window.onload = $D.body.onload = function () {
-	window.popup && window.popup.box.noleak().rem();
-	var sign = new SignIn();
+scrollTo(0, 0);
+var me = new Me($dom($id('Me')));
+window.onload0 = $D.body.onload0 = function () {
+	window.popup && window.popup.close();
+	var sign = new SignIn($s('id', 'SignIn'));
 	sign.onDone = onload;
 	window.popup = new Popup(sign.box);
 	sign.name.focus();
-}
+};
 </script>
 </body>
 </html>
