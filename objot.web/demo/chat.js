@@ -10,10 +10,10 @@ onerror = function(m, f, l) {
 	return true;
 }
 
-$tag($D.body);
+$dom($D.body);
 
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
 chat = {
@@ -22,15 +22,19 @@ chat = {
 }
 
 chat.Ok = function (hint) {
-	this.hint = hint || '';
+	this.hint = $(hint);
 }
 chat.Err = function (hint) {
-	this.hint = hint || '';
+	this.hint = $(hint);
+}
+chat.ErrUnsigned = function (hint) {
+	this.hint = $(hint);
 }
 $class('chat.Ok');
 $class('chat.Err');
+$class('chat.ErrUnsigned', chat.Err);
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//********************************************************************************************//
 
 chat.User = function (id, name, pass) {
 	this.id = id;
@@ -47,106 +51,150 @@ chat.Chat = function () {
 $class('chat.User');
 $class('chat.Chat');
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//********************************************************************************************//
+
+chat.me;
+chat.users = {};
+
+//********************************************************************************************//
+
+chat.Do = function (service, hint, doneOk, This, done, req) {
+	var close = $http(chat.Url + service, chat.Timeout, req, chat.Done);
+	close.hint = hint, close.doneOk = doneOk, close.This = This, close.done = done;
+	return close;
+}
+chat.Done = function (code, res, close) {
+	code == 0 && close.doneOk && close.doneOk($set(res));
+	close.done.call(close.This, code == 0,
+		code > 0 && new chat.Err('HTTP Error ' + code + ' : ' + res));
+}
+
+//********************************************************************************************//
 
 chat.DoSign = function () {
 }
-chat.DoSign.prototype.doInUp = function (name, pass) {
-	this.http = http('DoSign-inUp', 'Signing ...',
-		new chat.User(0, name, pass), chat.DoSign, this.doneInUp, this);
+chat.DoSign.inUp = function (name, pass, This, done) {
+	return chat.Do('DoSign-inUp', 'Signing', 0, This, done,
+		$get(new chat.User(0, name, pass), chat.DoSign));
 }
-chat.DoSign.prototype.doneInUp;
-chat.DoSign.prototype.doneOut;
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//********************************************************************************************//
 
 chat.DoUser = function () {
 }
-chat.DoUser.prototype.self = function () {
-	this.http = http('DoUser-self', 'Getting self info ...', null, this.doneSelf, this); 
+chat.DoUser.me = function (This, done) {
+	return chat.Do('DoUser-me', 'Loading my info', this.okMe, This, done, '');
 }
-chat.DoUser.prototype.doneSelf;
+chat.DoUser.okMe = function (res) {
+	chat.me = $.is(res, chat.User);
+}
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//********************************************************************************************//
 
 chat.DoChat = function () {
 }
 $class('chat.DoSign');
 $class('chat.DoUser');
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//********************************************************************************************//
 
 $class.get(chat.User, Object, ['id'], chat.DoSign, ['name', 'password'],
 	chat.DoUser, ['friends']);
 $class.get(chat.Chat, chat.DoChat, ['out', 'In', 'text']);
 
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
-/** @return an image node */
-function http(service, hint, data, dataFor, done, This) {
-	return $img('src', 'http.gif', 'className', 'http',
-		'title', $(hint) + ' Abort?', 'ondblclick',
-		$http(chat.Url + service, chat.Timeout, $get(data, dataFor), function (code, res) {
-			done.call(This, code, code == 0 ? $set(res) : code < 0 ? null
-				: new chat.Err('HTTP Error ' + code + ' : ' + res));
-		}));
+/** @return an image node with close() */
+function http(close) {
+	var http = $img('src', 'http.gif', 'c', 'http', 'title', close.hint + '... Stop?');
+	return hint.attach('ondblclick', hint.close = close);
 }
-/** @return a span node */
-function error(err, hide) {
+/** @return the box */
+function error(box, err, hide) {
 	err instanceof chat.Err && (err = err.hint);
 	$fox && (err = err + '\n' + $.throwStack());
-	var _ = $s('className', 'error');
-	hide ? _.att('title', err) : _.tx(err);
-	return _.add(0, $img('src', 'error.gif', 'className', 'error'));
+	box.className = 'error';
+	hide ? box.att('title', err) : box.tx(err);
+	return box.add(0, $img('src', 'error.gif', 'c', 'error'));
 }
 
 function Popup(inner) {
-	$D.body.add(this.box = $d('style', 'z-index:9999').add(
-		$d('className', 'sizeAll posAbs popupBack', 'style', 'z-index:-1'),
-		$d('className', 'body').add(
-			$tab('className', 'sizeAll').add($tb().add($tr().add($td()
+	$D.body.add(this.box = $d('c', 'Popup', 's', 'z-index:10000').add(
+		$d('c', 'max posAbs back'),
+		$d('c', 'max posAbs', 's', 'overflow:auto; z-index:10001').add(
+			$tab('c', 'max').add($tb().add($tr().add($td()
 				.att('valign', 'center').att('align', 'center').add(inner)
 			)))
 		)
 	));
-	this.box.className = $ie6 ? 'sizeAll leftTop posAbs' : 'sizeAll leftTop posFix';
-	$fox || this.box.add(0, $.opacity($tag('iframe',
-		'className', 'sizeAll posAbs', 'style', 'z-index:-1'), 0));
+	this.box.className = $ie6 ? 'max0 posAbs' : 'max0 posFix';
+	$fox || this.box.add(0, $.opacity($dom('iframe', 'c', 'max posAbs'), 0));
+	$ie6 && (this.box.style.top = $D.documentElement.scrollTop,
+		$D.documentElement.style.overflow = 'hidden');
+}
+Popup.prototype.close = function () {
+	this.box.noleak().rem();
+	$ie6 && ($D.documentElement.style.overflow = '');
+	return this;
 }
 
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
-function SignIn() {
-	this.box = $s('id', 'SignIn').add(this.err = $s(),
+function SignIn(box) {
+	this.box = box.add(this.err = $p(),
 		$p().add($l().tx('User name'), this.name = $ln()),
 		$p().add($l().tx('Password'), this.pass = $inp('type', 'password')),
-		$p('style', 'text-align:center').add
-			(this.submit = $bn('onclick', this.on).tx('Signin / Signup'))
+		$p('s', 'text-align:center').add
+			(this.submit = $this($bn('onclick', this.doSign), this).tx('Signin / Signup'))
 	);
-	this.submit.$ = this;
+	this.name.focus();
 }
-SignIn.prototype.on = function () {
-	if (this.submit.disabled)
-		return;
+SignIn.prototype.doSign = function () {
+	this.err.tx('');
 	this.submit.disabled = true, this.submit.blur();
-	this.err.add(-1, this.err = $s());
-	this.doInUp(this.name.value, this.pass.value);
+	this.http = http(chat.DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
 	this.submit.parentNode.add(this.http);
 }
-SignIn.prototype.doneInUp = function (code, res) {
-	this.submit.disabled = false;
-	this.http.noleak().rem();
-	if (res instanceof chat.Ok)
-		this.onDone.call(this.thisDone);
-	else if (res !== null)
-		this.err.add(-1, this.err = error(res));
+SignIn.prototype.doneSign = function (code, res) {
+	this.http.noleak().rem(), this.submit.disabled = false;
+	ok && this.onOk.call(this.thisOk);
+	err && error(this.err, err).show(true);
 }
-SignIn.prototype.onDone;
-SignIn.prototype.thisDone;
-$class('SignIn', chat.DoSign);
+SignIn.prototype.onOk;
+SignIn.prototype.thisOk;
 
-////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\////\\\\
+//********************************************************************************************//
+
+function Me(box) {
+	this.box = box.add(
+		$d('c', 'me').add(
+			this.name = $d('c', 'left'), this.reload = $d('c', 'right').add(
+				$this($a0('onclick', this.doReload), this).tx('Reload'))),
+		this.add = $ln('c', 'left'),
+			$this($a0('c', 'right', 'onclick', this.doAdd), this).tx('Add')
+	);
+	this.doReload();
+}
+Me.prototype.doReload = function () {
+	this.reload.firstChild.show(false);
+	this.reload.add(this.http = http(chat.DoUser.me(this, this.doneMe)));
+}
+Me.prototype.doneMe = function (ok, err) {
+	this.http.noleak().rem(), this.http = null;
+	this.reload.firstChild.show(true);
+	ok && this.name.tx(chat.me.name);
+	if (err instanceof chat.ErrUnsigned)
+		this.onUnsigned.call(this.thisUnsigned);
+	else
+		err && error(this.reload, err, true);
+}
+Me.prototype.doAdd = function () {
+}
+$class('Me', chat.DoUser);
+
+Me.prototype.onUnsigned;
+Me.prototype.thisUnsigned;

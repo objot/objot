@@ -25,17 +25,17 @@ public class DoChat
 	@Service
 	public static ArrayList<Chat> read(Chat c_, HttpSession ses) throws Exception
 	{
-		User self = DoSign.self(ses);
+		User me = DoSign.me(ses);
 		ArrayList<Chat> s = new ArrayList<Chat>();
-		if (c_.out.id == self.id)
+		if (c_.out.id == me.id)
 		{
-			for (Chat c: self.chatOuts)
+			for (Chat c: me.chatOuts)
 				if (c.datime >= c_.datime && c.in.id == c_.in.id)
 					s.add(c);
 		}
-		else if (c_.in.id == self.id)
+		else if (c_.in.id == me.id)
 		{
-			for (Chat c: self.chatIns)
+			for (Chat c: me.chatIns)
 				if (c.datime >= c_.datime && c.out.id == c_.out.id)
 					s.add(c);
 		}
@@ -48,12 +48,14 @@ public class DoChat
 	public static Chat post(Chat c, HttpSession ses) throws Exception
 	{
 		c.text = noEmpty("text", c.text, false);
-		User self = DoSign.self(ses);
-		c.out = self;
+		User me = DoSign.me(ses);
+		c.out = me;
 		c.in = User.IDS.get(c.in.id);
+		if (! c.in.friends.contains(c.out))
+			throw err("You must be his/her friend");
 		c.datime = System.currentTimeMillis();
 		// SO as PO
-		self.chatOuts.add(c);
+		me.chatOuts.add(c);
 		c.in.chatIns.add(c);
 		return c;
 	}

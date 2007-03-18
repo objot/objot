@@ -45,14 +45,14 @@ public class User
 	// @Transient for service
 	@Get
 	@Name("friends")
-	public List<User> friendsSelf;
+	public List<User> myFriends;
 
-	/** @return a new SO with {@link #friendsSelf} */
+	/** @return a new SO with {@link #myFriends} */
 	@Override
 	public User clone() throws CloneNotSupportedException
 	{
 		User u = (User)super.clone();
-		u.friendsSelf = u.friends;
+		u.myFriends = u.friends;
 		return u;
 	}
 

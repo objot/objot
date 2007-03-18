@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import objot.Err;
+import objot.ErrThrow;
 import objot.Getting;
 import objot.Objot;
 import objot.Setting;
@@ -130,18 +131,23 @@ public class ObjotServlet
 				String _ = "can not apply " + (o == null ? "null" : o.getClass().getName())
 					+ " to " + sc.getName() + "-" + sm.getName() + " : " + e.getMessage();
 				log(_, e);
-				o = new Err(_);
+				o = new Err().hint(_);
+			}
+			catch (ErrThrow e)
+			{
+				log(e);
+				o = e.err;
 			}
 			catch (InvocationTargetException e)
 			{
 				log(e.getCause());
-				o = new Err(e.getCause());
+				o = new Err().cause(e.getCause());
 			}
 		}
 		catch (Exception e)
 		{
 			log(e);
-			o = new Err(e);
+			o = new Err().cause(e);
 		}
 
 		res.setContentType("application/octet-stream");
