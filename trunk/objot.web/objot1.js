@@ -212,10 +212,9 @@ $set = function (s) {
 
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
-// file:// forbidden for HTTP POST
-//	$fox && location.protocol === 'file:'
-//		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
-//		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+	$fox && location.protocol === 'file:'
+		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
+		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
 	var h = $ie6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
 	h.open('POST', url, true);
 	h.setRequestHeader('Content-Type', 'application/octet-stream');
@@ -330,25 +329,24 @@ $tx = function (singleLine) {
 
 //********************************************************************************************//
 
-/* appendChild(s), or prepend if first argument is 0,
- * or replaced by second argument if first argument is 1 */
-$dom.add = function (child, child2) {
+/* append children, or prepend if first argument is 0 */
+$dom.add = function (child) {
 	if (child === 0)
 		for (var _ = this.firstChild, x = 1; x < arguments.length; x++)
 			this.insertBefore(arguments[x], _);
-	else if (child === 1)
-		$.o(this.parentNode).replaceChild(child2, this);
 	else
 		for (var x = 0; x < arguments.length; x++)
 			this.appendChild(arguments[x]);
 	return this;
 }
-/* removeChild(s), or remove all children if argument is true
- * or remove self if no argument */
-$dom.rem = function (child, child2) {
+/* remove children, all if argument is -1, or remove self if no argument,
+ * or replace second argument if first argument is 1 */
+$dom.rem = function (child, replaced) {
 	if (arguments.length == 0)
 		this.parentNode && this.parentNode.removeChild(this);
-	else if (child === true)
+	else if (child === 1)
+		$.o(replaced.parentNode).replaceChild(this, replaced);
+	else if (child === -1)
 		while (this.lastChild)
 			this.removeChild(this.lastChild);
 	else
@@ -356,12 +354,14 @@ $dom.rem = function (child, child2) {
 			this.removeChild(arguments[x]);
 }
 /* similar to rem(), recursively detach event handlers and $ and more for no IE memory leak */
-$dom.des = function (child) {
+$dom.des = function (child, replaced) {
 	if (arguments.length == 0)
 		this[''] && (this[''] = null), this.$ && (this.$ = null),
 		this.parentNode && this.parentNode.removeChild(this),
-		child = true;
-	if (child === true)
+		child = -1;
+	if (child === 1)
+		$.o(replaced.parentNode).replaceChild(this, replaced), replaced.des && replaced.des();
+	else if (child === -1)
 		for (var x; x = this.lastChild;)
 			x.des ? x.des() : this.removeChild(x);
 	else

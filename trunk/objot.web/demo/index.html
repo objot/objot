@@ -22,7 +22,7 @@ body {
 	width:100%; height:100%; margin:0; padding:0;
 }
 h2 {
-	margin:1em 0 1ex; padding:0; text-align:center;
+	margin:0; padding:1em 0 1ex; text-align:center;
 }
 p {
 	margin:1em 0;
@@ -31,7 +31,7 @@ label {
 	display:-moz-inline-box; display:inline-block;
 }
 button {
-	background:#f0d060; border:1px solid #6060ff;
+	background:#fd6; border:1px solid #66f;
 }
 table {
 	width:100%;
@@ -54,15 +54,19 @@ table {
 
 /*********************************************************************************************/
 
-.http img,
-.error img {
+.http .img,
+.error .img {
+	display:-moz-inline-box; display:inline-block;
 	width:16px; height:16px; vertical-align:middle;
+}
+.http .img {
+	background:url(http.gif) no-repeat;
 }
 .error {
 	color:red;
 }
-.error img {
-	border:1px solid red;
+.error .img {
+	background:#e66 url(error.gif) no-repeat center center;
 }
 .popup .back {
 	background:black; opacity:0.6; filter:alpha(opacity=60);
@@ -81,10 +85,10 @@ table {
 #SignIn input {
 	#width: 20ex;
 }
-#SignIn .http img {
+#SignIn .http .img {
 	margin-left:1ex;
 }
-#SignIn .error img {
+#SignIn .error .img {
 	margin-right:1ex;
 }
 
@@ -98,13 +102,13 @@ table {
 	width:30%; border:1em solid #e8f0ff;
 }
 #Me .min {
-	width:16em; line-height:0px; font-size:0px;
+	width:16em; height:0;
 }
 #Me .me {
 	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1%;
 }
-#Me .http img,
-#Me .error img {
+#Me .http .img,
+#Me .error .img {
 	margin-left:1ex;
 }
 #Me .left {
@@ -131,8 +135,11 @@ table {
 
 <body>
 <h2>Chat - Objot demo</h2>
-<div id=SignOut></div>
-<table cellspacing=0 cellpadding=0><tr><td id=Me><td id=Chat></table>
+<div id=SignOut><a href="javascript:location.reload()">Sign out</a></div>
+<table cellspacing=0 cellpadding=0><tr>
+<td id=Me><div class=min><!--stupid IE--></div>
+<td id=Chat><div class=min><!--stupid IE--></div>
+</table>
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -141,21 +148,24 @@ table {
 <script src="../objot1.js"></script>
 <script src="chat.js"></script>
 <script>
-
-$dom($id('SignOut')).add($a0('onclick', function () {
-	
-}).tx('Sign out'));
-
-window.onload = $D.body.onload0 = function () {
-	var me = new Me($dom($id('Me')).des(true).add($d('c', 'min')));
-	me.onUnsigned = function () {
-		var sign = new SignIn($s('id', 'SignIn'));
+window.onload = function () {
+	var inner = $s();
+	var pop = popup(inner);
+	http(inner, chat.DoSign.out(this, function () {
+		inner = $s('id', 'SignIn').des(1, inner);
+		var sign = new SignIn(inner);
 		sign.onOk = function () {
-			pop.des(), onload();
+			pop.des(), start();
 		}
-		var pop = popup(sign.box);
 		sign.name.focus();
-	};
+	}));
+}
+window.onunload = function () {
+	// to prevent Firefox memory cache
+}
+
+function start() {
+	new Me($dom($id('Me')));
 }
 </script>
 </body>

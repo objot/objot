@@ -82,6 +82,9 @@ chat.DoSign.inUp = function (name, pass, This, done) {
 	return chat.Do('DoSign-inUp', 'Signing', 0, This, done,
 		$get(new chat.User(0, name, pass), chat.DoSign));
 }
+chat.DoSign.out = function (This, done) {
+	return chat.Do('DoSign-out', 'Signing out', 0, This, done, '');
+}
 
 //********************************************************************************************//
 
@@ -114,7 +117,7 @@ $http.doneDelay = 300;
 
 /** @return the box, inner des() includes http close() */
 function http(box, close) {
-	var h = $img('src', 'http.gif', 'title', close.hint + '... Stop?', 'ondblclick', close);
+	var h = $s('c', 'img', 'title', close.hint + '... Stop?', 'ondblclick', close);
 	h.des = http.des, h.close = close;
 	return box.cla('http').add(h);
 }
@@ -129,9 +132,9 @@ function error(box, err, hide) {
 	err instanceof chat.Err && (err = err.hint);
 	$fox && (err = err + '\n' + $.throwStack());
 	hide || box.tx(err);
-	box.add(0, $img('src', 'error.gif'));
+	box.add(0, $s('c', 'img'));
 	hide && box.firstChild.att('title', err).attach('ondblclick', error.hint);
-	return box.className = 'error', box;
+	return box.cla('error');
 }
 	error.hint = function () {
 		alert(this.title); // just for test, should use popup box
@@ -177,9 +180,9 @@ SignIn.prototype.doSign = function () {
 	http(this.http, chat.DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
 }
 SignIn.prototype.doneSign = function (ok, err) {
-	this.http.des(true), this.submit.disabled = false;
+	this.http.des(-1), this.submit.disabled = false;
 	ok && this.onOk.call(this.thisOk);
-	err && this.err.des(true) && error(this.err, err);
+	err && this.err.des(-1) && error(this.err, err);
 }
 SignIn.prototype.onOk;
 SignIn.prototype.thisOk;
@@ -198,19 +201,19 @@ function Me(box) {
 	this.doReload();
 }
 Me.prototype.doReload = function () {
-	this.http.des(true), this.err.des(true);
+	this.http.des(-1), this.err.des(-1);
 	this.reload.firstChild.show(false);
 	http(this.http, chat.DoUser.me(this, this.doneMe));
 }
 Me.prototype.doneMe = function (ok, err) {
-	this.http.des(true);
+	this.http.des(-1);
 	this.reload.firstChild.show(true);
 	ok && this.name.tx(chat.me.name);
 	if (err)
-		if (err instanceof chat.ErrUnsigned)
+		if (err instanceof chat.ErrUnsigned && this.onUnsigned)
 			this.onUnsigned.call(this.thisUnsigned);
 		else
-			err && error(this.err, err, true);
+			error(this.err, err, true);
 }
 Me.prototype.doAdd = function () {
 }
