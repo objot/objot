@@ -212,9 +212,10 @@ $set = function (s) {
 
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
-	$fox && location.protocol === 'file:'
-		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
-		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
+// file:// forbidden for HTTP POST
+//	$fox && location.protocol === 'file:'
+//		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
+//		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
 	var h = $ie6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
 	h.open('POST', url, true);
 	h.setRequestHeader('Content-Type', 'application/octet-stream');
@@ -222,9 +223,11 @@ $http = function (url, timeout, request, done, data) {
 	var on = function (s, t) {
 		if (h && h.readyState == 4) {
 			try {
-				s = h.status, s = s == 200 || s == 0 ? 0 : s;
+				if ((s = h.status) == 0)
+					throw 0;
+				s == 200 && (s = 0);
 				t = s == 0 ? h.responseText : h.statusText;
-			} catch (_) { // stupid Firefox XMLHttpRequest bug
+			} catch (_) { // stupid Firefox XMLHttpRequest issue
 				s = 9999, t = 'Network Failed';
 			}
 			close(0, 0);
@@ -584,7 +587,7 @@ $.opacity = $fox ? function (d, v) {
 //   onclick, XMLHttpRequest.onreadystatechange
 // Awful ...
 //
-// when Firefox XMLHttpRequest fails, readyState is 4 and status is unavailable
+// when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unavailable
 //
 // \n unsupported in Firefox(not IE) element tooltip and textContent proprety, stupid
 //

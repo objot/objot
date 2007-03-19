@@ -56,10 +56,13 @@ table {
 
 .http img,
 .error img {
-	width:16px; height:16px;
+	width:16px; height:16px; vertical-align:middle;
 }
 .error {
 	color:red;
+}
+.error img {
+	border:1px solid red;
 }
 .popup .back {
 	background:black; opacity:0.6; filter:alpha(opacity=60);
@@ -86,7 +89,7 @@ table {
 }
 
 #SignOut {
-	margin:0 0 1ex 1em; text-align:right;
+	margin:0 1em 1ex; text-align:right;
 }
 
 /*********************************************************************************************/
@@ -95,7 +98,7 @@ table {
 	width:30%; border:1em solid #e8f0ff;
 }
 #Me .min {
-	width:16em; height:0;
+	width:16em; line-height:0px; font-size:0px;
 }
 #Me .me {
 	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1%;
@@ -144,7 +147,7 @@ $dom($id('SignOut')).add($a0('onclick', function () {
 }).tx('Sign out'));
 
 window.onload = $D.body.onload0 = function () {
-	var me = new Me($dom($id('Me')).des(true).add($d('c', 'min').tx('')));
+	var me = new Me($dom($id('Me')).des(true).add($d('c', 'min')));
 	me.onUnsigned = function () {
 		var sign = new SignIn($s('id', 'SignIn'));
 		sign.onOk = function () {
