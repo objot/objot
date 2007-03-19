@@ -173,14 +173,13 @@ function SignIn(box) {
 	this.name.focus();
 }
 SignIn.prototype.doSign = function () {
-	this.err.des(true);
 	this.submit.disabled = true, this.submit.blur();
 	http(this.http, chat.DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
 }
 SignIn.prototype.doneSign = function (ok, err) {
 	this.http.des(true), this.submit.disabled = false;
 	ok && this.onOk.call(this.thisOk);
-	err && error(this.err, err);
+	err && this.err.des(true) && error(this.err, err);
 }
 SignIn.prototype.onOk;
 SignIn.prototype.thisOk;
