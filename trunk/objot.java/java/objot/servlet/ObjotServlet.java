@@ -133,15 +133,11 @@ public class ObjotServlet
 				log(_, e);
 				o = new Err().hint(_);
 			}
-			catch (ErrThrow e)
-			{
-				log(e);
-				o = e.err;
-			}
 			catch (InvocationTargetException e)
 			{
-				log(e.getCause());
-				o = new Err().cause(e.getCause());
+				Throwable _ = e.getCause();
+				log(_);
+				o = _ instanceof ErrThrow ? ((ErrThrow)_).err : new Err().cause(_);
 			}
 		}
 		catch (Exception e)

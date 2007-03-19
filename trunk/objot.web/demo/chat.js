@@ -63,11 +63,16 @@ chat.Do = function (service, hint, doneOk, This, done, req) {
 	close.hint = hint, close.doneOk = doneOk, close.This = This, close.done = done;
 	return close;
 }
-chat.Done = function (code, res, close) {
-	code == 0 && close.doneOk && close.doneOk($set(res));
-	close.done.call(close.This, code == 0,
-		code > 0 && new chat.Err('HTTP Error ' + code + ' : ' + res));
-}
+	chat.Done = function (code, res, close) {
+		if (code < 0)
+			close.done.call(close.This, false, false);
+		else if (code > 0)
+			close.done.call(close.This, false, new chat.Err('HTTP Error ' + code + ' ' + res));
+		else if ((res = $set(res)) instanceof chat.Err)
+			close.done.call(close.This, false, res);
+		else
+			close.doneOk && close.doneOk(res), close.done.call(close.This, res, false);
+	}
 
 //********************************************************************************************//
 
@@ -105,40 +110,53 @@ $class.get(chat.Chat, chat.DoChat, ['out', 'In', 'text']);
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
+$http.doneDelay = 300;
 
-/** @return an image node with close() */
-function http(close) {
-	var http = $img('src', 'http.gif', 'c', 'http', 'title', close.hint + '... Stop?');
-	return hint.attach('ondblclick', hint.close = close);
+/** @return the box, inner des() includes http close() */
+function http(box, close) {
+	var h = $img('src', 'http.gif', 'title', close.hint + '... Stop?', 'ondblclick', close);
+	h.des = http.des, h.close = close;
+	return box.cla('http').add(h);
 }
+	http.des = function () {
+		if (arguments.length == 0)
+			this.close(), this.close = null;
+		$dom.des.apply(this, arguments);
+	}
+ 
 /** @return the box */
 function error(box, err, hide) {
 	err instanceof chat.Err && (err = err.hint);
 	$fox && (err = err + '\n' + $.throwStack());
-	box.className = 'error';
-	hide ? box.att('title', err) : box.tx(err);
-	return box.add(0, $img('src', 'error.gif', 'c', 'error'));
+	hide || box.tx(err);
+	box.add(0, $img('src', 'error.gif'));
+	hide && box.firstChild.att('title', err).attach('ondblclick', error.hint);
+	return box.className = 'error', box;
 }
+	error.hint = function () {
+		alert(this.title); // just for test, should use popup box
+	}
 
-function Popup(inner) {
-	$D.body.add(this.box = $d('c', 'Popup', 's', 'z-index:10000').add(
+/** @return a box */
+function popup(inner) {
+	var box = $d('s', 'z-index:10000').add(
 		$d('c', 'max posAbs back'),
 		$d('c', 'max posAbs', 's', 'overflow:auto; z-index:10001').add(
 			$tab('c', 'max').add($tb().add($tr().add($td()
 				.att('valign', 'center').att('align', 'center').add(inner)
 			)))
-		)
-	));
-	this.box.className = $ie6 ? 'max0 posAbs' : 'max0 posFix';
-	$fox || this.box.add(0, $.opacity($dom('iframe', 'c', 'max posAbs'), 0));
-	$ie6 && (this.box.style.top = $D.documentElement.scrollTop,
+		));
+	box.className = $ie6 ? 'popup max0 posAbs' : 'popup max0 posFix';
+	$fox || box.add(0, $.opacity($dom('iframe', 'c', 'max posAbs'), 0));
+	$ie6 && (box.style.top = $D.documentElement.scrollTop,
 		$D.documentElement.style.overflow = 'hidden');
+	box.des = popup.des;
+	return $D.body.add(box), box;
 }
-Popup.prototype.close = function () {
-	this.box.noleak().rem();
-	$ie6 && ($D.documentElement.style.overflow = '');
-	return this;
-}
+	popup.des = function () {
+		$ie6 && ($D.documentElement.style.overflow = '');
+		$dom.des.apply(this, arguments);
+	}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -148,21 +166,21 @@ function SignIn(box) {
 	this.box = box.add(this.err = $p(),
 		$p().add($l().tx('User name'), this.name = $ln()),
 		$p().add($l().tx('Password'), this.pass = $inp('type', 'password')),
-		$p('s', 'text-align:center').add
-			(this.submit = $this($bn('onclick', this.doSign), this).tx('Signin / Signup'))
+		$p('s', 'text-align:center').add(
+			this.submit = $this($bn('onclick', this.doSign), this).tx('Signin / Signup'),
+			this.http = $s())
 	);
 	this.name.focus();
 }
 SignIn.prototype.doSign = function () {
-	this.err.tx('');
+	this.err.des(true);
 	this.submit.disabled = true, this.submit.blur();
-	this.http = http(chat.DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
-	this.submit.parentNode.add(this.http);
+	http(this.http, chat.DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
 }
-SignIn.prototype.doneSign = function (code, res) {
-	this.http.noleak().rem(), this.submit.disabled = false;
+SignIn.prototype.doneSign = function (ok, err) {
+	this.http.des(true), this.submit.disabled = false;
 	ok && this.onOk.call(this.thisOk);
-	err && error(this.err, err).show(true);
+	err && error(this.err, err);
 }
 SignIn.prototype.onOk;
 SignIn.prototype.thisOk;
@@ -173,24 +191,27 @@ function Me(box) {
 	this.box = box.add(
 		$d('c', 'me').add(
 			this.name = $d('c', 'left'), this.reload = $d('c', 'right').add(
-				$this($a0('onclick', this.doReload), this).tx('Reload'))),
+				$this($a0('onclick', this.doReload), this).tx('Reload'),
+				this.http = $s(), this.err = $s())),
 		this.add = $ln('c', 'left'),
 			$this($a0('c', 'right', 'onclick', this.doAdd), this).tx('Add')
 	);
 	this.doReload();
 }
 Me.prototype.doReload = function () {
+	this.http.des(true), this.err.des(true);
 	this.reload.firstChild.show(false);
-	this.reload.add(this.http = http(chat.DoUser.me(this, this.doneMe)));
+	http(this.http, chat.DoUser.me(this, this.doneMe));
 }
 Me.prototype.doneMe = function (ok, err) {
-	this.http.noleak().rem(), this.http = null;
+	this.http.des(true);
 	this.reload.firstChild.show(true);
 	ok && this.name.tx(chat.me.name);
-	if (err instanceof chat.ErrUnsigned)
-		this.onUnsigned.call(this.thisUnsigned);
-	else
-		err && error(this.reload, err, true);
+	if (err)
+		if (err instanceof chat.ErrUnsigned)
+			this.onUnsigned.call(this.thisUnsigned);
+		else
+			err && error(this.err, err, true);
 }
 Me.prototype.doAdd = function () {
 }
