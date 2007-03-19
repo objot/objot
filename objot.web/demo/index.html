@@ -22,7 +22,7 @@ body {
 	width:100%; height:100%; margin:0; padding:0;
 }
 h2 {
-	margin-top: 0; padding-top:1em; text-align:center;
+	margin:1em 0 1ex; padding:0; text-align:center;
 }
 p {
 	margin:1em 0;
@@ -54,17 +54,14 @@ table {
 
 /*********************************************************************************************/
 
-img.http,
-img.error {
-	margin:0 1ex; vertical-align:middle; width:16px; height:16px;
+.http img,
+.error img {
+	width:16px; height:16px;
 }
-span.error {
-	display:table-cell; display:inline-block; color:red;
-}
-p.error {
+.error {
 	color:red;
 }
-.Popup .back {
+.popup .back {
 	background:black; opacity:0.6; filter:alpha(opacity=60);
 }
 
@@ -81,17 +78,31 @@ p.error {
 #SignIn input {
 	#width: 20ex;
 }
+#SignIn .http img {
+	margin-left:1ex;
+}
+#SignIn .error img {
+	margin-right:1ex;
+}
+
+#SignOut {
+	margin:0 0 1ex 1em; text-align:right;
+}
 
 /*********************************************************************************************/
 
 #Me {
-	width:33%; border:1em solid #e8f0ff;
+	width:30%; border:1em solid #e8f0ff;
 }
 #Me .min {
 	width:16em; height:0;
 }
 #Me .me {
 	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1%;
+}
+#Me .http img,
+#Me .error img {
+	margin-left:1ex;
 }
 #Me .left {
 	display:block; clear:both; float:left;
@@ -103,7 +114,7 @@ p.error {
 /*********************************************************************************************/
 
 #Chat {
-	border:0.5ex solid yellow;
+	width:60%;
 }
 #Chat .min {
 	width:30em; height:0;
@@ -117,10 +128,8 @@ p.error {
 
 <body>
 <h2>Chat - Objot demo</h2>
-<table cellspacing=0 cellpadding=0><tr>
-<td id=Me><div class=min><!--stupid IE--></div>
-<td id=Chat><div class=min><!--stupid IE--></div>
-</table>
+<div id=SignOut></div>
+<table cellspacing=0 cellpadding=0><tr><td id=Me><td id=Chat></table>
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -129,15 +138,22 @@ p.error {
 <script src="../objot1.js"></script>
 <script src="chat.js"></script>
 <script>
-scrollTo(0, 0);
-var me = new Me($dom($id('Me')));
-window.onload0 = $D.body.onload0 = function () {
-	window.popup && window.popup.close();
-	var sign = new SignIn($s('id', 'SignIn'));
-	sign.onDone = onload;
-	window.popup = new Popup(sign.box);
-	sign.name.focus();
-};
+
+$dom($id('SignOut')).add($a0('onclick', function () {
+	
+}).tx('Sign out'));
+
+window.onload = $D.body.onload0 = function () {
+	var me = new Me($dom($id('Me')).des(true).add($d('c', 'min').tx('')));
+	me.onUnsigned = function () {
+		var sign = new SignIn($s('id', 'SignIn'));
+		sign.onOk = function () {
+			pop.des(), onload();
+		}
+		var pop = popup(sign.box);
+		sign.name.focus();
+	};
+}
 </script>
 </body>
 </html>

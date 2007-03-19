@@ -240,8 +240,8 @@ $http = function (url, timeout, request, done, data) {
 			}
 		}
 	};
-	h.onreadystatechange = $ie6/*7?*/ ? function () {
-		setTimeout(on, 1);
+	h.onreadystatechange = $ie6/*7?*/ || $http.doneDelay > 0 ? function () {
+		setTimeout(on, $http.doneDelay + 1);
 	} : on;
 	var close = function (nil, mode) {
 		if (h) {
@@ -252,13 +252,13 @@ $http = function (url, timeout, request, done, data) {
 		}
 	}
 	data === undefined && (data = close);
-	timeout > 0 && (timeout = setTimeout(function () {
+	timeout = timeout > 0 && setTimeout(function () {
 		close(0, 1);
-	}, timeout));
+	}, timeout);
 	h.send(request);
 	return url = request = null, close;
 }
-
+$http.doneDelay = 0;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
@@ -319,7 +319,7 @@ $this = function (dom, o) {
 		}
 	);
 $a0 = function () {
-	return $dom('a', 0, arguments).att('href', '#');
+	return $dom('a', 0, arguments).att('href', 'javascript://');
 }
 $tx = function (singleLine) {
 	return $D.createTextNode(singleLine);
@@ -328,27 +328,63 @@ $tx = function (singleLine) {
 //********************************************************************************************//
 
 /* appendChild(s), or prepend if first argument is 0,
- * or replaced by second argument if first argument is -1 */
+ * or replaced by second argument if first argument is 1 */
 $dom.add = function (child, child2) {
 	if (child === 0)
 		for (var _ = this.firstChild, x = 1; x < arguments.length; x++)
 			this.insertBefore(arguments[x], _);
-	else if (child === -1)
+	else if (child === 1)
 		$.o(this.parentNode).replaceChild(child2, this);
 	else
 		for (var x = 0; x < arguments.length; x++)
 			this.appendChild(arguments[x]);
 	return this;
 }
-/* removeChild(s), or remove self if no argument */
+/* removeChild(s), or remove all children if argument is true
+ * or remove self if no argument */
 $dom.rem = function (child, child2) {
-	if (arguments.length === 0)
+	if (arguments.length == 0)
 		this.parentNode && this.parentNode.removeChild(this);
+	else if (child === true)
+		while (this.lastChild)
+			this.removeChild(this.lastChild);
 	else
-		for (var x = 1; x < arguments.length; x++)
+		for (var x = 0; x < arguments.length; x++)
 			this.removeChild(arguments[x]);
 }
+/* similar to rem(), recursively detach event handlers and $ and more for no IE memory leak */
+$dom.des = function (child) {
+	if (arguments.length == 0)
+		this[''] && (this[''] = null), this.$ && (this.$ = null),
+		this.parentNode && this.parentNode.removeChild(this),
+		child = true;
+	if (child === true)
+		for (var x; x = this.lastChild;)
+			x.des ? x.des() : this.removeChild(x);
+	else
+		for (var x = 0; x < arguments.length; x++)
+			arguments[x].des ? arguments[x].des() : this.removeChild(arguments[x]);
+	return this;
+}
 
+/* add css class, or remove css class if first argument is -1 */
+$dom.cla = function (clazz) {
+	if (arguments.length < 1 || clazz === -1 && this.className.length < 1)
+		return;
+	var cs = this.className.split(' '), c;
+	X:for (var x = clazz === -1 ? 1 : 0; x < arguments.length; x++)
+		if (c = $.s(arguments[x])) {
+			for (var y = cs.length - 1; y >= 0; y--)
+				if (cs[y] == c)
+					if (clazz === -1)
+						cs.splice(y, 1);
+					else
+						continue X;
+			clazz === -1 || (cs[cs.length] = c);
+		}
+	this.className = cs.join(' ');
+	return this;
+}
 /* getAttribute, setAttribute, removeAttribute */
 $dom.att = function (a, v) {
 	if (arguments.length <= 1)
@@ -413,15 +449,6 @@ $dom.detach = function (ontype, handler) {
 		for (var x = ontype.substr(2), y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
 				return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
-	return this;
-}
-/* detach event handlers and $ for no IE memory leak, do nothing in Firefox */
-$dom.noleak = $ie6 ? function () {
-	this[''] && (this[''] = null), this.$ && (this.$ = null);
-	for (var x = this.firstChild; x !== null; x = x.nextSibling)
-		this.noleak.call(x);
-	return this;
-} : function () {
 	return this;
 }
 
