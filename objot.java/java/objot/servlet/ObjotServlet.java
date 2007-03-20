@@ -129,7 +129,9 @@ public class ObjotServlet
 			catch (IllegalArgumentException e)
 			{
 				String _ = "can not apply " + (o == null ? "null" : o.getClass().getName())
-					+ " to " + sc.getName() + "-" + sm.getName() + " : " + e.getMessage();
+					+ " to " + sc.getName() + "-" + sm.getName()
+					+ (e.getMessage() != null ? " : " : "")
+					+ (e.getMessage() != null ? e.getMessage() : "");
 				log(_, e);
 				o = new Err().hint(_);
 			}

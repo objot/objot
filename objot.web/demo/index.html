@@ -18,59 +18,34 @@
 
 <style>
 html,
-body {
-	width:100%; height:100%; margin:0; padding:0;
-}
-h2 {
-	margin:0; padding:1em 0 1ex; text-align:center;
-}
-p {
-	margin:1em 0;
-}
-label {
-	display:-moz-inline-box; display:inline-block;
-}
-button {
-	background:#fd6; border:1px solid #66f;
-}
-table {
-	width:100%;
-}
+body { width:100%; height:100%; margin:0; padding:0; }
+h2 { margin:0; padding:1em 0 1ex; text-align:center; }
+a { text-decoration:none; }
+a:hover { background:#ddddff; }
+p { margin:1em 0; }
+label { display:-moz-inline-box; display:inline-block; }
+button { background:#fd6; border:1px solid #66f; }
+table { width:100%; }
 
-.posAbs {
-	position:absolute;
-}
-.posFix {
-	position:fixed;
-}
+.posAbs { position:absolute; }
+.posFix { position:fixed; }
 .max,
-.max0 {
-	width:100%; height:100%;
-}
+.max0 { width:100%; height:100%; }
 .pos0,
-.max0 {
-	left:0; top:0;
-}
+.max0 { left:0; top:0; }
 
 /*********************************************************************************************/
 
 .http .img,
 .error .img {
-	display:-moz-inline-box; display:inline-block;
-	width:16px; height:16px; vertical-align:middle;
+	padding:0 8px; font-size:16px; /* -moz-inline-box issue */
+	#display:inline-block; #padding:0; #width:16px; #height:16px;
 }
-.http .img {
-	background:url(http.gif) no-repeat;
-}
-.error {
-	color:red;
-}
-.error .img {
-	background:#e66 url(error.gif) no-repeat center center;
-}
-.popup .back {
-	background:black; opacity:0.6; filter:alpha(opacity=60);
-}
+.http .img { background:url(http.gif) no-repeat 0 center; }
+.error { color:red; }
+.error .img { background:#e66 url(error.gif) no-repeat 0 center; }
+
+.popup .back { background:black; opacity:0.6; filter:alpha(opacity=60); }
 
 /*********************************************************************************************/
 
@@ -79,22 +54,12 @@ table {
 	padding:0 1em; text-align:left;
 	background:#e8f0ff; border:1px solid blue;
 }
-#SignIn label {
-	width:12ex;
-}
-#SignIn input {
-	#width: 20ex;
-}
-#SignIn .http .img {
-	margin-left:1ex;
-}
-#SignIn .error .img {
-	margin-right:1ex;
-}
+#SignIn label { width:12ex; }
+#SignIn input { #width: 20ex; }
+#SignIn .http .img { margin-left:1ex; }
+#SignIn .error .img { margin-right:1ex; }
 
-#SignOut {
-	margin:0 1em 1ex; text-align:right;
-}
+#SignOut { margin:0 1em 1ex; text-align:right; }
 
 /*********************************************************************************************/
 
@@ -105,7 +70,7 @@ table {
 	width:16em; height:0;
 }
 #Me .me {
-	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1%;
+	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1em;
 }
 #Me .http .img,
 #Me .error .img {
@@ -116,6 +81,9 @@ table {
 }
 #Me .right {
 	display:block; float:right;
+}
+#Me .friends {
+	margin:1em 0; overflow:hidden; #height:1em;
 }
 
 /*********************************************************************************************/
@@ -134,7 +102,7 @@ table {
 
 
 <body>
-<h2>Chat - Objot demo</h2>
+<h2>Chat - <a href=http://objot.info>Objot</a> demo</h2>
 <div id=SignOut><a href="javascript:location.reload()">Sign out</a></div>
 <table cellspacing=0 cellpadding=0><tr>
 <td id=Me><div class=min><!--stupid IE--></div>

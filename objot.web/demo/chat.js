@@ -54,7 +54,6 @@ $class('chat.Chat');
 //********************************************************************************************//
 
 chat.me;
-chat.users = {};
 
 //********************************************************************************************//
 
@@ -78,10 +77,12 @@ chat.Do = function (service, hint, doneOk, This, done, req) {
 
 chat.DoSign = function () {
 }
+
 chat.DoSign.inUp = function (name, pass, This, done) {
 	return chat.Do('DoSign-inUp', 'Signing', 0, This, done,
-		$get(new chat.User(0, name, pass), chat.DoSign));
+		$get(new chat.User(0, name, pass), this));
 }
+
 chat.DoSign.out = function (This, done) {
 	return chat.Do('DoSign-out', 'Signing out', 0, This, done, '');
 }
@@ -90,12 +91,30 @@ chat.DoSign.out = function (This, done) {
 
 chat.DoUser = function () {
 }
+
 chat.DoUser.me = function (This, done) {
-	return chat.Do('DoUser-me', 'Loading my info', this.okMe, This, done, '');
+	return chat.Do('DoUser-me', 'Loading my info', this.me.ok, This, done, '');
 }
-chat.DoUser.okMe = function (res) {
-	chat.me = $.is(res, chat.User);
+	chat.DoUser.me.ok = function (res) {
+		chat.me = $.is(res, chat.User);
+	}
+
+chat.DoUser.update = function (This, done) {
+	return chat.Do('DoUser-update', 'Updating my info', 0, This, done, $get(chat.me, this));
 }
+
+chat.DoUser.getByName = function (name, name2, This, done) {
+	var x = 0, s = new Array(arguments.length - 2); // arguments.slice undefined
+	for (; x < s.length; x++)
+		s[x] = arguments[x];
+	return chat.Do('DoUser-getByName', 'Getting users info', this.getByName.ok,
+		arguments[x], arguments[x + 1], $get(s, this));
+}
+	chat.DoUser.getByName.ok = function (res) {
+		$.is(res, Array);
+		for (var x = 0; x < res.length; x++)
+			$.is(res[x], chat.User);
+	}
 
 //********************************************************************************************//
 
@@ -175,6 +194,7 @@ function SignIn(box) {
 	);
 	this.name.focus();
 }
+
 SignIn.prototype.doSign = function () {
 	this.submit.disabled = true, this.submit.blur();
 	http(this.http, chat.DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
@@ -184,6 +204,7 @@ SignIn.prototype.doneSign = function (ok, err) {
 	ok && this.onOk.call(this.thisOk);
 	err && this.err.des(-1) && error(this.err, err);
 }
+
 SignIn.prototype.onOk;
 SignIn.prototype.thisOk;
 
@@ -191,33 +212,74 @@ SignIn.prototype.thisOk;
 
 function Me(box) {
 	this.box = box.add(
-		$d('c', 'me').add(
-			this.name = $d('c', 'left'), this.reload = $d('c', 'right').add(
+		$d('c', 'me').add(this.name = $d('c', 'left'),
+			this.reload = $d('c', 'right').add(
 				$this($a0('onclick', this.doReload), this).tx('Reload'),
 				this.http = $s(), this.err = $s())),
+		this.friends = $d('c', 'friends'),
 		this.add = $ln('c', 'left'),
-			$this($a0('c', 'right', 'onclick', this.doAdd), this).tx('Add')
+			$this($a0('c', 'right', 'onclick', this.doAdd), this).tx('+')
 	);
 	this.doReload();
 }
+
+Me.prototype.friendsAdd = function (x, u) {
+	this.friends.add($d('c', 'left').tx(u.name),
+		$this($a0('c', 'right').tx('X'), this).attach('onclick', this.doRem, x));
+}
+
 Me.prototype.doReload = function () {
 	this.http.des(-1), this.err.des(-1);
-	this.reload.firstChild.show(false);
-	http(this.http, chat.DoUser.me(this, this.doneMe));
+	http(this.http, chat.DoUser.me(this, this.doReload.me));
 }
-Me.prototype.doneMe = function (ok, err) {
+Me.prototype.doReload.me = function (ok, err) {
 	this.http.des(-1);
-	this.reload.firstChild.show(true);
-	ok && this.name.tx(chat.me.name);
+	if (ok) {
+		this.name.tx(chat.me.name);
+		this.friends.des(-1);
+		for (var s = chat.me.friends, x = 0; x < s.length; x++)
+			this.friendsAdd(x, s[x]);
+	}
 	if (err)
 		if (err instanceof chat.ErrUnsigned && this.onUnsigned)
 			this.onUnsigned.call(this.thisUnsigned);
 		else
 			error(this.err, err, true);
 }
+
 Me.prototype.doAdd = function () {
+	var u = new chat.User(0, this.add.value);
+	for (var s = chat.me.friends, x = 0; x < s.length; x++)
+		if (s[x].name == u.name)
+			return this.doneAdd(true, false);
+	this.http.des(-1), this.err.des(-1);
+	http(this.http, chat.DoUser.getByName(u.name, this, this.doAdd.user))
 }
-$class('Me', chat.DoUser);
+Me.prototype.doAdd.user = function (ok, err) {
+	this.http.des(-1);
+	if (ok) {
+		chat.me.friends.push(ok[0]);
+		this.friendsAdd(chat.me.friends.length - 1, ok[0]);
+		http(this.http, chat.DoUser.update(this, this.doneAdd));
+	}
+	err && error(this.err, err, true);
+}
+Me.prototype.doneAdd = function (ok, err) {
+	this.http.des(-1);
+	ok && (this.add.value = '');
+	err && error(this.err, err, true);
+}
+
+Me.prototype.doRem = function (ev, x) {
+	ev.target.parentNode.des();
+	chat.me.friends.splice(x, 1);
+	this.http.des(-1), this.err.des(-1);
+	http(this.http, chat.DoUser.update(this, this.doneRem));
+}
+Me.prototype.doneRem = function (ok, err) {
+	this.http.des(-1);
+	err && error(this.err, err, true);
+} 
 
 Me.prototype.onUnsigned;
 Me.prototype.thisUnsigned;
