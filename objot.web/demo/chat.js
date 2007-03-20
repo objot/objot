@@ -107,14 +107,9 @@ chat.DoUser.getByName = function (name, name2, This, done) {
 	var x = 0, s = new Array(arguments.length - 2); // arguments.slice undefined
 	for (; x < s.length; x++)
 		s[x] = arguments[x];
-	return chat.Do('DoUser-getByName', 'Getting users info', this.getByName.ok,
+	return chat.Do('DoUser-getByName', 'Getting users info', 0,
 		arguments[x], arguments[x + 1], $get(s, this));
 }
-	chat.DoUser.getByName.ok = function (res) {
-		$.is(res, Array);
-		for (var x = 0; x < res.length; x++)
-			$.is(res[x], chat.User);
-	}
 
 //********************************************************************************************//
 
@@ -138,7 +133,7 @@ $http.doneDelay = 300;
 function http(box, close) {
 	var h = $s('c', 'img', 'title', close.hint + '... Stop?', 'ondblclick', close);
 	h.des = http.des, h.close = close;
-	return box.cla('http').add(h);
+	return box.des(-1).cla(-1, 'error').cla('http').add(h);
 }
 	http.des = function () {
 		if (arguments.length == 0)
@@ -150,10 +145,9 @@ function http(box, close) {
 function error(box, err, hide) {
 	err instanceof chat.Err && (err = err.hint);
 	$fox && (err = err + '\n' + $.throwStack());
-	hide || box.tx(err);
-	box.add(0, $s('c', 'img'));
+	box.des(-1), hide || box.tx(err), box.add(0, $s('c', 'img'));
 	hide && box.firstChild.att('title', err).attach('ondblclick', error.hint);
-	return box.cla('error');
+	return box.cla(-1, 'http').cla('error');
 }
 	error.hint = function () {
 		alert(this.title); // just for test, should use popup box
@@ -202,7 +196,7 @@ SignIn.prototype.doSign = function () {
 SignIn.prototype.doneSign = function (ok, err) {
 	this.http.des(-1), this.submit.disabled = false;
 	ok && this.onOk.call(this.thisOk);
-	err && this.err.des(-1) && error(this.err, err);
+	err && error(this.err, err);
 }
 
 SignIn.prototype.onOk;
@@ -215,7 +209,7 @@ function Me(box) {
 		$d('c', 'me').add(this.name = $d('c', 'left'),
 			this.reload = $d('c', 'right').add(
 				$this($a0('onclick', this.doReload), this).tx('Reload'),
-				this.http = $s(), this.err = $s())),
+				this.http = $s())),
 		this.friends = $d('c', 'friends'),
 		this.add = $ln('c', 'left'),
 			$this($a0('c', 'right', 'onclick', this.doAdd), this).tx('+')
@@ -225,11 +219,10 @@ function Me(box) {
 
 Me.prototype.friendsAdd = function (x, u) {
 	this.friends.add($d('c', 'left').tx(u.name),
-		$this($a0('c', 'right').tx('X'), this).attach('onclick', this.doRem, x));
+		$this($a0('c', 'right', 'onclick', this.doRem), this).tx('X'));
 }
 
 Me.prototype.doReload = function () {
-	this.http.des(-1), this.err.des(-1);
 	http(this.http, chat.DoUser.me(this, this.doReload.me));
 }
 Me.prototype.doReload.me = function (ok, err) {
@@ -244,7 +237,7 @@ Me.prototype.doReload.me = function (ok, err) {
 		if (err instanceof chat.ErrUnsigned && this.onUnsigned)
 			this.onUnsigned.call(this.thisUnsigned);
 		else
-			error(this.err, err, true);
+			error(this.http, err, true);
 }
 
 Me.prototype.doAdd = function () {
@@ -252,22 +245,23 @@ Me.prototype.doAdd = function () {
 	for (var s = chat.me.friends, x = 0; x < s.length; x++)
 		if (s[x].name == u.name)
 			return this.doneAdd(true, false);
-	this.http.des(-1), this.err.des(-1);
 	http(this.http, chat.DoUser.getByName(u.name, this, this.doAdd.user))
 }
 Me.prototype.doAdd.user = function (ok, err) {
-	this.http.des(-1);
-	if (ok) {
-		chat.me.friends.push(ok[0]);
-		this.friendsAdd(chat.me.friends.length - 1, ok[0]);
-		http(this.http, chat.DoUser.update(this, this.doneAdd));
-	}
-	err && error(this.err, err, true);
+	if (ok)
+		if (ok[0]) {
+			chat.me.friends.push(ok[0]);
+			this.friendsAdd(chat.me.friends.length - 1, ok[0]);
+			http(this.http, chat.DoUser.update(this, this.doneAdd));
+		}
+		else
+			err = 'User not found';
+	err && error(this.http, err, true);
 }
 Me.prototype.doneAdd = function (ok, err) {
 	this.http.des(-1);
 	ok && (this.add.value = '');
-	err && error(this.err, err, true);
+	err && error(this.http, err, true);
 }
 
 Me.prototype.doRem = function (ev, x) {

@@ -242,9 +242,6 @@ $http = function (url, timeout, request, done, data) {
 			}
 		}
 	};
-	h.onreadystatechange = $ie6/*7?*/ || $http.doneDelay > 0 ? function () {
-		setTimeout(on, $http.doneDelay + 1);
-	} : on;
 	var close = function (nil, mode) {
 		if (h) {
 			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
@@ -253,10 +250,13 @@ $http = function (url, timeout, request, done, data) {
 				done(mode ? 1 : -1, mode ? 'timeout' : 'close', data), done = data = null;
 		}
 	}
-	data === undefined && (data = close);
+	h.onreadystatechange = $ie6/*7?*/ || $http.doneDelay > 0 ? function () {
+		setTimeout(on, $http.doneDelay + 1);
+	} : on;
 	timeout = timeout > 0 && setTimeout(function () {
 		close(0, 1);
 	}, timeout);
+	arguments.length < 5 && (data = close);
 	h.send(request);
 	return url = request = null, close;
 }
@@ -360,13 +360,14 @@ $dom.des = function (child, replaced) {
 		this.parentNode && this.parentNode.removeChild(this),
 		child = -1;
 	if (child === 1)
-		$.o(replaced.parentNode).replaceChild(this, replaced), replaced.des && replaced.des();
+		$.o(replaced.parentNode).replaceChild(this, replaced),
+		replaced.des ? replaced.des() : $dom.des.call(replaced);
 	else if (child === -1)
 		for (var x; x = this.lastChild;)
-			x.des ? x.des() : this.removeChild(x);
+			x.des ? x.des() : $dom.des.call(x);
 	else
 		for (var x = 0; x < arguments.length; x++)
-			arguments[x].des ? arguments[x].des() : this.removeChild(arguments[x]);
+			arguments[x].des ? arguments[x].des() : $dom.des.call(arguments[x]);
 	return this;
 }
 
@@ -429,10 +430,10 @@ $dom.show = function (v) {
 
 /* attach event handler which 'this' will be this node.$ if available or this node
  * if oldHandler, old is detached and handler is attached */
-$dom.attach = function (ontype, handler, data, oldHandler) {
+$dom.attach = function (ontype, handler, oldHandler) {
 	if (oldHandler)
 		detach(ontype, oldHandler);
-	var x, t, s = this[''] || (this[''] = [1, 0, 0, 0]); //[free, next, handler, data, ...]
+	var x, t, s = this[''] || (this[''] = [1, 0, 0]); // [free, next, handler, ...]
 	if (x = s[t = ontype.substr(2)])
 		do if (s[x + 1] === handler)
 			return handler;
@@ -442,8 +443,7 @@ $dom.attach = function (ontype, handler, data, oldHandler) {
 //		this.addEventListener(t, $.event, false);
 	else // 'this' in $.event works, but it doesn't if attachEvent
 		this[ontype] = $.event;
-	s[x || t] = (x = s[0]), s[0] = s[x] || x + 3,
-		s[x] = 0, s[x + 1] = handler, s[x + 2] = data;
+	s[x || t] = (x = s[0]), s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
 	return this;
 }
 /* detach event handler */
@@ -452,8 +452,7 @@ $dom.detach = function (ontype, handler) {
 	if (s)
 		for (var x = ontype.substr(2), y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
-				return s[x] = s[y], s[y] = s[0], s[0] = y,
-					s[y + 1] = null, s[y + 2] = null, this;
+				return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
 	return this;
 }
 
@@ -514,9 +513,10 @@ $.f = function (x) {
 	return typeof x === 'function' ? x : $throw($S(x) + ' must be function');
 }
 /* must not-null and instanceof the clazz */
-$.is = function (x, clazz) {
+$.is = function (x, clazz, name) {
 	return x !== null && x instanceof clazz ? x
-		: $throw($S(x) + ' must not-null and instanceof ' + $S(clazz));
+		: $throw($S(x) + ' must not-null and instanceof '
+		+ (clazz.Name || clazz.name || name || $S(clazz)));
 }
 
 /* get function from class cache, or eval */
@@ -557,7 +557,7 @@ $.copyOwn = function (to, from) {
 		if ((s = this['']) && (x = s[(e || (e = window.event)).type])) {
 			$ = this.$ || this, e.target || (e.target = e.srcElement);
 			r = 0; do
-				r |= !s[x + 1].call($, e, s[x + 2]);
+				r |= !s[x + 1].call($, e);
 			while (x = s[x]);
 			return !r;
 		}
