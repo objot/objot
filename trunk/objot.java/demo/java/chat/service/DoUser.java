@@ -39,7 +39,7 @@ public class DoUser
 		return Ok.OK;
 	}
 
-	/** @return PO by {@link User#name} */
+	/** @return POs by {@link User#name}, or nulls if not found */
 	@Service
 	public static User[] getByName(String[] names, HttpSession ses) throws Exception
 	{

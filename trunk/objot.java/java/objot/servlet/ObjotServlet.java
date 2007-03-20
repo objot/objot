@@ -73,10 +73,15 @@ public class ObjotServlet
 
 	private static final long serialVersionUID = 1L;
 
-	private ConcurrentHashMap<String, Class<?>> clas //
-	= new ConcurrentHashMap<String, Class<?>>(128, 0.8f, 32);
-	private ConcurrentHashMap<String, Method> meths //
-	= new ConcurrentHashMap<String, Method>(128, 0.8f, 32);
+	static class S
+	{
+		Class<?> c;
+		Method m;
+		Class<?> listC;
+	}
+
+	private ConcurrentHashMap<String, S> ss //
+	= new ConcurrentHashMap<String, S>(128, 0.8f, 32);
 
 	@Override
 	public final void init(ServletConfig c) throws ServletException
@@ -93,24 +98,24 @@ public class ObjotServlet
 		HttpServletRequest req = (HttpServletRequest)req_;
 		HttpServletResponse res = (HttpServletResponse)res_;
 		String uri = req.getRequestURI();
-		Class<?> sc = null;
-		Method sm;
+		S s = null;
 		byte[] bs;
 		Object o = null;
 		try
 		{
 			String name = uri.substring(uri.lastIndexOf('/') + 1);
-			sc = clas.get(name);
-			if (sc != null)
-				sm = meths.get(name);
-			else
+			s = ss.get(name);
+			if (s == null)
 			{
-				int dot = name.lastIndexOf('-');
-				sc = serviceClass(name.substring(0, dot < 0 ? name.length() : dot), req, res);
-				sm = serviceMethod(sc, dot < 0 || dot == name.length() ? methodNameDefault
-					: name.substring(dot + 1), req, res);
-				clas.put(name, sc);
-				meths.put(name, sm);
+				s = new S();
+				int _ = name.lastIndexOf('-');
+				s.c = serviceClass(name.substring(0, _ < 0 ? name.length() : _), req, res);
+				s.c.equals(null);
+				s.m = serviceMethod(s.c, _ < 0 || _ == name.length() ? methodNameDefault
+					: name.substring(_ + 1), req, res);
+				Class<?>[] ps = s.m.getParameterTypes();
+				s.listC = ps.length > 0 ? ps[0] : null;
+				ss.put(name, s);
 			}
 			int len = req.getContentLength();
 			if (len > 0)
@@ -120,16 +125,16 @@ public class ObjotServlet
 				for (int from = 0, done; from < len; from += done)
 					if ((done = in.read(bs, from, len - from)) < 0)
 						throw new EOFException();
-				o = Setting.go(objot, sc, bs);
+				o = Setting.go(objot, s.c, bs, s.listC);
 			}
 			try
 			{
-				o = serviceDo(sc, sm, o, req, res);
+				o = serviceDo(s.c, s.m, o, req, res);
 			}
 			catch (IllegalArgumentException e)
 			{
 				String _ = "can not apply " + (o == null ? "null" : o.getClass().getName())
-					+ " to " + sc.getName() + "-" + sm.getName()
+					+ " to " + s.c.getCanonicalName() + "-" + s.m.getName()
 					+ (e.getMessage() != null ? " : " : "")
 					+ (e.getMessage() != null ? e.getMessage() : "");
 				log(_, e);
@@ -156,7 +161,7 @@ public class ObjotServlet
 		{
 			try
 			{
-				bs = Getting.go(objot, sc != null ? sc : getClass(), o);
+				bs = Getting.go(objot, s.c != null ? s.c : getClass(), o);
 			}
 			catch (RuntimeException e)
 			{

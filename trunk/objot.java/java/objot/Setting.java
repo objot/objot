@@ -19,9 +19,10 @@ import java.util.List;
 
 public final class Setting
 {
-	public static Object go(Objot o, Class<?> for_, byte[] s) throws Exception
+	public static Object go(Objot o, Class<?> for_, byte[] s, Class<?> listClass)
+		throws Exception
 	{
-		return new Setting(o, for_, s).go();
+		return new Setting(o, for_, s).go(listClass != null ? listClass : Object[].class);
 	}
 
 	private Objot objot;
@@ -38,7 +39,7 @@ public final class Setting
 		bs = s;
 	}
 
-	private Object go() throws Exception
+	private Object go(Class<?> listClass) throws Exception
 	{
 		bx = 0;
 		by = - 1;
@@ -48,7 +49,11 @@ public final class Setting
 		if (bs[0] == '[')
 		{
 			bxy();
-			o = list(Object.class, null);
+			o = listClass.isArray() ? list(null, listClass.getComponentType()) : list(
+				Object.class, null);
+			if (! listClass.isAssignableFrom(o.getClass()))
+				throw new RuntimeException(o.getClass().getCanonicalName()
+					+ " forbidden for " + listClass.getCanonicalName());
 		}
 		else if (bs[0] == '/')
 		{
@@ -232,8 +237,8 @@ public final class Setting
 	private void set(Object[] l, int i, Object o, Class<?> cla)
 	{
 		if (! cla.isAssignableFrom(o.getClass()))
-			throw new RuntimeException(o.getClass().getName() + " forbidden for "
-				+ cla.getName());
+			throw new RuntimeException(o.getClass().getCanonicalName() + " forbidden for "
+				+ cla.getCanonicalName());
 		l[i] = o;
 	}
 
@@ -244,7 +249,8 @@ public final class Setting
 		Class<?> cla = cName.length() > 0 ? objot.classByName(cName) : HashMap.class;
 		bxy();
 		if (! cla0.isAssignableFrom(cla))
-			throw new RuntimeException(cla.getName() + " forbidden for " + cla0.getName());
+			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
+				+ cla0.getCanonicalName());
 		int ref = - 1;
 		if (chr() == '=')
 		{
@@ -266,11 +272,11 @@ public final class Setting
 			{
 				Property g = objot.sets(cla).get(n);
 				if (g == null)
-					throw new RuntimeException(cla.getName() + "." + n
+					throw new RuntimeException(cla.getCanonicalName() + "." + n
 						+ " not found or not setable");
 				if (! g.allow(forClass))
-					throw new RuntimeException("setting " + cla.getName() + "." + n
-						+ " forbidden for " + forClass.getName());
+					throw new RuntimeException("setting " + cla.getCanonicalName() + "." + n
+						+ " forbidden for " + forClass.getCanonicalName());
 				f = g.f;
 				t = f.getGenericType();
 			}
@@ -334,8 +340,9 @@ public final class Setting
 			}
 			catch (IllegalArgumentException e)
 			{
-				throw new RuntimeException(cla.getName() + "." + n + " : " + //
-					(v != null ? v.getClass().getName() : "null") + " forbidden for " + t);
+				throw new RuntimeException(cla.getCanonicalName() + "." + n + " : " //
+					+ (v != null ? v.getClass().getCanonicalName() : "null") //
+					+ " forbidden for " + t);
 			}
 		}
 		return o;
