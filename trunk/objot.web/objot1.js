@@ -428,11 +428,11 @@ $dom.show = function (v) {
 }
 
 /* attach event handler which 'this' will be this node.$ if available or this node
- * if newHandler then handler is detached and newHandler is attached */
-$dom.attach = function (ontype, handler, newHandler) {
-	if (newHandler)
-		detach(ontype, handler), handler = newHandler;
-	var x, t, s = this[''] || (this[''] = [1, 0, 9]); // [free, next, handler, ... ]
+ * if oldHandler, old is detached and handler is attached */
+$dom.attach = function (ontype, handler, data, oldHandler) {
+	if (oldHandler)
+		detach(ontype, oldHandler);
+	var x, t, s = this[''] || (this[''] = [1, 0, 0, 0]); //[free, next, handler, data, ...]
 	if (x = s[t = ontype.substr(2)])
 		do if (s[x + 1] === handler)
 			return handler;
@@ -442,7 +442,8 @@ $dom.attach = function (ontype, handler, newHandler) {
 //		this.addEventListener(t, $.event, false);
 	else // 'this' in $.event works, but it doesn't if attachEvent
 		this[ontype] = $.event;
-	s[x || t] = x = s[0], s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
+	s[x || t] = (x = s[0]), s[0] = s[x] || x + 3,
+		s[x] = 0, s[x + 1] = handler, s[x + 2] = data;
 	return this;
 }
 /* detach event handler */
@@ -451,13 +452,29 @@ $dom.detach = function (ontype, handler) {
 	if (s)
 		for (var x = ontype.substr(2), y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
-				return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
+				return s[x] = s[y], s[y] = s[0], s[0] = y,
+					s[y + 1] = null, s[y + 2] = null, this;
 	return this;
 }
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
+
+$fox || (Array.prototype.indexOf = function (o, from) {
+	if (this != null)
+		for (var x = from; x < this.length; x++)
+			if (x == o)
+				return x;
+	return -1;
+});
+$fox || (Array.prototype.lastIndexOf = function (o, from) {
+	if (this != null)
+		for (var x = from; x >= 0; x--)
+			if (x == o)
+				return x;
+	return -1;
+});
 
 	$.alert = window.alert;
 /* alert multi lines */
@@ -538,8 +555,9 @@ $.copyOwn = function (to, from) {
 	/* event dispatcher */
 	$.event = function (e, s, x, r, $) {
 		if ((s = this['']) && (x = s[(e || (e = window.event)).type])) {
-			$ = this.$ || this, r = 0;
-			do r |= !s[x + 1].call($, e);
+			$ = this.$ || this, e.target || (e.target = e.srcElement);
+			r = 0; do
+				r |= !s[x + 1].call($, e, s[x + 2]);
 			while (x = s[x]);
 			return !r;
 		}

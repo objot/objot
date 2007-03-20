@@ -36,6 +36,7 @@ public class DoSign
 			User.IDS.add(u);
 			u.id = User.IDS.size();
 			u.friends = new ArrayList<User>();
+			u.friends.add(u); // i'm my friend by default
 			User.NAMES.put(u.name, u);
 		}
 		// sign in
@@ -44,7 +45,7 @@ public class DoSign
 		else if (S.get(u.id) != null)
 			throw err("user already signed in");
 		ses.setAttribute("signed", u);
-		S.put(u.id, null);
+		S.put(u.id, S);
 		return Ok.OK;
 	}
 

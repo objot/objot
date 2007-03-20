@@ -25,17 +25,6 @@ public class DoUser
 		return DoSign.me(ses).clone();
 	}
 
-	/** @return PO by {@link User#name} */
-	@Service
-	public static User[] getByName(String[] names, HttpSession ses) throws Exception
-	{
-		DoSign.me(ses);
-		User[] s = new User[names.length];
-		for (int i = 0; i < names.length; i++)
-			s[i] = User.NAMES.get(names[i]);
-		return s;
-	}
-
 	/** update {@link User#friends} if SO' is not null */
 	@Service
 	public static Ok update(User u, HttpSession ses) throws Exception
@@ -48,5 +37,16 @@ public class DoUser
 			me.friends = u.friends;
 		}
 		return Ok.OK;
+	}
+
+	/** @return PO by {@link User#name} */
+	@Service
+	public static User[] getByName(String[] names, HttpSession ses) throws Exception
+	{
+		DoSign.me(ses);
+		User[] s = new User[names.length];
+		for (int i = 0; i < names.length; i++)
+			s[i] = User.NAMES.get(names[i]);
+		return s;
 	}
 }
