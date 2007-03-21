@@ -80,20 +80,30 @@ table { width:100%; }
 	display:block; clear:both; float:left;
 }
 #Me .right {
-	display:block; float:right;
+	display:block; clear:right; float:right;
 }
 #Me .friends {
-	margin:1em 0; overflow:hidden; #height:1em;
+	margin:1em 0; overflow:hidden;
 }
 
 /*********************************************************************************************/
 
-#Chat {
-	width:60%;
+#Chats {
+	width:60%; border:1em solid #fff0e8;
 }
-#Chat .min {
+#Chats .min {
 	width:30em; height:0;
 }
+#Chats .tab {
+	background:#fff0e0; padding:0 0 1em; overflow:hidden; #height:1em;
+}
+#Chats .tab .left {
+	display:block; float:left; margin-right:1em;
+}
+#Chats .tab .right {
+	display:block; clear:right; float:right;
+}
+
 </style>
 </head>
 
@@ -106,7 +116,7 @@ table { width:100%; }
 <div id=SignOut><a href="javascript:location.reload()">Sign out</a></div>
 <table cellspacing=0 cellpadding=0><tr>
 <td id=Me><div class=min><!--stupid IE--></div>
-<td id=Chat><div class=min><!--stupid IE--></div>
+<td id=Chats><div class=min><!--stupid IE--></div>
 </table>
 
 
@@ -134,6 +144,7 @@ window.onunload = function () {
 
 function start() {
 	new Me($dom($id('Me')));
+	new Chats($dom($id('Chats')));
 }
 </script>
 </body>

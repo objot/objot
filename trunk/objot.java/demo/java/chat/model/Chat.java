@@ -6,7 +6,6 @@
 //
 package chat.model;
 
-import objot.Get;
 import objot.GetSet;
 import objot.Name;
 import chat.service.DoChat;
@@ -28,7 +27,7 @@ public class Chat
 	@Name("In")
 	public User in;
 
-	@Get
+	@GetSet
 	public long datime;
 
 	@GetSet

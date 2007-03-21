@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSessionBindingListener;
 
 import objot.Get;
 import objot.GetSet;
-import objot.Name;
+import objot.NameGet;
 import objot.Set;
 import chat.service.DoSign;
 import chat.service.DoUser;
@@ -32,19 +32,18 @@ public class User
 	public Integer id;
 
 	@Get
-	@Set(DoSign.class)
+	@Set( { DoSign.class, DoUser.class })
 	public String name;
 
 	@Set(DoSign.class)
 	public String password;
 
 	// @ManyToMany
-	@Set(DoUser.class)
 	public List<User> friends;
 
 	// @Transient for service
-	@Get
-	@Name("friends")
+	@GetSet
+	@NameGet("friends")
 	public List<User> myFriends;
 
 	/** @return a new SO with {@link #myFriends} */

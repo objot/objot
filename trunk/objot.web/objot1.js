@@ -374,7 +374,7 @@ $dom.des = function (child, replaced) {
 /* add css class, or remove css class if first argument is -1 */
 $dom.cla = function (clazz) {
 	if (arguments.length < 1 || clazz === -1 && this.className.length < 1)
-		return;
+		return this;
 	var cs = this.className.split(' '), c;
 	X:for (var x = clazz === -1 ? 1 : 0; x < arguments.length; x++)
 		if (c = $.s(arguments[x])) {
@@ -403,12 +403,13 @@ $dom.att = function (a, v) {
 $dom.tx = $fox ? function (v) {
 	if (v === undefined)
 		return this.textContent; // single line for stupid Firefox
+	v = v.replace(/  /g, ' \u00a0'); // stupid Firefox, multi whitespaces unsupported
 	if ((v = String(v)).indexOf('\n')) { // stupid Firefox, '\n' unsupported
 		v = v.split('\n');
-		this.textContent = v.length > 0 ? v[0].replace(/  /g, ' \u00a0') : '';
+		this.textContent = v.length > 0 ? v[0] : '';
 		for (var x = 1; x < v.length; x++)
 			this.appendChild($D.createElement('br')).textContent = '\n',
-			this.appendChild($D.createTextNode(v[x].replace(/  /g, ' \u00a0')));
+			this.appendChild($D.createTextNode(v[x]));
 	}
 	else
 		this.textContent = v;
@@ -474,13 +475,8 @@ $fox || (Array.prototype.lastIndexOf = function (o, from) {
 				return x;
 	return -1;
 });
-
-	$.alert = window.alert;
-/* alert multi lines */
-window.alert = function (s) {
-	for (var x = 1; x < arguments.length; x++)
-		s += '\n' + arguments[x];
-	return $fox ? $.alert.call(window, s) : $.alert(s), s;
+Array.prototype.remove = function (from, len) {
+	return this.splice(from, len), this;
 }
 
 $.throwStack = function (file, line) {

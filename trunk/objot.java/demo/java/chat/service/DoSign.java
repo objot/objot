@@ -24,7 +24,7 @@ public class DoSign
 	public static final HashMap<Integer, Object> S = new HashMap<Integer, Object>();
 
 	@Service
-	public static Ok inUp(User u_, HttpSession ses) throws Exception
+	public static User inUp(User u_, HttpSession ses) throws Exception
 	{
 		u_.name = noEmpty("name", u_.name);
 		u_.password = noEmpty("password", u_.password, false);
@@ -46,7 +46,7 @@ public class DoSign
 			throw err("user already signed in");
 		ses.setAttribute("signed", u);
 		S.put(u.id, S);
-		return Ok.OK;
+		return u;
 	}
 
 	@Service
