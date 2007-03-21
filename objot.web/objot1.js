@@ -329,62 +329,73 @@ $tx = function (singleLine) {
 
 //********************************************************************************************//
 
-/* append children, or prepend if first argument is 0 */
-$dom.add = function (child) {
-	if (child === 0)
-		for (var _ = this.firstChild, x = 1; x < arguments.length; x++)
+/* append children if index is skipped or >= children length,
+ * or prepend children if index is 0 or <= - chilren length,
+ * or insert if index >= 0 (from first) or <= -1 (from last) */
+$dom.add = function (index) {
+	if (index >= 0 || index < 0)
+		for (var _ = this.childNodes[index < 0 ? Math.max(this.childNodes.length + index, 0)
+				: index] || null, x = 1; x < arguments.length; x++)
 			this.insertBefore(arguments[x], _);
 	else
 		for (var x = 0; x < arguments.length; x++)
 			this.appendChild(arguments[x]);
 	return this;
 }
-/* remove children, all if argument is -1, or remove self if no argument,
- * or replace second argument if first argument is 1 */
-$dom.rem = function (child, replaced) {
+/* remove children, or remove self if no argument,
+ * or remove len children from index, or remove from index to last
+ * or replace second argument if index is true */
+$dom.rem = function (index, len) {
 	if (arguments.length == 0)
 		this.parentNode && this.parentNode.removeChild(this);
-	else if (child === 1)
-		$.o(replaced.parentNode).replaceChild(this, replaced);
-	else if (child === -1)
-		while (this.lastChild)
-			this.removeChild(this.lastChild);
-	else
+	else if (index === true)
+		$.o(len.parentNode).replaceChild(this, len);
+	else if (index >= 0 || index < 0) {
+		var s = this.childNodes;
+		index < 0 && (index = Math.max(s.length + index, 0));
+		if (index < s.length)
+			for (var x = index + (len > 0 ? len : s.length) - 1; x >= index; x--) 
+				this.removeChild(s[x]);
+	} else
 		for (var x = 0; x < arguments.length; x++)
 			this.removeChild(arguments[x]);
 }
 /* similar to rem(), recursively detach event handlers and $ and more for no IE memory leak */
-$dom.des = function (child, replaced) {
+$dom.des = function (index, len) {
+	this !== window || $throw('destroy window forbidden');
 	if (arguments.length == 0)
 		this[''] && (this[''] = null), this.$ && (this.$ = null),
 		this.parentNode && this.parentNode.removeChild(this),
-		child = -1;
-	if (child === 1)
-		$.o(replaced.parentNode).replaceChild(this, replaced),
-		replaced.des ? replaced.des() : $dom.des.call(replaced);
-	else if (child === -1)
-		for (var x; x = this.lastChild;)
-			x.des ? x.des() : $dom.des.call(x);
-	else
+		index = 0;
+	if (index === true)
+		$.o(len.parentNode).replaceChild(this, len),
+		len.des ? len.des() : $dom.des.call(len);
+	else if (index >= 0 || index < 0) {
+		var s = this.childNodes;
+		index < 0 && (index = Math.max(s.length + index, 0));
+		if (index < s.length)
+			for (var x = index + (len > 0 ? len : s.length) - 1; x >= index; x--) 
+				s[x].des ? s[x].des() : $dom.des.call(s[x]);
+	} else
 		for (var x = 0; x < arguments.length; x++)
 			arguments[x].des ? arguments[x].des() : $dom.des.call(arguments[x]);
 	return this;
 }
 
-/* add css class, or remove css class if first argument is -1 */
+/* add css class, or remove css class if first argument is 0 */
 $dom.cla = function (clazz) {
-	if (arguments.length < 1 || clazz === -1 && this.className.length < 1)
+	if (arguments.length < 1 || clazz === 0 && this.className.length < 1)
 		return this;
 	var cs = this.className.split(' '), c;
-	X:for (var x = clazz === -1 ? 1 : 0; x < arguments.length; x++)
+	X:for (var x = clazz === 0 ? 1 : 0; x < arguments.length; x++)
 		if (c = $.s(arguments[x])) {
 			for (var y = cs.length - 1; y >= 0; y--)
 				if (cs[y] == c)
-					if (clazz === -1)
+					if (clazz === 0)
 						cs.splice(y, 1);
 					else
 						continue X;
-			clazz === -1 || (cs[cs.length] = c);
+			clazz === 0 || (cs[cs.length] = c);
 		}
 	this.className = cs.join(' ');
 	return this;
@@ -398,13 +409,12 @@ $dom.att = function (a, v) {
 		v === null ? this.removeAttribute(a) : this.setAttribute(a, v);
 	return this;
 }
-/* get/set textContent in Firefox, innerText in IE,
- * get only single-line in Firefox unless the text is set by this method */
-$dom.tx = $fox ? function (v) {
+/* get/set textContent in Firefox, innerText in IE */
+$dom.tx = $fox ? function (v, multiLine) {
 	if (v === undefined)
 		return this.textContent; // single line for stupid Firefox
 	v = v.replace(/  /g, ' \u00a0'); // stupid Firefox, multi whitespaces unsupported
-	if ((v = String(v)).indexOf('\n')) { // stupid Firefox, '\n' unsupported
+	if (multiLine && (v = String(v)).indexOf('\n') >= 0) { // stupid Firefox, '\n' unsupported
 		v = v.split('\n');
 		this.textContent = v.length > 0 ? v[0] : '';
 		for (var x = 1; x < v.length; x++)
@@ -414,8 +424,9 @@ $dom.tx = $fox ? function (v) {
 	else
 		this.textContent = v;
 	return this;
-} : function (v) {
-	return v === undefined ? this.innerText : (this.innerText = v, this);
+} : function (v, multiLine) {
+	return v === undefined ? this.innerText
+		: (this.innerText = multiLine ? v : v.replace(/\n/g, ' '), this);
 }
 /* get/set style.display == 'none', or set null to switch */
 $dom.show = function (v) {

@@ -45,13 +45,10 @@ public final class Servlet
 				// cache needless for this simple demo
 				// c = clas.get(name);
 				// if (c == null)
-				if (name.startsWith("chat."))
-				{
-					c = Class.forName("chat.model".concat(name.substring("chat".length())));
-					// clas.put(name, c);
-				}
-				else
-					throw new ClassNotFoundException(name);
+				// {
+				c = Class.forName("chat.model.".concat(name));
+				// clas.put(name, c);
+				// }
 				return c;
 			}
 
@@ -59,13 +56,13 @@ public final class Servlet
 			protected String className(Class<?> c)
 			{
 				if (c == Err.class)
-					return "chat.Err";
+					return "Err";
 				String n;
 				// cache needless for this simple demo
 				// n = claNames.get(c);
 				// if (n == null)
 				// {
-				n = "chat".concat(c.getName().substring("chat.model".length()));
+				n = c.getName().substring("chat.model.".length());
 				// claNames.put(c, n);
 				// }
 				return n;
