@@ -27,16 +27,18 @@ public class DoChat
 	{
 		User me = DoSign.me(ses);
 		ArrayList<Chat> s = new ArrayList<Chat>();
-		if (c_.out.id == me.id)
+		if (me.id.equals(c_.out.id))
 		{
 			for (Chat c: me.chatOuts)
-				if (c.datime >= c_.datime && c.in.id == c_.in.id)
+				if (c.datime >= c_.datime
+					&& (c_.in.id != null && (int)c.in.id == (int)c_.in.id))
 					s.add(c);
 		}
-		else if (c_.in.id == me.id)
+		else if (me.id.equals(c_.in.id))
 		{
 			for (Chat c: me.chatIns)
-				if (c.datime >= c_.datime && c.out.id == c_.out.id)
+				if (c.datime >= c_.datime
+					&& (c_.out.id != null && (int)c.out.id == (int)c_.out.id))
 					s.add(c);
 		}
 		else

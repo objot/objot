@@ -25,28 +25,31 @@ public class DoUser
 		return DoSign.me(ses).clone();
 	}
 
-	/** update {@link User#friends} if SO' is not null */
+	/**
+	 * update {@link User#friends} if SO' is not null.
+	 * @todo update {@link User#name}
+	 */
 	@Service
 	public static Ok update(User u, HttpSession ses) throws Exception
 	{
 		User me = DoSign.me(ses);
-		if (u.friends != null)
+		if (u.myFriends != null)
 		{
-			for (ListIterator<User> i = u.friends.listIterator(); i.hasNext();)
+			for (ListIterator<User> i = u.myFriends.listIterator(); i.hasNext();)
 				i.set(User.IDS.get(i.next().id - 1));
-			me.friends = u.friends;
+			me.friends = u.myFriends;
 		}
 		return Ok.OK;
 	}
 
-	/** @return POs by {@link User#name}, or nulls if not found */
+	/** @return POs by {@link User#id} or {@link User#name}, or nulls if not found */
 	@Service
-	public static User[] getByName(String[] names, HttpSession ses) throws Exception
+	public static User[] get(User[] us, HttpSession ses) throws Exception
 	{
 		DoSign.me(ses);
-		User[] s = new User[names.length];
-		for (int i = 0; i < names.length; i++)
-			s[i] = User.NAMES.get(names[i]);
-		return s;
+		for (int i = 0; i < us.length; i++)
+			us[i] = us[i].id != null ? User.IDS.get(us[i].id) : us[i].name != null
+				? User.NAMES.get(us[i].name) : null;
+		return us;
 	}
 }

@@ -17,48 +17,42 @@ final class Property
 	Class<?>[] clas;
 	boolean[] allows;
 
-	Property(Field f_, Get g, GetSet gs)
+	Property(Field f_, Get g, Set s, GetSet gs, boolean get)
 	{
 		f = f_;
-		if (g != null && gs != null)
-			throw new RuntimeException("duplicate " + Get.class.getName() + " for " + f);
-		Class<?>[] fcs = g != null ? g.value() : gs.value();
-		Class<?>[] ccs = Objot.CS0;
-		g = f.getDeclaringClass().getAnnotation(Get.class);
-		gs = f.getDeclaringClass().getAnnotation(GetSet.class);
-		if (g != null || gs != null)
-		{
-			if (g != null && gs != null)
-				throw new RuntimeException("duplicate " + Get.class.getName() + " for "
-					+ f.getDeclaringClass());
-			ccs = g != null ? g.value() : gs.value();
-		}
-		init(ccs, fcs);
-	}
+		Class<?>[] fcs;
+		if (gs == null)
+			fcs = get ? g.value() : s.value();
+		else if (g == null && s == null)
+			fcs = gs.value();
+		else
+			throw new RuntimeException("duplicate "
+				+ (get ? Get.class.getName() : Set.class.getName()) + " for " + f);
 
-	Property(Field f_, Set s, GetSet gs)
-	{
-		f = f_;
-		if (s != null && gs != null)
-			throw new RuntimeException("duplicate " + Set.class.getName() + " for " + f);
-		Class<?>[] fcs = s != null ? s.value() : gs.value();
-		Class<?>[] ccs = Objot.CS0;
-		s = f.getDeclaringClass().getAnnotation(Set.class);
-		gs = f.getDeclaringClass().getAnnotation(GetSet.class);
-		if (s != null || gs != null)
-		{
-			if (s != null && gs != null)
-				throw new RuntimeException("duplicate " + Set.class.getName() + " for "
-					+ f.getDeclaringClass());
-			ccs = s != null ? s.value() : gs.value();
-		}
-		init(ccs, fcs);
-	}
+		Get cg = get ? f.getDeclaringClass().getAnnotation(Get.class) : null;
+		Set cs = get ? null : f.getDeclaringClass().getAnnotation(Set.class);
+		GetSet cgs = f.getDeclaringClass().getAnnotation(GetSet.class);
+		Class<?>[] ccs;
+		if (cgs == null)
+			ccs = cg != null ? cg.value() : cs != null ? cs.value() : Objot.CS0;
+		else if (cg == null && cs == null)
+			ccs = cgs.value();
+		else
+			throw new RuntimeException("duplicate "
+				+ (get ? Get.class.getName() : Set.class.getName()) + " for "
+				+ f.getDeclaringClass());
 
-	private void init(Class<?>[] ccs, Class<?>[] fcs)
-	{
+		NameGet ng = get ? f.getAnnotation(NameGet.class) : null;
+		NameSet ns = get ? null : f.getAnnotation(NameSet.class);
 		Name name_ = f.getAnnotation(Name.class);
-		name = name_ != null ? name_.value() : f.getName();
+		if (name_ == null)
+			name = ng != null ? ng.value() : ns != null ? ns.value() : f.getName();
+		else if (ng == null && ns == null)
+			name = name_.value();
+		else
+			throw new RuntimeException("duplicate "
+				+ (get ? NameGet.class.getName() : NameSet.class.getName()) + " for " + f);
+
 		int n = 0;
 		for (Class<?> c: ccs)
 			if (c != Yes.class && c != No.class)
