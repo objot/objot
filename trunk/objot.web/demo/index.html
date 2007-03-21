@@ -25,7 +25,7 @@ a:hover { background:#ddddff; }
 p { margin:1em 0; }
 label { display:-moz-inline-box; display:inline-block; }
 button { background:#fd6; border:1px solid #66f; }
-table { width:100%; }
+table { width:100%; vertical-align: top; }
 
 .posAbs { position:absolute; }
 .posFix { position:fixed; }
@@ -45,7 +45,7 @@ table { width:100%; }
 .error { color:red; }
 .error .img { background:#e66 url(error.gif) no-repeat 0 center; }
 
-.popup .back { background:black; opacity:0.6; filter:alpha(opacity=60); }
+.Pop .back { background:black; opacity:0.6; filter:alpha(opacity=60); }
 
 /*********************************************************************************************/
 
@@ -63,46 +63,25 @@ table { width:100%; }
 
 /*********************************************************************************************/
 
-#Me {
-	width:30%; border:1em solid #e8f0ff;
-}
-#Me .min {
-	width:16em; height:0;
-}
-#Me .me {
-	background:#e8f0ff; padding:0 0 1em; overflow:hidden; #height:1em;
-}
+#Me { width:30%; padding:1em; background:#e8f0ff; }
+#Me .min { width:16em; height:0; }
 #Me .http .img,
-#Me .error .img {
-	margin-left:1ex;
-}
-#Me .left {
-	display:block; clear:both; float:left;
-}
-#Me .right {
-	display:block; clear:right; float:right;
-}
-#Me .friends {
-	margin:1em 0; overflow:hidden;
-}
+#Me .error .img { margin-left:1ex; }
+
+#Me .left { display:block; clear:both; float:left; }
+#Me .right { display:block; clear:right; float:right; }
+#Me .friends { clear:both; overflow:hidden; height:1%; margin:1em 0; background:white; }
 
 /*********************************************************************************************/
 
-#Chats {
-	width:60%; border:1em solid #fff0e8;
-}
-#Chats .min {
-	width:30em; height:0;
-}
-#Chats .tab {
-	background:#fff0e0; padding:0 0 1em; overflow:hidden; #height:1em;
-}
-#Chats .tab .left {
-	display:block; float:left; margin-right:1em;
-}
-#Chats .tab .right {
-	display:block; clear:right; float:right;
-}
+#Chats { width:60%; background:#fff0e8; }
+#Chats .min { width:30em; height:0; }
+#Chats .http .img,
+#Chats .error .img { margin-left:1ex; }
+
+#Chats .left { display:block; clear:both; float:left; }
+#Chats .right { display:block; clear:right; float:right; }
+#Chats .chats { background:white; }
 
 </style>
 </head>
@@ -127,11 +106,11 @@ table { width:100%; }
 <script src="chat.js"></script>
 <script>
 window.onload = function () {
-	var inner = $s();
-	var pop = popup(inner);
-	http(inner, chat.DoSign.out(this, function () {
-		inner = $s('id', 'SignIn').des(1, inner);
-		var sign = new SignIn(inner);
+	var box = $s();
+	var pop = _Pop(box);
+	_Http(box, DoSign.out(this, function () {
+		box = $s('id', 'SignIn').des(true, box);
+		var sign = new _SignIn(box);
 		sign.onOk = function () {
 			pop.des(), start();
 		}
@@ -143,8 +122,8 @@ window.onunload = function () {
 }
 
 function start() {
-	new Me($dom($id('Me')));
-	new Chats($dom($id('Chats')));
+	new _Me($dom($id('Me')));
+	new _Chats($dom($id('Chats')));
 }
 </script>
 </body>

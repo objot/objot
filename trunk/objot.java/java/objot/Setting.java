@@ -113,7 +113,7 @@ public final class Setting
 			if (bs[x] >= '0' && bs[x] <= '9')
 				v = v * 10 + (bs[x] - '0');
 			else
-				throw new NumberFormatException("illegal integer " + utf());
+				throw new NumberFormatException("illegal integer ".concat(utf()));
 		return bs[bx] == '-' ? - v : v;
 	}
 
