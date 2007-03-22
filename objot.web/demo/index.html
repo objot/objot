@@ -19,13 +19,13 @@
 <style>
 html,
 body { width:100%; height:100%; margin:0; padding:0; }
-h2 { margin:0; padding:1em 0 1ex; text-align:center; }
+h2 { margin:0; padding:1ex 0 1ex; text-align:center; }
 a { text-decoration:none; }
 a:hover { background:#ddddff; }
 p { margin:1em 0; }
 label { display:-moz-inline-box; display:inline-block; }
 button { background:#fd6; border:1px solid #66f; }
-table { width:100%; vertical-align: top; }
+table { width:100%; }
 
 .posAbs { position:absolute; }
 .posFix { position:fixed; }
@@ -36,16 +36,16 @@ table { width:100%; vertical-align: top; }
 
 /*********************************************************************************************/
 
-.http .img,
-.error .img {
+.HTTP-img,
+.ERR-img {
 	padding:0 8px; font-size:16px; /* -moz-inline-box issue */
 	#display:inline-block; #padding:0; #width:16px; #height:16px;
 }
-.http .img { background:url(http.gif) no-repeat 0 center; }
-.error { color:red; }
-.error .img { background:#e66 url(error.gif) no-repeat 0 center; }
+.HTTP-img { background:url(http.gif) no-repeat 0 center; }
+.ERR { color:red; }
+.ERR-img { background:#e66 url(error.gif) no-repeat 0 center; }
 
-.Pop .back { background:black; opacity:0.6; filter:alpha(opacity=60); }
+.POP-back { background:black; opacity:0.6; filter:alpha(opacity=60); }
 
 /*********************************************************************************************/
 
@@ -56,8 +56,8 @@ table { width:100%; vertical-align: top; }
 }
 #SignIn label { width:12ex; }
 #SignIn input { #width: 20ex; }
-#SignIn .http .img { margin-left:1ex; }
-#SignIn .error .img { margin-right:1ex; }
+#SignIn .HTTP-img { margin-left:1ex; }
+#SignIn .ERR-img { margin-right:1ex; }
 
 #SignOut { margin:0 1em 1ex; text-align:right; }
 
@@ -65,23 +65,25 @@ table { width:100%; vertical-align: top; }
 
 #Me { width:30%; padding:1em; background:#e8f0ff; }
 #Me .min { width:16em; height:0; }
-#Me .http .img,
-#Me .error .img { margin-left:1ex; }
+#Me .HTTP-img,
+#Me .ERR-img { margin-left:1ex; }
 
 #Me .left { display:block; clear:both; float:left; }
 #Me .right { display:block; clear:right; float:right; }
 #Me .friends { clear:both; overflow:hidden; height:1%; margin:1em 0; background:white; }
+#Me .signed { font-weight:bold; }
 
 /*********************************************************************************************/
 
-#Chats { width:60%; background:#fff0e8; }
+#Chats { width:60%; padding:1em; vertical-align:top; background:#fff0e8; }
 #Chats .min { width:30em; height:0; }
-#Chats .http .img,
-#Chats .error .img { margin-left:1ex; }
+#Chats .HTTP-img,
+#Chats .ERR-img { margin-left:1ex; }
 
 #Chats .left { display:block; clear:both; float:left; }
 #Chats .right { display:block; clear:right; float:right; }
-#Chats .chats { background:white; }
+#Chats .chats { clear:both; }
+#Chats .chats .chat { background:white; }
 
 </style>
 </head>
@@ -103,12 +105,13 @@ table { width:100%; vertical-align: top; }
 
 <noscript>Javascript is required</noscript>
 <script src="../objot1.js"></script>
+<script src="../objot1util.js"></script>
 <script src="chat.js"></script>
 <script>
 window.onload = function () {
 	var box = $s();
-	var pop = _Pop(box);
-	_Http(box, DoSign.out(this, function () {
+	var pop = $Pop(box);
+	$Http(box, DoSign.out(this, function () {
 		box = $s('id', 'SignIn').des(true, box);
 		var sign = new _SignIn(box);
 		sign.onOk = function () {

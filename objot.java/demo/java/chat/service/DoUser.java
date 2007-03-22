@@ -27,6 +27,7 @@ public class DoUser
 
 	/**
 	 * update {@link User#friends} if SO' is not null.
+	 * 
 	 * @todo update {@link User#name}
 	 */
 	@Service
@@ -42,14 +43,18 @@ public class DoUser
 		return Ok.OK;
 	}
 
-	/** @return POs by {@link User#id} or {@link User#name}, or nulls if not found */
+	/**
+	 * Get POs by {@link User#id} (if >= 0) or {@link User#name} (if not null).
+	 * 
+	 * @return POs, or nulls if not found
+	 */
 	@Service
 	public static User[] get(User[] us, HttpSession ses) throws Exception
 	{
 		DoSign.me(ses);
 		for (int i = 0; i < us.length; i++)
-			us[i] = us[i].id != null ? User.IDS.get(us[i].id) : us[i].name != null
-				? User.NAMES.get(us[i].name) : null;
+			us[i] = us[i].id != null && us[i].id >= 0 ? User.IDS.get(us[i].id)
+				: us[i].name != null ? User.NAMES.get(us[i].name) : null;
 		return us;
 	}
 }

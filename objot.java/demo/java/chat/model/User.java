@@ -42,7 +42,7 @@ public class User
 	public List<User> friends;
 
 	// @Transient for service
-	@GetSet
+	@GetSet(DoUser.class)
 	@NameGet("friends")
 	public List<User> myFriends;
 
