@@ -15,7 +15,7 @@ import chat.service.DoChat;
  * a chat message. PO as SO directly. I prefer "Chat" to "Message" just for less letters,
  * am I lazy ?
  */
-@GetSet(DoChat.class /* more clear here than User */)
+@GetSet(DoChat.class)
 public class Chat
 {
 	// @ManyToOne

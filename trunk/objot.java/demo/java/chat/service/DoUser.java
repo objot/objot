@@ -25,11 +25,7 @@ public class DoUser
 		return DoSign.me(ses).clone();
 	}
 
-	/**
-	 * update {@link User#friends} if SO' is not null.
-	 * 
-	 * @todo update {@link User#name}
-	 */
+	/** update {@link User#friends} if SO' is not null */
 	@Service
 	public static Ok update(User u, HttpSession ses) throws Exception
 	{
@@ -53,7 +49,7 @@ public class DoUser
 	{
 		DoSign.me(ses);
 		for (int i = 0; i < us.length; i++)
-			us[i] = us[i].id != null && us[i].id >= 0 ? User.IDS.get(us[i].id)
+			us[i] = us[i].id != null && us[i].id >= 0 ? User.IDS.get(us[i].id - 1)
 				: us[i].name != null ? User.NAMES.get(us[i].name) : null;
 		return us;
 	}

@@ -6,18 +6,28 @@
 //
 
 
-$fox || (Array.prototype.indexOf = function (o, from) {
-	for (var x = from; x < this.length; x++)
-		if (this[x] == o)
-			return x;
+Array.prototype.indexOf = function (o, from, propName) {
+	if (propName != null) {
+		for (var x = from; x < this.length; x++)
+			if (this[x] != null && this[x][propName] == o)
+				return x;
+	} else
+		for (var x = from; x < this.length; x++)
+			if (this[x] == o)
+				return x;
 	return -1;
-});
-$fox || (Array.prototype.lastIndexOf = function (o, from) {
-	for (var x = from; x >= 0; x--)
-		if (this[x] == o)
-			return x;
+}
+Array.prototype.lastIndexOf = function (o, from, propName) {
+	if (propName != null) {
+		for (var x = from; x >= 0; x--)
+			if (this[x] != null && this[x][propName] == o)
+				return x;
+	} else
+		for (var x = from; x >= 0; x--)
+			if (this[x] == o)
+				return x;
 	return -1;
-});
+}
 /* slight different with Firfox some() */
 Array.prototype.index = function (Do, This)  {
 	if (This != null) {
@@ -74,13 +84,33 @@ $Do = function (service, hint, req, this4, done4, this3, done3, this2, done2) {
 $Do.Url = '';
 $Do.Timeout = 30000; 
 
+$http.doneDelay = 300;
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
 $dom($D.body);
 
-$http.doneDelay = 300;
+/* get/set style.cssFloat in Firefox, style.styleFloat in IE */
+$.Float = $fox ? function (d, v) {
+	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
+} : function (d, v) {
+	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
+}
+/* get/set style.opacity in Firefox, style.filter in IE */
+$.opacity = $fox ? function (d, v) {
+	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
+} : function (d, v) {
+	var s = d.style, f = s.filter;
+	if (v === undefined)
+		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
+	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
+		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')');
+	return d;
+}
+
+//********************************************************************************************//
 
 /** @return the box, inner des() includes http close */
 $Http = function (box, h) {
@@ -98,16 +128,18 @@ $Http = function (box, h) {
 	}
 
 /** @return the box */
-$Err = function (box, err, hide) {
+$Err = function (box, err, show) {
 	err instanceof Err && (err = err.hint);
 	$fox && (err = err + '\n' + $.throwStack());
-	box.des(0), hide || box.tx(err, true), box.add(0, $s('c', 'ERR-img'));
-	hide && box.firstChild.att('title', err).attach('ondblclick', $Err.hint);
+	show == null && (show = $Err.showDefault);
+	box.des(0), show && box.tx(err, true), box.add(0, $s('c', 'ERR-img'));
+	show || box.firstChild.att('title', err).attach('ondblclick', $Err.hint);
 	return box.cla(0, 'HTTP').cla('ERR');
 }
 	$Err.hint = function () {
 		alert(this.title); // just for test, should use popup box
 	}
+$Err.showDefault = false;
 
 /** @return a box */
 $Pop = function (inner) {
