@@ -17,12 +17,12 @@ import objot.Get;
 import objot.GetSet;
 import objot.NameGet;
 import objot.Set;
+import chat.service.DoChat;
 import chat.service.DoSign;
 import chat.service.DoUser;
 import chat.service.Servlet;
 
 
-@Get(DoUser.class)
 public class User
 	implements Cloneable // different instances for PO and SO
 	, HttpSessionBindingListener // only for servlet session expiration
@@ -31,8 +31,8 @@ public class User
 	@GetSet(Object.class)
 	public Integer id;
 
-	@Get
-	@Set( { DoSign.class, DoUser.class })
+	@Get( { DoUser.class, DoChat.class })
+	@Set(DoSign.class)
 	public String name;
 
 	@Set(DoSign.class)

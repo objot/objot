@@ -23,42 +23,35 @@ public class DoChat
 	 * {@link Chat#datime}, no sort
 	 */
 	@Service
-	public static ArrayList<Chat> read(Chat c_, HttpSession ses) throws Exception
+	public static ArrayList<Chat> read(Chat c, HttpSession ses) throws Exception
 	{
 		User me = DoSign.me(ses);
 		ArrayList<Chat> s = new ArrayList<Chat>();
-		if (me.id.equals(c_.out.id))
-		{
-			for (Chat c: me.chatOuts)
-				if (c.datime >= c_.datime
-					&& (c_.in.id != null && (int)c.in.id == (int)c_.in.id))
-					s.add(c);
-		}
-		else if (me.id.equals(c_.in.id))
-		{
-			for (Chat c: me.chatIns)
-				if (c.datime >= c_.datime
-					&& (c_.out.id != null && (int)c.out.id == (int)c_.out.id))
-					s.add(c);
-		}
-		else
-			throw err("read others chats forbidden");
+		for (Chat o: me.chatOuts)
+			if (o.datime >= c.datime && (c.in.id != null && (int)o.in.id == (int)c.in.id))
+				s.add(o);
+		for (Chat i: me.chatIns)
+			if (i.datime >= c.datime && (c.out.id != null && (int)i.out.id == (int)c.out.id))
+				s.add(i);
 		return s;
 	}
 
+	/** @return SO with {@link Chat#datime} */
 	@Service
 	public static Chat post(Chat c, HttpSession ses) throws Exception
 	{
 		c.text = noEmpty("text", c.text, false);
 		User me = DoSign.me(ses);
 		c.out = me;
-		c.in = User.IDS.get(c.in.id);
+		c.in = User.IDS.get(c.in.id - 1);
 		if (! c.in.friends.contains(c.out))
 			throw err("You must be his/her friend");
 		c.datime = System.currentTimeMillis();
 		// SO as PO
 		me.chatOuts.add(c);
 		c.in.chatIns.add(c);
-		return c;
+		Chat _ = new Chat();
+		_.datime = c.datime;
+		return _;
 	}
 }

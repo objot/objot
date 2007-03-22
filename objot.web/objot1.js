@@ -305,7 +305,7 @@ $this = function (dom, o) {
 		for (var x in s2)
 			window[x] = f2(s2[x]);
 	})(
-{ $a:'a', $s:'span', $b:'br', $l:'label', $d:'div', $p:'p',
+{ $a:'a', $s:'span', $br:'br', $l:'label', $d:'div', $p:'p',
   $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
   $img:'img', $ul:'ul', $ol:'ol', $li:'li', $h1:'h1', $h2:'h2', $h3:'h3', $h4:'h4',
   $bn:'button', $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
@@ -412,7 +412,7 @@ $dom.att = function (a, v) {
 }
 /* get/set textContent in Firefox, innerText in IE */
 $dom.tx = $fox ? function (v, multiLine) {
-	if (v === undefined)
+	if (arguments.length == 0)
 		return this.textContent; // single line for stupid Firefox
 	v = String(v).replace(/  /g, ' \u00a0'); // stupid Firefox, multi whitespaces unsupported
 	if (multiLine && v.indexOf('\n') >= 0) { // stupid Firefox, '\n' unsupported
@@ -426,17 +426,17 @@ $dom.tx = $fox ? function (v, multiLine) {
 		this.textContent = v;
 	return this;
 } : function (v, multiLine) {
-	return v === undefined ? this.innerText
+	return arguments.length == 0 ? this.innerText
 		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
 /* get/set style.display == 'none', or switch if argument is null */
 $dom.show = function (v) {
 	var s = this.style.display !== 'none';
-	if (v === undefined)
+	if (arguments.length == 0)
 		return s;
 	if (s && !v)
 		this._disp = this.style.display, this.style.display = 'none';
-	else if (!s && (v || v === null))
+	else if (!s && (v || v == null))
 		this.style.display = this._disp || '';
 	return this;
 }
@@ -552,24 +552,6 @@ $.copyOwn = function (to, from) {
 			return !r;
 		}
 	}
-
-/* get/set style.cssFloat in Firefox, style.styleFloat in IE */
-$.Float = $fox ? function (d, v) {
-	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
-} : function (d, v) {
-	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
-}
-/* get/set style.opacity in Firefox, style.filter in IE */
-$.opacity = $fox ? function (d, v) {
-	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
-} : function (d, v) {
-	var s = d.style, f = s.filter;
-	if (v === undefined)
-		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
-	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
-		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')');
-	return d;
-}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//

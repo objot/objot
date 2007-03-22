@@ -165,10 +165,12 @@ public class ObjotServlet
 			}
 			catch (RuntimeException e)
 			{
+				// @todo response Err
 				throw e;
 			}
 			catch (Exception e)
 			{
+				// @todo response Err
 				throw new ServletException(e);
 			}
 			res.setContentLength(bs.length);
