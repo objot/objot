@@ -130,8 +130,8 @@ $get = function (o, forClass, onlyTree) {
 		var v, t = o.constructor.Name || 'Object', get;
 		s[x++] = t === 'Object' ? '' : t;
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
-		G: {
-			if (get = o.constructor.$get) {
+		P: {
+			G: if (get = o.constructor.$get) {
 				for (var c = s.clazz, g = get.length - 1; g >= 0; g--)
 					if (c === get[g] || c.prototype instanceof get[g]) {
 						if (get = o.constructor.$gets[g]) {
@@ -145,11 +145,11 @@ $get = function (o, forClass, onlyTree) {
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '/');
 	
-							break G;
+							break P;
 						}
-						break;
+						break G;
 					}
-				break G;
+				break P;
 			}
 		for (var p in o)
 			if (o.hasOwnProperty(p) && p.length && (v = o[p], t = typeof v) !== 'function')
@@ -261,6 +261,7 @@ $http = function (url, timeout, request, done, data) {
 	return url = request = null, close;
 }
 $http.doneDelay = 0;
+
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
@@ -413,8 +414,8 @@ $dom.att = function (a, v) {
 $dom.tx = $fox ? function (v, multiLine) {
 	if (v === undefined)
 		return this.textContent; // single line for stupid Firefox
-	v = v.replace(/  /g, ' \u00a0'); // stupid Firefox, multi whitespaces unsupported
-	if (multiLine && (v = String(v)).indexOf('\n') >= 0) { // stupid Firefox, '\n' unsupported
+	v = String(v).replace(/  /g, ' \u00a0'); // stupid Firefox, multi whitespaces unsupported
+	if (multiLine && v.indexOf('\n') >= 0) { // stupid Firefox, '\n' unsupported
 		v = v.split('\n');
 		this.textContent = v.length > 0 ? v[0] : '';
 		for (var x = 1; x < v.length; x++)
@@ -426,9 +427,9 @@ $dom.tx = $fox ? function (v, multiLine) {
 	return this;
 } : function (v, multiLine) {
 	return v === undefined ? this.innerText
-		: (this.innerText = multiLine ? v : v.replace(/\n/g, ' '), this);
+		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
-/* get/set style.display == 'none', or set null to switch */
+/* get/set style.display == 'none', or switch if argument is null */
 $dom.show = function (v) {
 	var s = this.style.display !== 'none';
 	if (v === undefined)
@@ -471,24 +472,6 @@ $dom.detach = function (ontype, handler) {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
-
-$fox || (Array.prototype.indexOf = function (o, from) {
-	if (this != null)
-		for (var x = from; x < this.length; x++)
-			if (x == o)
-				return x;
-	return -1;
-});
-$fox || (Array.prototype.lastIndexOf = function (o, from) {
-	if (this != null)
-		for (var x = from; x >= 0; x--)
-			if (x == o)
-				return x;
-	return -1;
-});
-Array.prototype.remove = function (from, len) {
-	return this.splice(from, len), this;
-}
 
 $.throwStack = function (file, line) {
 	var s = arguments.length == 0 ? new Error().Stack()
@@ -591,30 +574,3 @@ $.opacity = $fox ? function (d, v) {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 }
-
-// hints
-//
-// in Firefox, predefined function(){}.name can only be assigned without '.'
-//
-// && || ! ? if(x), 1 '0' [] are true, 0 NaN '' null undefined are false
-//   do NOT use x == true/false, sometimes String(x) sometimes not
-//
-// in IE 6(7?), event handler codes may need try { ... } finally {}
-//   otherwise the finally { ... } inside the codes may be ignored, stupid
-//
-// String(x) convert x to string (not String) unless x is already string
-//
-// function (a, b) { b = a; // then arguments[1] == arguments[0]
-//
-// while Firefox alert(), some callbacks could still be fired, such as
-//   timeout, interval
-// while IE alert(), some callbacks could still be fired, such as
-//   onclick, XMLHttpRequest.onreadystatechange
-// Awful ...
-//
-// when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unavailable
-//
-// \n unsupported in Firefox(not IE) element tooltip and textContent proprety, stupid
-//
-// in IE 6(7?), (null dom node) instanceof (Object etc) causes Javascript error.
-//

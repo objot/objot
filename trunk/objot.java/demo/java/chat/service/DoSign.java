@@ -12,6 +12,7 @@ import java.util.HashMap;
 import javax.servlet.http.HttpSession;
 
 import objot.servlet.Service;
+import chat.model.Chat;
 import chat.model.ErrUnsigned;
 import chat.model.Ok;
 import chat.model.User;
@@ -34,10 +35,12 @@ public class DoSign
 		{
 			u = u_; // SO as PO
 			User.IDS.add(u);
+			User.NAMES.put(u.name, u);
 			u.id = User.IDS.size();
 			u.friends = new ArrayList<User>();
 			u.friends.add(u); // i'm my friend by default
-			User.NAMES.put(u.name, u);
+			u.chatOuts = new ArrayList<Chat>();
+			u.chatIns = new ArrayList<Chat>();
 		}
 		// sign in
 		else if (! u.password.equals(u_.password))
