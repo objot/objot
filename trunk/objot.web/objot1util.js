@@ -131,15 +131,16 @@ $Http = function (box, h) {
 $Err = function (box, err, show) {
 	err instanceof Err && (err = err.hint);
 	$fox && (err = err + '\n' + $.throwStack());
-	show == null && (show = $Err.showDefault);
-	box.des(0), show && box.tx(err, true), box.add(0, $s('c', 'ERR-img'));
-	show || box.firstChild.att('title', err).attach('ondblclick', $Err.hint);
+	show == null && (show = $Err.onHint);
+	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-img'));
+	show === true || box.firstChild.att('title', err).attach('ondblclick', show);
 	return box.cla(0, 'HTTP').cla('ERR');
 }
-	$Err.hint = function () {
-		alert(this.title); // just for test, should use popup box
+	$Err.doHint = function () {
+		alert(this.title); // popup box better
+		this.des();
 	}
-$Err.showDefault = false;
+$Err.onHint = $Err.doHint;
 
 /** @return a box */
 $Pop = function (inner) {
@@ -174,7 +175,7 @@ $Pop = function (inner) {
 // in Firefox, predefined function(){}.name can only be assigned without '.'
 //
 // && || ! ? if(x), 1 '0' [] are true, 0 NaN '' null undefined are false
-//   do NOT use x == true/false, sometimes String(x) sometimes not
+//   do NOT use x == true/false, use x === true/false instead
 //
 // in IE 6(7?), event handler codes may need try { ... } finally {}
 //   otherwise the finally { ... } inside the codes may be ignored, stupid

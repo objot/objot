@@ -149,6 +149,14 @@ public final class Getting
 			for (int v: l)
 				s.append(S).append(v);
 		}
+		else if (o instanceof long[])
+		{
+			long[] l = (long[])o;
+			s.append(S).append(l.length);
+			ref(o, s);
+			for (long v: l)
+				s.append(S).append(objot.getLong(v));
+		}
 		else
 		{
 			Object[] l = (Object[])o;
@@ -186,6 +194,8 @@ public final class Getting
 						s.append(S).append(f.getFloat(o));
 					else if (c == int.class)
 						s.append(S).append(f.getInt(o));
+					else if (c == long.class)
+						s.append(S).append(objot.getLong(f.getLong(o)));
 					else if (c == boolean.class)
 						s.append(S).append(f.getBoolean(o) ? '>' : '<');
 					else
@@ -215,8 +225,10 @@ public final class Getting
 			s.append(S).append((double)(Double)v);
 		else if (v instanceof Float)
 			s.append(S).append((float)(Float)v);
+		else if (v instanceof Long)
+			s.append(S).append(objot.getLong((Long)v));
 		else if (v instanceof Number)
-			s.append(S).append((int)(Integer)v);
+			s.append(S).append(((Number)v).intValue());
 		else if ((ref = ref(v, 0)) > 0)
 			s.append(S).append('+').append(S).append(ref);
 		else if (v instanceof List || v.getClass().isArray())

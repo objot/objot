@@ -32,7 +32,7 @@ public class User
 	public Integer id;
 
 	@Get( { DoUser.class, DoChat.class })
-	@Set(DoSign.class)
+	@Set( { DoSign.class, DoUser.class })
 	public String name;
 
 	@Set(DoSign.class)

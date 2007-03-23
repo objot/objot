@@ -5,6 +5,6 @@ import objot.Set;
 public class A
 {
 	@Get
-	@Set( { A.class })
+	@Set//( { A.class })
 	public Object a2;
 }
