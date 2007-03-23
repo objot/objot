@@ -6,7 +6,8 @@
 //
 package chat.service;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,19 +21,34 @@ public class DoChat
 {
 	/**
 	 * read chats according to SO' {@link Chat#out} and {@link Chat#in} from
-	 * {@link Chat#datime}, no sort
+	 * {@link Chat#datime}(excluded), order by {@link Chat#datime} asc
 	 */
 	@Service
-	public static ArrayList<Chat> read(Chat c, HttpSession ses) throws Exception
+	public static Chat[] read(Chat c, HttpSession ses) throws Exception
 	{
 		User me = DoSign.me(ses);
-		ArrayList<Chat> s = new ArrayList<Chat>();
+		int n = 0;
 		for (Chat o: me.chatOuts)
-			if (o.datime >= c.datime && (c.in.id != null && (int)o.in.id == (int)c.in.id))
-				s.add(o);
+			if (o.datime > c.datime && (c.in == null || o.in.id.equals(c.in.id)))
+				n++;
 		for (Chat i: me.chatIns)
-			if (i.datime >= c.datime && (c.out.id != null && (int)i.out.id == (int)c.out.id))
-				s.add(i);
+			if (i.datime > c.datime && (c.out == null || i.out.id.equals(c.out.id)))
+				n++;
+		Chat[] s = new Chat[n];
+		n = 0;
+		for (Chat o: me.chatOuts)
+			if (o.datime > c.datime && (c.in == null || o.in.id.equals(c.in.id)))
+				s[n++] = o;
+		for (Chat i: me.chatIns)
+			if (i.datime > c.datime && (c.out == null || i.out.id.equals(c.out.id)))
+				s[n++] = i;
+		Arrays.sort(s, new Comparator<Chat>()
+		{
+			public int compare(Chat a, Chat b)
+			{
+				return a.datime < b.datime ? - 1 : a.datime == b.datime ? 0 : 1;
+			}
+		});
 		return s;
 	}
 

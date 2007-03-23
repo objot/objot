@@ -99,11 +99,13 @@ $get = function (o, forClass, onlyTree) {
 		if (o[''] = '' in o) // whether and set multi references
 			return;
 		if (o instanceof Array)
-			for (var x = 0; x < o.length; x ++) ox = o[x],
+			for (var x = 0; x < o.length; x ++)
+				ox = o[x],
 				typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
 					: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 		else for (var x in o)
-			if (o.hasOwnProperty(x)) ox = o[x],
+			if (o.hasOwnProperty(x))
+				ox = o[x],
 				typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
 					: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 	}
@@ -283,12 +285,12 @@ $dom = function (domOrName, x_, props_) {
 		if ((p = props[x]) == null)
 			$throw('arguments[' + x + '] must not be null');
 		else if (typeof p === 'string')
-			if (typeof (v = props[++x]) === 'function')
+			if (v = props[++x], v === undefined && (v = null), typeof v === 'function')
 				m.attach(p, v);
 			else
 				p == 's' ? m.style.cssText = v : p == 'c' ? m.className = v : m[p] = v;
 		else for (var pp in p)
-			if (typeof (v = p[pp]) === 'function')
+			if (v = p[pp], v === undefined && (v = null), typeof v === 'function')
 				m.attach(pp, v);
 			else
 				pp == 's' ? m.style.cssText = v : pp == 'c' ? m.className = v : m[pp] = v;
@@ -325,7 +327,7 @@ $a0 = function () {
 	return $dom('a', 0, arguments).att('href', 'javascript://');
 }
 $tx = function (singleLine) {
-	return $D.createTextNode(singleLine);
+	return $D.createTextNode(singleLine.replace(/  /g, ' \u00a0'));
 }
 
 //********************************************************************************************//
@@ -544,15 +546,19 @@ $.copyOwn = function (to, from) {
 
 	/* event dispatcher */
 	$.event = function (e, s, x, r, $) {
-		if ((s = this['']) && (x = s[(e || (e = window.event)).type])) {
-			$ = this.$ || this, e.target || (e.target = e.srcElement);
+		if ((s = this['']) && (x = s[(e || (e = event)).type])) {
+			$ = this.$ || this;
+			$fox || (e.target = e.srcElement, e.stop = $.eventStop);
 			r = 0; do
 				r |= !s[x + 1].call($, e);
 			while (x = s[x]);
 			return !r;
 		}
 	}
-
+	$.eventStop = function () {
+		this.cancelBubble = true;
+	}
+	$fox && (Event.prototype.stop = Event.prototype.stopPropagation);
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 }

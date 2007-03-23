@@ -23,9 +23,16 @@ public class Objot
 	}
 
 	/** multi thread, may be cached */
-	protected String className(Class<?> c)
+	protected String className(Class<?> c) throws Exception
 	{
 		return c.getName();
+	}
+
+	protected long getLong(long l) throws Exception
+	{
+		if (l < - 562949953421312L || l > 562949953421312L) // 2^49, for Javascript
+			throw new RuntimeException("getting integer out of range " + l);
+		return l;
 	}
 
 	static final Class<?>[] CS0 = {};

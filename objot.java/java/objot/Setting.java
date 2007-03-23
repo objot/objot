@@ -10,10 +10,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -31,6 +29,7 @@ public final class Setting
 	private int bx;
 	private int by;
 	private Object[] refs;
+	private int intOrLongOrNot;
 
 	private Setting(Objot o, Class<?> for_, byte[] s)
 	{
@@ -80,7 +79,7 @@ public final class Setting
 
 	private Object ref() throws Exception
 	{
-		int i = integer();
+		int i = (int)Int(1);
 		if (i < 0 || i >= refs.length || refs[i] == null)
 			throw new RuntimeException("reference " + i + " not found");
 		return refs[i];
@@ -93,28 +92,34 @@ public final class Setting
 
 	private String utf() throws Exception
 	{
-		return new String(bs, bx, by - bx, "UTF-8");
+		return bx == by ? "" : new String(bs, bx, by - bx, "UTF-8");
 	}
 
-	private boolean isInt()
+	/** @param L >0 for int only, < 0 for int or long, 0 for int or long or not */
+	private long Int(int L) throws Exception
 	{
 		if (bx >= by)
 			throw new NumberFormatException("illegal number");
-		for (int x = bs[bx] == '-' || bs[bx] == '+' ? bx + 1 : bx; x < by; x++)
-			if (bs[x] < '0' || bs[x] > '9')
-				return false;
-		return true;
-	}
-
-	private int integer() throws Exception
-	{
-		int v = 0;
+		long v = 0, vv;
 		for (int x = bs[bx] == '-' || bs[bx] == '+' ? bx + 1 : bx; x < by; x++)
 			if (bs[x] >= '0' && bs[x] <= '9')
-				v = v * 10 + (bs[x] - '0');
+				if ((vv = v * 10 - (bs[x] - '0')) <= v) // negative
+					v = vv;
+				else if (L == 0)
+					return intOrLongOrNot = 0;
+				else
+					throw new NumberFormatException("long integer out of range " + utf());
+			else if (L == 0)
+				return intOrLongOrNot = 0;
 			else
 				throw new NumberFormatException("illegal integer ".concat(utf()));
-		return bs[bx] == '-' ? - v : v;
+		if (bs[bx] != '-')
+			if ((v = - v) < 0)
+				throw new NumberFormatException("long integer out of range ".concat(utf()));
+		intOrLongOrNot = (v >> 31) == 0 || (v >> 31) == - 1 ? 1 : - 1;
+		if (L > 0 && intOrLongOrNot < 0)
+			throw new NumberFormatException("integer out of range ".concat(utf()));
+		return v;
 	}
 
 	private double number() throws Exception
@@ -128,49 +133,28 @@ public final class Setting
 
 	private Object list(Class<?> listClass, Class<?> arrayClass) throws Exception
 	{
-		final int len = integer();
+		final int len = (int)Int(1);
 		bxy();
 		boolean[] lb = null;
 		int[] li = null;
+		long[] ll = null;
 		Object[] lo = null;
 		Object l = null;
 		if (listClass != null)
-		{
-			l = new ArrayList<Object>(new AbstractCollection<Object>()
-			{
-				@Override
-				public int size()
-				{
-					return len;
-				}
-
-				@SuppressWarnings("unchecked")
-				@Override
-				public Object[] toArray(Object[] a)
-				{
-					return lo_ = a;
-				}
-
-				@Override
-				public Iterator<Object> iterator()
-				{
-					return null;
-				}
-			});
-			lo = lo_;
-			lo_ = null;
-		}
+			l = Arrays.asList(lo = new Object[len]);
 		else if (arrayClass == boolean.class)
 			l = lb = new boolean[len];
 		else if (arrayClass == int.class)
 			l = li = new int[len];
+		else if (arrayClass == long.class)
+			l = ll = new long[len];
 		else
 			l = lo = (Object[])Array.newInstance(arrayClass, len);
 		int ref = - 1;
 		if (chr() == '=')
 		{
 			bxy();
-			ref = integer();
+			ref = (int)Int(1);
 			refs = Objot.ensureN(refs, ref + 1);
 			refs[ref] = l;
 			bxy();
@@ -199,7 +183,18 @@ public final class Setting
 					throw new RuntimeException("integer expected for int[] but " + c + " at "
 						+ bx);
 				else
-					li[i++] = integer();
+					li[i++] = (int)Int(1);
+			return l;
+		}
+		else if (arrayClass == long.class)
+		{
+			for (char c; (c = chr()) != ';'; bxy())
+				if (c == 0 || c == '[' || c == '/' || c == '+' || c == '.' || c == '<'
+					|| c == '>')
+					throw new RuntimeException("long integer expected for int[] but " + c
+						+ " at " + bx);
+				else
+					ll[i++] = Int(- 1);
 			return l;
 		}
 		else
@@ -222,14 +217,22 @@ public final class Setting
 				set(lo, i++, false, cla);
 			else if (c == '>')
 				set(lo, i++, true, cla);
+			else if (cla == Long.class)
+				lo[i++] = Int(- 1);
 			else if (cla == Double.class)
 				lo[i++] = number();
 			else if (cla == Float.class)
 				lo[i++] = (float)number();
-			else if (isInt())
-				set(lo, i++, integer(), cla);
 			else
-				set(lo, i++, number(), cla);
+			{
+				long _ = Int(0);
+				if (intOrLongOrNot > 0)
+					set(lo, i++, (int)_, cla);
+				else if (intOrLongOrNot < 0)
+					set(lo, i++, _, cla);
+				else
+					set(lo, i++, number(), cla);
+			}
 		}
 		return l;
 	}
@@ -255,7 +258,7 @@ public final class Setting
 		if (chr() == '=')
 		{
 			bxy();
-			ref = integer();
+			ref = (int)Int(1);
 			refs = Objot.ensureN(refs, ref + 1);
 			bxy();
 		}
@@ -308,28 +311,42 @@ public final class Setting
 				v = false;
 			else if (c == '>')
 				v = true;
-			else if (isInt())
-				if (t == int.class)
-				{
-					f.setInt(o, integer());
-					continue;
-				}
-				else
-					v = integer();
+			else if (t == int.class)
+			{
+				f.setInt(o, (int)Int(1));
+				continue;
+			}
+			else if (t == long.class)
+			{
+				f.setLong(o, Int(- 1));
+				continue;
+			}
 			else if (t == double.class)
 			{
 				f.setDouble(o, number());
 				continue;
 			}
-			else if (t == Double.class)
-				v = number();
 			else if (t == float.class)
 			{
 				f.setFloat(o, (float)number());
 				continue;
 			}
+			else if (t == Long.class)
+				v = Int(- 1);
+			else if (t == Double.class)
+				v = number();
+			else if (t == Float.class)
+				v = (float)number();
 			else
-				v = Float.valueOf((float)number());
+			{
+				long _ = Int(0);
+				if (intOrLongOrNot > 0)
+					v = (int)_;
+				else if (intOrLongOrNot < 0)
+					v = _;
+				else
+					v = number();
+			}
 
 			try
 			{

@@ -40,7 +40,7 @@ public class DoUser
 	}
 
 	/**
-	 * Get POs by {@link User#id} (if >= 0) or {@link User#name} (if not null).
+	 * Get POs by {@link User#id} (if > 0) or {@link User#name} (if not null).
 	 * 
 	 * @return POs, or nulls if not found
 	 */
@@ -49,7 +49,7 @@ public class DoUser
 	{
 		DoSign.me(ses);
 		for (int i = 0; i < us.length; i++)
-			us[i] = us[i].id != null && us[i].id >= 0 ? User.IDS.get(us[i].id - 1)
+			us[i] = us[i].id != null && us[i].id > 0 ? User.IDS.get(us[i].id - 1)
 				: us[i].name != null ? User.NAMES.get(us[i].name) : null;
 		return us;
 	}
