@@ -17,10 +17,10 @@ import java.util.List;
 
 public final class Setting
 {
-	public static Object go(Objot o, Class<?> for_, byte[] s, Class<?> listClass)
+	public static Object go(Objot o, Class<?> clazz, Class<?> for_, byte[] s)
 		throws Exception
 	{
-		return new Setting(o, for_, s).go(listClass != null ? listClass : Object[].class);
+		return new Setting(o, for_, s).go(clazz);
 	}
 
 	private Objot objot;
@@ -38,7 +38,7 @@ public final class Setting
 		bs = s;
 	}
 
-	private Object go(Class<?> listClass) throws Exception
+	private Object go(Class<?> clazz) throws Exception
 	{
 		bx = 0;
 		by = - 1;
@@ -48,16 +48,16 @@ public final class Setting
 		if (bs[0] == '[')
 		{
 			bxy();
-			o = listClass.isArray() ? list(null, listClass.getComponentType()) : list(
-				Object.class, null);
-			if (! listClass.isAssignableFrom(o.getClass()))
+			o = clazz.isArray() ? list(null, clazz.getComponentType()) //
+				: list(Object.class, null);
+			if (! clazz.isAssignableFrom(o.getClass()))
 				throw new RuntimeException(o.getClass().getCanonicalName()
-					+ " forbidden for " + listClass.getCanonicalName());
+					+ " forbidden for " + clazz.getCanonicalName());
 		}
 		else if (bs[0] == '/')
 		{
 			bxy();
-			o = object(Object.class);
+			o = object(clazz);
 		}
 		else
 			throw new RuntimeException("array or object expected but " + chr() + " at 0");

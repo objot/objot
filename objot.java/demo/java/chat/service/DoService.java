@@ -12,24 +12,24 @@ import objot.ErrThrow;
 
 public abstract class DoService
 {
-	public static Exception err(String hint)
-	{
-		return new Exception(hint);
-	}
-
-	public static Exception err(Throwable e)
-	{
-		return new Exception(e);
-	}
-
-	public static Exception err(String hint, Throwable e)
-	{
-		return new Exception(hint, e);
-	}
-
-	public static Exception err(Err e)
+	public static ErrThrow err(Err e)
 	{
 		return new ErrThrow(e);
+	}
+
+	public static ErrThrow err(String hint)
+	{
+		return new ErrThrow(null, hint);
+	}
+
+	public static ErrThrow err(Throwable e)
+	{
+		return new ErrThrow(null, e);
+	}
+
+	public static ErrThrow err(String hint, Throwable e)
+	{
+		return new ErrThrow(null, hint, e);
 	}
 
 	/**

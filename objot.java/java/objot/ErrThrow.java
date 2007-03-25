@@ -15,7 +15,25 @@ public class ErrThrow
 
 	public ErrThrow(Err e)
 	{
-		super(e.hint);
+		super((e = e != null ? e : new Err()).hint);
+		err = e;
+	}
+
+	public ErrThrow(Err e, String hint)
+	{
+		super((e = e != null ? e : new Err(hint)).hint);
+		err = e;
+	}
+
+	public ErrThrow(Err e, Throwable cause)
+	{
+		super((e = e != null ? e : new Err(cause)).hint);
+		err = e;
+	}
+
+	public ErrThrow(Err e, String hint, Throwable cause)
+	{
+		super((e = e != null ? e : new Err(hint, cause)).hint);
 		err = e;
 	}
 }
