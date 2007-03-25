@@ -14,10 +14,10 @@ public class Ok
 	public static final Ok OK = new Ok("");
 
 	@Get
-	String message;
+	public final String hint;
 
-	public Ok(String message_)
+	public Ok(String hint_)
 	{
-		message = message_;
+		hint = hint_;
 	}
 }

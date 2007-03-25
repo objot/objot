@@ -371,7 +371,7 @@ _Chats.prototype.doRead = function (chat) {
 	var d = new Date(chat.datime);
 	d = $s('c', 'datime' + c).tx(d.getFullYear() + '-' + (d.getMonth() + 1)
 		+ '-' + d.getDate() + ' ' + d.toLocaleTimeString());
-	this.chats.add(d, $s('c', 'name' + c).tx((out ? chat.In : chat.out).name),
+	this.chats.add(d, $s('c', 'name' + c).tx(chat.out.name),
 		$d('c', 'text' + c).tx(chat.text, true));
 	d.scrollIntoView();
 	out && (this.OutDatime = chat.datime);

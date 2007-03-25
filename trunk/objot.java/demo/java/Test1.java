@@ -48,7 +48,7 @@ public class Test1
 		z[0] = z;
 		Objot objot = new Objot();
 		byte[] bs = Getting.go(objot, Object.class, z);
-		Object o = Setting.go(objot, Object.class, bs, null);
+		Object o = Setting.go(objot, Object.class, Object.class, bs);
 		byte[] bs2 = Getting.go(objot, Object.class, o);
 		if (bs.length != bs2.length)
 			throw new Exception("length error: " + bs.length + " " + bs2.length);

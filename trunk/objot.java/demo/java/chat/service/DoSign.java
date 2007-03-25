@@ -74,7 +74,7 @@ public class DoSign
 	{
 		User u = (User)ses.getAttribute("signed");
 		if (u == null)
-			throw err(new ErrUnsigned().hint("not signed in"));
+			throw err(new ErrUnsigned("not signed in"));
 		return u;
 	}
 }
