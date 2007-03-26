@@ -154,7 +154,7 @@ _SignIn.prototype.doSign = function () {
 }
 _SignIn.prototype.doneSign = function (ok, err) {
 	this.submit.disabled = false;
-	ok && (_me = ok, this.onOk.call(this.thisOk));
+	ok && this.onOk.call(this.thisOk);
 	err && $Err(this.err, err, true);
 }
 

@@ -21,8 +21,7 @@ import objot.Setting;
 
 public class Servicing
 {
-	protected String classNamePrefix = "";
-	protected String methodNameDefault = "index";
+	protected String methodNameDefault = "service";
 
 	public Objot objot;
 	public String name;
@@ -41,9 +40,9 @@ public class Servicing
 
 	public Servicing init(String claName, String methName) throws Exception
 	{
-		cla = Class.forName(classNamePrefix.concat(name));
+		cla = Class.forName(claName);
 		for (Method m: cla.getMethods())
-			if (m.getName().equals(name) && m.isAnnotationPresent(Service.class))
+			if (m.getName().equals(methName) && m.isAnnotationPresent(Service.class))
 			{
 				meth = m;
 				reqClas = m.getParameterTypes();
@@ -68,10 +67,9 @@ public class Servicing
 	public byte[] Do(byte[] reqBs, HttpServletRequest req, HttpServletResponse res)
 		throws ErrThrow, Exception
 	{
-		if (reqClas.length == 0 && reqBs != null)
-			throw new ErrThrow(null, "request content forbidden");
-		return reqBs == null ? Do(null, req, res) //
-			: Do(null, req, res, Setting.go(objot, reqClas[0], cla, reqBs));
+		if (reqBs == null)
+			return Do(null, req, res);
+		return Do(null, req, res, Setting.go(objot, reqClas[0], cla, reqBs));
 	}
 
 	public byte[] Do(Object service, HttpServletRequest req, HttpServletResponse res,
