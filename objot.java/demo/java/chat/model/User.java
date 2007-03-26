@@ -6,8 +6,6 @@
 //
 package chat.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpSessionBindingEvent;
@@ -24,7 +22,7 @@ import chat.service.Servlet;
 
 
 public class User
-	implements Cloneable // different instances for PO and SO
+	implements Cloneable // different instances for PO and SO, no need for Hibernate
 	, HttpSessionBindingListener // only for servlet session expiration
 {
 	// @Id, use Integer just for less object creation in Hibernate
@@ -46,26 +44,35 @@ public class User
 	@NameGet("friends")
 	public List<User> myFriends;
 
-	/** @return a new SO with {@link #myFriends} */
-	@Override
-	public User clone() throws CloneNotSupportedException
-	{
-		User u = (User)super.clone();
-		u.myFriends = u.friends;
-		return u;
-	}
-
-	/** index is {@link #id} - 1 */
-	public static final ArrayList<User> IDS = new ArrayList<User>();
-	public static final HashMap<String, User> NAMES = new HashMap<String, User>();
-
+	// @OneToMany
 	public List<Chat> chatOuts;
+	// @OneToMany
 	public List<Chat> chatIns;
+
+	/**
+	 * no need for Hibernate
+	 * 
+	 * @return a new SO with {@link #myFriends}
+	 */
+	@Override
+	public User clone()
+	{
+		try
+		{
+			User u = (User)super.clone();
+			u.myFriends = u.friends;
+			return u;
+		}
+		catch (CloneNotSupportedException e) // never happen
+		{
+			throw new InternalError();
+		}
+	}
 
 	/** for signed out */
 	public void valueUnbound(HttpSessionBindingEvent e)
 	{
-		synchronized (Servlet.class)
+		synchronized (Servlet.class) // for transaction
 		{
 			DoSign.S.remove(id);
 		}

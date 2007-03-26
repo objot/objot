@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import objot.Err;
 import objot.ErrThrow;
 import objot.Objot;
+import objot.Setting;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Servicing;
 
@@ -40,6 +41,7 @@ public final class Servlet
 				return c.getName().substring("chat.model.".length());
 			}
 		};
+		// @todo Hibernate initialization
 	}
 
 	@Override
@@ -52,21 +54,70 @@ public final class Servlet
 	static class Ing
 		extends Servicing
 	{
-		Ing()
+		boolean sign;
+		boolean tran;
+		boolean tranRead;
+		boolean tranSerial;
+
+		@Override
+		public Ing init(String claName, String methName) throws Exception
 		{
-			classNamePrefix = "chat.service.";
+			super.init("chat.service.".concat(claName), methName);
+			Signed s = meth.getAnnotation(Signed.class);
+			sign = s == null || s.need();
+			Transac t = meth.getAnnotation(Transac.class);
+			tran = t == null || t.need();
+			tranRead = t != null && t.readOnly();
+			tranSerial = t != null && t.serial();
+			return this;
 		}
 
 		@Override
-		public byte[] Do(Object service, HttpServletRequest req, HttpServletResponse res,
-			Object... reqOs) throws ErrThrow, Exception
+		public byte[] Do(byte[] bs, HttpServletRequest req, HttpServletResponse res)
+			throws ErrThrow, Exception
 		{
-			synchronized (Servlet.class) // serializable transaction
+			boolean ok = false;
+			synchronized (Servlet.class) // @todo get Hibernate session
 			{
-				return reqOs.length == 0 ? super.Do(null, req, res, req.getSession()) //
-					: super.Do(null, req, res, reqOs[0], req.getSession());
+				try
+				{
+					Do $ = new Do();
+					$.http = req.getSession();
+					if (sign)
+						$.me = DoSign.me($);
+					if (tran)
+					{
+						; // @todo start transaction
+						if (tranRead)
+							; // @todo read only transaction
+						else if (tranSerial)
+							; // @todo serializable isolation level
+						else
+							; // @todo repeatable-read isolation level for most cases }
+					}
+					if (bs == null)
+						bs = Do(null, req, res, $);
+					else
+						bs = Do(null, req, res, Setting.go(objot, reqClas[0], cla, bs), $);
+					ok = true;
+					return bs;
+				}
+				finally
+				{
+					if (tran)
+						try
+						{
+							if (ok)
+								; // @todo commit transaction
+							else
+								; // @todo abort transaction
+						}
+						catch (Throwable e)
+						{
+						}
+					; // @todo close Hibernate session
+				}
 			}
 		}
-
 	}
 }
