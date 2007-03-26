@@ -28,7 +28,7 @@ public class DoSign
 	{
 		u_.name = noEmpty("name", u_.name);
 		u_.password = noEmpty("password", u_.password, false);
-		User u = $.load(u_.name); // PO
+		User u = $.find(u_.name); // PO
 		// sign up
 		if (u == null)
 		{
@@ -58,7 +58,6 @@ public class DoSign
 	}
 
 	@Service
-	@Transac(need = false)
 	public static boolean[] signed(int[] ids, Do $) throws Exception
 	{
 		boolean[] s = new boolean[ids.length];

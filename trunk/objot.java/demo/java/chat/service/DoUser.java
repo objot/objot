@@ -46,7 +46,7 @@ public class DoUser
 	{
 		for (int i = 0; i < us.length; i++)
 			us[i] = us[i].id != null && us[i].id > 0 ? $.load(us[i].id) : us[i].name != null
-				? $.load(us[i].name) : null;
+				? $.find(us[i].name) : null;
 		return us;
 	}
 }

@@ -36,12 +36,9 @@ public class Do
 	}
 
 	/** like Hibernate Criteria.uniqueResult, PO */
-	public User load(String name)
+	public User find(String name)
 	{
-		User u = USERS_NAME.get(name);
-		if (u == null)
-			throw new RuntimeException("user name " + name + " not found");
-		return u;
+		return USERS_NAME.get(name);
 	}
 
 	/** like Hibernate Session.save, SO as PO */
@@ -49,7 +46,7 @@ public class Do
 	{
 		USERS_ID.add(u);
 		USERS_NAME.put(u.name, u);
-		u.id = USERS_ID.size() + 1;
+		u.id = USERS_ID.size();
 		return u.id;
 	}
 
