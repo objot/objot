@@ -27,13 +27,13 @@ public class ErrThrow
 
 	public ErrThrow(Err e, Throwable cause)
 	{
-		super((e = e != null ? e : new Err(cause)).hint);
+		super((e = e != null ? e : new Err(cause)).hint, cause);
 		err = e;
 	}
 
 	public ErrThrow(Err e, String hint, Throwable cause)
 	{
-		super((e = e != null ? e : new Err(hint, cause)).hint);
+		super((e = e != null ? e : new Err(hint, cause)).hint, cause);
 		err = e;
 	}
 }

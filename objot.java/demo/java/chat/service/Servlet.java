@@ -48,7 +48,7 @@ public final class Servlet
 	protected Servicing serviceConfig(String name, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
-		return new Ing();
+		return new Ing().init(objot, name);
 	}
 
 	static class Ing
