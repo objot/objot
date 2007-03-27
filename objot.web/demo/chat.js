@@ -1,9 +1,8 @@
 //
-// Objot 1
-//
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
+
 onerror = function(m, f, l) {
 	alert('Error! You could report the following details to http://objot.info\n\n'
 		+ m + '\n' + $.throwStack(f, l));

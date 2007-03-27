@@ -1,6 +1,4 @@
 //
-// Objot 1
-//
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
@@ -81,7 +79,7 @@ $class.get = function (clazz, forClass, gets) {
 
 /* get string from object graph, with class and reference */
 $get = function (o, forClass, onlyTree) {
-	var s = [o instanceof Array ? '[' : ($.o(o), '/')];
+	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
 	s.clazz = $.f(forClass);
 	try {
 		onlyTree || ($get.refX = 0, $get.ref(o));
@@ -124,8 +122,8 @@ $get = function (o, forClass, onlyTree) {
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
-					: (x = this.o(v, s, x), '/');
-		s[x++] = ';';
+					: (x = this.o(v, s, x), '{');
+		s[x++] = ']';
 		return x;
 	}
 	$get.o = function (o, s, x) {
@@ -145,7 +143,7 @@ $get = function (o, forClass, onlyTree) {
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
-					: (x = this.o(v, s, x), '/');
+					: (x = this.o(v, s, x), '{');
 	
 							break P;
 						}
@@ -160,9 +158,9 @@ $get = function (o, forClass, onlyTree) {
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
-					: (x = this.o(v, s, x), '/');
+					: (x = this.o(v, s, x), '{');
 		}
-		s[x++] = ';';
+		s[x++] = '}';
 		return x;
 	}
 
@@ -170,7 +168,7 @@ $get = function (o, forClass, onlyTree) {
 $set = function (s) {
 	try {
 		s = $.s(s).split('\20'/* Ctrl-P in vim */);
-		var x = s[0] === '[' ? $set.l(s, 1) : s[0] === '/' ? $set.o(s, 1) : -1;
+		var x = s[0] === '[' ? $set.l(s, 1) : s[0] === '{' ? $set.o(s, 1) : -1;
 		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
 			: $set.r.length = 0, s.o;
 	} catch(_) {
@@ -181,12 +179,12 @@ $set = function (s) {
 		var o = new Array(s[x++] - 0);
 		s[x] === '=' && (this.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
-			: (v = s[x++]) !== ';'; i++)
+			: (v = s[x++]) !== ']'; i++)
 			switch(v) {
 				case '': o[i] = s[x++]; break; case '.': o[i] = null; break;
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
 				case '[': x = this.l(s, x); o[i] = s.o; break;
-				case '/': x = this.o(s, x); o[i] = s.o; break;
+				case '{': x = this.o(s, x); o[i] = s.o; break;
 				case '+': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: (o[i] = v - 0) != NaN || $throw('illegal number ' + $S(v));
 			}
@@ -196,12 +194,12 @@ $set = function (s) {
 	$set.o = function (s, x, p, v) {
 		var c = $.c(s[x++]), o = new c;
 		s[x] === '=' && (this.r[s[++x]] = o, x++);
-		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== ';')
+		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break; case '.': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
 				case '[': x = this.l(s, x); o[p] = s.o; break;
-				case '/': x = this.o(s, x); o[p] = s.o; break;
+				case '{': x = this.o(s, x); o[p] = s.o; break;
 				case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: (o[p] = v - 0) != NaN || $throw('illegal number ' + $S(v));
 			}
