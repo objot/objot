@@ -1,6 +1,4 @@
 //
-// Objot 1
-//
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
@@ -46,7 +44,7 @@ public final class Getting
 		if (o instanceof List || o.getClass().isArray())
 			list(o, s.append('['));
 		else
-			object(o, s.append('/'));
+			object(o, s.append('{'));
 		return utf(s);
 	}
 
@@ -165,7 +163,7 @@ public final class Getting
 			for (Object v: l)
 				value(v, s);
 		}
-		s.append(S).append(';');
+		s.append(S).append(']');
 	}
 
 	@SuppressWarnings("unchecked")
@@ -202,7 +200,7 @@ public final class Getting
 						value(f.get(o), s);
 				}
 		}
-		s.append(S).append(';');
+		s.append(S).append('}');
 	}
 
 	private void ref(Object o, StringBuilder s)
@@ -234,7 +232,7 @@ public final class Getting
 		else if (v instanceof List || v.getClass().isArray())
 			list(v, s.append(S).append('['));
 		else
-			object(v, s.append(S).append('/'));
+			object(v, s.append(S).append('{'));
 	}
 
 	private static byte[] utf(StringBuilder s)

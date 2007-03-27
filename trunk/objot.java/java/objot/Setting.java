@@ -1,6 +1,4 @@
 //
-// Objot 1
-//
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
@@ -54,7 +52,7 @@ public final class Setting
 				throw new RuntimeException(o.getClass().getCanonicalName()
 					+ " forbidden for " + clazz.getCanonicalName());
 		}
-		else if (bs[0] == '/')
+		else if (bs[0] == '{')
 		{
 			bxy();
 			o = object(clazz);
@@ -167,7 +165,7 @@ public final class Setting
 		}
 		else if (arrayClass == boolean.class)
 		{
-			for (char c; (c = chr()) != ';'; bxy())
+			for (char c; (c = chr()) != ']'; bxy())
 				if (c != '<' && c != '>')
 					throw new RuntimeException("bool expected for boolean[] but " + c
 						+ " at " + bx);
@@ -177,8 +175,8 @@ public final class Setting
 		}
 		else if (arrayClass == int.class)
 		{
-			for (char c; (c = chr()) != ';'; bxy())
-				if (c == 0 || c == '[' || c == '/' || c == '+' || c == '.' || c == '<'
+			for (char c; (c = chr()) != ']'; bxy())
+				if (c == 0 || c == '[' || c == '{' || c == '+' || c == '.' || c == '<'
 					|| c == '>')
 					throw new RuntimeException("integer expected for int[] but " + c + " at "
 						+ bx);
@@ -188,8 +186,8 @@ public final class Setting
 		}
 		else if (arrayClass == long.class)
 		{
-			for (char c; (c = chr()) != ';'; bxy())
-				if (c == 0 || c == '[' || c == '/' || c == '+' || c == '.' || c == '<'
+			for (char c; (c = chr()) != ']'; bxy())
+				if (c == 0 || c == '[' || c == '{' || c == '+' || c == '.' || c == '<'
 					|| c == '>')
 					throw new RuntimeException("long integer expected for int[] but " + c
 						+ " at " + bx);
@@ -199,15 +197,15 @@ public final class Setting
 		}
 		else
 			cla = Object.class;
-		for (char c; (c = chr()) != ';'; bxy())
+		for (char c; (c = chr()) != ']'; bxy())
 		{
-			if (c == 0 || c == '[' || c == '/' || c == '+')
+			if (c == 0 || c == '[' || c == '{' || c == '+')
 				bxy();
 			if (c == 0)
 				set(lo, i++, utf(), cla);
 			else if (c == '[')
 				set(lo, i++, list(Object.class, null), cla);
-			else if (c == '/')
+			else if (c == '{')
 				set(lo, i++, object(Object.class), cla);
 			else if (c == '+')
 				set(lo, i++, ref(), cla);
@@ -265,7 +263,7 @@ public final class Setting
 		Object o = cla.newInstance();
 		if (ref >= 0)
 			refs[ref] = o;
-		for (char c; chr() != ';'; bxy())
+		for (char c; chr() != '}'; bxy())
 		{
 			String n = utf();
 			Field f = null;
@@ -285,7 +283,7 @@ public final class Setting
 			}
 			bxy();
 			c = chr();
-			if (c == 0 || c == '[' || c == '/' || c == '+')
+			if (c == 0 || c == '[' || c == '{' || c == '+')
 				bxy();
 
 			if (c == 0)
@@ -301,7 +299,7 @@ public final class Setting
 				}
 				else
 					v = list(Object.class, null);
-			else if (c == '/')
+			else if (c == '{')
 				v = object(f == null ? Object.class : f.getType());
 			else if (c == '+')
 				v = ref();
