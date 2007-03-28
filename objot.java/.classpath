@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="demo/java"/>
 	<classpathentry excluding="java/" kind="src" path="demo"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="demo/java/servlet-api.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/servlet-api.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>
