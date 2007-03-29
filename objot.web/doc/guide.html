@@ -7,7 +7,8 @@
 -->
 <html>
 <head>
-<meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<meta name="Content-Type" content="text/html; charset=UTF-8"
+	http-equiv="Content-Type">
 <style type="text/css"><!--
 	body	{ padding:0; margin:1em; font-family:sans-serif; }
 	h2		{ padding:1ex 0 0.2ex; border-bottom:0.3ex solid #ccddff; }
@@ -31,13 +32,22 @@
 <p>版权所有2007蔡倩彦，遵循GNU General Public License version 2。
 
 
-<h2>面向服务的Ajax</h2>
+<h2>面向服务的AJAX</h2>
 
+<p>Objot是一个轻量级的组件，可以为Web开发项目有效地构建面向服务的AJAX架构。
+服务器部署业务数据Model，部署业务逻辑Service；浏览器部署用户界面，部署操作逻辑，并与Service交互。
+交互的数据、流程由开发者定义，用Objot实现。
+
+<p>Objot包含了一组Javascript、Java和Python代码，来帮助开发者实现浏览端与服务端的交互。
+还包含了一组Javascript代码，来帮助开发者实现用户界面和操作逻辑。
+在浏览端，Objot中的函数名均以$开头；在服务端，Objot代码都在objot包中。
+
+<p>一个在线聊天的范例，演示了如何用Objot和面向服务的AJAX架构实现一个完整的Web应用。
 
 <h2>定义服务对象Service Object</h2>
 
-<p>借助于Objot轻量级对象序列化反序列化机制，View和Service之间的数据交互相当简洁而高效。
-可以传递的数据类型包括：
+<p>借助于Objot轻量级对象序列化反序列化机制，浏览端和服务端之间的数据交互简洁而有效。
+可以在交互中传递的数据类型包括：
 <table>
 	<tr><th>Javascript<th>Java<th>Python</tr>
 	<tr><td>null undefined<td>null<td>None</tr>
@@ -48,10 +58,10 @@
 	<tr><td>Object(非Function String Number Boolean Array)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
 </table>
 对象之间可以任意引用，整个对象图都可以被传递，同时也可以定义规则，只传递对象图的局部（子图）。
-Objot还支持单继承类，服务端和浏览端可以使用不同的类名，并可以对应。
-对象的属性名两端也可不同，可以对应。
+Objot支持单继承类，服务端和浏览端可以使用不同的类名，可以使用不同的属性名，均可以对应。
+传递的对象图必须以list或者object为起点，传递的对象被称为服务对象Service Object。
 
-<p>传递的对象图必须以list或者object为起点，传递的对象被称为服务对象Service Object。
+<p>浏览端使用Service Object需要先定义相应的类。
 
 
 <h2>定义服务流程和逻辑</h2>
