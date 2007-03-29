@@ -8,8 +8,10 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.util.AbstractCollection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -139,7 +141,32 @@ public final class Setting
 		Object[] lo = null;
 		Object l = null;
 		if (listClass != null)
-			l = Arrays.asList(lo = new Object[len]);
+		{
+			// ArrayList's element array should be protected modifier
+			l = new ArrayList<Object>(new AbstractCollection<Object>()
+			{
+				@Override
+				public int size()
+				{
+					return len;
+				}
+
+				@SuppressWarnings("unchecked")
+				@Override
+				public Object[] toArray(Object[] a)
+				{
+					return lo_ = a;
+				}
+
+				@Override
+				public Iterator<Object> iterator()
+				{
+					return null;
+				}
+			});
+			lo = lo_;
+			lo_ = null;
+		}
 		else if (arrayClass == boolean.class)
 			l = lb = new boolean[len];
 		else if (arrayClass == int.class)
