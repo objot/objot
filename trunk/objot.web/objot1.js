@@ -77,18 +77,18 @@ $class.get = function (clazz, forClass, gets) {
 
 //********************************************************************************************//
 
-/* get string from object graph, with class and reference */
-$get = function (o, forClass, onlyTree) {
+/* get string from object graph, with class name and reference */
+$get = function (o, forClass) {
 	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
 	s.clazz = $.f(forClass);
 	try {
-		onlyTree || ($get.refX = 0, $get.ref(o));
+		$get.refX = 0, $get.ref(o);
 		o instanceof Array ? $get.l(o, s, 1) : $get.o(o, s, 1);
 	} catch(_) {
-		try { onlyTree || $get.unref(o); } catch(_) {}
+		try { $get.unref(o); } catch(_) {}
 		throw _;
 	}
-	onlyTree || $get.unref(o);
+	$get.unref(o);
 	return s.join('\20');
 }
 	$get.ref = function (o, ox) {
@@ -101,6 +101,8 @@ $get = function (o, forClass, onlyTree) {
 				ox = o[x],
 				typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
 					: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
+		else if (!o.constructor.Name)
+			$throw($S(o) + ' class not ready');
 		else for (var x in o)
 			if (o.hasOwnProperty(x))
 				ox = o[x],
@@ -127,7 +129,7 @@ $get = function (o, forClass, onlyTree) {
 		return x;
 	}
 	$get.o = function (o, s, x) {
-		var v, t = o.constructor.Name || 'Object', get;
+		var v, t = o.constructor.Name, get;
 		s[x++] = t === 'Object' ? '' : t;
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 		P: {
@@ -519,7 +521,8 @@ $.c = function ($_$, _$_) {
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
-	$.cs = { '': Object, Object: Object }
+	$.cs = { '': Object }
+	$class('Object')
 
 /**
  * copy another's properties
