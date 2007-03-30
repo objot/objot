@@ -71,7 +71,7 @@ public final class Servlet
 		}
 
 		@Override
-		public byte[] Do(byte[] bs, HttpServletRequest req, HttpServletResponse res)
+		public CharSequence Do(char[] Q, HttpServletRequest req, HttpServletResponse res)
 			throws ErrThrow, Exception
 		{
 			boolean ok = false;
@@ -93,12 +93,13 @@ public final class Servlet
 						else
 							; // @todo repeatable-read isolation level for most cases }
 					}
-					if (bs == null)
-						bs = Do(null, req, res, $);
+					CharSequence S;
+					if (Q == null)
+						S = Do(null, req, res, $);
 					else
-						bs = Do(null, req, res, Setting.go(objot, reqClas[0], cla, bs), $);
+						S = Do(null, req, res, Setting.go(objot, reqClas[0], cla, Q), $);
 					ok = true;
-					return bs;
+					return S;
 				}
 				finally
 				{

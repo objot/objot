@@ -15,7 +15,7 @@ public final class Getting
 	 * @param o the whole gettable object graph must keep unchanged since the references
 	 *            detection is not thread safe
 	 */
-	public static byte[] go(Objot objot, Class<?> for_, Object o) throws Exception
+	public static CharSequence go(Objot objot, Class<?> for_, Object o) throws Exception
 	{
 		return new Getting(objot, for_).go(o);
 	}
@@ -37,7 +37,7 @@ public final class Getting
 		refn = 0;
 	}
 
-	private byte[] go(Object o) throws Exception
+	private CharSequence go(Object o) throws Exception
 	{
 		refs(o);
 		StringBuilder s = new StringBuilder(1000);
@@ -45,7 +45,7 @@ public final class Getting
 			list(o, s.append('['));
 		else
 			object(o, s.append('{'));
-		return utf(s);
+		return s;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -233,36 +233,5 @@ public final class Getting
 			list(v, s.append(S).append('['));
 		else
 			object(v, s.append(S).append('{'));
-	}
-
-	private static byte[] utf(StringBuilder s)
-	{
-		char c;
-		int len = s.length();
-		int ulen = 0;
-		for (int i = 0; i < len; i++)
-			if ((c = s.charAt(i)) < 0x80)
-				ulen++;
-			else if (c < 0x800)
-				ulen += 2;
-			else
-				ulen += 3;
-		byte[] utf = new byte[ulen];
-		int ui = 0;
-		for (int i = 0; i < len; i++)
-			if ((c = s.charAt(i)) < 0x80)
-				utf[ui++] = (byte)c;
-			else if (c < 0x800)
-			{
-				utf[ui++] = (byte)(0xC0 | (c >>> 6) & 0x1F);
-				utf[ui++] = (byte)(0x80 | c & 0x3F);
-			}
-			else
-			{
-				utf[ui++] = (byte)(0xE0 | (c >>> 12) & 0x0F);
-				utf[ui++] = (byte)(0x80 | (c >>> 6) & 0x3F);
-				utf[ui++] = (byte)(0x80 | c & 0x3F);
-			}
-		return utf;
 	}
 }

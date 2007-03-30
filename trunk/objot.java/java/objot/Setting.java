@@ -17,7 +17,7 @@ import java.util.List;
 
 public final class Setting
 {
-	public static Object go(Objot o, Class<?> clazz, Class<?> for_, byte[] s)
+	public static Object go(Objot o, Class<?> clazz, Class<?> for_, char[] s)
 		throws Exception
 	{
 		return new Setting(o, for_, s).go(clazz);
@@ -25,13 +25,13 @@ public final class Setting
 
 	private Objot objot;
 	private Class<?> forClass;
-	private byte[] bs;
+	private char[] bs;
 	private int bx;
 	private int by;
 	private Object[] refs;
 	private int intOrLongOrNot;
 
-	private Setting(Objot o, Class<?> for_, byte[] s)
+	private Setting(Objot o, Class<?> for_, char[] s)
 	{
 		objot = o;
 		forClass = for_;
@@ -90,9 +90,9 @@ public final class Setting
 		return bx == by ? 0 : bx == by - 1 ? (char)(bs[bx] & 0xFF) : 65535;
 	}
 
-	private String utf() throws Exception
+	private String str()
 	{
-		return bx == by ? "" : new String(bs, bx, by - bx, "UTF-8");
+		return bx == by ? "" : new String(bs, bx, by - bx);
 	}
 
 	/** @param L >0 for int only, < 0 for int or long, 0 for int or long or not */
@@ -108,17 +108,17 @@ public final class Setting
 				else if (L == 0)
 					return intOrLongOrNot = 0;
 				else
-					throw new NumberFormatException("long integer out of range " + utf());
+					throw new NumberFormatException("long integer out of range " + str());
 			else if (L == 0)
 				return intOrLongOrNot = 0;
 			else
-				throw new NumberFormatException("illegal integer ".concat(utf()));
+				throw new NumberFormatException("illegal integer ".concat(str()));
 		if (bs[bx] != '-')
 			if ((v = - v) < 0)
-				throw new NumberFormatException("long integer out of range ".concat(utf()));
+				throw new NumberFormatException("long integer out of range ".concat(str()));
 		intOrLongOrNot = (v >> 31) == 0 || (v >> 31) == - 1 ? 1 : - 1;
 		if (L > 0 && intOrLongOrNot < 0)
-			throw new NumberFormatException("integer out of range ".concat(utf()));
+			throw new NumberFormatException("integer out of range ".concat(str()));
 		return v;
 	}
 
@@ -126,7 +126,7 @@ public final class Setting
 	{
 		if (bx >= by)
 			throw new NumberFormatException("illegal number");
-		return Double.parseDouble(utf());
+		return Double.parseDouble(str());
 	}
 
 	Object[] lo_ = null;
@@ -229,7 +229,7 @@ public final class Setting
 			if (c == 0 || c == '[' || c == '{' || c == '+')
 				bxy();
 			if (c == 0)
-				set(lo, i++, utf(), cla);
+				set(lo, i++, str(), cla);
 			else if (c == '[')
 				set(lo, i++, list(Object.class, null), cla);
 			else if (c == '{')
@@ -273,7 +273,7 @@ public final class Setting
 	@SuppressWarnings("unchecked")
 	Object object(Class<?> cla0) throws Exception
 	{
-		String cName = utf();
+		String cName = str();
 		Class<?> cla = cName.length() > 0 ? objot.classByName(cName) : HashMap.class;
 		bxy();
 		if (! cla0.isAssignableFrom(cla))
@@ -292,7 +292,7 @@ public final class Setting
 			refs[ref] = o;
 		for (char c; chr() != '}'; bxy())
 		{
-			String n = utf();
+			String n = str();
 			Field f = null;
 			Type t = null;
 			Object v;
@@ -314,7 +314,7 @@ public final class Setting
 				bxy();
 
 			if (c == 0)
-				v = utf();
+				v = str();
 			else if (c == '[')
 				if (f != null && f.getType().isArray())
 					v = list(null, f.getType().getComponentType());
@@ -388,6 +388,5 @@ public final class Setting
 			}
 		}
 		return o;
-
 	}
 }

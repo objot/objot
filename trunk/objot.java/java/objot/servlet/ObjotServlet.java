@@ -66,12 +66,13 @@ public class ObjotServlet
 	{
 		HttpServletRequest req = (HttpServletRequest)req_;
 		HttpServletResponse res = (HttpServletResponse)res_;
-		res.setContentType("application/octet-stream");
+		res.setContentType("text/plain; charset=UTF-8");
 		res.setHeader("Cache-Control", "no-cache");
 
 		String uri = req.getRequestURI();
 		Servicing conf = null;
-		byte[] bs = null;
+		char[] Q = null;
+		CharSequence S = null;
 		try
 		{
 			String name = uri.substring(uri.lastIndexOf('/') + 1);
@@ -82,30 +83,34 @@ public class ObjotServlet
 			if (len > 0)
 			{
 				InputStream in = req.getInputStream();
-				bs = new byte[len];
+				byte[] bs = new byte[len];
 				for (int from = 0, done; from < len; from += done)
 					if ((done = in.read(bs, from, len - from)) < 0)
 						throw new EOFException();
+				Q = Objot.utf(bs);
 			}
 			try
 			{
-				bs = conf.Do(bs, req, res);
+				S = conf.Do(Q, req, res);
 			}
 			catch (ErrThrow e)
 			{
 				log(e);
-				bs = conf.get(e.err, req, res);
+				S = conf.get(e.err, req, res);
 			}
 			catch (Exception e)
 			{
 				log(e);
-				bs = conf.get(new Err(e), req, res);
+				S = conf.get(new Err(e), req, res);
 			}
-			if (bs == null)
+			if (S == null)
 				res.setContentLength(0);
 			else
+			{
+				byte[] bs = Objot.utf(S);
 				res.setContentLength(bs.length);
-			res.getOutputStream().write(bs);
+				res.getOutputStream().write(bs);
+			}
 		}
 		catch (RuntimeException e)
 		{

@@ -39,7 +39,7 @@ function demoG(){
 	text.value = G;
 }
 function demoH(){
-	$http(url.value, 0, null, function (code, data) {
+	$http(url.value, 0, text.value, function (code, data) {
 		$D.title = code + ' ' + data.length;
 		text.value = U = data;
 	});

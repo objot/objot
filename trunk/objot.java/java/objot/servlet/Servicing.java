@@ -49,7 +49,7 @@ public class Servicing
 		throw new Exception("no service found : ".concat(name));
 	}
 
-	public byte[] get(Object o, HttpServletRequest req, HttpServletResponse res)
+	public CharSequence get(Object o, HttpServletRequest req, HttpServletResponse res)
 		throws Exception
 	{
 		try
@@ -62,27 +62,27 @@ public class Servicing
 		}
 	}
 
-	public byte[] Do(byte[] reqBs, HttpServletRequest req, HttpServletResponse res)
+	public CharSequence Do(char[] Q, HttpServletRequest req, HttpServletResponse res)
 		throws ErrThrow, Exception
 	{
-		if (reqBs == null)
+		if (Q == null)
 			return Do(null, req, res);
-		return Do(null, req, res, Setting.go(objot, reqClas[0], cla, reqBs));
+		return Do(null, req, res, Setting.go(objot, reqClas[0], cla, Q));
 	}
 
-	public byte[] Do(Object service, HttpServletRequest req, HttpServletResponse res,
-		Object... reqOs) throws ErrThrow, Exception
+	public CharSequence Do(Object service, HttpServletRequest req, HttpServletResponse res,
+		Object... qs) throws ErrThrow, Exception
 	{
 		try
 		{
-			return get(meth.invoke(service, reqOs), req, res);
+			return get(meth.invoke(service, qs), req, res);
 		}
 		catch (IllegalArgumentException e)
 		{
 			StringBuilder s = new StringBuilder("can not apply (");
-			for (int p = 0; p < reqOs.length; p++)
+			for (int p = 0; p < qs.length; p++)
 				s.append(p == 0 ? "" : ", ").append(
-					reqOs[p] == null ? "null" : reqOs[p].getClass().getCanonicalName());
+					qs[p] == null ? "null" : qs[p].getClass().getCanonicalName());
 			s.append(") to ").append(name).append(e.getMessage() != null ? " : " : "")
 				.append(e.getMessage() != null ? e.getMessage() : "");
 			throw new ErrThrow(null, s.toString());

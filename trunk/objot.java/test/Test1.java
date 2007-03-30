@@ -47,14 +47,15 @@ public class Test1
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
 		z[0] = z;
 		Objot objot = new Objot();
-		byte[] bs = Getting.go(objot, Object.class, z);
-		Object o = Setting.go(objot, Object.class, Object.class, bs);
-		byte[] bs2 = Getting.go(objot, Object.class, o);
-		if (bs.length != bs2.length)
-			throw new Exception("length error: " + bs.length + " " + bs2.length);
-		for (int i = 0; i < bs.length; i++)
-			if (bs[i] != bs2[i])
-				throw new Exception("data error at " + i + ": " + bs[i] + " " + bs2[i]);
+		CharSequence s = Getting.go(objot, Object.class, z);
+		Object o = Setting.go(objot, Object.class, Object.class, s.toString().toCharArray());
+		CharSequence s2 = Getting.go(objot, Object.class, o);
+		if (s.length() != s2.length())
+			throw new Exception("length error: " + s.length() + " " + s2.length());
+		for (int i = 0; i < s.length(); i++)
+			if (s.charAt(i) != s2.charAt(i))
+				throw new Exception("data error at " + i + ": " + s.charAt(i) + " "
+					+ s2.charAt(i));
 		System.out.println("ok");
 	}
 }
