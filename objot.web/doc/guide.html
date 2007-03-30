@@ -7,20 +7,24 @@
 -->
 <html>
 <head>
-<meta name="Content-Type" content="text/html; charset=UTF-8"
-	http-equiv="Content-Type">
-<style type="text/css"><!--
-	body	{ padding:0; margin:1em; font-family:sans-serif; }
-	h2		{ padding:1ex 0 0.2ex; border-bottom:0.3ex solid #ccddff; }
-	h3		{ padding-left:1em; color:#703000; }
-	h4		{ padding-left:2em; color:#703000; }
-	a:link		{ color: #0040ee; text-decoration:none; }
-	a:visited	{ color: #6000cc; text-decoration:none; }
-	a:hover		{ background:#ddddff; }
-	table	{ border-spacing:1ex; }
---></style>
+<meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<style>
+	body	{ padding:0; margin:1em; line-height:1.4; font-family:sans-serif; }
+	h2		{ padding:1ex 0 0.2ex; border-bottom:0.3ex solid #cdf; }
+	h3		{ padding-left:1em; color:#730; }
+	h4		{ padding-left:2em; color:#730; }
+	a:link		{ color: #04e; text-decoration:none; }
+	a:visited	{ color: #60c; text-decoration:none; }
+	a:hover		{ background:#ddf; }
+	table	{ margin:0 1em 1em; }
+	td		{ padding:0 1ex 0.3ex; border-left:1px solid #dd8; border-bottom:1px solid #ee9; }
+	pre		{ line-height:1; margin:1ex 1em; padding:1ex; border:1px solid #cc6; }
+</style>
 </head>
 <body>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
 <h1	align=center><a href=http://objot.info>Objot</a> 版本12 指南</h1>
@@ -32,6 +36,9 @@
 <p>版权所有2007蔡倩彦，遵循GNU General Public License version 2。
 
 
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
 <h2>面向服务的AJAX</h2>
 
 <p>Objot是一个轻量级的组件，可以为Web开发项目有效地构建面向服务的AJAX架构。
@@ -41,12 +48,17 @@
 <p>Objot包含了一组Javascript、Java和Python代码，来帮助开发者实现浏览端与服务端的交互。
 还包含了一组Javascript代码，来帮助开发者实现用户界面和操作逻辑。
 在浏览端，Objot中的函数名均以$开头；在服务端，Objot代码都在objot包中。
+浏览端，Objot兼容Firefox 2.0，Firefox 1.5，IE 7（测试中），IE 6；服务端，Objot要求Java 5(1.5)以上，或者Python 2.4以上。
 
 <p>一个在线聊天的范例，演示了如何用Objot和面向服务的AJAX架构实现一个完整的Web应用。
 
-<h2>定义服务对象Service Object</h2>
 
-<p>借助于Objot轻量级对象序列化反序列化机制，浏览端和服务端之间的数据交互简洁而有效。
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2>服务对象Service Object</h2>
+
+<p>借助于Objot轻量级对象编码解码机制，浏览端和服务端之间的数据交互简洁而有效。
 可以在交互中传递的数据类型包括：
 <table>
 	<tr><th>Javascript<th>Java<th>Python</tr>
@@ -57,14 +69,50 @@
 	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;[] List&lt;?&gt;<td>list tuple</tr>
 	<tr><td>Object(非Function String Number Boolean Array)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
 </table>
-对象之间可以任意引用，整个对象图都可以被传递，同时也可以定义规则，只传递对象图的局部（子图）。
-Objot支持单继承类，服务端和浏览端可以使用不同的类名，可以使用不同的属性名，均可以对应。
-传递的对象图必须以list或者object为起点，传递的对象被称为服务对象Service Object。
+其中，字符串是Unicode格式（Python服务端可以配置为UTF-8，但不推荐），并且不能包含一个特殊字符：'\20'（即\u0010）。
+Objot将数据编码成一个字符串，并使用了特殊字符'\20'。
 
-<p>浏览端使用Service Object需要先定义相应的类。
+<p>list、object之间可以任意引用，构成的整个数据图都可以被编解码；同时也可以定义规则，只处理数据图的局部（子图）。
+Objot支持单继承类，服务端和浏览端可以使用不同的类名，可以使用不同的属性名，均可以对应。
+传递的数据图必须以list或者object为起点，传递的对象被称为服务对象Service Object（下称SO）。
+
+<h3>在浏览端使用SO</h3>
+
+<p>浏览端使用Service Object需要先定义相应的类。例如定义Ok和Err表示服务成功和失败：
+<pre>Ok = function (hint) {
+	this.hint = $(hint);
+}
+Err = function (hint) {
+	this.hint = $(hint);
+}
+ErrUnsigned = function (hint) {
+	this.hint = $(hint);
+}
+$class('Ok'), $class('Err');
+$class('ErrUnsigned', Err); // ErrUnsigned的父类是Err
+</pre>
+3个function定义了构造函数，$class把这些function定义为类。
+使用$get可以将数据编码为字符串：
+<pre>
+x = new Ok("I'm Ok");
+y = $get(x, Object);
+</pre>
+$get可以理解为get from object，得到的字符串可以再被解码为数据：
+<pre>
+x2 = $set(y);
+x2.hint == x.hint || $throw('error'); // 如果hint不同，就抛出异常
+</pre>
+$set可以理解为set to object。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
 <h2>定义服务流程和逻辑</h2>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
 
 </body>
 </html>

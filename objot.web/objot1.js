@@ -219,7 +219,7 @@ $http = function (url, timeout, request, done, data) {
 		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
 	var h = $ie6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
 	h.open('POST', url, true);
-	h.setRequestHeader('Content-Type', 'application/octet-stream');
+	h.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
 	h.setRequestHeader('Cache-Control', 'no-cache');
 	var on = function (s, t) {
 		if (h && h.readyState == 4) {
