@@ -41,20 +41,20 @@ $throw = function (x) {
 $class = function (ctorName, sup, interfaces) {
 	$.s(ctorName);
 	var ctor = $.c(ctorName, 1);
-	ctor.Name !== ctorName && (ctor.Name = ctorName);
-	ctor.classed && $throw('duplicate class ' + ctor.Name);
+	ctor.$name !== ctorName && (ctor.$name = ctorName);
+	ctor.classed && $throw('duplicate class ' + ctor.$name);
 	if (sup) {
-		$.f(sup).classed || $throw('super class ' + sup.Name + ' not ready');
+		$.f(sup).classed || $throw('super class ' + sup.$name + ' not ready');
 		var c = function () {};
 		c.prototype = sup.prototype;
 		ctor.prototype = $.copy(new c(), ctor.prototype);
 		ctor.prototype.constructor = ctor;
 	}
 	if (ctor.prototype.constructor !== ctor)
-		$throw(ctor.Name + ' inconsistent with ' + $S(ctor.prototype.constructor));
+		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
 	for (var x = 2; x < arguments.length; x++)
 		$.copy(ctor.prototype, arguments[x].prototype);
-	$.cs[ctor.Name] = ctor;
+	$.cs[ctor.$name] = ctor;
 	ctor.classed = true;
 }
 $class.get = function (clazz, forClass, gets) {
@@ -101,7 +101,7 @@ $get = function (o, forClass) {
 				ox = o[x],
 				typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
 					: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
-		else if (!o.constructor.Name)
+		else if (!o.constructor.$name)
 			$throw($S(o) + ' class not ready');
 		else for (var x in o)
 			if (o.hasOwnProperty(x))
@@ -129,7 +129,7 @@ $get = function (o, forClass) {
 		return x;
 	}
 	$get.o = function (o, s, x) {
-		var v, t = o.constructor.Name, get;
+		var v, t = o.constructor.$name, get;
 		s[x++] = t === 'Object' ? '' : t;
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 		P: {
@@ -278,7 +278,7 @@ $id = function (id) {
 $dom = function (domOrName, x_, props_) {
 	var m = typeof domOrName === 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	!m.constructor ? $.copy(m, $dom) // ie6(7?)
-		: m.constructor[''] || delete $.copy(m.constructor.prototype, $dom).prototype;
+		: m.constructor.$dom || delete $.copy(m.constructor.prototype, $dom).prototype;
 	var x = x_, props = props_;
 	x >= 0 || (x = 1, props = arguments);
 	for (var v, p; x < props.length; x++)
@@ -297,9 +297,9 @@ $dom = function (domOrName, x_, props_) {
 	return m;
 }
 $this = function (dom, o) {
-	return dom.$ = o, dom;
+	return dom.$this = o, dom;
 }
-	$fox && ($dom[''] = false); // for dom node's constructor, be false for event attach
+	$fox && ($dom.$dom = false); // for dom node's constructor, be false for event attach
 
 	eval(function (s1, f1, s2, f2) {
 		for (var x in s1)
@@ -367,7 +367,7 @@ $dom.rem = function (index, len) {
 $dom.des = function (index, len) {
 	this !== window || $throw('destroy window forbidden');
 	if (arguments.length == 0)
-		this[''] && (this[''] = null), this.$ && (this.$ = null),
+		this.$dom && (this.$dom = null), this.$this && (this.$this = null),
 		this.parentNode && this.parentNode.removeChild(this),
 		index = 0;
 	if (index === true)
@@ -443,12 +443,12 @@ $dom.show = function (v) {
 	return this;
 }
 
-/* attach event handler which 'this' will be this node.$ if available or this node
+/* attach event handler which 'this' will be this node.$this if available or this node
  * if oldHandler, old is detached and handler is attached */
 $dom.attach = function (ontype, handler, oldHandler) {
 	if (oldHandler)
 		detach(ontype, oldHandler);
-	var x, t, s = this[''] || (this[''] = [1, 0, 0]); // [free, next, handler, ...]
+	var x, t, s = this.$dom || (this.$dom = [1, 0, 0]); // [free, next, handler, ...]
 	if (x = s[t = ontype.substr(2)])
 		do if (s[x + 1] === handler)
 			return handler;
@@ -463,7 +463,7 @@ $dom.attach = function (ontype, handler, oldHandler) {
 }
 /* detach event handler */
 $dom.detach = function (ontype, handler) {
-	var s = this[''];
+	var s = this.$dom;
 	if (s)
 		for (var x = ontype.substr(2), y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
@@ -508,7 +508,7 @@ $.f = function (x) {
 $.is = function (x, clazz, name) {
 	return x !== null && x instanceof clazz ? x
 		: $throw($S(x) + ' must not-null and instanceof '
-		+ (clazz.Name || clazz.name || name || $S(clazz)));
+		+ (clazz.$name || clazz.name || name || $S(clazz)));
 }
 
 /* get function from class cache, or eval */
@@ -546,12 +546,12 @@ $.copyOwn = function (to, from) {
 //********************************************************************************************//
 
 	/* event dispatcher */
-	$.event = function (e, s, x, r, $) {
-		if ((s = this['']) && (x = s[(e || (e = event)).type])) {
-			$ = this.$ || this;
+	$.event = function (e, s, x, r, t) {
+		if ((s = this.$dom) && (x = s[(e = e || event).type])) {
+			t = this.$this || this;
 			$fox || (e.target = e.srcElement, e.stop = $.eventStop);
 			r = 0; do
-				r |= !s[x + 1].call($, e);
+				r |= !s[x + 1].call(t, e);
 			while (x = s[x]);
 			return !r;
 		}

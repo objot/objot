@@ -118,7 +118,7 @@ $Http = function (box, h) {
 }
 	$Http.des = function () {
 		if (arguments.length == 0)
-			this.$();
+			this.$this();
 		return $dom.des.apply(this, arguments);
 	}
 	$Http.done = function () {
