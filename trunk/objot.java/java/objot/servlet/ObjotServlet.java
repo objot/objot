@@ -9,8 +9,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.GenericServlet;
+import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -23,19 +24,13 @@ import objot.Objot;
 
 
 public class ObjotServlet
-	extends GenericServlet
+	implements Servlet
 {
+	protected transient ServletConfig config;
 	protected Objot objot;
 
-	protected void log(Throwable e)
-	{
-		log("", e);
-	}
-
-	/** set {@link #objot} */
-	@SuppressWarnings("unused")
-	@Override
-	public void init() throws ServletException
+	/** @set {@link #objot} */
+	protected void init() throws Exception
 	{
 		objot = new Objot();
 	}
@@ -47,20 +42,70 @@ public class ObjotServlet
 		return new Servicing().init(objot, name);
 	}
 
+	/** @see Servlet#destroy() */
+	public void destroy()
+	{
+	}
+
+	/** @see ServletContext#log(String) */
+	protected void log(String hint)
+	{
+		config.getServletContext().log(hint);
+	}
+
+	/** @see ServletContext#log(String, Throwable) */
+	protected void log(Throwable e)
+	{
+		log("", e);
+	}
+
+	/** @see ServletContext#log(String, Throwable) */
+	protected void log(String hint, Throwable t)
+	{
+		config.getServletContext().log(hint, t);
+	}
+
+	//
+
 	private static final long serialVersionUID = 1L;
 
 	private ConcurrentHashMap<String, Servicing> cs //
 	= new ConcurrentHashMap<String, Servicing>(128, 0.8f, 32);
 
-	@Override
-	public final void init(ServletConfig c) throws ServletException
+	public void init(ServletConfig c) throws ServletException
 	{
-		super.init(c);
+		config = c;
 		log("========########@@@@@@@@$$$$$$$$ " + ObjotServlet.class.getName()
 			+ " started $$$$$$$$@@@@@@@@########========");
+		try
+		{
+			init();
+		}
+		catch (RuntimeException e)
+		{
+			throw e;
+		}
+		catch (ServletException e)
+		{
+			throw e;
+		}
+		catch (Exception e)
+		{
+			throw new ServletException(e);
+		}
 	}
 
-	@Override
+	public ServletConfig getServletConfig()
+	{
+		return config;
+	}
+
+	/** @return {@link #getClass()} {@link Class#getCanonicalName()} */
+	public String getServletInfo()
+	{
+		return getClass().getCanonicalName();
+	}
+
 	public void service(ServletRequest req_, ServletResponse res_)
 		throws ServletException, IOException
 	{

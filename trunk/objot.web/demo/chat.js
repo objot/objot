@@ -175,7 +175,7 @@ _Me = function (box) {
 		this.friends = $d('c', 'friends'),
 		this.add = $ln('c', 'name'),
 		$s('c', 'do').add(
-			$this($a0('title', 'Chat', 'onclick', this.doAddChat), this).tx('>'), $tx('  '),
+			$this($a0('title', 'Chat', 'onclick', this.doAddChat), this).tx('..'), $tx('  '),
 			$this($a0('title', 'Add', 'onclick', this.doAdd), this).tx('+'))
 	);
 	this.doReload();
@@ -274,7 +274,7 @@ _Me.Friend = function (me, friend) {
 		this.left = $this($a0('c', 'name', 'title', 'Chat',
 			'onclick', this.doChat), this).tx(friend.name),
 		this.right = $this($a0('c', 'do', 'title', 'Remove',
-			'onclick', this.doRem), this).tx('-'));
+			'onclick', this.doRem), this).tx('--'));
 }
 
 _Me.Friend.prototype = {
