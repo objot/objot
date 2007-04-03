@@ -18,7 +18,7 @@
 	a:hover		{ background:#ddf; }
 	table	{ margin:0 1em 1em; }
 	td		{ padding:0 1ex 0.3ex; border-left:1px solid #dd8; border-bottom:1px solid #ee9; }
-	pre		{ line-height:1; margin:0.6ex 1em; padding:0.6ex; border:1px solid #cc6; }
+	pre		{ line-height:1; margin:1ex 1em; padding:0.6ex; border:1px solid #cc6; }
 </style>
 </head>
 <body>
@@ -42,12 +42,12 @@
 <h2>面向服务的AJAX</h2>
 
 <p>Objot是一个轻量级的组件，可以为Web开发项目有效地构建面向服务的AJAX架构。
-服务器部署业务数据Model，部署业务逻辑Service；浏览器部署用户界面，部署操作逻辑，并与Service交互。
+服务器部署业务数据，部署业务逻辑Service；浏览器部署用户界面，部署操作逻辑，并与Service交互。
 交互的数据、流程由开发者定义，用Objot实现。
 
 <p>Objot包含了一组Javascript、Java和Python代码，来帮助开发者实现浏览端与服务端的交互。
 还包含了一组Javascript代码，来帮助开发者实现用户界面和操作逻辑。
-在浏览端，Objot中的函数名均以$开头；在服务端，Objot代码都在objot包中。
+在浏览端，Objot中的函数名均以$开头；在服务端，Objot代码都在objot包（模块）中。
 浏览端，Objot兼容Firefox 2.0，Firefox 1.5，IE 7（测试中），IE 6；服务端，Objot要求Java 5(1.5)以上，或者Python 2.4以上。
 
 <p>一个在线聊天的范例，演示了如何用Objot和面向服务的AJAX架构实现一个完整的Web应用。
@@ -66,21 +66,21 @@
 	<tr><td>boolean<td>boolean<td>bool</tr>
 	<tr><td>number<td>int long(部分) float double Integer Long(部分) Float Double<td>int long(部分) float</tr>
 	<tr><td>string<td>String<td>unicode str(UTF-8)</tr>
-	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;[] List&lt;?&gt;<td>list tuple</tr>
+	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt;<td>list tuple</tr>
 	<tr><td>Object(非Function String Number Boolean Array)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
 </table>
 其中，字符串是Unicode格式（Python服务端可以配置为UTF-8，但不推荐），并且不能包含一个特殊字符：'\20'（即\u0010）。
-Objot将SO编码成一个字符串，并使用了特殊字符'\20'。
+Objot将SO编码成一个字符串，其中使用了特殊字符'\20'。
 
 <p>list、object之间可以任意引用，构成的整个SO图都可以被编解码；同时也可以定义规则，只处理SO图的局部（子图）。
 Objot支持单继承类，服务端和浏览端可以使用不同的类名，可以使用不同的属性名，均可以对应。
-传递的SO必须以list或者object为起点，
+传递的SO必须以list或者object为起点。
 
 <!--****************************************************************************************-->
 
-<h3>在浏览端使用SO</h3>
+<h3>编解码SO</h3>
 
-<p>浏览端使用Service Object需要先定义相应的类。
+<p>浏览端Service Object需要定义相应的类。
 例如定义Ok和Err表示服务成功和失败，ErrUnsigned表示服务需要用户登入验证：
 <pre>Ok = function (hint) {
 	this.hint = $(hint);
@@ -95,7 +95,8 @@ $class('Ok'), $class('Err');
 $class('ErrUnsigned', Err); // ErrUnsigned的父类是Err
 </pre>
 3个function定义了构造函数，$class把这些function定义为类。
-使用$get可以将数据编码为字符串：
+
+<p>使用$get可以将数据编码为字符串：
 <pre>ok = new Ok("I'm Ok");
 _ = $get(ok, Object);
 </pre>
@@ -105,15 +106,20 @@ ok.hint == ok2.hint || $throw('error'); // 如果hint不同，就抛出异常
 </pre>
 $set可以理解为set to object。
 
+<!--****************************************************************************************-->
+
+<h3>编解码SO图</h3>
+
 <p>由SO相互引用构成的SO图同样可以传递。
 例如定义User表示用户信息，包括用户的好友：
-<pre>User = function (name) {
+<pre>User = function (name, email) {
 	this.name = name;
+	this.email = email;
 	this.friends;
 }
 </pre>
 可以创建许多User对象，并设置它们的friends，然后编码：
-<pre>u1 = new User('u1');
+<pre>u1 = new User('u1', 'u1@u1.u1');
 u2 = new User('u2');
 ... // 多创建几个
 u1.friends = [ u1, u2, ... ]; // 广交朋友
@@ -122,15 +128,40 @@ y = $get(u1, Object); // 以u1为起点，编码整个SO图
 </pre>
 解码之后，得到和原来一样的SO图：
 <pre>v1 = $set(y);
-u1.name == v1.name &amp;&amp; u1.friends[0].name == v1.friends[0].name &amp;&amp; ... // 完整检查
+u1.name == v1.name &amp;&amp; u1.email == v1.email
+	&amp;&amp; u1.friends[0].name == v1.friends[0].name &amp;&amp; ... // 完整检查
 	|| $throw('error');
 </pre>
 
 <!--****************************************************************************************-->
 
-<h3>在浏览端编码局部Service Object图</h3>
+<h3>在浏览端编码Service Object子图</h3>
 
-<p>
+<p>通常不需要将整个SO图都编码，那么可以定义一些规则，使Objot只编码SO子图。
+首先定义一些function（也是构造函数）：
+<pre>function DoUser() {}
+DoUser.all = function () {};
+</pre>
+然后设置SO类与这些function对应时哪些属性被编码：
+<pre>$class.get(User, Object, ['name'], DoUser, ['name', 'friends'], DoUser.all, null);
+</pre>
+用$class.get为User这个SO类设置规则：与Object对应时，只编码name属性；与DoUser对应时，编码name和friends属性；与DoUser.all对应时，编码所有属性；与这些都不对应时，不编码任何属性。
+
+<p>在编码时给出需要对应的function：
+<pre>$get(u1, Object); // 只编码u1的name属性
+$get(u1, DoUser); // 编码u1的name和friends属性，并对friends中每个User运用同样的规则，包含整个SO图
+$get(u1, DoUser.all); // 编码u1的全部属性，以及整个SO图
+</pre>
+排除某些引用属性，就可以排除这些引用构成的SO图。
+
+<p>修改规则，设置某些临时引用，使得某些SO的某些引用被编码：
+<pre>$class.get(User, Object, ['name'], DoUser, ['name', 'myFriends'], DoUser.all, null);
+u1.myFriends = u1.friends; // u1的myFriends属性与friends属性相同，但其他User没有myFriends属性
+$get(u1, DoUser);
+delete u1.myFriends; // 清除临时属性
+</pre>
+这样编码了u1的name和myFriends属性，因为其他User没有myFriends，所以编码的SO子图就是u1自己，以及u1的直接好友。
+
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
