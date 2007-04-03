@@ -139,14 +139,14 @@ $get = function (o, forClass) {
 						if (get = o.constructor.$gets[g]) {
 
 		for (var p, n = 0; n < get.length; n++)
-			if ((p = get[n], v = o[p], t = typeof v) !== 'function')
+			if ((p = get[n]) in o && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
 				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
-	
+
 							break P;
 						}
 						break G;
