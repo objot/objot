@@ -200,23 +200,45 @@ Client与Service交互通常借助异步HTTP来完成，考虑：
 
 <h3>浏览端Service Client</h3>
 
-<p>Objot通过$http函数提供异步HTTP交互：
+<p>Objot通过$http函数提供异步HTTP功能：
 <pre>http = $http(url, timeout, req, done, data);
 </pre>
-req是请求内容字符串，可以是$get编码串。
-$http总是用POST方式发出请求，这样req不需要格式转换，长度也不受限制。
+req是请求内容字符串，可以是$get编码串，$http总是用POST方式发出请求，这样不需要格式转换，长度也不受限制。
 timeout&gt;0是超时毫秒数，否则忽略不做超时处理。
-$http返回一个无参数函数，用来停止这个HTTP交互，如果交互已经结束，则不起作用。
+done是HTTP回合结束时异步回调的函数，可能是回合完成，可能是超时，也可能是停止。
+$http返回一个无参数函数，用来停止这个回合，并异步调用done，如果交互已经结束，则不起作用。
 
-<p>调用$http的参数done是HTTP交互完成时回调的函数：
+<p>回调函数done例如：
 <pre>done = function (code, res, data) {
 	alert(code + '\n' + res + '\n' + data);
 }
+// 然后调用$http
 </pre>
-code是一个整数：0表示HTTP交互成功，1表示超时，-1表示中止，100~599通常表示服务端给出的错误，&gt;=1000通常表示网络错误。
+code是一个整数：0表示回合成功（HTTP响应码200），1表示超时，-1表示停止，100~999表示HTTP响应码，&gt;=1000通常表示网络错误。
 当code == 0时res是服务端返回的内容字符串，其他情况则是错误信息字符串。
 data是调用$http的data参数，可以给done传递额外对象，如果调用$http省略data参数，则$http返回的停止函数将做为data传给done。
-每个HTTP交互必调用done正好一次，除非跳转到别的页面了，或者Javascript引擎停止了;)。
+每次HTTP回合必调用done正好一次，除非没设置超时，或者跳转到别的页面，或者Javascript引擎停止了;)。
+
+<p>Objot还提供了对$http的一个简单包装：
+<pre>http = $Do(url, hint, req, this4, done4, this3, done3, this2, done2);
+</pre>
+hint是对这次HTTP回合的提示字符串，可以在用户界面上表示出来。
+done4~2是回调函数，this4~2是回调时设置的this对象。
+done2先于done4回调，this1, done1保留给另外一个包装使用。
+$Do返回值和$http相同，但附加了一些以$开头为名的属性用作内部处理。
+
+<p>done4~1回调函数和$http有所不同：
+<pre>done4 = function (ok, err, http) {
+	alert(ok + '\n' + err + '\n' + http);
+}
+</pre>
+若回合成功完成（服务器返回200），ok为$set解码的SO，err为false；若超时或错误，ok为false，err为前面定义的Err对象；若是停止，ok和err均为false。
+http是$Do也是$http的返回值。
+当某个回调出现错误，将传递给Javascript引擎，后续回调函数就不执行了，依此类推。
+
+<!--****************************************************************************************-->
+
+<h3>在用户界面提示交互</h3>
 
 <p>
 
