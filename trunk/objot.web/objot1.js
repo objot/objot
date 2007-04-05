@@ -229,7 +229,7 @@ $http = function (url, timeout, request, done, data) {
 				s == 200 && (s = 0);
 				t = s == 0 ? h.responseText : h.statusText;
 			} catch (_) { // stupid Firefox XMLHttpRequest issue
-				s = 9999, t = 'Network Failed';
+				s = 1000, t = 'Network Failed';
 			}
 			stop(0, 0);
 			try {
