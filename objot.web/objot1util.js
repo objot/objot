@@ -110,7 +110,7 @@ $.opacity = $fox ? function (d, v) {
 
 //********************************************************************************************//
 
-/** @return the box, inner des() includes http close */
+/** @return the box, inner des() includes http stop */
 $Http = function (box, h) {
 	var img = $this($s('c', 'HTTP-img', 'title', h.hint + '... Stop?', 'ondblclick', h), h);
 	img.des = $Http.des, h.$this1 = img, h.$done1 = $Http.done;

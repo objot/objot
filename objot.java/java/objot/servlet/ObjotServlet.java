@@ -67,8 +67,6 @@ public class ObjotServlet
 
 	//
 
-	private static final long serialVersionUID = 1L;
-
 	private ConcurrentHashMap<String, Servicing> cs //
 	= new ConcurrentHashMap<String, Servicing>(128, 0.8f, 32);
 

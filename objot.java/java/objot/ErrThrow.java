@@ -7,7 +7,7 @@ package objot;
 public class ErrThrow
 	extends RuntimeException
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1022295548108006861L;
 
 	public final Err err;
 
