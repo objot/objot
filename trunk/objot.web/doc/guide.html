@@ -10,9 +10,9 @@
 <meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <style>
 	body	{ padding:0; margin:1em; line-height:1.4; font-family:sans-serif; }
-	h2		{ padding:1em 0 0.2ex; border-bottom:0.3ex solid #cdf; }
-	h3		{ padding-left:1em; color:#730; }
-	h4		{ padding-left:2em; color:#730; }
+	h2		{ margin:3em 0 1em; padding:0.2ex 0; border-bottom:0.3ex solid #cdf; color:#730; }
+	h3		{ margin:2em 0 1em 1em; padding:0; color:#015; }
+	h4		{ margin:2em 0 1em 2em; padding:0; color:#015; }
 	a:link		{ color: #04e; text-decoration:none; }
 	a:visited	{ color: #60c; text-decoration:none; }
 	a:hover		{ background:#ddf; }
@@ -78,7 +78,7 @@ Objot支持单继承类，服务端和浏览端可以使用不同的类名，可
 
 <!--****************************************************************************************-->
 
-<h3>编解码SO</h3>
+<h3>编解码Service Object</h3>
 
 <p>浏览端Service Object需要定义相应的类。
 例如定义Ok和Err表示服务成功和失败，ErrUnsigned表示服务需要用户登入验证：
@@ -108,7 +108,7 @@ $set可以理解为set to object。
 
 <!--****************************************************************************************-->
 
-<h3>编解码SO图</h3>
+<h3>编解码Service Object图</h3>
 
 <p>由SO相互引用构成的SO图同样可以传递。
 例如定义User表示用户信息，包括用户的好友：
@@ -187,12 +187,38 @@ delete u1.myFriends; // 清除临时属性
 	<li>等等。
 </ul>
 浏览端与Service交互的部分可以称为Service Client（下称Client）。
-Client与Service交互通常借助异步HTTP机制来完成，考虑：
+Client与Service交互通常借助异步HTTP来完成，考虑：
 <ul>
 	<li>需要哪些Service。
 	<li>如何构造传递给Service的SO，并满足条件。
-	<li>
+	<li>接收到Service结果，根据不同的SO进行哪些处理。
+	<li>因为是异步HTTP，如何保证交错调用Service，交错处理Service结果仍然正确。
+	<li>等等。
 </ul>
+
+<!--****************************************************************************************-->
+
+<h3>浏览端Service Client</h3>
+
+<p>Objot通过$http函数提供异步HTTP交互：
+<pre>http = $http(url, timeout, req, done, data);
+</pre>
+req是请求内容字符串，可以是$get编码串。
+$http总是用POST方式发出请求，这样req不需要格式转换，长度也不受限制。
+timeout&gt;0是超时毫秒数，否则忽略不做超时处理。
+$http返回一个无参数函数，用来停止这个HTTP交互，如果交互已经结束，则不起作用。
+
+<p>调用$http的参数done是HTTP交互完成时回调的函数：
+<pre>done = function (code, res, data) {
+	alert(code + '\n' + res + '\n' + data);
+}
+</pre>
+code是一个整数：0表示HTTP交互成功，1表示超时，-1表示中止，100~599通常表示服务端给出的错误，&gt;=1000通常表示网络错误。
+当code == 0时res是服务端返回的内容字符串，其他情况则是错误信息字符串。
+data是调用$http的data参数，可以给done传递额外对象，如果调用$http省略data参数，则$http返回的停止函数将做为data传给done。
+每个HTTP交互必调用done正好一次，除非跳转到别的页面了，或者Javascript引擎停止了;)。
+
+<p>
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->

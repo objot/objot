@@ -18,8 +18,6 @@ import objot.servlet.Servicing;
 public final class Servlet
 	extends ObjotServlet
 {
-	private static final long serialVersionUID = 1L;
-
 	@Override
 	public void init()
 	{

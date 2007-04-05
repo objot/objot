@@ -231,7 +231,7 @@ $http = function (url, timeout, request, done, data) {
 			} catch (_) { // stupid Firefox XMLHttpRequest issue
 				s = 9999, t = 'Network Failed';
 			}
-			close(0, 0);
+			stop(0, 0);
 			try {
 				done(s, t, data);
 				done = data = s = t = null;
@@ -244,23 +244,23 @@ $http = function (url, timeout, request, done, data) {
 			}
 		}
 	};
-	var close = function (nil, mode) {
+	var stop = function (nil, mode) {
 		if (h) {
 			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
 			h = null, clearTimeout(timeout);
 			if (mode != 0)
-				done(mode ? 1 : -1, mode ? 'timeout' : 'close', data), done = data = null;
+				done(mode ? 1 : -1, mode ? 'timeout' : 'stop', data), done = data = null;
 		}
 	}
 	h.onreadystatechange = $ie6/*7?*/ || $http.doneDelay > 0 ? function () {
 		setTimeout(on, $http.doneDelay + 1);
 	} : on;
 	timeout = timeout > 0 && setTimeout(function () {
-		close(0, 1);
+		stop(0, 1);
 	}, timeout);
-	arguments.length < 5 && (data = close);
+	arguments.length < 5 && (data = stop);
 	h.send(request);
-	return url = request = null, close;
+	return url = request = null, stop;
 }
 $http.doneDelay = 0;
 
