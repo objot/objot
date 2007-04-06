@@ -67,23 +67,23 @@ table { width:100%; }
 
 /*********************************************************************************************/
 
-#Chats { width:60%; padding:1em; vertical-align:top; background:#fff0e8; }
-#Chats .min { width:30em; height:0; }
-#Chats .HTTP-img,
-#Chats .ERR-img { margin-left:1ex; }
+#Chatss { width:60%; padding:1em; vertical-align:top; background:#fff0e8; }
+#Chatss .min { width:30em; height:0; }
+#Chatss .HTTP-img,
+#Chatss .ERR-img { margin-left:1ex; }
 
-#Chats .tabs { display:block; clear:both; float:left; }
-#Chats .do { display:block; clear:right; float:right; }
-#Chats .tab { padding:0 1ex; }
-#Chats .tabAct { background:#ddf }
-#Chats .tabNew { font-weight:bold; font-style:italic; }
-#Chats .chatss { clear:both; }
-#Chats .chats { background:white; margin-bottom:1em; }
-#Chats .datime { margin-right:1em; color:#470; }
-#Chats .name { color:#008; }
-#Chats .text { margin:0 0 1ex 2em; }
-#Chats .in { font-weight:bold; }
-#Chats .post { clear:both; float:left; width:80%; height:4em; }
+#Chatss .tabs { display:block; clear:both; float:left; }
+#Chatss .do { display:block; clear:right; float:right; }
+#Chatss .tab { padding:0 1ex; }
+#Chatss .tabAct { background:#ddf }
+#Chatss .tabNew { font-weight:bold; font-style:italic; }
+#Chatss .chatss { clear:both; }
+#Chatss .chats { background:white; margin-bottom:1em; }
+#Chatss .datime { margin-right:1em; color:#470; }
+#Chatss .name { color:#008; }
+#Chatss .text { margin:0 0 1ex 2em; }
+#Chatss .in { font-weight:bold; }
+#Chatss .post { clear:both; float:left; width:80%; height:4em; }
 
 </style>
 </head>
@@ -97,7 +97,7 @@ table { width:100%; }
 <div id=SignOut><a href="javascript:location.reload()">Sign out</a></div>
 <table cellspacing=0 cellpadding=0><tr>
 <td id=Me><div class=min><!--stupid IE--></div>
-<td id=Chats><div class=min><!--stupid IE--></div>
+<td id=Chatss><div class=min><!--stupid IE--></div>
 </table>
 
 
@@ -126,7 +126,7 @@ window.onunload = function () {
 
 function start() {
 	var me = new _Me($dom($id('Me')));
-	var chatss = new _Chatss($dom($id('Chats')));
+	var chatss = new _Chatss($dom($id('Chatss')));
 	me.thisChat = chatss;
 	me.onChat = chatss.doChat;
 }
