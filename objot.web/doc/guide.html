@@ -240,7 +240,32 @@ http是$Do也是$http的返回值。
 
 <h3>在用户界面提示交互</h3>
 
-<p>
+<p>Objot提供两个简单的函数，在用户界面上提示与服务端的交互：
+<pre>box = $s(); // 创建一个span元素
+$dom($D.body).add(box); // 加到body中
+box == $Http(box, http); // 注意一个是$Http，一个是$http
+</pre>
+$Http在box中创建一个span元素，通常在css中定义背景图片表示正在网络操作。
+http是停止函数，就是$http或$Do的返回值。
+当用户双击box中的span元素（通常有图标），就触发停止函数，并使span元素消失。
+$Http返回值就是传入的box。
+<pre>box == $Err(box, err, show);
+</pre>
+$Err在box中创建一个span元素，通常在css中定义背景图片表示出错。
+err是前面定义的Err对象，或者错误信息字符串。
+show如果为true，则在box中显示err文本内容；否则为一个回调函数，此时box中不显示文本内容，但用户双击span元素调用show，返回后span元素消失；若为null或省略，则为默认的一个回调函数。
+$Err返回值就是传入的box。
+
+<p>对于这两个函数，可以使用同一个box，调用时会清除掉原来box中的内容：
+<pre>http = $s();
+$dom($D.body).add(http);
+...
+$Http(http, $Do(url, 'Signing in ...', signIn, null, function (ok, err) {
+	if (ok)
+		; // 成功处理
+	err &amp;&amp; $Err(http, err);
+}));
+</pre>
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
