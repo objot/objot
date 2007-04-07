@@ -17,8 +17,11 @@ import chat.model.User;
 public class Do
 	implements Cloneable // @todo Hibernate Session
 {
+	/** @todo Hibernate SessionFactory */
+	static Object sessionFactory;
+
 	/** @todo underlying Hibernate Session */
-	Object $;
+	protected Object $;
 	protected HttpSession http;
 	protected User me;
 
@@ -73,6 +76,7 @@ public class Do
 	/**
 	 * trimed must be not empty
 	 * 
+	 * @todo use Hibernate Validator instead
 	 * @return trimed
 	 */
 	public static String noEmpty(String name, String s) throws Exception
@@ -85,6 +89,7 @@ public class Do
 	/**
 	 * original/trimed must be not empty
 	 * 
+	 * @todo use Hibernate Validator instead
 	 * @return original
 	 */
 	public static String noEmpty(String name, String s, boolean trim) throws Exception

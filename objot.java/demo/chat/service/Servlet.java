@@ -37,7 +37,11 @@ public final class Servlet
 				return c.getName().substring("chat.model.".length());
 			}
 		};
-		// @todo Hibernate initialization
+		synchronized (Do.class)
+		{
+			if (Do.sessionFactory == null)
+				; // @todo initialize Hibernate SessionFactory
+		}
 	}
 
 	@Override
@@ -78,6 +82,7 @@ public final class Servlet
 				try
 				{
 					Do $ = new Do();
+					$.$ = null; // @todo Hibernate session
 					$.http = req.getSession();
 					if (sign)
 						$.me = DoSign.me($);
