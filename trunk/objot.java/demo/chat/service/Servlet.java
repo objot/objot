@@ -4,6 +4,8 @@
 //
 package chat.service;
 
+import java.util.Arrays;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,13 +16,23 @@ import objot.Setting;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Servicing;
 
+import org.hibernate.validator.InvalidStateException;
+
+import chat.model.Model;
+
 
 public final class Servlet
 	extends ObjotServlet
 {
+	int verbose = 1;
+
 	@Override
-	public void init()
+	public void init() throws Exception
 	{
+		String verb = config.getInitParameter("verbose");
+		if (verb != null)
+			verbose = Integer.parseInt(verb);
+
 		objot = new Objot()
 		{
 			@Override
@@ -37,10 +49,11 @@ public final class Servlet
 				return c.getName().substring("chat.model.".length());
 			}
 		};
+
 		synchronized (Do.class)
 		{
 			if (Do.sessionFactory == null)
-				; // @todo initialize Hibernate SessionFactory
+				Do.sessionFactory = Model.init().buildSessionFactory();
 		}
 	}
 
@@ -48,27 +61,28 @@ public final class Servlet
 	protected Servicing serviceConfig(String name, HttpServletRequest req,
 		HttpServletResponse res) throws Exception
 	{
-		return new Ing().init(objot, name);
+		return new S().init(objot, name);
 	}
 
-	static class Ing
+	class S
 		extends Servicing
 	{
+		String nameVerbose;
 		boolean sign;
-		boolean tran;
+		int tran;
 		boolean tranRead;
-		boolean tranSerial;
 
 		@Override
-		public Ing init(String claName, String methName) throws Exception
+		public S init(String claName, String methName) throws Exception
 		{
 			super.init("chat.service.".concat(claName), methName);
+			if (Servlet.this.verbose > 0)
+				nameVerbose = "\n-------------------- " + name + " --------------------";
 			Signed s = meth.getAnnotation(Signed.class);
 			sign = s == null || s.need();
 			Transac t = meth.getAnnotation(Transac.class);
-			tran = t == null || t.need();
+			tran = t == null ? Transac.DEFAULT : t.level();
 			tranRead = t != null && t.readOnly();
-			tranSerial = t != null && t.serial();
 			return this;
 		}
 
@@ -76,26 +90,25 @@ public final class Servlet
 		public CharSequence Do(char[] Q, HttpServletRequest req, HttpServletResponse res)
 			throws ErrThrow, Exception
 		{
-			boolean ok = false;
-			synchronized (Servlet.class) // @todo get Hibernate session
+			if (Servlet.this.verbose > 0)
+				System.out.println(nameVerbose);
+			Do $ = new Do();
+			$.http = req.getSession();
+			if (sign)
+				DoSign.me($);
+			if (tran > 0)
+				$.$ = Do.sessionFactory.openSession();
+			try
 			{
+				if (tran > 0)
+				{
+					$.$.connection().setReadOnly(tranRead);
+					$.$.connection().setTransactionIsolation(tran);
+					$.$.beginTransaction();
+				}
+				boolean ok = false;
 				try
 				{
-					Do $ = new Do();
-					$.$ = null; // @todo Hibernate session
-					$.http = req.getSession();
-					if (sign)
-						$.me = DoSign.me($);
-					if (tran)
-					{
-						; // @todo start transaction
-						if (tranRead)
-							; // @todo read only transaction
-						else if (tranSerial)
-							; // @todo serializable isolation level
-						else
-							; // @todo repeatable-read isolation level for most cases }
-					}
 					CharSequence S;
 					if (Q == null)
 						S = Do(null, req, res, $);
@@ -104,21 +117,37 @@ public final class Servlet
 					ok = true;
 					return S;
 				}
+				catch (InvalidStateException e)
+				{
+					throw Do.err(Arrays.toString(e.getInvalidValues()));
+				}
 				finally
 				{
-					if (tran)
+					if (tran > 0)
 						try
 						{
-							if (ok)
-								; // @todo commit transaction
+							if (ok && ! tranRead)
+								$.$.getTransaction().commit();
 							else
-								; // @todo abort transaction
+								$.$.getTransaction().rollback();
 						}
 						catch (Throwable e)
 						{
+							Servlet.this.log(e);
 						}
-					; // @todo close Hibernate session
 				}
+			}
+			finally
+			{
+				if ($.$ != null && $.$.isOpen())
+					try
+					{
+						$.$.close();
+					}
+					catch (Throwable e)
+					{
+						Servlet.this.log(e);
+					}
 			}
 		}
 	}

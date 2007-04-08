@@ -4,8 +4,6 @@
 //
 package chat.service;
 
-import java.util.ListIterator;
-
 import objot.servlet.Service;
 import chat.model.Ok;
 import chat.model.User;
@@ -14,37 +12,39 @@ import chat.model.User;
 public class DoUser
 	extends Do
 {
-	/** @return me PO */
+	/** @return me with {@link User#myFriends} */
 	@Service
+	@Transac(level = 0)
 	public static User me(Do $) throws Exception
 	{
-		return $.me.clone();
+		$.me.myFriends = $.me.friends;
+		return $.me;
 	}
 
 	/** update {@link User#friends} if SO' is not null */
 	@Service
 	public static Ok update(User u, Do $) throws Exception
 	{
+		if (u.myFriends == null) // || name
+			return Ok.OK;
+		User me = $.load(User.class, u.id);
 		if (u.myFriends != null)
-		{
-			for (ListIterator<User> i = u.myFriends.listIterator(); i.hasNext();)
-				i.set($.load(i.next().id));
-			$.me.friends = u.myFriends;
-		}
+			me.friends = u.myFriends;
+		DoSign.me(me, $);
 		return Ok.OK;
 	}
 
 	/**
-	 * Get POs by {@link User#id} (if > 0) or {@link User#name} (if not null).
+	 * by {@link User#id} (if > 0) or {@link User#name} (if not null).
 	 * 
-	 * @return POs, or nulls if not found
+	 * @return array of User or null if not found
 	 */
 	@Service
 	public static User[] get(User[] us, Do $) throws Exception
 	{
 		for (int i = 0; i < us.length; i++)
-			us[i] = us[i].id != null && us[i].id > 0 ? $.load(us[i].id) : us[i].name != null
-				? $.find(us[i].name) : null;
+			us[i] = us[i].id != null && us[i].id > 0 ? $.get(User.class, us[i].id)
+				: us[i].name != null ? $.find1(User.class, "name", us[i].name) : null;
 		return us;
 	}
 }
