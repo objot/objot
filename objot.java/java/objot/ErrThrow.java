@@ -10,6 +10,7 @@ public class ErrThrow
 	private static final long serialVersionUID = 1022295548108006861L;
 
 	public final Err err;
+	public boolean log = false;
 
 	public ErrThrow(Err e)
 	{
@@ -33,5 +34,11 @@ public class ErrThrow
 	{
 		super((e = e != null ? e : new Err(hint, cause)).hint, cause);
 		err = e;
+	}
+
+	public ErrThrow log(boolean _)
+	{
+		log = _;
+		return this;
 	}
 }

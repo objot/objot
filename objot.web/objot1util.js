@@ -61,13 +61,14 @@ Err = function (hint) {
 $class('Err');
 
 
-$Do = function (service, hint, req, this4, done4, this3, done3, this2, done2) {
+$Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 	var h = $http($Do.Url + service, $Do.Timeout, req, $Do.done);
-	h.$hint = hint, h.$this4 = this4, h.$done4 = done4,
-		h.$this3 = this3, h.$done3 = done3, h.$this2 = this2, h.$done2 = done2;
+	h.$hint = hint, h.$this3 = this3, h.$done3 = done3,
+		h.$this2 = this2, h.$done2 = done2, h.$this1 = this1, h.$done1 = done1;
 	return h;
 }
 	$Do.done = function (code, res, http) {
+		http.$this0 !== undefined && http.$done0.call(http.$this0, code, res, http);
 		var ok = false, err = false;
 		if (code == 0)
 			(res = $set(res)) instanceof Err ? err = res : ok = res;
@@ -76,7 +77,6 @@ $Do = function (service, hint, req, this4, done4, this3, done3, this2, done2) {
 		http.$this1 !== undefined && http.$done1.call(http.$this1, ok, err, http);
 		http.$this2 !== undefined && http.$done2.call(http.$this2, ok, err, http);
 		http.$this3 !== undefined && http.$done3.call(http.$this3, ok, err, http);
-		http.$this4 !== undefined && http.$done4.call(http.$this4, ok, err, http);
 	}
 
 $Do.Url = '';
@@ -112,8 +112,8 @@ $.opacity = $fox ? function (d, v) {
 
 /** @return the box, inner des() includes http stop */
 $Http = function (box, h) {
-	var img = $this($s('c', 'HTTP-img', 'title', h.hint + '... Stop?', 'ondblclick', h), h);
-	img.des = $Http.des, h.$this1 = img, h.$done1 = $Http.done;
+	var img = $this($s('c', 'HTTP-img', 'title', h.$hint + '... Stop?', 'ondblclick', h), h);
+	img.des = $Http.des, h.$this0 = img, h.$done0 = $Http.done;
 	return box.des(0).cla(0, 'ERR').cla('HTTP').add(img);
 }
 	$Http.des = function () {

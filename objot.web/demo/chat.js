@@ -71,16 +71,6 @@ DoSign.out = function (This, done) {
 	return $Do('DoSign-out', 'Signing out', '', This, done);
 }
 
-DoSign.signed = function (users/*or ids*/, This, done) {
-	var ids = users;
-	if (users[0] instanceof User) {
-		ids = new Array(users.length);
-		for (var x = 0; x < users.length; x++)
-			ids[x] = users[x].id;
-	}
-	return $Do('DoSign-signed', 'Getting signed users', $get(ids, this), This, done);
-}
-
 //********************************************************************************************//
 
 DoUser = function () {
@@ -195,25 +185,12 @@ _Me.prototype = {
 			this.friends.des(0);
 			for (var s = _me.friends, x = 0; x < s.length; x++)
 				new _Me.Friend(this, s[x]);
-			this.doSigned();
 		}
 		if (err)
 			if (err instanceof ErrUnsigned && this.onUnsigned)
 				this.onUnsigned.call(this.thisUnsigned);
 			else
 				$Err(this.http, err);
-	},
-
-	doSigned: function () {
-		$Http(this.http, DoSign.signed(_me.friends, this, this.doneSigned));
-	},
-	doneSigned: function (ok, err) {
-		if (ok)
-			for (var x = 0; x < ok.length; x++)
-				if (ok[x])
-					this.friends.childNodes[x + x].cla('signed'),
-					this.friends.childNodes[x + x + 1].cla('signed');
-		err && $Err(this.http, err);
 	},
 
 	doAdd: function () {
@@ -237,7 +214,6 @@ _Me.prototype = {
 		if (ok) {
 			new _Me.Friend(this, _me.friends[_me.friends.length - 1]);
 			this.add.value = '';
-			this.doSigned();
 		}
 		err && $Err(this.http, err);
 	},

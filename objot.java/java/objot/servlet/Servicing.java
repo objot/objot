@@ -46,7 +46,7 @@ public class Servicing
 				reqClas = m.getParameterTypes();
 				return this;
 			}
-		throw new Exception("no service found : ".concat(name));
+		throw new Exception("service not found : ".concat(name));
 	}
 
 	public CharSequence get(Object o, HttpServletRequest req, HttpServletResponse res)

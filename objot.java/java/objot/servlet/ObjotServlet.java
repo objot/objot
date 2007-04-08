@@ -26,7 +26,7 @@ import objot.Objot;
 public class ObjotServlet
 	implements Servlet
 {
-	protected transient ServletConfig config;
+	protected ServletConfig config;
 	protected Objot objot;
 
 	/** @set {@link #objot} */
@@ -48,19 +48,19 @@ public class ObjotServlet
 	}
 
 	/** @see ServletContext#log(String) */
-	protected void log(String hint)
+	public void log(String hint)
 	{
 		config.getServletContext().log(hint);
 	}
 
 	/** @see ServletContext#log(String, Throwable) */
-	protected void log(Throwable e)
+	public void log(Throwable e)
 	{
-		log("", e);
+		config.getServletContext().log("", e);
 	}
 
 	/** @see ServletContext#log(String, Throwable) */
-	protected void log(String hint, Throwable t)
+	public void log(String hint, Throwable t)
 	{
 		config.getServletContext().log(hint, t);
 	}
@@ -73,8 +73,8 @@ public class ObjotServlet
 	public void init(ServletConfig c) throws ServletException
 	{
 		config = c;
-		log("========########@@@@@@@@$$$$$$$$ " + ObjotServlet.class.getName()
-			+ " started $$$$$$$$@@@@@@@@########========");
+		log("\n\n========########@@@@@@@@$$$$$$$$ " + ObjotServlet.class.getName()
+			+ " started $$$$$$$$@@@@@@@@########========\n\n");
 		try
 		{
 			init();
@@ -138,7 +138,8 @@ public class ObjotServlet
 			}
 			catch (ErrThrow e)
 			{
-				log(e);
+				if (e.log)
+					log(e);
 				S = conf.get(e.err, req, res);
 			}
 			catch (Exception e)
