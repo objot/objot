@@ -8,6 +8,7 @@ import java.io.UTFDataFormatException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -32,6 +33,12 @@ public class Objot
 		if (l < - 562949953421312L || l > 562949953421312L) // 2^49, for Javascript
 			throw new RuntimeException("getting integer out of range " + l);
 		return l;
+	}
+
+	/** {@link HashSet} by default but not recommended for ORM */
+	protected java.util.Set<Object> newUnique(int len) throws Exception
+	{
+		return new HashSet<Object>(len);
 	}
 
 	static final Class<?>[] CS0 = {};

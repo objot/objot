@@ -9,16 +9,16 @@
 <head>
 <meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
 <style>
-	body	{ padding:0; margin:1em; line-height:1.4; font-family:sans-serif; }
+	body	{ padding:0; margin:1em; background:white; line-height:1.4; font-family:sans-serif; }
 	h2		{ margin:3em 0 1em; padding:0.2ex 0; border-bottom:0.3ex solid #cdf; color:#730; }
 	h3		{ margin:2em 0 1em 1em; padding:0; color:#015; }
 	h4		{ margin:2em 0 1em 2em; padding:0; color:#015; }
 	a:link		{ color: #04e; text-decoration:none; }
 	a:visited	{ color: #60c; text-decoration:none; }
 	a:hover		{ background:#ddf; }
-	table	{ margin:0 1em 1em; }
-	td		{ padding:0 1ex 0.3ex; border-left:1px solid #dd8; border-bottom:1px solid #ee9; }
-	pre		{ line-height:1; margin:1ex 1em; padding:0.6ex; border:1px solid #cc6; }
+	table	{ margin:0 3ex 1em; background:#f6f6f6; }
+	td		{ padding:0 1ex 0.3ex; border-bottom:1px solid #ee9; }
+	pre		{ margin:1ex 2ex; padding:0.6ex; border:1px solid #cc6; background:#f2f2f2; line-height:1; }
 </style>
 </head>
 <body>
@@ -66,7 +66,7 @@
 	<tr><td>boolean<td>boolean<td>bool</tr>
 	<tr><td>number<td>int long(部分) float double Integer Long(部分) Float Double<td>int long(部分) float</tr>
 	<tr><td>string<td>String<td>unicode str(UTF-8)</tr>
-	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt;<td>list tuple</tr>
+	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt; Set&lt;T&gt;<td>list tuple</tr>
 	<tr><td>Object(非Function String Number Boolean Array)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
 </table>
 其中，字符串是Unicode格式（Python服务端可以配置为UTF-8，但不推荐），并且不能包含一个特殊字符：'\20'（即\u0010）。
@@ -192,7 +192,7 @@ Client与Service交互通常借助异步HTTP来完成，考虑：
 	<li>需要哪些Service。
 	<li>如何构造传递给Service的SO，并满足条件。
 	<li>接收到Service结果，根据不同的SO进行哪些处理。
-	<li>因为是异步HTTP，如何保证交错调用Service，交错处理Service结果仍然正确。
+	<li>因为是异步HTTP，如何保证并发调用Service后，处理Service结果仍然正确。
 	<li>等等。
 </ul>
 
@@ -266,6 +266,27 @@ $Http(http, $Do(url, 'Signing in ...', signIn, null, function (ok, err) {
 	err &amp;&amp; $Err(http, err);
 }));
 </pre>
+
+<!--****************************************************************************************-->
+
+<h3>并发HTTP交互</h3>
+
+<p>每次调用$http都会产生一个独立的HTTP回合，与其他回合并发处理。
+由于Javascript是单线程运行，并发异步回合会导致回调函数的顺序不确定，例如：
+<pre>x = 'a';
+function http() {
+	a = $http(..., done), a.name = 'a', x += a.name;
+	b = $http(..., done), b.name = 'b', x += b.name;
+	c = $http(..., done), c.name = 'c', x += c.name;
+}
+function done(code, res, data) {
+	x += data.name;
+}
+http();
+</pre>
+那么最后x是'abcabc'，'abccab'，'abcbca'等许多可能。
+
+<p>对于回调顺序
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
