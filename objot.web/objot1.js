@@ -21,7 +21,7 @@ $$ = function (x) {
 
 /* return x, or a short string followed by ... */
 $S = function (x) {
-	return x === null ? 'null' // stupid IE
+	return x === null ? 'null' // stupid IE, null COM not null
 		: x instanceof Array ? x.length + '[' + $S(String(x)) + '...]' : (x = String(x),
 			(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
 }
@@ -228,7 +228,7 @@ $http = function (url, timeout, request, done, data) {
 					throw 0;
 				s == 200 && (s = 0);
 				t = s == 0 ? h.responseText : h.statusText;
-			} catch (_) { // stupid Firefox XMLHttpRequest issue
+			} catch (_) { // Firefox XMLHttpRequest issue, see hints
 				s = 1000, t = 'Network Failed';
 			}
 			stop(0, 0);
@@ -415,9 +415,9 @@ $dom.att = function (a, v) {
 /* get/set textContent in Firefox, innerText in IE */
 $dom.tx = $fox ? function (v, multiLine) {
 	if (arguments.length == 0)
-		return this.textContent; // single line for stupid Firefox
-	v = String(v).replace(/  /g, ' \u00a0'); // stupid Firefox, multi whitespaces unsupported
-	if (multiLine && v.indexOf('\n') >= 0) { // stupid Firefox, '\n' unsupported
+		return this.textContent;
+	v = String(v).replace(/  /g, ' \u00a0'); // whitespaces unsupported
+	if (multiLine && v.indexOf('\n') >= 0) { // '\n' unsupported in Firefox
 		v = v.split('\n');
 		this.textContent = v.length > 0 ? v[0] : '';
 		for (var x = 1; x < v.length; x++)

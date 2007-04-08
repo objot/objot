@@ -7,6 +7,7 @@ package objot;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public final class Getting
@@ -56,18 +57,18 @@ public final class Getting
 		if (o == null || ref(o, - 1) < 0)
 			return;
 		if (o instanceof Map)
-		{
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
+			{
 				if (pv.getValue() != null && ! pv.getValue().getClass().isPrimitive())
 					refs(pv.getValue());
-		}
+			}
 		else if (o instanceof List)
-		{
 			for (Object v: (List)o)
 				refs(v);
-		}
+		else if (o instanceof Set)
+			for (Object v: (Set)o)
+				refs(v);
 		else if (! o.getClass().isArray())
-		{
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
 			{
 				Class<?> c = pv.getValue().f.getType();
@@ -75,7 +76,6 @@ public final class Getting
 					&& c != Boolean.class && pv.getValue().allow(forClass))
 					refs(pv.getValue().f.get(o));
 			}
-		}
 		else if (! o.getClass().getComponentType().isPrimitive())
 			for (Object v: (Object[])o)
 				refs(v);
@@ -126,6 +126,14 @@ public final class Getting
 		if (o instanceof List)
 		{
 			List<?> l = (List)o;
+			s.append(S).append(l.size());
+			ref(o, s);
+			for (Object v: l)
+				value(v, s);
+		}
+		else if (o instanceof Set)
+		{
+			Set<?> l = (Set)o;
 			s.append(S).append(l.size());
 			ref(o, s);
 			for (Object v: l)
@@ -229,7 +237,7 @@ public final class Getting
 			s.append(S).append(((Number)v).intValue());
 		else if ((ref = ref(v, 0)) > 0)
 			s.append(S).append('+').append(S).append(ref);
-		else if (v instanceof List || v.getClass().isArray())
+		else if (v instanceof List || v instanceof Set || v.getClass().isArray())
 			list(v, s.append(S).append('['));
 		else
 			object(v, s.append(S).append('{'));

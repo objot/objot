@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 
 public final class Setting
@@ -48,8 +49,12 @@ public final class Setting
 		if (bs[0] == '[')
 		{
 			bxy();
-			o = clazz.isArray() ? list(null, clazz.getComponentType()) //
-				: list(Object.class, null);
+			if (clazz.isArray())
+				o = list(null, null, clazz.getComponentType());
+			else if (Set.class.isAssignableFrom(clazz))
+				o = list(null, Object.class, null);
+			else
+				o = list(Object.class, null, null);
 			if (! clazz.isAssignableFrom(o.getClass()))
 				throw new RuntimeException(o.getClass().getCanonicalName()
 					+ " forbidden for " + clazz.getCanonicalName());
@@ -131,7 +136,8 @@ public final class Setting
 
 	Object[] lo_ = null;
 
-	private Object list(Class<?> listClass, Class<?> arrayClass) throws Exception
+	private Object list(Class<?> listClass, Class<?> uniqueClass, Class<?> arrayClass)
+		throws Exception
 	{
 		final int len = (int)Int(1);
 		bxy();
@@ -142,7 +148,7 @@ public final class Setting
 		Object l = null;
 		if (listClass != null)
 		{
-			// ArrayList's element array should be protected modifier
+			// ArrayList's element array should have protected modifier
 			l = new ArrayList<Object>(new AbstractCollection<Object>()
 			{
 				@Override
@@ -167,6 +173,8 @@ public final class Setting
 			lo = lo_;
 			lo_ = null;
 		}
+		else if (uniqueClass != null)
+			lo = (Object[])Array.newInstance(uniqueClass, len);
 		else if (arrayClass == boolean.class)
 			l = lb = new boolean[len];
 		else if (arrayClass == int.class)
@@ -231,7 +239,7 @@ public final class Setting
 			if (c == 0)
 				set(lo, i++, str(), cla);
 			else if (c == '[')
-				set(lo, i++, list(Object.class, null), cla);
+				set(lo, i++, list(Object.class, null, null), cla);
 			else if (c == '{')
 				set(lo, i++, object(Object.class), cla);
 			else if (c == '+')
@@ -258,6 +266,13 @@ public final class Setting
 				else
 					set(lo, i++, number(), cla);
 			}
+		}
+		if (uniqueClass != null)
+		{
+			Set<Object> ls = objot.newUnique(len);
+			for (Object o: lo)
+				ls.add(o);
+			return ls;
 		}
 		return l;
 	}
@@ -317,15 +332,21 @@ public final class Setting
 				v = str();
 			else if (c == '[')
 				if (f != null && f.getType().isArray())
-					v = list(null, f.getType().getComponentType());
+					v = list(null, null, f.getType().getComponentType());
 				else if (f != null && List.class.isAssignableFrom(f.getType())
 					&& t instanceof ParameterizedType)
 				{
 					t = ((ParameterizedType)t).getActualTypeArguments()[0];
-					v = list(t instanceof Class ? (Class)t : Object.class, null);
+					v = list(t instanceof Class ? (Class)t : Object.class, null, null);
+				}
+				else if (f != null && Set.class.isAssignableFrom(f.getType())
+					&& t instanceof ParameterizedType)
+				{
+					t = ((ParameterizedType)t).getActualTypeArguments()[0];
+					v = list(null, t instanceof Class ? (Class)t : Object.class, null);
 				}
 				else
-					v = list(Object.class, null);
+					v = list(Object.class, null, null);
 			else if (c == '{')
 				v = object(f == null ? Object.class : f.getType());
 			else if (c == '+')

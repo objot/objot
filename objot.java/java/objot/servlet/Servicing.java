@@ -90,7 +90,13 @@ public class Servicing
 		catch (InvocationTargetException e)
 		{
 			Throwable _ = e.getCause();
-			throw _ instanceof ErrThrow ? ((ErrThrow)_) : new ErrThrow(null, _);
+			if (_ instanceof ErrThrow)
+				throw (ErrThrow)_;
+			if (_ instanceof Exception)
+				throw (Exception)_;
+			if (_ instanceof Error)
+				throw (Error)_;
+			throw new Exception(_);
 		}
 	}
 }
