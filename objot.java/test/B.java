@@ -1,5 +1,6 @@
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import objot.GetSet;
 
@@ -30,4 +31,7 @@ public class B
 
 	@GetSet
 	public boolean a8;
+
+	@GetSet
+	public Set<String> a9;
 }

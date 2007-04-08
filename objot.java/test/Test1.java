@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import objot.Getting;
 import objot.Objot;
@@ -26,6 +27,9 @@ public class Test1
 		y.a7.put("x", x);
 		y.a7.put("xx", (A)y.a6.get(0)[0]);
 		y.a8 = (Boolean)y.a2;
+		y.a9 = new HashSet<String>();
+		y.a9.add("unique1");
+		y.a9.add("unique2");
 		Object[] z = new Object[] { y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
@@ -46,6 +50,8 @@ public class Test1
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
 		z[0] = z;
+
+		//
 		Objot objot = new Objot();
 		CharSequence s = Getting.go(objot, Object.class, z);
 		Object o = Setting.go(objot, Object.class, Object.class, s.toString().toCharArray());

@@ -4,11 +4,18 @@
 //
 package chat.service;
 
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.List;
 
 import objot.servlet.Service;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+
 import chat.model.Chat;
+import chat.model.User;
 
 
 public class DoChat
@@ -19,48 +26,35 @@ public class DoChat
 	 * {@link Chat#datime}(excluded), order by {@link Chat#datime} asc
 	 */
 	@Service
-	public static Chat[] read(Chat c, Do $) throws Exception
+	public static List<Chat> read(Chat c, Do $) throws Exception
 	{
-		int n = 0;
-		for (Chat o: $.me.chatOuts)
-			if (o.datime > c.datime && (c.in == null || o.in.id.equals(c.in.id)))
-				n++;
-		for (Chat i: $.me.chatIns)
-			if (i.datime > c.datime && (c.out == null || i.out.id.equals(c.out.id)))
-				n++;
-		Chat[] s = new Chat[n];
-		n = 0;
-		for (Chat o: $.me.chatOuts)
-			if (o.datime > c.datime && (c.in == null || o.in.id.equals(c.in.id)))
-				s[n++] = o;
-		for (Chat i: $.me.chatIns)
-			if (i.datime > c.datime && (c.out == null || i.out.id.equals(c.out.id)))
-				s[n++] = i;
-		Arrays.sort(s, new Comparator<Chat>()
-		{
-			public int compare(Chat a, Chat b)
-			{
-				return a.datime < b.datime ? - 1 : a.datime == b.datime ? 0 : 1;
-			}
-		});
-		return s;
+		Criteria<Chat> _ = $.criteria(Chat.class);
+
+		Criterion out = Restrictions.eq("out", $.me);
+		if (c.in != null)
+			out = Restrictions.and(out, Restrictions.eq("in", c.in));
+		Criterion in = Restrictions.eq("in", $.me);
+		if (c.out != null)
+			in = Restrictions.and(in, Restrictions.eq("out", c.out));
+
+		_.add(Restrictions.gt("datime", c.datime)).add(Restrictions.or(out, in));
+		return _.addOrder(Order.asc("datime")).list();
 	}
 
-	/** @return SO with {@link Chat#datime} */
+	/** @return with {@link Chat#datime} */
 	@Service
 	public static Chat post(Chat c, Do $) throws Exception
 	{
-		c.text = noEmpty("text", c.text, false);
 		c.out = $.me;
-		c.in = $.load(c.in.id);
-		if (! c.in.friends.contains(c.out))
+		c.in = $.get(User.class, c.in.id);
+		valid(c);
+		Query _ = $.sql("select count(*) from User_friends where User=? and friends=?");
+		_.setParameter(0, c.in);
+		_.setParameter(1, c.out);
+		if ((Integer)_.uniqueResult() == 0)
 			throw err("You must be his/her friend");
 		c.datime = System.currentTimeMillis();
-		// SO as PO
-		$.me.chatOuts.add(c);
-		c.in.chatIns.add(c);
-		Chat _ = new Chat();
-		_.datime = c.datime;
-		return _;
+		$.save(c);
+		return c;
 	}
 }
