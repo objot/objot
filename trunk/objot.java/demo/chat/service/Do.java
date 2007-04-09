@@ -6,6 +6,8 @@ package chat.service;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpSession;
 
@@ -13,17 +15,19 @@ import objot.Err;
 import objot.ErrThrow;
 
 import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.ReplicationMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
 
-import chat.model.Chat;
 import chat.model.User;
 
 
@@ -31,14 +35,47 @@ import chat.model.User;
 public class Do
 {
 	static SessionFactory sessionFactory;
+	static final Map<Class<?>, ClassValidator<?>> valids //
+	= new ConcurrentHashMap<Class<?>, ClassValidator<?>>(128, 0.8f, 32);
 
 	protected Session $;
 	protected HttpSession http;
 	protected User me;
 
+	/** @see Hibernate#initialize */
+	public <T>T fetch(T o)
+	{
+		Hibernate.initialize(o);
+		return o;
+	}
+
+	/** {@link #flush}, {@link #evict} and {@link #refresh} */
+	public <T>T flushRefresh(T o)
+	{
+		$.flush();
+		$.evict(o);
+		$.refresh(o);
+		return o;
+	}
+
 	public <T>T find1(Class<T> clazz, String prop, Object eq)
 	{
 		return criteria(clazz).add(Restrictions.eq(prop, eq)).uniqueResult();
+	}
+
+	/**
+	 * Force this session to flush. Must be called at the end of a unit of work, before
+	 * commiting the transaction and closing the session (depending on
+	 * {@link Session#setFlushMode flush-mode}, {@link Transaction#commit()} calls this
+	 * method). <p/> <i>Flushing</i> is the process of synchronizing the underlying
+	 * persistent store with persistable state held in memory.
+	 * 
+	 * @throws HibernateException Indicates problems flushing the session or talking to
+	 *             the database.
+	 */
+	public void flush() throws HibernateException
+	{
+		$.flush();
 	}
 
 	/**
@@ -325,17 +362,15 @@ public class Do
 		return new ErrThrow(null, hint, e);
 	}
 
-	public static void valid(User o) throws Exception
+	@SuppressWarnings("unchecked")
+	public static <T>T valid(T o) throws Exception
 	{
-		InvalidValue[] s = User.V.getInvalidValues(o);
+		ClassValidator<T> v = (ClassValidator<T>)valids.get(o.getClass());
+		if (v == null)
+			valids.put(o.getClass(), v = new ClassValidator(o.getClass()));
+		InvalidValue[] s = v.getInvalidValues(o);
 		if (s != null && s.length > 0)
 			throw err(Arrays.toString(s));
-	}
-
-	public static void valid(Chat o) throws Exception
-	{
-		InvalidValue[] s = Chat.V.getInvalidValues(o);
-		if (s != null && s.length > 0)
-			throw err(Arrays.toString(s));
+		return o;
 	}
 }

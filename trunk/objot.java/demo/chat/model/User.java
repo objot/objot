@@ -18,7 +18,6 @@ import objot.GetSet;
 import objot.NameGet;
 import objot.Set;
 
-import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
@@ -32,8 +31,6 @@ import chat.service.DoUser;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public final class User
 {
-	public static final ClassValidator<User> V = new ClassValidator<User>(User.class);
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@GetSet(Object.class)

@@ -13,5 +13,9 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-collections-2.1.1.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/antlr-2.7.6.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/javassist.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/jta.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/hsqldb.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>

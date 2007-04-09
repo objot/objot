@@ -15,7 +15,6 @@ import javax.persistence.UniqueConstraint;
 import objot.GetSet;
 import objot.Name;
 
-import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotNull;
 
@@ -28,8 +27,6 @@ import chat.service.DoChat;
 @GetSet(DoChat.class)
 public final class Chat
 {
-	public static final ClassValidator<Chat> V = new ClassValidator<Chat>(Chat.class);
-
 	@Id
 	@GeneratedValue
 	protected Integer id; // just for simple identity strategy

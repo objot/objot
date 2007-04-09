@@ -51,7 +51,7 @@ public class DoChat
 		Query _ = $.sql("select count(*) from User_friends where User=? and friends=?");
 		_.setParameter(0, c.in);
 		_.setParameter(1, c.out);
-		if ((Integer)_.uniqueResult() == 0)
+		if ((Integer)_.uniqueResult() == 0) // List/Set.contains causes fetch rows
 			throw err("You must be his/her friend");
 		c.datime = System.currentTimeMillis();
 		$.save(c);

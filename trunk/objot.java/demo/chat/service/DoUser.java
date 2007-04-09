@@ -27,9 +27,11 @@ public class DoUser
 	{
 		if (u.myFriends == null) // || name
 			return Ok.OK;
-		User me = $.load(User.class, u.id);
+		User me = $.load(User.class, $.me.id);
 		if (u.myFriends != null)
 			me.friends = u.myFriends;
+		$.flushRefresh(me);
+		$.fetch(me.friends);
 		DoSign.me(me, $);
 		return Ok.OK;
 	}
