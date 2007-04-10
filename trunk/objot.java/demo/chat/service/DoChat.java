@@ -47,7 +47,7 @@ public class DoChat
 	{
 		c.out = $.me;
 		c.in = $.get(User.class, c.in.id);
-		valid(c);
+		validator(c);
 		Query _ = $.sql("select count(*) from User_friends where User=? and friends=?");
 		_.setParameter(0, c.in);
 		_.setParameter(1, c.out);

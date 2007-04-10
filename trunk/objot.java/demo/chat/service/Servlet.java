@@ -4,13 +4,12 @@
 //
 package chat.service;
 
-import java.util.Arrays;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import objot.Err;
 import objot.ErrThrow;
+import objot.Errs;
 import objot.Objot;
 import objot.Setting;
 import objot.servlet.ObjotServlet;
@@ -41,12 +40,11 @@ public final class Servlet
 				return Class.forName("chat.model.".concat(name));
 			}
 
+			/** include {@link Err} and {@link Errs} */
 			@Override
 			protected String className(Class<?> c)
 			{
-				if (c == Err.class)
-					return "Err";
-				return c.getName().substring("chat.model.".length());
+				return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 			}
 		};
 
@@ -119,7 +117,7 @@ public final class Servlet
 				}
 				catch (InvalidStateException e)
 				{
-					throw Do.err(Arrays.toString(e.getInvalidValues()));
+					throw Do.err(new Errs(e.getInvalidValues()));
 				}
 				finally
 				{

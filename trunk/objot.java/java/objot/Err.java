@@ -34,4 +34,10 @@ public class Err
 			hint = e.getMessage() == null ? hint_ + " : " + e.getClass().getName() //
 			: hint_ + " : " + e.getMessage() + "  [" + e.getClass().getName() + "]";
 	}
+
+	@Override
+	public String toString()
+	{
+		return hint;
+	}
 }

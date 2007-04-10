@@ -22,7 +22,7 @@ public class DoSign
 	@Signed(need = false)
 	public static User inUp(User u_, Do $) throws Exception
 	{
-		valid(u_);
+		validator(u_);
 		User u = $.find1(User.class, "name", u_.name);
 		// sign up
 		if (u == null)

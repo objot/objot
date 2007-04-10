@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import objot.Err;
 import objot.ErrThrow;
 import objot.Getting;
 import objot.Objot;
@@ -52,14 +51,7 @@ public class Servicing
 	public CharSequence get(Object o, HttpServletRequest req, HttpServletResponse res)
 		throws Exception
 	{
-		try
-		{
-			return Getting.go(objot, cla, o);
-		}
-		catch (Exception e)
-		{
-			return Getting.go(objot, cla, new Err(e));
-		}
+		return Getting.go(objot, cla, o);
 	}
 
 	public CharSequence Do(char[] Q, HttpServletRequest req, HttpServletResponse res)
