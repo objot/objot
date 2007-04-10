@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -13,6 +14,7 @@ public class Test1
 	{
 		A x = new A();
 		x.a2 = "x";
+		x.d = new Date(54321);
 		B y = new B();
 		y.a1 = "\tasdasdf";
 		y.a2 = true;

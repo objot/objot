@@ -4,6 +4,7 @@
 //
 package chat.service;
 
+import java.util.Date;
 import java.util.List;
 
 import objot.servlet.Service;
@@ -53,7 +54,7 @@ public class DoChat
 		_.setParameter(1, c.out);
 		if ((Integer)_.uniqueResult() == 0) // List/Set.contains causes fetch rows
 			throw err("You must be his/her friend");
-		c.datime = System.currentTimeMillis();
+		c.datime = new Date();
 		$.save(c);
 		return c;
 	}
