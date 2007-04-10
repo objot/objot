@@ -5,7 +5,6 @@
 package chat.service;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -13,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import objot.Err;
 import objot.ErrThrow;
+import objot.Errs;
 
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
@@ -35,12 +35,44 @@ import chat.model.User;
 public class Do
 {
 	static SessionFactory sessionFactory;
-	static final Map<Class<?>, ClassValidator<?>> valids //
+	private static final Map<Class<?>, ClassValidator<?>> VS //
 	= new ConcurrentHashMap<Class<?>, ClassValidator<?>>(128, 0.8f, 32);
 
 	protected Session $;
 	protected HttpSession http;
 	protected User me;
+
+	public static ErrThrow err(Err e)
+	{
+		return new ErrThrow(e);
+	}
+
+	public static ErrThrow err(String hint)
+	{
+		return new ErrThrow(null, hint);
+	}
+
+	public static ErrThrow err(Throwable e)
+	{
+		return new ErrThrow(null, e);
+	}
+
+	public static ErrThrow err(String hint, Throwable e)
+	{
+		return new ErrThrow(null, hint, e);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T>T validator(T o) throws Exception
+	{
+		ClassValidator<T> v = (ClassValidator<T>)VS.get(o.getClass());
+		if (v == null)
+			VS.put(o.getClass(), v = new ClassValidator(o.getClass()));
+		InvalidValue[] s = v.getInvalidValues(o);
+		if (s != null && s.length > 0)
+			throw err(new Errs(s));
+		return o;
+	}
 
 	/** @see Hibernate#initialize */
 	public <T>T fetch(T o)
@@ -62,6 +94,8 @@ public class Do
 	{
 		return criteria(clazz).add(Restrictions.eq(prop, eq)).uniqueResult();
 	}
+
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 	/**
 	 * Force this session to flush. Must be called at the end of a unit of work, before
@@ -338,39 +372,5 @@ public class Do
 	public String getEntityName(Object object) throws HibernateException
 	{
 		return $.getEntityName(object);
-	}
-
-	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-	public static ErrThrow err(Err e)
-	{
-		return new ErrThrow(e);
-	}
-
-	public static ErrThrow err(String hint)
-	{
-		return new ErrThrow(null, hint);
-	}
-
-	public static ErrThrow err(Throwable e)
-	{
-		return new ErrThrow(null, e);
-	}
-
-	public static ErrThrow err(String hint, Throwable e)
-	{
-		return new ErrThrow(null, hint, e);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T>T valid(T o) throws Exception
-	{
-		ClassValidator<T> v = (ClassValidator<T>)valids.get(o.getClass());
-		if (v == null)
-			valids.put(o.getClass(), v = new ClassValidator(o.getClass()));
-		InvalidValue[] s = v.getInvalidValues(o);
-		if (s != null && s.length > 0)
-			throw err(Arrays.toString(s));
-		return o;
 	}
 }

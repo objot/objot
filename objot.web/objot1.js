@@ -504,6 +504,10 @@ $.s = function (x) {
 $.f = function (x) {
 	return typeof x === 'function' ? x : $throw($S(x) + ' must be function');
 }
+/* must be Array */
+$.a = function (x) {
+	return x !== null && x instanceof Array ? x : $throw($S(x) + ' must be Array');
+}
 /* must not-null and instanceof the clazz */
 $.is = function (x, clazz, name) {
 	return x !== null && x instanceof clazz ? x

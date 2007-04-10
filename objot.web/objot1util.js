@@ -58,7 +58,12 @@ Array.prototype.remove = function (from, len) {
 Err = function (hint) {
 	this.hint = $(hint);
 }
+Errs = function (hints) {
+	Err.call(this, '');
+	hints && (this.hints = $.a(hints));
+}
 $class('Err');
+$class('Errs', Err);
 
 
 $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
@@ -127,7 +132,7 @@ $Http = function (box, h) {
 
 /** @return the box */
 $Err = function (box, err, show) {
-	err instanceof Err && (err = err.hint);
+	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
 	$fox && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
 	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-img'));
