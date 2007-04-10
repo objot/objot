@@ -19,7 +19,7 @@ import objot.NameGet;
 import objot.Set;
 
 import org.hibernate.validator.Length;
-import org.hibernate.validator.NotNull;
+import org.hibernate.validator.NotEmpty;
 
 import chat.service.DoChat;
 import chat.service.DoSign;
@@ -31,18 +31,18 @@ import chat.service.DoUser;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public final class User
 {
+	@GetSet(Object.class)
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@GetSet(Object.class)
 	public Integer id; // use Integer just for less object creation
 
-	@NotNull
+	@NotEmpty
 	@Length(max = 20)
 	@Get( { DoUser.class, DoChat.class })
 	@Set( { DoSign.class, DoUser.class })
 	public String name;
 
-	@NotNull
+	@NotEmpty
 	@Length(max = 20)
 	@Set(DoSign.class)
 	public String password;
@@ -50,8 +50,8 @@ public final class User
 	@ManyToMany
 	public java.util.Set<User> friends;
 
-	@Transient
 	@GetSet(DoUser.class)
 	@NameGet("friends")
+	@Transient
 	public java.util.Set<User> myFriends;
 }

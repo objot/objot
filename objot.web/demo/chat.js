@@ -30,19 +30,19 @@ $class('ErrUnsigned', Err);
 
 //********************************************************************************************//
 
-DatimeMin = 0;
+DatimeMin = new Date(0);
 
 User = function (id, name, pass) {
-	id && (this.id = id);
-	name && (this.name = name);
-	pass && (this.password = pass);
+	this.id = id;
+	this.name = name;
+	this.password = pass;
 	this.friends;
 }
 
 Chat = function (out, In, datime, text) {
 	this.out = out;
 	this.In = In;
-	this.datime = datime != null ? datime : DatimeMin;
+	this.datime = datime;
 	this.text = text;
 }
 
@@ -110,7 +110,7 @@ DoChat.read = function (chat, This, done) {
 
 DoChat.post = function (In, text, This, done) {
 	return $Do('DoChat-post', 'Posting chat',
-		$get(new Chat(null, In, null, text), this), This, done);
+		$get(new Chat(null, In, DatimeMin, text), this), This, done);
 }
 
 //********************************************************************************************//
@@ -283,7 +283,7 @@ _Chatss = function (box) {
 	);
 	this.Chatss = [];
 	this.Active = null;
-	this.Datime = 0;
+	this.Datime = DatimeMin;
 	this.doPull();
 	var This = this;
 	setInterval(function () {
@@ -300,7 +300,7 @@ _Chatss.prototype = {
 			for (var x = 0; x < ok.length; x++) {
 				var c = ok[x];
 				this.doChat(c.out.id == _me.id ? c.In : c.out, true).doRead(c);
-				this.Datime = Math.max(this.Datime, c.datime);
+				c.datime.getTime() < this.Datime.getTime() && (this.Datime = c.datime);
 			}
 		}
 		err && $Err(this.http, err);
@@ -351,10 +351,10 @@ _Chats.prototype = {
 
 	doRead: function (chat) {
 		var out = chat.out.id == _me.id;
-		if (out && chat.datime <= this.OutDatime)
+		if (out && chat.datime.getTime() <= this.OutDatime.getTime())
 			return;
 		var c = out ? ' out' : ' in';
-		var d = new Date(chat.datime);
+		var d = chat.datime;
 		d = $s('c', 'datime' + c).tx(d.getFullYear() + '-' + (d.getMonth() + 1)
 			+ '-' + d.getDate() + ' ' + d.toLocaleTimeString());
 		this.chats.add(d, $s('c', 'name' + c).tx(chat.out.name),
