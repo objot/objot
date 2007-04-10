@@ -20,6 +20,7 @@ import objot.GetSet;
 import objot.Name;
 
 import org.hibernate.validator.Length;
+import org.hibernate.validator.NotEmpty;
 import org.hibernate.validator.NotNull;
 
 import chat.service.DoChat;
@@ -35,24 +36,25 @@ public final class Chat
 	@GeneratedValue
 	protected Integer id; // just for simple identity strategy
 
-	@ManyToOne
 	@NotNull
 	@GetSet
+	@ManyToOne
 	public User out;
 
-	@ManyToOne
-	@JoinColumn(name = "in_")
 	@NotNull
 	@GetSet
 	@Name("In")
+	@ManyToOne
+	@JoinColumn(name = "in_")
 	public User in;
 
-	@Temporal(TemporalType.TIMESTAMP)
 	@NotNull
 	@GetSet
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date datime;
 
-	@Length(min = 1, max = 1024)
+	@NotEmpty
+	@Length(max = 1024)
 	@GetSet
 	public String text;
 }

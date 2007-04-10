@@ -45,11 +45,11 @@ $class = function (ctorName, sup, interfaces) {
 	ctor.classed && $throw('duplicate class ' + ctor.$name);
 	if (sup) {
 		$.f(sup).classed || $throw('super class ' + sup.$name + ' not ready');
-		var c = function () {};
-		c.prototype = sup.prototype;
-		ctor.prototype = $.copy(new c(), ctor.prototype);
+		ctor.prototype = $.copy(new sup.$0, ctor.prototype);
 		ctor.prototype.constructor = ctor;
 	}
+	ctor.$0 = function () {};
+	ctor.$0.prototype = ctor.prototype;
 	if (ctor.prototype.constructor !== ctor)
 		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
 	for (var x = 2; x < arguments.length; x++)
@@ -98,16 +98,16 @@ $get = function (o, forClass) {
 			return;
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x ++)
-				ox = o[x],
-				typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
-					: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
+				typeof (ox = o[x]) !== 'string' ?
+				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
+				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 		else if (!o.constructor.$name)
 			$throw($S(o) + ' class not ready');
 		else for (var x in o)
 			if (o.hasOwnProperty(x))
-				ox = o[x],
-				typeof ox !== 'string' ? ox != null && typeof ox === 'object' && this.ref(ox)
-					: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
+				typeof (ox = o[x]) !== 'string' ?
+				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
+				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 	}
 	$get.unref = function (o, ox) {
 		if ('' in o && /*true*/delete o[''])
@@ -123,6 +123,7 @@ $get = function (o, forClass) {
 				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
+					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
 		s[x++] = ']';
@@ -144,6 +145,7 @@ $get = function (o, forClass) {
 				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
+					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
 
@@ -159,6 +161,7 @@ $get = function (o, forClass) {
 				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
 					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
+					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
 		}
@@ -185,6 +188,7 @@ $set = function (s) {
 			switch(v) {
 				case '': o[i] = s[x++]; break; case '.': o[i] = null; break;
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
+				case '*': o[i] = new Date(s[x++] - 0); break;
 				case '[': x = this.l(s, x); o[i] = s.o; break;
 				case '{': x = this.o(s, x); o[i] = s.o; break;
 				case '+': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
@@ -194,12 +198,13 @@ $set = function (s) {
 		return x;
 	}
 	$set.o = function (s, x, p, v) {
-		var c = $.c(s[x++]), o = new c;
+		var o = new ($.c(s[x++]).$0);
 		s[x] === '=' && (this.r[s[++x]] = o, x++);
 		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break; case '.': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
+				case '*': o[p] = new Date(s[x++] - 0); break;
 				case '[': x = this.l(s, x); o[p] = s.o; break;
 				case '{': x = this.o(s, x); o[p] = s.o; break;
 				case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
@@ -525,8 +530,8 @@ $.c = function ($_$, _$_) {
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
-	$.cs = { '': Object }
-	$class('Object')
+	$.cs = { '': Object };
+	$class('Object');
 
 /**
  * copy another's properties

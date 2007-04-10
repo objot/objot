@@ -38,7 +38,7 @@ public class DoChat
 		if (c.out != null)
 			in = Restrictions.and(in, Restrictions.eq("out", c.out));
 
-		_.add(Restrictions.gt("datime", c.datime)).add(Restrictions.or(out, in));
+		_.add(Restrictions.or(out, in)).add(Restrictions.gt("datime", c.datime));
 		return _.addOrder(Order.asc("datime")).list();
 	}
 

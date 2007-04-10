@@ -4,6 +4,8 @@
 //
 package chat.service;
 
+import java.util.Locale;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,8 +31,8 @@ public final class Servlet
 	public void init() throws Exception
 	{
 		String verb = config.getInitParameter("verbose");
-		if (verb != null)
-			verbose = Integer.parseInt(verb);
+		verbose = verb != null ? Integer.parseInt(verb) : verbose;
+		Locale.setDefault(Locale.ENGLISH);
 
 		objot = new Objot()
 		{

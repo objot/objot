@@ -66,8 +66,9 @@
 	<tr><td>boolean<td>boolean<td>bool</tr>
 	<tr><td>number<td>int long(部分) float double Integer Long(部分) Float Double<td>int long(部分) float</tr>
 	<tr><td>string<td>String<td>unicode str(UTF-8)</tr>
+	<tr><td>Date<td>Date<td>?</tr>
 	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt; Set&lt;T&gt;<td>list tuple</tr>
-	<tr><td>Object(非Function String Number Boolean Array)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
+	<tr><td>Object(非Function String Number Boolean)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
 </table>
 其中，字符串是Unicode格式（Python服务端可以配置为UTF-8，但不推荐），并且不能包含一个特殊字符：'\20'（即\u0010）。
 Objot将SO编码成一个字符串，其中使用了特殊字符'\20'。
@@ -105,6 +106,7 @@ $get可以理解为get from object，得到的字符串可以再被解码为数�
 ok.hint == ok2.hint || $throw('error'); // 如果hint不同，就抛出异常
 </pre>
 $set可以理解为set to object。
+注意，解码时创建对象不调用$class中定义的构造函数，而是内部生成的空构造函数。
 
 <!--****************************************************************************************-->
 
@@ -286,9 +288,34 @@ http();
 </pre>
 那么最后x是'abcabc'，'abccab'，'abcbca'等许多可能。
 
-<p>回调顺序不确定，Javascript本身又没有事务支持，因此常用的策略就是请求时只使用局部或对象数据，而在回调时才将局部或对象数据应用到更大范围：
-<pre>
+<p>回调顺序不确定，Javascript本身又没有事务支持，因此常用策略是请求时只使用局部或对象数据，而在回调时才将局部或对象数据应用到更大范围：
+<pre>_user = new User();
+DoUser = function () {}
+DoUser.update = function (friends, This, done) {
+	var u = new User();
+	u.friends = friends;
+	var h = $Do('DoUser-update', 'Updating my info', $get(u, this.update),
+		This, done, null, this.doneUpdate);
+	h.user = u;
+	return h;
+}
+	DoUser.doneUpdate = function (ok, err, h) {
+		ok &amp;&amp; (_user.friends = h.user.myFriends);
+	}
 </pre>
+DoUser.update中，先生成一个临时数据u，并设置为$Do返回函数的属性。
+DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user。
+临时数据也可以作为对象传入$Do：
+<pre>	...
+	var h = $Do('DoUser-update', 'Updating my info', $get(u, this.update),
+		This, done, u, this.doneUpdate);
+	...
+}
+	DoUser.doneUpdate = function (ok, err, u) {
+		ok &amp;&amp; (_user.friends = u.myFriends);
+	}
+</pre>
+这样DoUser.doneUpdate可以直接得到这个临时数据。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
