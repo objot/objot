@@ -10,6 +10,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -211,8 +212,8 @@ public final class Setting
 		else if (arrayClass == int.class)
 		{
 			for (char c; (c = chr()) != ']'; bxy())
-				if (c == 0 || c == '[' || c == '{' || c == '+' || c == '.' || c == '<'
-					|| c == '>')
+				if (c == 0 || c == '[' || c == '{' || c == '+' || c == '.' || c == '*'
+					|| c == '<' || c == '>')
 					throw new RuntimeException("integer expected for int[] but " + c + " at "
 						+ bx);
 				else
@@ -222,8 +223,8 @@ public final class Setting
 		else if (arrayClass == long.class)
 		{
 			for (char c; (c = chr()) != ']'; bxy())
-				if (c == 0 || c == '[' || c == '{' || c == '+' || c == '.' || c == '<'
-					|| c == '>')
+				if (c == 0 || c == '[' || c == '{' || c == '+' || c == '.' || c == '*'
+					|| c == '<' || c == '>')
 					throw new RuntimeException("long integer expected for int[] but " + c
 						+ " at " + bx);
 				else
@@ -234,7 +235,7 @@ public final class Setting
 			cla = Object.class;
 		for (char c; (c = chr()) != ']'; bxy())
 		{
-			if (c == 0 || c == '[' || c == '{' || c == '+')
+			if (c == 0 || c == '[' || c == '{' || c == '+' || c == '*')
 				bxy();
 			if (c == 0)
 				set(lo, i++, str(), cla);
@@ -244,6 +245,8 @@ public final class Setting
 				set(lo, i++, object(Object.class), cla);
 			else if (c == '+')
 				set(lo, i++, ref(), cla);
+			else if (c == '*')
+				set(lo, i++, new Date(Int(- 1)), cla);
 			else if (c == '.')
 				lo[i++] = null;
 			else if (c == '<')
@@ -325,7 +328,7 @@ public final class Setting
 			}
 			bxy();
 			c = chr();
-			if (c == 0 || c == '[' || c == '{' || c == '+')
+			if (c == 0 || c == '[' || c == '{' || c == '+' || c == '*')
 				bxy();
 
 			if (c == 0)
@@ -351,6 +354,8 @@ public final class Setting
 				v = object(f == null ? Object.class : f.getType());
 			else if (c == '+')
 				v = ref();
+			else if (c == '*')
+				v = new Date(Int(- 1));
 			else if (c == '.')
 				v = null;
 			else if (c == '<')

@@ -5,6 +5,8 @@
 package objot;
 
 import java.lang.reflect.Field;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -235,6 +237,10 @@ public final class Getting
 			s.append(S).append(objot.getLong((Long)v));
 		else if (v instanceof Number)
 			s.append(S).append(((Number)v).intValue());
+		else if (v instanceof Date)
+			s.append(S).append('*').append(S).append(((Date)v).getTime());
+		else if (v instanceof Calendar)
+			s.append(S).append('*').append(S).append(((Calendar)v).getTimeInMillis());
 		else if ((ref = ref(v, 0)) > 0)
 			s.append(S).append('+').append(S).append(ref);
 		else if (v instanceof List || v instanceof Set || v.getClass().isArray())
