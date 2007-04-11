@@ -17,10 +17,6 @@ import objot.Get;
 import objot.GetSet;
 import objot.NameGet;
 import objot.Set;
-
-import org.hibernate.validator.Length;
-import org.hibernate.validator.NotEmpty;
-
 import chat.service.DoChat;
 import chat.service.DoSign;
 import chat.service.DoUser;
@@ -36,14 +32,12 @@ public final class User
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer id; // use Integer just for less object creation
 
-	@NotEmpty
-	@Length(max = 20)
+	@BeSimple(max = 20)
 	@Get( { DoUser.class, DoChat.class })
 	@Set( { DoSign.class, DoUser.class })
 	public String name;
 
-	@NotEmpty
-	@Length(max = 20)
+	@BeSimple(max = 20)
 	@Set(DoSign.class)
 	public String password;
 
