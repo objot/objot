@@ -27,8 +27,9 @@ public class Model
 
 		// iterate on all classes in the package
 		for (String _: path.list())
-			c.addAnnotatedClass(Class.forName(Model.class.getPackage().getName() + "."
-				+ _.substring(0, _.lastIndexOf('.'))));
+			if (_.endsWith(".class"))
+				c.addAnnotatedClass(Class.forName(Model.class.getPackage().getName() + "."
+					+ _.substring(0, _.lastIndexOf('.'))));
 
 		return c;
 	}
