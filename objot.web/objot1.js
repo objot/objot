@@ -2,24 +2,20 @@
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
-if (window.$ === undefined) {
 
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-
-
-/* return x, or '' if null/undefined */
+/** @return x, or '' if null/undefined */
 $ = function (x) {
 	return x == null ? '' : String(x);
 }
 
-/* return x, or cached {} if null/undefined */
+/** @return x, or cached {} if null/undefined */
 $$ = function (x) {
 	return x == null ? $$.o : x;
 }
 	$$.o = {};
 
-/* return x, or a short string followed by ... */
+/* @return x, or a short string followed by ... */
 $S = function (x) {
 	return x === null ? 'null' // stupid IE, null COM not null
 		: x instanceof Array ? x.length + '[' + $S(String(x)) + '...]' : (x = String(x),
@@ -30,6 +26,7 @@ $fox = navigator.userAgent.indexOf('Gecko') >= 0;
 $ie7 = navigator.userAgent.indexOf('MSIE 7') >= 0;
 $ie6 = !$fox && !$ie7;
 
+/** throw Error */
 $throw = function (x) {
 	throw $fox ? $throw.err = Error(x instanceof Error ? x.message : x)
 		: x instanceof Error ? x : Error(0, x);
@@ -37,7 +34,7 @@ $throw = function (x) {
 
 //********************************************************************************************//
 
-/* make class with super class by prototype and interfaces by copying prototype */
+/** make class. @param sup superclass or null. @param interfaces... prototypes are copied */
 $class = function (ctorName, sup, interfaces) {
 	$.s(ctorName);
 	var ctor = $.c(ctorName, 1);
@@ -57,6 +54,8 @@ $class = function (ctorName, sup, interfaces) {
 	$.cs[ctor.$name] = ctor;
 	ctor.classed = true;
 }
+/** define the encoding rules. former rules are overrided by later rules.
+ * (@param forClass key. @param get what to encode, all if null)... */
 $class.get = function (clazz, forClass, gets) {
 	if (arguments.length > 1)
 		clazz.$get = [], clazz.$gets = [];
@@ -77,7 +76,8 @@ $class.get = function (clazz, forClass, gets) {
 
 //********************************************************************************************//
 
-/* get string from object graph, with class name and reference */
+/** encode, get string from object graph, following the encoding rules.
+ * @param forClass rule key or subclass of rule key */
 $get = function (o, forClass) {
 	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
 	s.clazz = $.f(forClass);
@@ -169,7 +169,7 @@ $get = function (o, forClass) {
 		return x;
 	}
 
-/* set object graph from string, with class and reference */
+/** decode, set object graph from string, objects are created without constructors */
 $set = function (s) {
 	try {
 		s = $.s(s).split('\20'/* Ctrl-P in vim */);
@@ -217,6 +217,12 @@ $set = function (s) {
 
 //********************************************************************************************//
 
+/** start a HTTP round.
+ * @param timeout milliseconds or <=0.
+ * @param request string.
+ * @param done function called when this round end.
+ * @param data passed to done, or the return value if missing.
+ * @return a function to stop this round */
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
 	$fox && location.protocol === 'file:'
@@ -279,7 +285,10 @@ $id = function (id) {
 	return $D.getElementById(id);
 }
 
-/* create a dom element, and set properties */
+/** create a dom element and set properties. function value as event handler.
+ * @param domOrName dom object or tag name.
+ * (@param x_. @param props_ treat array props_ from index x_ as arguments directly)
+ * || ((@param x_ name / value pairs || (@param x_ name. @param props_ value)) ...) */
 $dom = function (domOrName, x_, props_) {
 	var m = typeof domOrName === 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	!m.constructor ? $.copy(m, $dom) // ie6(7?)
@@ -301,6 +310,7 @@ $dom = function (domOrName, x_, props_) {
 				pp == 's' ? m.style.cssText = v : pp == 'c' ? m.className = v : m[pp] = v;
 	return m;
 }
+/** @param o as "this" in event handler of the dom object */
 $this = function (dom, o) {
 	return dom.$this = o, dom;
 }
@@ -328,18 +338,22 @@ $this = function (dom, o) {
 			}
 		}
 	);
+/** <a href=javascript://>... */
 $a0 = function () {
 	return $dom('a', 0, arguments).att('href', 'javascript://');
 }
+
+/** create a text node, single line, multi whitespace reserved. */
 $tx = function (singleLine) {
 	return $D.createTextNode(singleLine.replace(/  /g, ' \u00a0'));
 }
 
 //********************************************************************************************//
 
-/* append children if index is skipped or >= children length,
- * or prepend children if index is 0 or <= - chilren length,
- * or insert if index >= 0 (from first) or <= -1 (from last) */
+/** append children if index is skipped or >= children length,
+ * or prepend children if index == 0 or <= - chilren length,
+ * or insert if index >= 0 (from first) or <= -1 (from last).
+ * @return this */
 $dom.add = function (index) {
 	if (index >= 0 || index < 0)
 		for (var _ = this.childNodes[index < 0 ? Math.max(this.childNodes.length + index, 0)
@@ -350,9 +364,10 @@ $dom.add = function (index) {
 			this.appendChild(arguments[x]);
 	return this;
 }
-/* remove children, or remove self if no argument,
- * or remove len children from index, or remove from index to last
- * or replace second argument if index is true */
+/** remove children, or remove self if no argument,
+ * or remove len children from index, or remove from index to last if !(len > 0)
+ * or replace second argument if index === true.
+ * @return this */
 $dom.rem = function (index, len) {
 	if (arguments.length == 0)
 		this.parentNode && this.parentNode.removeChild(this);
@@ -368,7 +383,8 @@ $dom.rem = function (index, len) {
 		for (var x = 0; x < arguments.length; x++)
 			this.removeChild(arguments[x]);
 }
-/* similar to rem(), recursively detach event handlers and $ and more for no IE memory leak */
+/** like rem() and recursively detach event handlers and $this for no IE memory leak.
+ * @return this */
 $dom.des = function (index, len) {
 	this !== window || $throw('destroy window forbidden');
 	if (arguments.length == 0)
@@ -390,7 +406,7 @@ $dom.des = function (index, len) {
 	return this;
 }
 
-/* add css class, or remove css class if first argument is 0 */
+/** add css class, or remove css class if first argument === 0. @return this */
 $dom.cla = function (clazz) {
 	if (arguments.length < 1 || clazz === 0 && this.className.length < 1)
 		return this;
@@ -408,7 +424,8 @@ $dom.cla = function (clazz) {
 	this.className = cs.join(' ');
 	return this;
 }
-/* getAttribute, setAttribute, removeAttribute */
+/** getAttribute if no argument, removeAttribute if v === null, or setAttribute.
+ * @return this */
 $dom.att = function (a, v) {
 	if (arguments.length <= 1)
 		return this.getAttribute(a);
@@ -417,7 +434,8 @@ $dom.att = function (a, v) {
 		v === null ? this.removeAttribute(a) : this.setAttribute(a, v);
 	return this;
 }
-/* get/set textContent in Firefox, innerText in IE */
+/** get/set textContent in Firefox, innerText in IE, multi lines and whitspaces reserved.
+ * @return this */
 $dom.tx = $fox ? function (v, multiLine) {
 	if (arguments.length == 0)
 		return this.textContent;
@@ -436,20 +454,26 @@ $dom.tx = $fox ? function (v, multiLine) {
 	return arguments.length == 0 ? this.innerText
 		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
-/* get/set style.display == 'none', or switch if argument is null */
+/** get style.display == 'none' if no argument,
+ * or switch style.display if v == null, or set style.display.
+ * @return this */
 $dom.show = function (v) {
 	var s = this.style.display !== 'none';
 	if (arguments.length == 0)
 		return s;
 	if (s && !v)
-		this._disp = this.style.display, this.style.display = 'none';
+		this.$show = this.style.display, this.style.display = 'none';
 	else if (!s && (v || v == null))
-		this.style.display = this._disp || '';
+		this.style.display = this.$show || '';
 	return this;
 }
 
-/* attach event handler which 'this' will be this node.$this if available or this node
- * if oldHandler, old is detached and handler is attached */
+/** attach event handler, if (oldHandler) old is detached and handler is attached.
+ * handler ignored if already attached.
+ * in event handler, "this" is this element or element.$this if available,
+ * and first arugment is event object which target is the source dom element
+ *   and which stop() is for cancel bubble.
+ * @return this */
 $dom.attach = function (ontype, handler, oldHandler) {
 	if (oldHandler)
 		detach(ontype, oldHandler);
@@ -458,15 +482,15 @@ $dom.attach = function (ontype, handler, oldHandler) {
 		do if (s[x + 1] === handler)
 			return handler;
 		while (s[x] && (x = s[x]))
-// this causes window.onerror no effect for exceptions from handler
+// this causes window.onerror no effect for exceptions from event handlers
 //	else if ($fox) // more events available than this[ontype] = $.event 
 //		this.addEventListener(t, $.event, false);
-	else // 'this' in $.event works, but it doesn't if attachEvent
+	else // make "this" in $.event works, but it doesn't if IE attachEvent
 		this[ontype] = $.event;
 	s[x || t] = (x = s[0]), s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
 	return this;
 }
-/* detach event handler */
+/* detach event handler. @return this */
 $dom.detach = function (ontype, handler) {
 	var s = this.$dom;
 	if (s)
@@ -496,31 +520,31 @@ $.throwStack = function (file, line) {
 		return s.join('\n');
 	}
 
-/* must be not-null object (including list, excluding function) */
+/** @return x if not-null object (including list, excluding function), or throw */
 $.o = function (x) {
 	return x !== null && typeof x === 'object' ? x
 		: $throw($S(x) + ' must be not-null object');
 }
-/* must be string */
+/** @return x if string, or throw */
 $.s = function (x) {
 	return typeof x === 'string' ? x : $throw($S(x) + ' must be string');
 }
-/* must be function */
+/** @return x if function, or throw */
 $.f = function (x) {
 	return typeof x === 'function' ? x : $throw($S(x) + ' must be function');
 }
-/* must be Array */
+/** @return x if Array, or throw */
 $.a = function (x) {
 	return x !== null && x instanceof Array ? x : $throw($S(x) + ' must be Array');
 }
-/* must not-null and instanceof the clazz */
+/** @return x if not-null and instanceof the class, or throw */
 $.is = function (x, clazz, name) {
 	return x !== null && x instanceof clazz ? x
 		: $throw($S(x) + ' must not-null and instanceof '
 		+ (clazz.$name || clazz.name || name || $S(clazz)));
 }
 
-/* get function from class cache, or eval */
+/** @return class (constructor) from class cache, or eval() it */
 $.c = function ($_$, _$_) {
 	if ($_$ in this.cs)
 		return this.cs[$_$];
@@ -533,19 +557,13 @@ $.c = function ($_$, _$_) {
 	$.cs = { '': Object };
 	$class('Object');
 
-/**
- * copy another's properties
- * @return to
- */
+/** copy another's properties. @return to */
 $.copy = function (to, from) {
 	for (var x in from)
 		to[x] = from[x];
 	return to;
 }
-/**
- * copy another's own properties
- * @return to
- */
+/** copy another's own properties. @return to */
 $.copyOwn = function (to, from) {
 	for (var x in from)
 		from.hasOwnProperty(x) && (to[x] = from[x]);
@@ -570,5 +588,3 @@ $.copyOwn = function (to, from) {
 	}
 	$fox && (Event.prototype.stop = Event.prototype.stopPropagation);
 
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-}
