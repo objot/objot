@@ -10,9 +10,9 @@ import java.util.List;
 import objot.servlet.Service;
 
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import chat.model.Chat;
@@ -49,10 +49,15 @@ public class DoChat
 		c.out = $.me;
 		c.in = $.get(User.class, c.in.id);
 		validator(c);
-		Query _ = $.sql("select count(*) from User_friends where User=? and friends=?");
-		_.setParameter(0, c.in);
-		_.setParameter(1, c.out);
-		if ((Integer)_.uniqueResult() == 0) // List/Set.contains causes fetch rows
+
+		// List/Set.contains causes fetch rows
+		// if (! c.in.friends.contains($.get(User.class, c.out.id)))
+		// so count(*)
+		Criteria<?> _ = $.criteria(User.class);
+		_.setProjection(Projections.rowCount());
+		_.add(Restrictions.idEq(c.in.id));
+		_.createCriteria("friends").add(Restrictions.idEq(c.out.id));
+		if ((Integer)_.uniqueResult() == 0)
 			throw err("You must be his/her friend");
 		c.datime = new Date();
 		$.save(c);
