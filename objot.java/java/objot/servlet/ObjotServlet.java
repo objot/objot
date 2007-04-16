@@ -134,7 +134,7 @@ public class ObjotServlet
 			}
 			try
 			{
-				S = conf.Do(Q, req, res);
+				S = conf.go(Q, req, res);
 			}
 			catch (ErrThrow e)
 			{

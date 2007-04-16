@@ -4,29 +4,37 @@
 //
 
 
+/** search object.
+ * @param from the index start from, 0 if missing.
+ * @param propName compare this[x][propName] to object rather than this[x].
+ * @return the index of the element first found, or negative if not found */
 Array.prototype.indexOf = function (o, from, propName) {
 	if (propName != null) {
-		for (var x = from; x < this.length; x++)
-			if (this[x] != null && this[x][propName] == o)
+		for (var x = from || 0; x < this.length; x++)
+			if ((y = this[x]) != null && y[propName] == o)
 				return x;
 	} else
-		for (var x = from; x < this.length; x++)
+		for (var x = from || 0; x < this.length; x++)
 			if (this[x] == o)
 				return x;
 	return -1;
 }
+/** search object backward.
+ * @param from the index start from, length - 1 if missing.
+ * @param propName compare this[x][propName] to object rather than this[x].
+ * @return the index of the element last found, or negative if not found */
 Array.prototype.lastIndexOf = function (o, from, propName) {
 	if (propName != null) {
-		for (var x = from; x >= 0; x--)
-			if (this[x] != null && this[x][propName] == o)
+		for (var x = from || this.length - 1, y; x >= 0; x--)
+			if ((y = this[x]) != null && y[propName] == o)
 				return x;
 	} else
-		for (var x = from; x >= 0; x--)
+		for (var x = from || this.length - 1; x >= 0; x--)
 			if (this[x] == o)
 				return x;
 	return -1;
 }
-/* slight different with Firfox some() */
+/** slight different with Firfox some() */
 Array.prototype.index = function (Do, This)  {
 	if (This != null) {
 		for (var x = 0; x < this.length; x++)
@@ -38,7 +46,7 @@ Array.prototype.index = function (Do, This)  {
 				return x;		
 	return -1;
 }
-/* slight different with Firefox forEach() */
+/** slight different with Firefox forEach() */
 Array.prototype.each = function (Do, This) {
 	if (This != null)
 		for (var x = 0; x < this.length; x++)
@@ -47,6 +55,7 @@ Array.prototype.each = function (Do, This) {
 		for (var x = 0; x < this.length; x++)
 			Do(this[x], x, this);
 }
+/** remove elements. @return this array */
 Array.prototype.remove = function (from, len) {
 	return this.splice(from, len), this;
 }
@@ -55,9 +64,11 @@ Array.prototype.remove = function (from, len) {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
+/** SO for error */
 Err = function (hint) {
 	this.hint = $(hint);
 }
+/** SO for errors. sub of Err */
 Errs = function (hints) {
 	Err.call(this, '');
 	hints && (this.hints = $.a(hints));
@@ -66,6 +77,15 @@ $class('Err');
 $class('Errs', Err);
 
 
+/** $http wrapped with hint and several callback functions.
+ * @param service appended to $Do.Url as url.
+ * @param this3 as "this" in done3.
+ * @param done3 called after done2, skipped if this3 missing.
+ * @param this2 as "this" in done2.
+ * @param done2 called after done1, skipped if this2 missing.
+ * @param this1 as "this" in done1.
+ * @param done1 called after HTTP round end, skipped if this1 missing.
+ * @return same as $http */
 $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 	var h = $http($Do.Url + service, $Do.Timeout, req, $Do.done);
 	h.$hint = hint, h.$this3 = this3, h.$done3 = done3,
@@ -84,9 +104,12 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 		http.$this3 !== undefined && http.$done3.call(http.$this3, ok, err, http);
 	}
 
+/** url prefix */
 $Do.Url = '';
+/** default timeout milliseconds */
 $Do.Timeout = 30000; 
 
+/** default callback delay after HTTP round end */
 $http.doneDelay = 300;
 
 
@@ -95,13 +118,13 @@ $http.doneDelay = 300;
 
 $dom($D.body);
 
-/* get/set style.cssFloat in Firefox, style.styleFloat in IE */
+/** get/set style.cssFloat in Firefox, style.styleFloat in IE */
 $.Float = $fox ? function (d, v) {
 	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
 } : function (d, v) {
 	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
 }
-/* get/set style.opacity in Firefox, style.filter in IE */
+/** get/set style.opacity in Firefox, style.filter in IE */
 $.opacity = $fox ? function (d, v) {
 	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
 } : function (d, v) {
@@ -115,7 +138,9 @@ $.opacity = $fox ? function (d, v) {
 
 //********************************************************************************************//
 
-/** @return the box, inner des() includes http stop */
+/** make a box as a HTTP widget, double click to stop http.
+ * @param h return value of $http or $Do
+ * @return the box, inner des() includes http stop */
 $Http = function (box, h) {
 	var img = $this($s('c', 'HTTP-img', 'title', h.$hint + '... Stop?', 'ondblclick', h), h);
 	img.des = $Http.des, h.$this0 = img, h.$done0 = $Http.done;
@@ -130,7 +155,11 @@ $Http = function (box, h) {
 		this.des();
 	}
 
-/** @return the box */
+/** make a box as error widget.
+ * @param err Err, Errs or string.
+ * @param show the widget contains err text if true,
+               or a function called at double click (alert err text if null or missing).
+ * @return the box */
 $Err = function (box, err, show) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
 	$fox && (err = err + '\n' + $.throwStack());
@@ -145,7 +174,8 @@ $Err = function (box, err, show) {
 	}
 $Err.onHint = $Err.doHint;
 
-/** @return a box */
+/** overlay the document body with a layer containing an inner box.
+ * @return the popup layer */
 $Pop = function (inner) {
 	var box =
 	$d('c', 'POP', 's', ($ie6 ? 'position:absolute' : 'position:fixed') +

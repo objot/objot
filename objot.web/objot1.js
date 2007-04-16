@@ -285,17 +285,21 @@ $id = function (id) {
 	return $D.getElementById(id);
 }
 
-/** create a dom element and set properties. function value as event handler.
+/** create a dom element and set properties. c property for css class, s for css style.
+ * function value as event handler.
  * @param domOrName dom object or tag name.
- * (@param x_. @param props_ treat array props_ from index x_ as arguments directly)
- * || ((@param x_ name / value pairs || (@param x_ name. @param props_ value)) ...) */
-$dom = function (domOrName, x_, props_) {
+ * ((@param prop. @param value) || @param prop object as map) ... */
+$dom = function (domOrName, prop, value) {
+	return $doms(domOrName, arguments, 1);
+}
+/** similar to $dom.
+ * @param props array of prop and value or map.
+ * @param from the index props start from, 0 if missing */
+$doms = function (domOrName, props, from) {
 	var m = typeof domOrName === 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	!m.constructor ? $.copy(m, $dom) // ie6(7?)
 		: m.constructor.$dom || delete $.copy(m.constructor.prototype, $dom).prototype;
-	var x = x_, props = props_;
-	x >= 0 || (x = 1, props = arguments);
-	for (var v, p; x < props.length; x++)
+	for (var v, p, x = from || 0; x < props.length; x++)
 		if ((p = props[x]) == null)
 			$throw('arguments[' + x + '] must not be null');
 		else if (typeof p === 'string')
@@ -328,19 +332,19 @@ $this = function (dom, o) {
   $bn:'button', $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
 		function (g) {
 			return function () {
-				return $dom(g, 0, arguments);
+				return $doms(g, arguments);
 			}
 		},
 { $ln:'text', $chk:'check', $rad:'radio' },
 		function (ty) {
 			return function () {
-				return $dom('input', 0, arguments).att('type', ty);
+				return $doms('input', arguments).att('type', ty);
 			}
 		}
 	);
 /** <a href=javascript://>... */
 $a0 = function () {
-	return $dom('a', 0, arguments).att('href', 'javascript://');
+	return $doms('a', arguments).att('href', 'javascript://');
 }
 
 /** create a text node, single line, multi whitespace reserved. */

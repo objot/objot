@@ -87,7 +87,7 @@ public final class Servlet
 		}
 
 		@Override
-		public CharSequence Do(char[] Q, HttpServletRequest req, HttpServletResponse res)
+		public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
 			throws ErrThrow, Exception
 		{
 			if (Servlet.this.verbose > 0)
@@ -111,9 +111,9 @@ public final class Servlet
 				{
 					CharSequence S;
 					if (Q == null)
-						S = Do(null, req, res, $);
+						S = go(null, req, res, $);
 					else
-						S = Do(null, req, res, Setting.go(objot, reqClas[0], cla, Q), $);
+						S = go(null, req, res, Setting.go(objot, reqClas[0], cla, Q), $);
 					ok = true;
 					return S;
 				}
