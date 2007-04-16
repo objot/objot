@@ -222,15 +222,14 @@ data是调用$http的data参数，可以给done传递额外对象，如果调用
 每次HTTP回合必调用done正好一次，除非没设置超时，或者跳转到别的页面，或者Javascript引擎停止了;)。
 
 <p>Objot还提供了对$http的一个简单包装：
-<pre>http = $Do(url, hint, req, this4, done4, this3, done3, this2, done2);
+<pre>http = $Do(url, hint, req, this3, done3, this2, done2, this1, done1);
 </pre>
 hint是对这次HTTP回合的提示字符串，可以在视图上表示出来。
-done4~2是回调函数，this4~2是回调时设置的this对象。
-done2先于done4回调，this1, done1保留给另外一个包装使用。
+done3~1是回调函数，this3~1是回调时设置的this对象，done1先于done3回调。
 $Do返回值和$http相同，但附加了一些以$开头为名的属性用作内部处理。
 
-<p>done4~1回调函数和$http有所不同：
-<pre>done4 = function (ok, err, http) {
+<p>done3~1回调函数和$http有所不同：
+<pre>done3 = function (ok, err, http) {
 	alert(ok + '\n' + err + '\n' + http);
 }
 </pre>
@@ -275,14 +274,14 @@ $Http(http, $Do(url, 'Signing in ...', signIn, null, function (ok, err) {
 
 <p>每次调用$http都会产生一个独立的HTTP回合，与其他回合并发处理。
 由于Javascript是单线程运行，并发异步回合会导致回调函数的顺序不确定，例如：
-<pre>x = 'a';
+<pre>x = '';
 function http() {
-	a = $http(..., done), a.name = 'a', x += a.name;
-	b = $http(..., done), b.name = 'b', x += b.name;
-	c = $http(..., done), c.name = 'c', x += c.name;
+	a = $http(..., done), x += a.x = 'a';
+	b = $http(..., done), x += b.x = 'b';
+	c = $http(..., done), x += c.x = 'c';
 }
 function done(code, res, data) {
-	x += data.name;
+	x += data.x;
 }
 http();
 </pre>
@@ -324,6 +323,47 @@ DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user�
 <h2>视图View</h2>
 
 <p>显示视图有多种方式，Objot建议采用面向对象的思路，对视图的逻辑处理比较容易，也易于划分视图组件，减少耦合。
+Objot对HTML DOM做了一些简单包装：
+<pre>var d = $dom('div'); // 创建<div></div>
+d = $dom('div', 'c', 'cssClass1'); // 创建<div class=cssClass1></div>
+d = $dom('div', 's', 'display:none', 'c', 'cssClass2'); // 创建<div class=cssClass2 style=display:none></div>
+d = $dom('div', 'onclick', function () { alert(this); }); // 创建<div></div>并设置click事件函数
+d = $d(); // $dom('div')的简写
+d = $d('c', 'cssClass1');
+in = $inp('type', 'checkbox', 'checked', true); // 创建<input type=checkbox checked>
+</pre>
+$dom根据tag名称、属性名、属性值创建元素，如果属性值是function，就作为事件函数进行绑定（注意$d('onclick', 'alert(this)')不合适）。
+$d、$p、$s、$a、$inp等都是常用元素的简写，参见源代码。
+
+<p>结合Javascript面向对象机制，构造视图组件就比较容易：
+<pre>_SignIn = function (box) {
+	this.box = box.add(this.err = $p(), // <...>... <p></p>
+		$p().add($l().tx('User name'), this.name = $ln()),
+			// <p><label>User name</label><input type=text></p>
+		$p().add($l().tx('Password'), this.pass = $inp('type', 'password')),
+			// <p><label>Password</label><input type=password></p>
+		$p('s', 'text-align:center').add( // <p style="text-align:center">
+			this.submit = $this($bn('onclick', this.doSign), this).tx('Signin / Signup'),
+				// <button onclick=...>Signin / Signup</button>
+			this.http = $s()) // <span></span></p>
+	);
+	this.name.focus();
+}
+_SignIn.prototype = {
+	doSign: function () {
+		this.submit.disabled = true, this.submit.blur();
+		$Http(this.http, DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
+	},
+	doneSign: function (ok, err) {
+		this.submit.disabled = false;
+		ok &amp;&amp; this.onOk.call(this.thisOk);
+		err &amp;&amp; $Err(this.err, err, true);
+	}
+}
+
+_SignIn.prototype.thisOk;
+_SignIn.prototype.onOk;
+</pre>
 
 
 </body>

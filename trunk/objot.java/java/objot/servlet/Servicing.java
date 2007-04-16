@@ -54,15 +54,15 @@ public class Servicing
 		return Getting.go(objot, cla, o);
 	}
 
-	public CharSequence Do(char[] Q, HttpServletRequest req, HttpServletResponse res)
+	public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
 		throws ErrThrow, Exception
 	{
 		if (Q == null)
-			return Do(null, req, res);
-		return Do(null, req, res, Setting.go(objot, reqClas[0], cla, Q));
+			return go(null, req, res);
+		return go(null, req, res, Setting.go(objot, reqClas[0], cla, Q));
 	}
 
-	public CharSequence Do(Object service, HttpServletRequest req, HttpServletResponse res,
+	public CharSequence go(Object service, HttpServletRequest req, HttpServletResponse res,
 		Object... qs) throws ErrThrow, Exception
 	{
 		try
