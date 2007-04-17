@@ -386,6 +386,7 @@ $dom.rem = function (index, len) {
 	} else
 		for (var x = 0; x < arguments.length; x++)
 			this.removeChild(arguments[x]);
+	return this;
 }
 /** like rem() and recursively detach event handlers and $this for no IE memory leak.
  * @return this */
@@ -429,7 +430,7 @@ $dom.cla = function (clazz) {
 	return this;
 }
 /** getAttribute if no argument, removeAttribute if v === null, or setAttribute.
- * @return this */
+ * @return attribute if no argument, this */
 $dom.att = function (a, v) {
 	if (arguments.length <= 1)
 		return this.getAttribute(a);
@@ -439,7 +440,7 @@ $dom.att = function (a, v) {
 	return this;
 }
 /** get/set textContent in Firefox, innerText in IE, multi lines and whitspaces reserved.
- * @return this */
+ * @return text if no argument, or this */
 $dom.tx = $fox ? function (v, multiLine) {
 	if (arguments.length == 0)
 		return this.textContent;
@@ -458,9 +459,8 @@ $dom.tx = $fox ? function (v, multiLine) {
 	return arguments.length == 0 ? this.innerText
 		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
-/** get style.display == 'none' if no argument,
- * or switch style.display if v == null, or set style.display.
- * @return this */
+/** get style.display == 'none', or switch style.display if v == null, or set style.display.
+ * @return true/false if no argument, or this */
 $dom.show = function (v) {
 	var s = this.style.display !== 'none';
 	if (arguments.length == 0)
@@ -484,7 +484,7 @@ $dom.attach = function (ontype, handler, oldHandler) {
 	var x, t, s = this.$dom || (this.$dom = [1, 0, 0]); // [free, next, handler, ...]
 	if (x = s[t = ontype.substr(2)])
 		do if (s[x + 1] === handler)
-			return handler;
+			return this;
 		while (s[x] && (x = s[x]))
 // this causes window.onerror no effect for exceptions from event handlers
 //	else if ($fox) // more events available than this[ontype] = $.event 

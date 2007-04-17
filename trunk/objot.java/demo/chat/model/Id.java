@@ -12,7 +12,7 @@ import objot.GetSet;
 
 
 @MappedSuperclass
-public abstract class Id
+public abstract class Id<T extends Id<T>>
 {
 	@GetSet(Object.class)
 	@javax.persistence.Id
@@ -23,5 +23,19 @@ public abstract class Id
 	public int id()
 	{
 		return id == null ? 0 : id;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T id(int id_)
+	{
+		id = id_ <= 0 ? null : id_;
+		return (T)this;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T id(Integer id_)
+	{
+		id = id_ == null || (int)id_ <= 0 ? null : id_;
+		return (T)this;
 	}
 }

@@ -126,7 +126,7 @@ $class.get(Chat, DoChat, null);
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
-_SignIn = function (box) {
+_SignIn = function (box, thisOk, onOk) {
 	this.box = box.add(this.err = $p(),
 		$p().add($l().tx('User name'), this.name = $ln()),
 		$p().add($l().tx('Password'), this.pass = $inp('type', 'password')),
@@ -135,6 +135,8 @@ _SignIn = function (box) {
 			this.http = $s())
 	);
 	this.name.focus();
+	this.thisOk = thisOk;
+	this.onOk = onOk;
 }
 
 _SignIn.prototype = {
@@ -148,9 +150,6 @@ _SignIn.prototype = {
 		err && $Err(this.err, err, true);
 	}
 }
-
-_SignIn.prototype.thisOk;
-_SignIn.prototype.onOk;
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -378,3 +377,8 @@ _Chats.prototype = {
 		err && $Err(this.Chatss.http, err);
 	}
 }
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+
+

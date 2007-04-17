@@ -29,7 +29,7 @@ import chat.service.DoChat;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "out", "in_", "datime" }))
 @GetSet(DoChat.class)
 public final class Chat
-	extends Id
+	extends Id<Chat>
 {
 	@NotNull
 	@GetSet

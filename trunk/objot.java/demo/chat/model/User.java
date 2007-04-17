@@ -23,7 +23,7 @@ import chat.service.DoUser;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public final class User
-	extends Id
+	extends Id<User>
 {
 	@BeSimple(max = 20)
 	@Get( { DoUser.class, DoChat.class })

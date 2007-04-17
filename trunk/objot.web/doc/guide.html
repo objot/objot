@@ -242,19 +242,19 @@ http是$Do也是$http的返回值。
 <h3>直观的HTTP交互</h3>
 
 <p>Objot提供两个简单的函数，在视图上显示与服务端的交互：
-<pre>box = $s(); // 创建一个span元素
+<pre>box = $s(); // 创建一个span节点
 $dom($D.body).add(box); // 加到body中
 box == $Http(box, do_); // 注意是$Http
 </pre>
-$Http在box中创建一个span元素，通常在css中定义背景图片表示正在网络操作。
+$Http在box中创建一个span节点，通常在css中定义背景图片表示正在网络操作。
 do_是$Do的返回值。
-当用户双击box中的span元素（通常有图标），就触发停止函数，并使span元素消失。
+当用户双击box中的span节点（通常有图标），就触发停止函数，并使span节点消失。
 $Http返回值就是传入的box。
 <pre>box == $Err(box, err, show);
 </pre>
-$Err在box中创建一个span元素，通常在css中定义背景图片表示出错。
+$Err在box中创建一个span节点，通常在css中定义背景图片表示出错。
 err是前面定义的Err对象，或者错误信息字符串。
-show如果为true，则在box中显示err文本内容；否则为一个回调函数，此时box中不显示文本内容，但用户双击span元素调用show，返回后span元素消失；若为null或省略，则为默认的一个回调函数。
+show如果为true，则在box中显示err文本内容；否则为一个回调函数，此时box中不显示文本内容，但用户双击span节点调用show，返回后span节点消失；若为null或省略，则为默认的一个回调函数。
 $Err返回值就是传入的box。
 
 <p>对于这两个函数，可以使用同一个box，调用时会清除掉原来box中的内容：
@@ -323,19 +323,55 @@ DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user�
 <h2>视图View</h2>
 
 <p>显示视图有多种方式，Objot建议采用面向对象的思路，对视图的逻辑处理比较容易，也易于划分视图组件，减少耦合。
-Objot对HTML DOM做了一些简单包装：
+
+<!--****************************************************************************************-->
+
+<h3>创建并使用dom节点</h3>
+
+<p>Objot对HTML DOM做了一些简单包装：
 <pre>var d = $dom('div'); // 创建<div></div>
 d = $dom('div', 'c', 'cssClass1'); // 创建<div class=cssClass1></div>
-d = $dom('div', 's', 'display:none', 'c', 'cssClass2'); // 创建<div class=cssClass2 style=display:none></div>
-d = $dom('div', 'onclick', function () { alert(this); }); // 创建<div></div>并设置click事件函数
+d = $dom('div', 's', 'display:none', 'c', 'cssClass2');
+	// 创建<div class=cssClass2 style=display:none></div>
+d = $dom('div', 'onclick', function () { alert(this); });
+	// 创建<div></div>并设置click事件函数
 d = $d(); // $dom('div')的简写
 d = $d('c', 'cssClass1');
-in = $inp('type', 'checkbox', 'checked', true); // 创建<input type=checkbox checked>
+in = $inp('type', 'checkbox', 'checked', true);
+	// 创建<input type=checkbox checked>
 </pre>
-$dom根据tag名称、属性名、属性值创建元素，如果属性值是function，就作为事件函数进行绑定（注意$d('onclick', 'alert(this)')不合适）。
-$d、$p、$s、$a、$inp等都是常用元素的简写，参见源代码。
+$dom根据tag名称、属性名、属性值创建节点，如果属性值是function，就作为事件函数（注意$d('onclick', 'alert(this)')不合适）。
+$d、$p、$s、$a、$inp等都是常用节点的简写，参见源代码。
+除了给出tag名，还可以是某个dom节点：
+<pre>var d = $id('abc'); // 根据id取得一个节点
+d == $dom(d, 'c', 'cssClass1'); // 设置这个节点css class为cssClass1
+d == $dom(d, 's', 'display:none'); // 再做些设置
+</pre>
+$dom等返回值就是html dom节点本身，无其他封装对象。
 
-<p>结合Javascript面向对象机制，构造视图组件就比较容易：
+<p>除了设置属性，$dom还给节点增加一些函数：
+<pre>d.tx(d.tx() + 'line1 \n multi whitespaces  line2&amp;nbsp;', true);
+	// 取得文本内容，再设置多行文本内容
+d.add(0, $tx('single line'), $l());
+	// 创建文本节点（非$dom性态）和<label></label>，添加到div第一个节点之前
+d.add($a0(), $bn());
+	// 创建<a href=javascript://></a>和<button></button>，添加到div末尾
+d.rem(1); // 将第二个节点清除
+d.des(0); // 将第一个节点递归销毁
+d.cla('cssClass2').cla(0, 'cssClass1'); // 添加cssClass2，然后清除cssClass1
+d.att('title', $dom(d, 'title', 'A div').att('title') + '...');
+	// 先直接设置对象属性title，再用getAttribute()取得title，再用setAttribute设置title
+d.show(true).attach('onclick', onClick); // 清除display:none，再设置事件函数
+d.detach('onclick', onClick).show(false); // 清除事件函数，再设置display:none
+d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有子节点
+</pre>
+无参数时att(), tx(), show()返回获取的值，有参数时，以及其他函数，都返回节点自身。
+
+<!--****************************************************************************************-->
+
+<h3>视图组件</h3>
+
+<p>结合Objot和Javascript面向对象机制，构造视图组件就比较容易：
 <pre>_SignIn = function (box) {
 	this.box = box.add(this.err = $p(), // <...>... <p></p>
 		$p().add($l().tx('User name'), this.name = $ln()),
@@ -349,21 +385,42 @@ $d、$p、$s、$a、$inp等都是常用元素的简写，参见源代码。
 	);
 	this.name.focus();
 }
-_SignIn.prototype = {
+</pre>
+这是一个登入视图组件，生成一些dom节点。并且设置一些事件函数，定义为：
+<pre>_SignIn.prototype = {
 	doSign: function () {
 		this.submit.disabled = true, this.submit.blur();
-		$Http(this.http, DoSign.inUp(this.name.value, this.pass.value, this, this.doneSign));
+		$Http(this.http, $Do('DoSign-inUp', 'Signing',
+			$get(new User(null, this.name.value, this.pass.value)), this, this.doneSign));
+			// 访问service，提供一个User作为SO
 	},
 	doneSign: function (ok, err) {
 		this.submit.disabled = false;
-		ok &amp;&amp; this.onOk.call(this.thisOk);
-		err &amp;&amp; $Err(this.err, err, true);
+		ok &amp;&amp; this.onOk.call(this.thisOk); // 如果成功，回调onOk
+		err &amp;&amp; $Err(this.err, err, true); // 如果错误，显示信息
 	}
 }
-
-_SignIn.prototype.thisOk;
-_SignIn.prototype.onOk;
+_SignIn.prototype.thisOk; // onOk中的this对象，由组件使用者设置
+_SignIn.prototype.onOk; // 登入成功后的处理，由组件使用者设置
 </pre>
+可以这样应用这个组件：
+<pre><body>
+<div id=SignIn1></div><div id=SignIn2></div>
+<script>function onload() {
+	var s1 = $id('SignIn1');
+	new _SignIn(s1, null, function () {
+		s1.des(); // 销毁SignIn1，就清除了对_SignIn组件对象的引用，便于垃圾回收
+	});
+	var s2 = $id('SignIn2');
+	new _SignIn(s2, null, function () {
+		s2.des();
+	}); // 可以创建多个组件对象
+}
+</script>
+</pre>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
 </body>
