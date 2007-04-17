@@ -37,7 +37,7 @@ public class DoSign
 			throw err("user name or password incorrect");
 		else
 			Hibernate.initialize(u.friends); // for out of session use
-		$.http.setAttribute("signed", u);
+		$.http.setAttribute("signed", u.id);
 		return u;
 	}
 
@@ -53,14 +53,8 @@ public class DoSign
 	@Transac(level = 0)
 	static void me(Do $) throws Exception
 	{
-		$.me = (User)$.http.getAttribute("signed");
+		$.me = (Integer)$.http.getAttribute("signed");
 		if ($.me == null)
 			throw err(new ErrUnsigned("not signed in"));
-	}
-
-	static void me(User me, Do $)
-	{
-		$.http.setAttribute("signed", me);
-		$.me = me;
 	}
 }

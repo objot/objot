@@ -14,11 +14,11 @@ public class DoUser
 {
 	/** @return me with {@link User#myFriends} */
 	@Service
-	@Transac(level = 0)
 	public static User me(Do $) throws Exception
 	{
-		$.me.myFriends = $.me.friends;
-		return $.me;
+		User me = $.load(User.class, $.me);
+		me.myFriends = me.friends;
+		return me;
 	}
 
 	/** update {@link User#friends} if SO' is not null */
@@ -27,12 +27,9 @@ public class DoUser
 	{
 		if (u.myFriends == null) // || name
 			return Ok.OK;
-		User me = $.load(User.class, $.me.id);
+		User me = $.load(User.class, $.me);
 		if (u.myFriends != null)
 			me.friends = u.myFriends;
-		$.flushRefresh(me);
-		$.fetch(me.friends);
-		DoSign.me(me, $);
 		return Ok.OK;
 	}
 

@@ -111,11 +111,9 @@ window.onload = function () {
 	var pop = $Pop(box);
 	$Http(box, DoSign.out(this, function () {
 		box = $s('id', 'SignIn').des(true, box);
-		var sign = new _SignIn(box);
-		sign.onOk = function () {
+		new _SignIn(box, null, function () {
 			pop.des(), start();
-		}
-		sign.name.focus();
+		});
 	}));
 }
 window.onunload = function () {

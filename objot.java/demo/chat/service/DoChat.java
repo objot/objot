@@ -31,10 +31,11 @@ public class DoChat
 	{
 		Criteria<Chat> _ = $.criteria(Chat.class);
 
-		Criterion out = Restrictions.eq("out", $.me);
+		User me = new User().id($.me);
+		Criterion out = Restrictions.eq("out", me);
 		if (c.in != null)
 			out = Restrictions.and(out, Restrictions.eq("in", c.in));
-		Criterion in = Restrictions.eq("in", $.me);
+		Criterion in = Restrictions.eq("in", me);
 		if (c.out != null)
 			in = Restrictions.and(in, Restrictions.eq("out", c.out));
 
@@ -46,15 +47,14 @@ public class DoChat
 	@Service
 	public static Chat post(Chat c, Do $) throws Exception
 	{
-		c.out = $.me;
+		c.out = new User().id($.me);
 		c.in = $.get(User.class, c.in.id);
 		validator(c);
 
 		// List/Set.contains causes fetch rows
-		// if (! c.in.friends.contains($.get(User.class, c.out.id)))
+		// // if (! c.in.friends.contains($.load(c.out)))
 		// so count(*)
-		Criteria<?> _ = $.criteria(User.class);
-		_.setProjection(Projections.rowCount());
+		Criteria<?> _ = $.criteria(User.class).setProjection(Projections.rowCount());
 		_.add(Restrictions.idEq(c.in.id));
 		_.createCriteria("friends").add(Restrictions.idEq(c.out.id));
 		if ((Integer)_.uniqueResult() == 0)

@@ -88,7 +88,7 @@ public interface Criteria<T>
 	 *            results.
 	 * @return this (for method chaining)
 	 */
-	public Criteria<T> setProjection(Projection projection);
+	public Criteria<?> setProjection(Projection projection);
 
 	/**
 	 * Add a {@link Criterion restriction} to constrain the results to be retrieved.

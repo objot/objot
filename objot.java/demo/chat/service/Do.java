@@ -28,8 +28,6 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
 
-import chat.model.User;
-
 
 /** Delegated {@link Session}, and common for services */
 public class Do
@@ -40,7 +38,7 @@ public class Do
 
 	protected Session $;
 	protected HttpSession http;
-	protected User me;
+	protected Integer me;
 
 	public static ErrThrow err(Err e)
 	{
@@ -135,9 +133,10 @@ public class Do
 	 * @param object a persistent instance
 	 * @throws HibernateException
 	 */
-	public void evict(Object object) throws HibernateException
+	public <T>T evict(T object) throws HibernateException
 	{
 		$.evict(object);
+		return object;
 	}
 
 	/**
@@ -167,9 +166,10 @@ public class Do
 	 * @param id a valid identifier of an existing persistent instance of the class
 	 * @throws HibernateException
 	 */
-	public void load(Object object, Serializable id) throws HibernateException
+	public <T>T load(T object, Serializable id) throws HibernateException
 	{
 		$.load(object, id);
+		return object;
 	}
 
 	/**
@@ -179,10 +179,11 @@ public class Do
 	 * 
 	 * @param object a detached instance of a persistent class
 	 */
-	public void replicate(Object object, ReplicationMode replicationMode)
+	public <T>T replicate(T object, ReplicationMode replicationMode)
 		throws HibernateException
 	{
 		$.replicate(object, replicationMode);
+		return object;
 	}
 
 	/**
@@ -192,12 +193,12 @@ public class Do
 	 * association is mapped with <tt>cascade="save-update"</tt>.
 	 * 
 	 * @param object a transient instance of a persistent class
-	 * @return the generated identifier
 	 * @throws HibernateException
 	 */
-	public Serializable save(Object object) throws HibernateException
+	public <T>T save(T object) throws HibernateException
 	{
-		return $.save(object);
+		$.save(object);
+		return object;
 	}
 
 	/**
@@ -211,9 +212,10 @@ public class Do
 	 * @param object a transient or detached instance containing new or updated state
 	 * @throws HibernateException
 	 */
-	public void saveOrUpdate(Object object) throws HibernateException
+	public <T>T saveOrUpdate(T object) throws HibernateException
 	{
 		$.saveOrUpdate(object);
+		return object;
 	}
 
 	/**
@@ -225,9 +227,10 @@ public class Do
 	 * @param object a detached instance containing updated state
 	 * @throws HibernateException
 	 */
-	public void update(Object object) throws HibernateException
+	public <T>T update(T object) throws HibernateException
 	{
 		$.update(object);
+		return object;
 	}
 
 	/**
@@ -257,9 +260,10 @@ public class Do
 	 * 
 	 * @param object a transient instance to be made persistent
 	 */
-	public void persist(Object object) throws HibernateException
+	public <T>T persist(T object) throws HibernateException
 	{
 		$.persist(object);
+		return object;
 	}
 
 	/**
@@ -271,9 +275,10 @@ public class Do
 	 * @param object the instance to be removed
 	 * @throws HibernateException
 	 */
-	public void delete(Object object) throws HibernateException
+	public <T>T delete(T object) throws HibernateException
 	{
 		$.delete(object);
+		return object;
 	}
 
 	/**
@@ -290,9 +295,10 @@ public class Do
 	 * @param object a persistent or detached instance
 	 * @throws HibernateException
 	 */
-	public void refresh(Object object) throws HibernateException
+	public <T>T refresh(T object) throws HibernateException
 	{
 		$.refresh(object);
+		return object;
 	}
 
 	/**
