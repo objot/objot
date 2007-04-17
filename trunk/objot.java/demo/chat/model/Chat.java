@@ -7,8 +7,6 @@ package chat.model;
 import java.util.Date;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -31,11 +29,8 @@ import chat.service.DoChat;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "out", "in_", "datime" }))
 @GetSet(DoChat.class)
 public final class Chat
+	extends Id
 {
-	@Id
-	@GeneratedValue
-	protected Integer id; // just for simple identity strategy
-
 	@NotNull
 	@GetSet
 	@ManyToOne
