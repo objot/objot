@@ -244,10 +244,10 @@ http是$Do也是$http的返回值。
 <p>Objot提供两个简单的函数，在视图上显示与服务端的交互：
 <pre>box = $s(); // 创建一个span元素
 $dom($D.body).add(box); // 加到body中
-box == $Http(box, http); // 注意一个是$Http，一个是$http
+box == $Http(box, do_); // 注意是$Http
 </pre>
 $Http在box中创建一个span元素，通常在css中定义背景图片表示正在网络操作。
-http是停止函数，就是$http或$Do的返回值。
+do_是$Do的返回值。
 当用户双击box中的span元素（通常有图标），就触发停止函数，并使span元素消失。
 $Http返回值就是传入的box。
 <pre>box == $Err(box, err, show);

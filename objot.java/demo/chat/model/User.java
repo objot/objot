@@ -5,9 +5,6 @@
 package chat.model;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -26,12 +23,8 @@ import chat.service.DoUser;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public final class User
+	extends Id
 {
-	@GetSet(Object.class)
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	public Integer id; // use Integer just for less object creation
-
 	@BeSimple(max = 20)
 	@Get( { DoUser.class, DoChat.class })
 	@Set( { DoSign.class, DoUser.class })

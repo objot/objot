@@ -1,7 +1,10 @@
 package chat.model;
 
 import java.io.File;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
 
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.NamingStrategy;
@@ -15,22 +18,38 @@ public class Model
 		AnnotationConfiguration c = new AnnotationConfiguration();
 		c.setNamingStrategy(new Naming());
 
+		String pkg = Model.class.getPackage().getName();
 		// find the package directory
 		URL url = Model.class.getResource("/" + Model.class.getName().replace('.', '/')
 			+ ".class");
-		if (! url.getProtocol().equals("file"))
+		url = new URL(url.toString().substring(0, url.toString().lastIndexOf('/') + 1));
+		if (url.getProtocol().equals("file"))
+		{
+			File path = new File(url.getPath());
+			if (! path.isDirectory())
+				throw new Exception(path + " must be directory");
+			// iterate on all classes in the package
+			for (String _: path.list())
+				if (_.endsWith(".class"))
+					c.addAnnotatedClass(Class.forName(pkg + "."
+						+ _.substring(0, _.lastIndexOf('.'))));
+		}
+		else if (url.getProtocol().equals("jar"))
+		{
+			JarURLConnection conn = (JarURLConnection)url.openConnection();
+			JarEntry path = conn.getJarEntry();
+			if (! path.isDirectory())
+				throw new Exception(path + "must be directory");
+			String name;
+			// iterate on all classes in the package
+			for (Enumeration<JarEntry> es = conn.getJarFile().entries(); es.hasMoreElements();)
+				if ((name = es.nextElement().getName()).startsWith(path.getName())
+					&& name.endsWith(".class"))
+					c.addAnnotatedClass(Class.forName(pkg + "."
+						+ name.substring(path.getName().length(), name.lastIndexOf('.'))));
+		}
+		else
 			throw new Exception(url.getProtocol() + " will be supported soon");
-
-		File path = new File(url.getPath().substring(0, url.getPath().lastIndexOf('/') + 1));
-		if (! path.isDirectory())
-			throw new Exception(path + " must be directory");
-
-		// iterate on all classes in the package
-		for (String _: path.list())
-			if (_.endsWith(".class"))
-				c.addAnnotatedClass(Class.forName(Model.class.getPackage().getName() + "."
-					+ _.substring(0, _.lastIndexOf('.'))));
-
 		return c;
 	}
 

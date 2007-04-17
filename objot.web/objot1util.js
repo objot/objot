@@ -139,12 +139,12 @@ $.opacity = $fox ? function (d, v) {
 //********************************************************************************************//
 
 /** make a box as a HTTP widget, double click to stop http.
- * @param h return value of $http or $Do
+ * @param h return value of $Do
  * @return the box, inner des() includes http stop */
 $Http = function (box, h) {
-	var img = $this($s('c', 'HTTP-img', 'title', h.$hint + '... Stop?', 'ondblclick', h), h);
-	img.des = $Http.des, h.$this0 = img, h.$done0 = $Http.done;
-	return box.des(0).cla(0, 'ERR').cla('HTTP').add(img);
+	var i = $this($s('c', 'HTTP-icon', 'title', h.$hint + '... Stop?', 'ondblclick', h), h);
+	i.des = $Http.des, h.$this0 = i, h.$done0 = $Http.done;
+	return box.des(0).cla(0, 'ERR').cla('HTTP').add(i);
 }
 	$Http.des = function () {
 		if (arguments.length == 0)
@@ -164,7 +164,7 @@ $Err = function (box, err, show) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
 	$fox && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
-	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-img'));
+	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-icon'));
 	show === true || box.firstChild.att('title', err).attach('ondblclick', show);
 	return box.cla(0, 'HTTP').cla('ERR');
 }
@@ -177,9 +177,8 @@ $Err.onHint = $Err.doHint;
 /** overlay the document body with a layer containing an inner box.
  * @return the popup layer */
 $Pop = function (inner) {
-	var box =
-	$d('c', 'POP', 's', ($ie6 ? 'position:absolute' : 'position:fixed') +
-			'; z-index:10000; width:100%; height:100%; left:0; top:0').add(
+	var box = $d('c', 'POP',
+		's', 'position:fixed; z-index:10000; width:100%; height:100%; top:0; left:0').add(
 		$d('c', 'POP-back', 's', 'position:absolute; width:100%; height:100%'),
 		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
 			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add($td()
@@ -189,8 +188,11 @@ $Pop = function (inner) {
 	);
 	$fox || box.add(0, $.opacity(
 		$dom('iframe', 's', 'position:absolute; width:100%; height:100%'), 0));
-	$ie6 && (box.style.top = $D.documentElement.scrollTop,
-		$D.documentElement.style.overflow = 'hidden');
+	if ($ie6)
+		box.style.position = 'absolute',
+		box.style.top = $D.documentElement.scrollTop,
+		box.style.left = $D.documentElement.scrollLeft,
+		$D.documentElement.style.overflow = 'hidden';
 	box.des = $Pop.des;
 	return $D.body.add(box), box;
 }
