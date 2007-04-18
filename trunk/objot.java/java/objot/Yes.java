@@ -4,6 +4,7 @@
 //
 package objot;
 
+/** In {@link GetSet#value()}, following classes are included */
 public final class Yes
 {
 	private Yes()

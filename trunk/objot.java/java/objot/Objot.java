@@ -28,6 +28,7 @@ public class Objot
 		return c.getName();
 	}
 
+	/** check long value, not too large for Javascript */
 	protected long getLong(long l) throws Exception
 	{
 		if (l < - 562949953421312L || l > 562949953421312L) // 2^49, for Javascript

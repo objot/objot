@@ -22,7 +22,7 @@ public final class Setting
 	public static Object go(Objot o, Class<?> clazz, Class<?> for_, char[] s)
 		throws Exception
 	{
-		return new Setting(o, for_, s).go(clazz);
+		return new Setting(o, for_, s).Go(clazz);
 	}
 
 	private Objot objot;
@@ -40,7 +40,7 @@ public final class Setting
 		bs = s;
 	}
 
-	private Object go(Class<?> clazz) throws Exception
+	private Object Go(Class<?> clazz) throws Exception
 	{
 		bx = 0;
 		by = - 1;

@@ -4,6 +4,7 @@
 //
 package objot;
 
+/** In {@link GetSet#value()}, following classes are excluded */
 public final class No
 {
 	private No()

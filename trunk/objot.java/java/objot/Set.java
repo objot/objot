@@ -8,8 +8,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 
+/** the annotated field could be set while {@link Setting#go} */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Set
 {
+	/** setting rules about the class specified in {@link Setting#go} */
 	Class<?>[] value() default {};
 }

@@ -4,38 +4,12 @@
 //
 package chat.model;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.MappedSuperclass;
-
-import objot.GetSet;
-
-
-@MappedSuperclass
 public abstract class Id<T extends Id<T>>
 {
-	@GetSet(Object.class)
-	@javax.persistence.Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY /* start from 1 */)
-	public Integer id; // use Integer just for less object creation
+	/** @return 0 if id == null, or id */
+	public abstract int id();
 
-	/** @return 0 if {@link #id} == null, or (int){@link #id} */
-	public int id()
-	{
-		return id == null ? 0 : id;
-	}
+	public abstract T id(int id_);
 
-	@SuppressWarnings("unchecked")
-	public T id(int id_)
-	{
-		id = id_ <= 0 ? null : id_;
-		return (T)this;
-	}
-
-	@SuppressWarnings("unchecked")
-	public T id(Integer id_)
-	{
-		id = id_ == null || (int)id_ <= 0 ? null : id_;
-		return (T)this;
-	}
+	public abstract T id(Integer id_);
 }
