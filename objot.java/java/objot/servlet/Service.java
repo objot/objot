@@ -11,7 +11,7 @@ import objot.Getting;
 
 
 /**
- * Mark a method as service method for {@link ObjotServlet}, the returned object graph
+ * For {@link ObjotServlet}, the annotated method is service. the returned object graph
  * must keep unchanged (see {@link Getting#go(objot.Objot, Class, Object)}
  */
 @Retention(RetentionPolicy.RUNTIME)

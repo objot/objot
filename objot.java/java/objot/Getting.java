@@ -20,7 +20,7 @@ public final class Getting
 	 */
 	public static CharSequence go(Objot objot, Class<?> for_, Object o) throws Exception
 	{
-		return new Getting(objot, for_).go(o);
+		return new Getting(objot, for_).Go(o);
 	}
 
 	private static final char S = Objot.S;
@@ -40,7 +40,7 @@ public final class Getting
 		refn = 0;
 	}
 
-	private CharSequence go(Object o) throws Exception
+	private CharSequence Go(Object o) throws Exception
 	{
 		refs(o);
 		StringBuilder s = new StringBuilder(1000);

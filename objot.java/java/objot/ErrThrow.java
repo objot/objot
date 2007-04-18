@@ -36,6 +36,7 @@ public class ErrThrow
 		err = e;
 	}
 
+	/** whether to log this exception */
 	public ErrThrow log(boolean _)
 	{
 		log = _;

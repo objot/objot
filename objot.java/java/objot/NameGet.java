@@ -8,6 +8,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 
+/** The name of the encoded field for getting */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NameGet
 {
