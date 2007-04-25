@@ -12,17 +12,8 @@ import java.util.Map;
 import java.util.Set;
 
 
-public final class Getting
+final class Getting
 {
-	/**
-	 * @param o the whole gettable object graph must keep unchanged since the references
-	 *            detection is not thread safe
-	 */
-	public static CharSequence go(Objot objot, Class<?> for_, Object o) throws Exception
-	{
-		return new Getting(objot, for_).Go(o);
-	}
-
 	private static final char S = Objot.S;
 	private static final int HASH_MASK = 255;
 	private Objot objot;
@@ -31,7 +22,7 @@ public final class Getting
 	private int[][] refs;
 	private int refn;
 
-	private Getting(Objot o, Class<?> for_)
+	Getting(Objot o, Class<?> for_)
 	{
 		objot = o;
 		forClass = for_;
@@ -40,7 +31,7 @@ public final class Getting
 		refn = 0;
 	}
 
-	private CharSequence Go(Object o) throws Exception
+	CharSequence go(Object o) throws Exception
 	{
 		refs(o);
 		StringBuilder s = new StringBuilder(1000);

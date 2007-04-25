@@ -13,7 +13,6 @@ import objot.Err;
 import objot.ErrThrow;
 import objot.Errs;
 import objot.Objot;
-import objot.Setting;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Servicing;
 
@@ -44,7 +43,7 @@ public final class Servlet
 
 			/** include {@link Err} and {@link Errs} */
 			@Override
-			protected String className(Class<?> c)
+			protected String className(Class<?> c) throws Exception
 			{
 				return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 			}
@@ -113,7 +112,7 @@ public final class Servlet
 					if (Q == null)
 						S = go(null, req, res, $);
 					else
-						S = go(null, req, res, Setting.go(objot, reqClas[0], cla, Q), $);
+						S = go(null, req, res, objot.set(cla, Q, reqClas[0]), $);
 					ok = true;
 					return S;
 				}

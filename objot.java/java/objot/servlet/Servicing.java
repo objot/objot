@@ -11,9 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import objot.ErrThrow;
-import objot.Getting;
 import objot.Objot;
-import objot.Setting;
 
 
 public class Servicing
@@ -51,7 +49,7 @@ public class Servicing
 	public CharSequence get(Object o, HttpServletRequest req, HttpServletResponse res)
 		throws Exception
 	{
-		return Getting.go(objot, cla, o);
+		return objot.get(cla, o);
 	}
 
 	public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
@@ -59,7 +57,7 @@ public class Servicing
 	{
 		if (Q == null)
 			return go(null, req, res);
-		return go(null, req, res, Setting.go(objot, reqClas[0], cla, Q));
+		return go(null, req, res, objot.set(cla, Q, reqClas[0]));
 	}
 
 	public CharSequence go(Object service, HttpServletRequest req, HttpServletResponse res,
