@@ -17,14 +17,8 @@ import java.util.List;
 import java.util.Set;
 
 
-public final class Setting
+final class Setting
 {
-	public static Object go(Objot o, Class<?> clazz, Class<?> for_, char[] s)
-		throws Exception
-	{
-		return new Setting(o, for_, s).Go(clazz);
-	}
-
 	private Objot objot;
 	private Class<?> forClass;
 	private char[] bs;
@@ -33,14 +27,14 @@ public final class Setting
 	private Object[] refs;
 	private int intOrLongOrNot;
 
-	private Setting(Objot o, Class<?> for_, char[] s)
+	Setting(Objot o, Class<?> for_, char[] s)
 	{
 		objot = o;
 		forClass = for_;
 		bs = s;
 	}
 
-	private Object Go(Class<?> clazz) throws Exception
+	Object go(Class<?> clazz) throws Exception
 	{
 		bx = 0;
 		by = - 1;

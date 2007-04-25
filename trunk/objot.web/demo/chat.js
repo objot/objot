@@ -85,14 +85,14 @@ DoUser.me = function (This, done) {
 
 DoUser.update = function (friends, This, done) {
 	var me = new User();
-	me.myFriends = friends;
+	me.friends_ = friends;
 	var h = $Do('DoUser-update', 'Updating my info', $get(me, this.update),
 		This, done, null, this.doneUpdate);
 	h.me = me;
 	return h;
 }
 	DoUser.doneUpdate = function (ok, err, h) {
-		ok && (_me.friends = h.me.myFriends);
+		ok && (_me.friends = h.me.friends_);
 	}
 
 DoUser.get = function (users, This, done) {
@@ -119,7 +119,7 @@ $class('DoSign');
 $class('DoUser');
 
 $class.get(User, Object, ['id'], DoSign, ['name', 'password'],
-	DoUser.update, ['id', 'myFriends'], DoUser.get, ['id', 'name']);
+	DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
 $class.get(Chat, DoChat, null);
 
 

@@ -3,9 +3,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import objot.Getting;
 import objot.Objot;
-import objot.Setting;
 
 
 public class Test1
@@ -55,9 +53,9 @@ public class Test1
 
 		//
 		Objot objot = new Objot();
-		CharSequence s = Getting.go(objot, Object.class, z);
-		Object o = Setting.go(objot, Object.class, Object.class, s.toString().toCharArray());
-		CharSequence s2 = Getting.go(objot, Object.class, o);
+		CharSequence s = objot.get(Object.class, z);
+		Object o = objot.set(Object.class, s.toString().toCharArray(), Object.class);
+		CharSequence s2 = objot.get(Object.class, o);
 		if (s.length() != s2.length())
 			throw new Exception("length error: " + s.length() + " " + s2.length());
 		for (int i = 0; i < s.length(); i++)

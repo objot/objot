@@ -40,5 +40,5 @@ public final class User
 	@GetSet(DoUser.class)
 	@NameGet("friends")
 	@Transient
-	public java.util.Set<User> myFriends;
+	public java.util.Set<User> friends_;
 }

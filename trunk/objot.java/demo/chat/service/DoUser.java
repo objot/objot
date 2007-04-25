@@ -12,12 +12,12 @@ import chat.model.User;
 public class DoUser
 	extends Do
 {
-	/** @return me with {@link User#myFriends} */
+	/** @return me with {@link User#friends_} */
 	@Service
 	public static User me(Do $) throws Exception
 	{
 		User me = $.load(User.class, $.me);
-		me.myFriends = me.friends;
+		me.friends_ = me.friends;
 		return me;
 	}
 
@@ -25,11 +25,11 @@ public class DoUser
 	@Service
 	public static Ok update(User u, Do $) throws Exception
 	{
-		if (u.myFriends == null) // || name
+		if (u.friends_ == null) // || name
 			return Ok.OK;
 		User me = $.load(User.class, $.me);
-		if (u.myFriends != null)
-			me.friends = u.myFriends;
+		if (u.friends_ != null)
+			me.friends = u.friends_;
 		return Ok.OK;
 	}
 
