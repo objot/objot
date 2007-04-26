@@ -49,7 +49,7 @@ public class Servicing
 	public CharSequence get(Object o, HttpServletRequest req, HttpServletResponse res)
 		throws Exception
 	{
-		return objot.get(cla, o);
+		return objot.get(o, cla);
 	}
 
 	public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
@@ -57,7 +57,7 @@ public class Servicing
 	{
 		if (Q == null)
 			return go(null, req, res);
-		return go(null, req, res, objot.set(cla, Q, reqClas[0]));
+		return go(null, req, res, objot.set(Q, reqClas[0], cla));
 	}
 
 	public CharSequence go(Object service, HttpServletRequest req, HttpServletResponse res,

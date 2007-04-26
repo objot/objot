@@ -112,7 +112,7 @@ public final class Servlet
 					if (Q == null)
 						S = go(null, req, res, $);
 					else
-						S = go(null, req, res, objot.set(cla, Q, reqClas[0]), $);
+						S = go(null, req, res, objot.set(Q, reqClas[0], cla), $);
 					ok = true;
 					return S;
 				}

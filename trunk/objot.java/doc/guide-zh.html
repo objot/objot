@@ -42,7 +42,8 @@
 
 <h2>服务对象Service Object</h2>
 
-<p>Java支持的SO类型包括：
+<p>参考《Objot 版本14 指南》。
+Java支持的SO类型包括：
 <table>
 	<tr><th>Javascript<th>Java</tr>
 	<tr><td>null undefined<td>null</tr>
@@ -59,10 +60,9 @@
 
 <h3>服务端Service Object</h3>
 
-<p>浏览端请参考《Objot 版本14 指南》。
-
-<p>Java服务端也需要定义SO类，目前只支持field（以后版本将支持getter和setter）：
-<pre>public class User {
+<p>Java服务端需要定义SO类，目前只支持field（以后版本将支持getter和setter）：
+<pre>package demo; ...
+public class User {
 	@GetSet // 被编解码，相当于@Get @Set
 	public Integer id;
 
@@ -126,21 +126,17 @@ public class Chat {
 
 <h3>服务端编解码Service Object</h3>
 
-<p>浏览端请参考《Objot 版本14 指南》。
-
 <p>编解码前，先创建Objot对象：
 <pre>Objot objot = new Objot();
 </pre>
 也可以创建Objot子类对象，并可定义如何作类名转换：
 <pre>Objot objot = new Objot() {
 	@Override
-	protected Class&lt;?&gt; classByName(String name) throws Exception
-	{
+	protected Class&lt;?&gt; classByName(String name) throws Exception {
 		return Class.forName("package.name.".concat(name));
 	}
 	@Override
-	protected String className(Class&lt;?&gt; c) throws Exception
-	{
+	protected String className(Class&lt;?&gt; c) throws Exception {
 		return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 	}
 }
@@ -161,10 +157,14 @@ u1.friends.add(u2);
 u2.friends.add(...);
 ...
 u1.friends_ = u1.friends;
-CharSequence s = objot.get(Object.class, u1); // 对应Object，编码u1，结果为StringBuilder
+CharSequence s = objot.get(u1, DoUser.class); // 对应DoUser，编码u1
 u1.friends_ = null;
-v1 = objot.set(
+v1 = objot.set(s.toString().toCharArray(), Object.class, DoUser.class);
+	// 对应DoUser，解码为v1，限制v1的类必须是Object
 </pre>
+get方法将对象图编码为unicode字符串，set将unicode字符数组解码为对象图。
+set方法第二个参数表示限定类，解码起点对象的类必须是此类或其子类。
+当解码list起点时，如果限定类是数组，则解码为数组，如果是Set，则解码为Set，否则解码为List。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -173,11 +173,181 @@ v1 = objot.set(
 <h2>服务Service</h2>
 
 <p>参考《Objot 版本14 指南》。
-根据使用的Java框架和平台，可以用不同的方式来构建服务，Objot提供了Servlet的封装。
+根据使用的Java框架和平台，可以用不同的方式来构建服务，Objot提供了ObjotServlet。
 
 <!--****************************************************************************************-->
 
 <h3>服务端Service</h3>
+
+<p>配置web.xml：
+<pre>&lt;servlet&gt;
+	&lt;servlet-name&gt;servlet&lt;/servlet-name&gt;
+	&lt;servlet-class&gt;objot.servlet.ObjotServlet&lt;/servlet-class&gt;
+	&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+&lt;servlet-mapping&gt;
+	&lt;servlet-name&gt;servlet&lt;/servlet-name&gt;
+	&lt;url-pattern&gt;/service/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+&lt;welcome-file-list&gt;
+	&lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
+	&lt;welcome-file&gt;servlet&lt;/welcome-file&gt;
+&lt;/welcome-file-list&gt;
+</pre>
+在服务类中定义服务方法：
+<pre>package demo; ...
+public class DoSign {
+	@Service // 公开的服务
+	public static User in(User u) throws Exception {...} // static
+}
+</pre>
+无@Service的方法不能通过ObjotServlet访问。
+以/objot为根部署到服务器中。
+
+<p>浏览端可以使用此服务：
+<pre>$http('/objot/service/demo.DoSign-in', 30000,
+	$get(new demo.User('name', 'password'), DoSign),
+	function (code, res) {
+		if (code == 0)
+			alert($set(res, DoSign).id);
+	}
+);
+</pre>
+
+<!--****************************************************************************************-->
+
+<h3>与数据层集成</h3>
+
+<p>首先定义几个annotation表示服务是否要求身份验证，是否需要数据层事务：
+<pre>@Retention(RetentionPolicy.RUNTIME)
+public @interface Signed {
+	boolean need() default true;
+}
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Transac {
+	boolean need() default true;
+}
+</pre>
+
+<p>再定义公共的服务父类：
+<pre>package demo; ...
+public class Do {
+	static SessionFactory sessionFactory; // Hibernate Session工厂
+	protected Session $; // Hibernate Session
+	protected HttpSession http; // Servlet Session
+	protected Integer me; // 当前登入用户id
+
+	... // 对Hibernate Session的一些包装
+	public static void validate(Object o) throws Exception {...} // 检查对象
+	...
+	static ... // 其他供服务使用的公共方法
+}
+</pre>
+各服务类继承Do：
+<pre>
+public class DoSign extends Do {
+	@Service
+	@Signed(need = false)
+	public static User in(User u, Do $) throws Exception { // $用做当前服务的相关环境
+		validate(u); // 用Do的公共方法检查u对象
+		$.find1(User.class, "name", u.name); // 用Do的Session包装访问数据层
+		...
+}
+</pre>
+服务定义为static，简化不同服务类中的方法相互调用。
+将Do的实例对象做为服务的参数，简化服务方法中访问当前服务相关环境。
+
+<p>继承ObjotServlet和ObjotServlet使用的Servicing，加入Hibernate相关代码：
+<pre>package demo; ...
+public final class Servlet extends ObjotServlet {
+	@Override
+	public void init() throws Exception {
+		objot = new Objot() { // SO类名转换
+			@Override
+			protected Class&lt;?&gt; classByName(String name) throws Exception {
+				return Class.forName("demo.".concat(name));
+			}
+			@Override
+			protected String className(Class<?> c) throws Exception {
+				return c.getName().substring(c.getName().lastIndexOf('.') + 1);
+			}
+		};
+		synchronized (Do.class) {
+			if (Do.sessionFactory == null)
+				Do.sessionFactory = ... // 创建Hibernate Session工厂
+		}
+	}
+	@Override
+	protected Servicing serviceConfig(String name, HttpServletRequest req,
+		HttpServletResponse res) throws Exception {
+		return new S().init(objot, name); // 根据URL的服务name创建Servicing子类对象
+	}
+
+	class S extends Servicing {
+		boolean sign;
+		boolean tran;
+		@Override
+		public S init(String claName, String methName) throws Exception {
+			super.init("demo.".concat(claName), methName); // 定义服务名转换
+			Signed s = meth.getAnnotation(Signed.class);
+			sign = s == null || s.need();
+			Transac t = meth.getAnnotation(Transac.class);
+			tran = t == null || t.need();
+			return this;
+		}
+		@Override
+		public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
+			throws ErrThrow, Exception { // 处理服务请求
+			Do $ = new Do(); // 创建环境对象
+			$.http = req.getSession();
+			if (sign)
+				DoSign.me($); // 检查身份是否已验证
+			if (tran)
+				$.$ = Do.sessionFactory.openSession(); // 建立Hibernate Session
+			try {
+				if (tran)
+					$.$.beginTransaction(); // 开始数据层事务
+				boolean ok = false;
+				try {
+					CharSequence S;
+					if (Q == null) // 如果没有请求内容
+						S = go(null, req, res, $); // 通过Servicing调用服务，参数为($)
+					else // 对应服务类解码请求，通过Servicing调用服务，参数为(起点对象,$)
+						S = go(null, req, res, objot.set(Q, reqClas[0], cla), $);
+					ok = true;
+					return S;
+				}
+				catch (InvalidStateException e) { // Hibernate Validator相关异常
+					throw Do.err(new Errs(e.getInvalidValues()));
+				}
+				finally {
+					if (tran)
+						try {
+							if (ok)
+								$.$.getTransaction().commit(); // 提交事务
+							else
+								$.$.getTransaction().rollback(); // 中止事务
+						}
+						catch (Throwable e) {
+							Servlet.this.log(e);
+						}
+				}
+			}
+			finally {
+				if ($.$ != null &amp;&amp; $.$.isOpen())
+					try {
+						$.$.close(); // 关闭Hibernate Session
+					}
+					catch (Throwable e) {
+						Servlet.this.log(e);
+					}
+			}
+		}
+	}
+}
+</pre>
+这样，服务就可以在Hibernate环境中执行。
+因为Servicing中调用服务后就已做编码，关闭Hibernate Session时不会导致lazy fetch相关问题。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -186,7 +356,7 @@ v1 = objot.set(
 <h2>视图View</h2>
 
 <p>服务端不需要构建视图，浏览端请参考《Objot 版本14 指南》。
-但是根据需要，可以通过不同的Servlet配置使面向服务的Objot和其他包含视图的框架共存。
+但是可以通过不同的Servlet配置使面向服务的Objot和其他包含视图的框架共存。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
