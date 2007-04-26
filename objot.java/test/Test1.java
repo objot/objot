@@ -53,9 +53,9 @@ public class Test1
 
 		//
 		Objot objot = new Objot();
-		CharSequence s = objot.get(Object.class, z);
-		Object o = objot.set(Object.class, s.toString().toCharArray(), Object.class);
-		CharSequence s2 = objot.get(Object.class, o);
+		CharSequence s = objot.get(z, Object.class);
+		Object o = objot.set(s.toString().toCharArray(), Object.class, Object.class);
+		CharSequence s2 = objot.get(o, Object.class);
 		if (s.length() != s2.length())
 			throw new Exception("length error: " + s.length() + " " + s2.length());
 		for (int i = 0; i < s.length(); i++)

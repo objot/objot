@@ -20,12 +20,12 @@ public class Objot
 	 * @param o the whole gettable object graph must keep unchanged since the references
 	 *            detection is not thread safe
 	 */
-	public CharSequence get(Class<?> for_, Object o) throws Exception
+	public CharSequence get(Object o, Class<?> for_) throws Exception
 	{
 		return new Getting(this, for_).go(o);
 	}
 
-	public Object set(Class<?> for_, char[] s, Class<?> clazz) throws Exception
+	public Object set(char[] s, Class<?> clazz, Class<?> for_) throws Exception
 	{
 		return new Setting(this, for_, s).go(clazz);
 	}
