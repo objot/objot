@@ -1,0 +1,382 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
+package chat.service;
+
+import java.io.Serializable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.servlet.http.HttpSession;
+
+import objot.Err;
+import objot.ErrThrow;
+import objot.Errs;
+
+import org.hibernate.Criteria;
+import org.hibernate.Hibernate;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.ReplicationMode;
+import org.hibernate.SQLQuery;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.TransientObjectException;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.validator.ClassValidator;
+import org.hibernate.validator.InvalidValue;
+
+
+/** Delegated {@link Session}, and common for services */
+public class Do
+{
+	static SessionFactory sessionFactory;
+	private static final Map<Class<?>, ClassValidator<?>> VS //
+	= new ConcurrentHashMap<Class<?>, ClassValidator<?>>(128, 0.8f, 32);
+
+	protected Session $;
+	protected HttpSession http;
+	protected Integer me;
+
+	public static ErrThrow err(Err e)
+	{
+		return new ErrThrow(e);
+	}
+
+	public static ErrThrow err(String hint)
+	{
+		return new ErrThrow(null, hint);
+	}
+
+	public static ErrThrow err(Throwable e)
+	{
+		return new ErrThrow(null, e);
+	}
+
+	public static ErrThrow err(String hint, Throwable e)
+	{
+		return new ErrThrow(null, hint, e);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T>T validator(T o) throws Exception
+	{
+		ClassValidator<T> v = (ClassValidator<T>)VS.get(o.getClass());
+		if (v == null)
+			VS.put(o.getClass(), v = new ClassValidator(o.getClass()));
+		InvalidValue[] s = v.getInvalidValues(o);
+		if (s != null && s.length > 0)
+			throw err(new Errs(s));
+		return o;
+	}
+
+	/** @see Hibernate#initialize */
+	public <T>T fetch(T o)
+	{
+		Hibernate.initialize(o);
+		return o;
+	}
+
+	/** {@link #flush}, {@link #evict} and {@link #refresh} */
+	public <T>T flushRefresh(T o)
+	{
+		$.flush();
+		$.evict(o);
+		$.refresh(o);
+		return o;
+	}
+
+	public <T>T find1(Class<T> clazz, String prop, Object eq)
+	{
+		return criteria(clazz).add(Restrictions.eq(prop, eq)).uniqueResult();
+	}
+
+	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+	/**
+	 * Force this session to flush. Must be called at the end of a unit of work, before
+	 * commiting the transaction and closing the session (depending on
+	 * {@link Session#setFlushMode flush-mode}, {@link Transaction#commit()} calls this
+	 * method). <p/> <i>Flushing</i> is the process of synchronizing the underlying
+	 * persistent store with persistable state held in memory.
+	 * 
+	 * @throws HibernateException Indicates problems flushing the session or talking to
+	 *             the database.
+	 */
+	public void flush() throws HibernateException
+	{
+		$.flush();
+	}
+
+	/**
+	 * Return the identifier value of the given entity as associated with this session. An
+	 * exception is thrown if the given entity instance is transient or detached in
+	 * relation to this session.
+	 * 
+	 * @param object a persistent instance
+	 * @return the identifier
+	 * @throws TransientObjectException if the instance is transient or associated with a
+	 *             different session
+	 */
+	public Serializable getIdentifier(Object object) throws HibernateException
+	{
+		return $.getIdentifier(object);
+	}
+
+	/**
+	 * Remove this instance from the session cache. Changes to the instance will not be
+	 * synchronized with the database. This operation cascades to associated instances if
+	 * the association is mapped with <tt>cascade="evict"</tt>.
+	 * 
+	 * @param object a persistent instance
+	 * @throws HibernateException
+	 */
+	public <T>T evict(T object) throws HibernateException
+	{
+		$.evict(object);
+		return object;
+	}
+
+	/**
+	 * Return the persistent instance of the given entity class with the given identifier,
+	 * assuming that the instance exists. <br>
+	 * <br>
+	 * You should not use this method to determine if an instance exists (use
+	 * <tt>get()</tt> instead). Use this only to retrieve an instance that you assume
+	 * exists, where non-existence would be an actual error.
+	 * 
+	 * @param theClass a persistent class
+	 * @param id a valid identifier of an existing persistent instance of the class
+	 * @return the persistent instance or proxy
+	 * @throws HibernateException
+	 */
+	@SuppressWarnings("unchecked")
+	public <T>T load(Class<T> theClass, Serializable id) throws HibernateException
+	{
+		return (T)$.load(theClass, id);
+	}
+
+	/**
+	 * Read the persistent state associated with the given identifier into the given
+	 * transient instance.
+	 * 
+	 * @param object an "empty" instance of the persistent class
+	 * @param id a valid identifier of an existing persistent instance of the class
+	 * @throws HibernateException
+	 */
+	public <T>T load(T object, Serializable id) throws HibernateException
+	{
+		$.load(object, id);
+		return object;
+	}
+
+	/**
+	 * Persist the state of the given detached instance, reusing the current identifier
+	 * value. This operation cascades to associated instances if the association is mapped
+	 * with <tt>cascade="replicate"</tt>.
+	 * 
+	 * @param object a detached instance of a persistent class
+	 */
+	public <T>T replicate(T object, ReplicationMode replicationMode)
+		throws HibernateException
+	{
+		$.replicate(object, replicationMode);
+		return object;
+	}
+
+	/**
+	 * Persist the given transient instance, first assigning a generated identifier. (Or
+	 * using the current value of the identifier property if the <tt>assigned</tt>
+	 * generator is used.) This operation cascades to associated instances if the
+	 * association is mapped with <tt>cascade="save-update"</tt>.
+	 * 
+	 * @param object a transient instance of a persistent class
+	 * @throws HibernateException
+	 */
+	public <T>T save(T object) throws HibernateException
+	{
+		$.save(object);
+		return object;
+	}
+
+	/**
+	 * Either {@link #save(Object)} or {@link #update(Object)} the given instance,
+	 * depending upon resolution of the unsaved-value checks (see the manual for
+	 * discussion of unsaved-value checking). <p/> This operation cascades to associated
+	 * instances if the association is mapped with <tt>cascade="save-update"</tt>.
+	 * 
+	 * @see Session#save(Object)
+	 * @see Session#update(Object)
+	 * @param object a transient or detached instance containing new or updated state
+	 * @throws HibernateException
+	 */
+	public <T>T saveOrUpdate(T object) throws HibernateException
+	{
+		$.saveOrUpdate(object);
+		return object;
+	}
+
+	/**
+	 * Update the persistent instance with the identifier of the given detached instance.
+	 * If there is a persistent instance with the same identifier, an exception is thrown.
+	 * This operation cascades to associated instances if the association is mapped with
+	 * <tt>cascade="save-update"</tt>.
+	 * 
+	 * @param object a detached instance containing updated state
+	 * @throws HibernateException
+	 */
+	public <T>T update(T object) throws HibernateException
+	{
+		$.update(object);
+		return object;
+	}
+
+	/**
+	 * Copy the state of the given object onto the persistent object with the same
+	 * identifier. If there is no persistent instance currently associated with the
+	 * session, it will be loaded. Return the persistent instance. If the given instance
+	 * is unsaved, save a copy of and return it as a newly persistent instance. The given
+	 * instance does not become associated with the session. This operation cascades to
+	 * associated instances if the association is mapped with <tt>cascade="merge"</tt>.<br>
+	 * <br>
+	 * The semantics of this method are defined by JSR-220.
+	 * 
+	 * @param object a detached instance with state to be copied
+	 * @return an updated persistent instance
+	 */
+	@SuppressWarnings("unchecked")
+	public <T>T merge(T object) throws HibernateException
+	{
+		return (T)$.merge(object);
+	}
+
+	/**
+	 * Make a transient instance persistent. This operation cascades to associated
+	 * instances if the association is mapped with <tt>cascade="persist"</tt>.<br>
+	 * <br>
+	 * The semantics of this method are defined by JSR-220.
+	 * 
+	 * @param object a transient instance to be made persistent
+	 */
+	public <T>T persist(T object) throws HibernateException
+	{
+		$.persist(object);
+		return object;
+	}
+
+	/**
+	 * Remove a persistent instance from the datastore. The argument may be an instance
+	 * associated with the receiving <tt>Session</tt> or a transient instance with an
+	 * identifier associated with existing persistent state. This operation cascades to
+	 * associated instances if the association is mapped with <tt>cascade="delete"</tt>.
+	 * 
+	 * @param object the instance to be removed
+	 * @throws HibernateException
+	 */
+	public <T>T delete(T object) throws HibernateException
+	{
+		$.delete(object);
+		return object;
+	}
+
+	/**
+	 * Re-read the state of the given instance from the underlying database. It is
+	 * inadvisable to use this to implement long-running sessions that span many business
+	 * tasks. This method is, however, useful in certain special circumstances. For
+	 * example
+	 * <ul>
+	 * <li>where a database trigger alters the object state upon insert or update
+	 * <li>after executing direct SQL (eg. a mass update) in the same session
+	 * <li>after inserting a <tt>Blob</tt> or <tt>Clob</tt>
+	 * </ul>
+	 * 
+	 * @param object a persistent or detached instance
+	 * @throws HibernateException
+	 */
+	public <T>T refresh(T object) throws HibernateException
+	{
+		$.refresh(object);
+		return object;
+	}
+
+	/**
+	 * Create a new <tt>Criteria</tt> instance, for the given entity class, or a
+	 * superclass of an entity class.
+	 * 
+	 * @param persistentClass a class, which is persistent, or has persistent subclasses
+	 * @return Criteria
+	 */
+	@SuppressWarnings("unchecked")
+	public <T>Criteria<T> criteria(Class<T> persistentClass)
+	{
+		return $.createCriteria(persistentClass);
+	}
+
+	/**
+	 * Create a new <tt>Criteria</tt> instance, for the given entity class, or a
+	 * superclass of an entity class, with the given alias.
+	 * 
+	 * @param persistentClass a class, which is persistent, or has persistent subclasses
+	 * @return Criteria
+	 */
+	@SuppressWarnings("unchecked")
+	public <T>Criteria<T> criteria(Class<T> persistentClass, String alias)
+	{
+		return $.createCriteria(persistentClass, alias);
+	}
+
+	/**
+	 * Create a new instance of <tt>Query</tt> for the given HQL query string.
+	 * 
+	 * @param queryString a HQL query
+	 * @return Query
+	 * @throws HibernateException
+	 */
+	public Query query(String queryString) throws HibernateException
+	{
+		return $.createQuery(queryString);
+	}
+
+	/**
+	 * Create a new instance of <tt>SQLQuery</tt> for the given SQL query string.
+	 * 
+	 * @param queryString a SQL query
+	 * @return SQLQuery
+	 * @throws HibernateException
+	 */
+	public SQLQuery sql(String queryString) throws HibernateException
+	{
+		return $.createSQLQuery(queryString);
+	}
+
+	/**
+	 * Return the persistent instance of the given entity class with the given identifier,
+	 * or null if there is no such persistent instance. (If the instance, or a proxy for
+	 * the instance, is already associated with the session, return that instance or
+	 * proxy.)
+	 * 
+	 * @param clazz a persistent class
+	 * @param id an identifier
+	 * @return a persistent instance or null
+	 * @throws HibernateException
+	 */
+	@SuppressWarnings("unchecked")
+	public <T>T get(Class<T> clazz, Serializable id) throws HibernateException
+	{
+		return (T)$.get(clazz, id);
+	}
+
+	/**
+	 * Return the entity name for a persistent entity
+	 * 
+	 * @param object a persistent entity
+	 * @return the entity name
+	 * @throws HibernateException
+	 */
+	public String getEntityName(Object object) throws HibernateException
+	{
+		return $.getEntityName(object);
+	}
+}
