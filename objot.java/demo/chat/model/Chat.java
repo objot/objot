@@ -17,6 +17,7 @@ import javax.persistence.UniqueConstraint;
 import objot.GetSet;
 import objot.Name;
 
+import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.Length;
 import org.hibernate.validator.NotEmpty;
 import org.hibernate.validator.NotNull;
@@ -24,11 +25,11 @@ import org.hibernate.validator.NotNull;
 import chat.service.DoChat;
 
 
-/** a chat message. I prefer "Chat" to "Message" just for less letters, am I lazy ? */
 @Entity
+@Proxy(lazy = false /* prevent from Hibernate proxy and unexpected behavior */)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "out", "in_", "datime" }))
 @GetSet(DoChat.class)
-public final class Chat
+public class Chat
 	extends IdAuto<Chat>
 {
 	@NotNull

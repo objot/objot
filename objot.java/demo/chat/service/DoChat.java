@@ -48,7 +48,6 @@ public class DoChat
 	public static Chat post(Chat c, Do $) throws Exception
 	{
 		c.out = new User().id($.me);
-		c.in = $.get(User.class, c.in.id);
 		validator(c);
 
 		// List/Set.contains causes fetch rows

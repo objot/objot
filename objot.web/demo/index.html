@@ -117,7 +117,8 @@ window.onload = function () {
 	}));
 }
 window.onunload = function () {
-	// to prevent Firefox memory cache
+	// clean and prevent Firefox memory cache
+	$dom.des.call($D.body, 0);
 }
 
 function start() {

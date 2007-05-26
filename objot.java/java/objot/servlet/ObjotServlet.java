@@ -45,6 +45,8 @@ public class ObjotServlet
 	/** @see Servlet#destroy() */
 	public void destroy()
 	{
+		log("\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%" + getClass().getName()
+			+ " ################================\n\n");
 	}
 
 	/** @see ServletContext#log(String) */
@@ -73,8 +75,8 @@ public class ObjotServlet
 	public void init(ServletConfig c) throws ServletException
 	{
 		config = c;
-		log("\n\n========########@@@@@@@@$$$$$$$$ " + ObjotServlet.class.getName()
-			+ " started $$$$$$$$@@@@@@@@########========\n\n");
+		log("\n\n================################ " + getClass().getName()
+			+ " %%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$\n\n");
 		try
 		{
 			init();
