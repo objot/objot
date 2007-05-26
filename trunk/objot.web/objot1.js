@@ -297,8 +297,9 @@ $dom = function (domOrName, prop, value) {
  * @param from the index props start from, 0 if missing */
 $doms = function (domOrName, props, from) {
 	var m = typeof domOrName === 'string' ? $D.createElement(domOrName) : $.o(domOrName);
+	m !== window || $throw('apply $dom or $doms to window forbidden');
 	!m.constructor ? $.copy(m, $dom) // ie6(7?)
-		: m.constructor.$dom || delete $.copy(m.constructor.prototype, $dom).prototype;
+		: m.constructor.$dom == null && delete $.copy(m.constructor.prototype, $dom).prototype;
 	for (var v, p, x = from || 0; x < props.length; x++)
 		if ((p = props[x]) == null)
 			$throw('arguments[' + x + '] must not be null');
@@ -391,7 +392,6 @@ $dom.rem = function (index, len) {
 /** like rem() and recursively detach event handlers and $this for no IE memory leak.
  * @return this */
 $dom.des = function (index, len) {
-	this !== window || $throw('destroy window forbidden');
 	if (arguments.length == 0)
 		this.$dom && (this.$dom = null), this.$this && (this.$this = null),
 		this.parentNode && this.parentNode.removeChild(this),

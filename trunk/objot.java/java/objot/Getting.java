@@ -5,6 +5,7 @@
 package objot;
 
 import java.lang.reflect.Field;
+import java.sql.Clob;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -218,6 +219,9 @@ final class Getting
 			s.append(S).append('.');
 		else if (v instanceof String)
 			s.append(S).append(S).append((String)v);
+		else if (v instanceof Clob)
+			s.append(S).append(S).append(((Clob)v).getSubString(1, //
+				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE)));
 		else if (v instanceof Boolean)
 			s.append(S).append((Boolean)v ? '>' : '<');
 		else if (v instanceof Double)

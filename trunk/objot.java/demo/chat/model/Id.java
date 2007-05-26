@@ -9,7 +9,23 @@ public abstract class Id<T extends Id<T>>
 	/** @return 0 if id == null, or id */
 	public abstract int id();
 
-	public abstract T id(int id_);
+	/**
+	 * set id
+	 * 
+	 * @return self
+	 */
+	public T id(int id_)
+	{
+		throw new UnsupportedOperationException();
+	}
 
-	public abstract T id(Integer id_);
+	/**
+	 * set id
+	 * 
+	 * @return self
+	 */
+	public T id(Integer id_)
+	{
+		throw new UnsupportedOperationException();
+	}
 }

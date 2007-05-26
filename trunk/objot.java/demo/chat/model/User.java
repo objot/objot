@@ -14,15 +14,18 @@ import objot.Get;
 import objot.GetSet;
 import objot.NameGet;
 import objot.Set;
+
+import org.hibernate.annotations.Proxy;
+
 import chat.service.DoChat;
 import chat.service.DoSign;
 import chat.service.DoUser;
 
 
-/** be final to prevent from Hibernate proxy and unexpected behavior */
 @Entity
+@Proxy(lazy = false /* prevent from Hibernate proxy and unexpected behavior */)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"))
-public final class User
+public class User
 	extends IdAuto<User>
 {
 	@BeSimple(max = 20)

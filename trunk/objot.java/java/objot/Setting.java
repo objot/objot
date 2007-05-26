@@ -4,10 +4,16 @@
 //
 package objot;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.Clob;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Date;
@@ -93,6 +99,70 @@ final class Setting
 	private String str()
 	{
 		return bx == by ? "" : new String(bs, bx, by - bx);
+	}
+
+	/** @return immutable */
+	private Clob clob()
+	{
+		final String s = bx == by ? "" : new String(bs, bx, by - bx);
+		return new Clob()
+		{
+			public InputStream getAsciiStream()
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			public Reader getCharacterStream()
+			{
+				return new StringReader(s);
+			}
+
+			public String getSubString(long pos, int length)
+			{
+				int x = (int)Math.min(pos - 1, Integer.MAX_VALUE);
+				return s.substring(x, x + length);
+			}
+
+			public long length()
+			{
+				return s.length();
+			}
+
+			public long position(String search, long start)
+			{
+				return s.indexOf(search, (int)Math.min(start - 1, Integer.MAX_VALUE));
+			}
+
+			public long position(Clob search, long start)
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			public OutputStream setAsciiStream(long pos)
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			public Writer setCharacterStream(long pos)
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			public int setString(long pos, String str)
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			public int setString(long pos, String str, int offset, int len)
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			public void truncate(long len)
+			{
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 
 	/** @param L >0 for int only, < 0 for int or long, 0 for int or long or not */
@@ -232,7 +302,7 @@ final class Setting
 			if (c == 0 || c == '[' || c == '{' || c == '+' || c == '*')
 				bxy();
 			if (c == 0)
-				set(lo, i++, str(), cla);
+				set(lo, i++, Clob.class.isAssignableFrom(cla) ? clob() : str(), cla);
 			else if (c == '[')
 				set(lo, i++, list(Object.class, null, null), cla);
 			else if (c == '{')
@@ -326,7 +396,7 @@ final class Setting
 				bxy();
 
 			if (c == 0)
-				v = str();
+				v = f != null && Clob.class.isAssignableFrom(f.getType()) ? clob() : str();
 			else if (c == '[')
 				if (f != null && f.getType().isArray())
 					v = list(null, null, f.getType().getComponentType());

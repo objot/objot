@@ -7,6 +7,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -44,9 +46,21 @@ public @interface BeSimple
 
 		public boolean isValid(Object value)
 		{
-			if (! (value instanceof String)) // || value == null
-				return false;
-			String v = (String)value;
+			String v;
+			if (value instanceof String)
+				v = (String)value;
+			else if (value instanceof Clob)
+				try
+				{
+					v = ((Clob)value).getSubString(1, (int)Math.min(((Clob)value).length(),
+						Integer.MAX_VALUE));
+				}
+				catch (SQLException e)
+				{
+					throw new RuntimeException(e);
+				}
+			else
+				return false; // include null
 			if (v.length() < min || v.length() > max)
 				return false;
 			if (min > 0)
