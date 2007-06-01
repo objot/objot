@@ -299,7 +299,7 @@ _Chatss.prototype = {
 			for (var x = 0; x < ok.length; x++) {
 				var c = ok[x];
 				this.doChat(c.out.id == _me.id ? c.In : c.out, true).doRead(c);
-				c.datime.getTime() < this.Datime.getTime() && (this.Datime = c.datime);
+				c.datime.getTime() > this.Datime.getTime() && (this.Datime = c.datime);
 			}
 		}
 		err && $Err(this.http, err);

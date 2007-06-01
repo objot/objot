@@ -321,27 +321,19 @@ $this = function (dom, o) {
 }
 	$fox && ($dom.$dom = false); // for dom node's constructor, be false for event attach
 
-	eval(function (s1, f1, s2, f2) {
+	(function (s1, f1, s2, f2) {
 		for (var x in s1)
-			window[x] = f1(s1[x]);
+			window[x] = eval(f1.replace(/#/g, s1[x]));
 		for (var x in s2)
-			window[x] = f2(s2[x]);
+			window[x] = eval(f2.replace(/#/g, s2[x]));
 	})(
 { $a:'a', $s:'span', $br:'br', $l:'label', $d:'div', $p:'p',
   $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
   $img:'img', $ul:'ul', $ol:'ol', $li:'li', $h1:'h1', $h2:'h2', $h3:'h3', $h4:'h4',
   $bn:'button', $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
-		function (g) {
-			return function () {
-				return $doms(g, arguments);
-			}
-		},
+	"function () {\n	return $doms('#', arguments);\n}",
 { $ln:'text', $chk:'check', $rad:'radio' },
-		function (ty) {
-			return function () {
-				return $doms('input', arguments).att('type', ty);
-			}
-		}
+	"function () {\n	return $doms('input', arguments).att('type', '#');\n}"
 	);
 /** <a href=javascript://>... */
 $a0 = function () {
