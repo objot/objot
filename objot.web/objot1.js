@@ -322,10 +322,11 @@ $this = function (dom, o) {
 	$fox && ($dom.$dom = false); // for dom node's constructor, be false for event attach
 
 	(function (s1, f1, s2, f2) {
+		$dom.$ = '';
 		for (var x in s1)
-			window[x] = eval(f1.replace(/#/g, s1[x]));
+			$dom.$ += x + '=' + f1.replace(/#/g, s1[x]) + '\n';
 		for (var x in s2)
-			window[x] = eval(f2.replace(/#/g, s2[x]));
+			$dom.$ += x + '=' + f2.replace(/#/g, s2[x]) + '\n';
 	})(
 { $a:'a', $s:'span', $br:'br', $l:'label', $d:'div', $p:'p',
   $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
@@ -334,7 +335,7 @@ $this = function (dom, o) {
 	"function () {\n	return $doms('#', arguments);\n}",
 { $ln:'text', $chk:'check', $rad:'radio' },
 	"function () {\n	return $doms('input', arguments).att('type', '#');\n}"
-	);
+	), eval($dom.$), delete $dom.$;
 /** <a href=javascript://>... */
 $a0 = function () {
 	return $doms('a', arguments).att('href', 'javascript://');
@@ -470,27 +471,30 @@ $dom.show = function (v) {
  * and first arugment is event object which target is the source dom element
  *   and which stop() is for cancel bubble.
  * @return this */
-$dom.attach = function (ontype, handler, oldHandler) {
+$dom.attach = function (type, handler, oldHandler) {
 	if (oldHandler)
-		detach(ontype, oldHandler);
-	var x, t, s = this.$dom || (this.$dom = [1, 0, 0]); // [free, next, handler, ...]
-	if (x = s[t = ontype.substr(2)])
+		detach(type, oldHandler);
+	var x, s = this.$dom || (this.$dom = [1, 0, 0]); // [free, next, handler, ...]
+	if (x = s[type])
 		do if (s[x + 1] === handler)
 			return this;
 		while (s[x] && (x = s[x]))
 // this causes window.onerror no effect for exceptions from event handlers
-//	else if ($fox) // more events available than this[ontype] = $.event 
-//		this.addEventListener(t, $.event, false);
-	else // make "this" in $.event works, but it doesn't if IE attachEvent
-		this[ontype] = $.event;
-	s[x || t] = (x = s[0]), s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
+//	else if ($fox) // more events available
+//		this.addEventListener(type, $.event, false);
+// this causes unexpected "this" value in $.event
+//	else if (!$fox)
+//		this.attachEvent('on' + type, $.event);
+	else
+		this['on' + type] = $.event;
+	s[x || type] = (x = s[0]), s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
 	return this;
 }
 /* detach event handler. @return this */
-$dom.detach = function (ontype, handler) {
+$dom.detach = function (type, handler) {
 	var s = this.$dom;
 	if (s)
-		for (var x = ontype.substr(2), y; y = s[x]; x = y)
+		for (var x = type, y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
 				return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
 	return this;
@@ -572,15 +576,14 @@ $.copyOwn = function (to, from) {
 	$.event = function (e, s, x, r, t) {
 		if ((s = this.$dom) && (x = s[(e = e || event).type])) {
 			t = this.$this || this;
-			$fox || (e.target = e.srcElement, e.stop = $.eventStop);
-			r = 0; do
-				r |= !s[x + 1].call(t, e);
+			$fox || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop);
+			r = true; do
+				r &= !s[x + 1].call(t, e);
 			while (x = s[x]);
-			return !r;
+			return r;
 		}
 	}
 	$.eventStop = function () {
 		this.cancelBubble = true;
 	}
 	$fox && (Event.prototype.stop = Event.prototype.stopPropagation);
-
