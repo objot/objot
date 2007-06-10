@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
-<title>Objot 版本14 指南</title>
+<title>Objot 版本15 指南</title>
 <style>
 	body	{ padding:0; margin:1em; background:white; line-height:1.4; font-family:sans-serif; }
 	h2		{ margin:3em 0 1em; padding:0.2ex 0; border-bottom:0.3ex solid #cdf; color:#730; }
@@ -28,11 +28,11 @@
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
-<h1	align=center><a href=http://objot.info>Objot</a> 版本14 指南</h1>
+<h1	align=center><a href=http://objot.info>Objot</a> 版本15 指南</h1>
 <hr>
 
 <p>这是一个了解Objot，了解如何利用Objot开发浏览端的指南。
-关于Java服务端开发请参考<a href=guide-java-zh.html>《Objot 版本14 Java服务端指南》</a>。
+关于Java服务端开发请参考<a href=guide-java-zh.html>《Objot 版本15 Java服务端指南》</a>。
 
 <p>版权所有2007蔡倩彦，遵循GNU General Public License version 2。
 
@@ -171,7 +171,7 @@ delete u1.myFriends; // 清除临时属性
 
 <h3>服务端Service Object</h3>
 
-<p>请参考<a href=guide-java-zh.html>《Objot 版本14 Java服务端指南》</a>。
+<p>请参考<a href=guide-java-zh.html>《Objot 版本15 Java服务端指南》</a>。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -336,7 +336,7 @@ DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user�
 d = $dom('div', 'c', 'cssClass1'); // 创建&lt;div class=cssClass1&gt;&lt;/div&gt;
 d = $dom('div', 's', 'display:none', 'c', 'cssClass2');
 	// 创建&lt;div class=cssClass2 style=display:none&gt;&lt;/div&gt;
-d = $dom('div', 'onclick', function () { alert(this); });
+d = $dom('div', 'click', function () { alert(this); });
 	// 创建&lt;div&gt;&lt;/div&gt;并设置click事件函数
 d = $d(); // $dom('div')的简写
 d = $d('c', 'cssClass1');
@@ -364,8 +364,8 @@ d.des(0); // 将第一个节点递归销毁
 d.cla('cssClass2').cla(0, 'cssClass1'); // 添加cssClass2，然后清除cssClass1
 d.att('title', $dom(d, 'title', 'A div').att('title') + '...');
 	// 先直接设置对象属性title，再用getAttribute()取得title，再用setAttribute设置title
-d.show(true).attach('onclick', onClick); // 清除display:none，再设置事件函数
-d.detach('onclick', onClick).show(false); // 清除事件函数，再设置display:none
+d.show(true).attach('click', onClick); // 清除display:none，再设置事件函数
+d.detach('click', onClick).show(false); // 清除事件函数，再设置display:none
 d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有子节点
 </pre>
 无参数时att(), tx(), show()返回获取的值，有参数时，以及其他函数，都返回节点自身。
@@ -392,7 +392,7 @@ d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有�
 		$p().add($l().tx('Password'), this.pass = $inp('type', 'password')),
 			// &lt;p&gt;&lt;label&gt;Password&lt;/label&gt;&lt;input type=password&gt;&lt;/p&gt;
 		$p('s', 'text-align:center').add( // &lt;p style="text-align:center"&gt;
-			this.submit = $this($bn('onclick', this.doSign), this).tx('Signin / Signup'),
+			this.submit = $this($bn('click', this.doSign), this).tx('Signin / Signup'),
 				// &lt;button&gt;Signin / Signup&lt;/button&gt;并绑定onclick事件
 			this.http = $s()) // &lt;span&gt;&lt;/span&gt;&lt;/p&gt;
 	);
