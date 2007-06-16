@@ -14,8 +14,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
+import objot.Get;
 import objot.GetSet;
 import objot.Name;
+import objot.Set;
 
 import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.Length;
@@ -51,6 +53,19 @@ public class Chat
 
 	@NotEmpty
 	@Length(max = 1024)
-	@GetSet
 	public String text;
+
+	@Get
+	public String getText()
+	{
+		new Exception("get text").printStackTrace();
+		return text;
+	}
+
+	@Set
+	public void setText(String _)
+	{
+		new Exception("set text").printStackTrace();
+		text = _;
+	}
 }

@@ -6,6 +6,7 @@ package objot;
 
 import java.io.UTFDataFormatException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,7 +76,14 @@ public class Objot
 					Get g = f.getAnnotation(Get.class);
 					GetSet gs = f.getAnnotation(GetSet.class);
 					if (g != null || gs != null)
-						new Property(f, g, null, gs, true).into(inf);
+						new PropField(f, g, null, gs, true).into(inf);
+				}
+			for (Method m: c.getMethods())
+				if ((m.getModifiers() & Modifier.STATIC) == 0)
+				{
+					Get g = m.getAnnotation(Get.class);
+					if (g != null)
+						new PropMethod(m, g, null, true).into(inf);
 				}
 			gets.put(c, inf);
 		}
@@ -94,7 +102,14 @@ public class Objot
 					Set s = f.getAnnotation(Set.class);
 					GetSet gs = f.getAnnotation(GetSet.class);
 					if (s != null || gs != null)
-						new Property(f, null, s, gs, false).into(inf);
+						new PropField(f, null, s, gs, false).into(inf);
+				}
+			for (Method m: c.getMethods())
+				if ((m.getModifiers() & Modifier.STATIC) == 0)
+				{
+					Set s = m.getAnnotation(Set.class);
+					if (s != null)
+						new PropMethod(m, null, s, false).into(inf);
 				}
 			sets.put(c, inf);
 		}

@@ -10,7 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Clob;
@@ -375,20 +375,17 @@ final class Setting
 		for (char c; chr() != '}'; bxy())
 		{
 			String n = str();
-			Field f = null;
-			Type t = null;
+			Property p = null;
 			Object v;
 			if (cla != HashMap.class)
 			{
-				Property g = objot.sets(cla).get(n);
-				if (g == null)
+				p = objot.sets(cla).get(n);
+				if (p == null)
 					throw new RuntimeException(cla.getCanonicalName() + "." + n
 						+ " not found or not setable");
-				if (! g.allow(forClass))
+				if (! p.allow(forClass))
 					throw new RuntimeException("setting " + cla.getCanonicalName() + "." + n
 						+ " forbidden for " + forClass.getCanonicalName());
-				f = g.f;
-				t = f.getGenericType();
 			}
 			bxy();
 			c = chr();
@@ -396,26 +393,26 @@ final class Setting
 				bxy();
 
 			if (c == 0)
-				v = f != null && Clob.class.isAssignableFrom(f.getType()) ? clob() : str();
+				v = p != null && Clob.class.isAssignableFrom(p.cla) ? clob() : str();
 			else if (c == '[')
-				if (f != null && f.getType().isArray())
-					v = list(null, null, f.getType().getComponentType());
-				else if (f != null && List.class.isAssignableFrom(f.getType())
-					&& t instanceof ParameterizedType)
+				if (p != null && p.cla.isArray())
+					v = list(null, null, p.cla.getComponentType());
+				else if (p != null && List.class.isAssignableFrom(p.cla)
+					&& p.type instanceof ParameterizedType)
 				{
-					t = ((ParameterizedType)t).getActualTypeArguments()[0];
+					Type t = ((ParameterizedType)p.type).getActualTypeArguments()[0];
 					v = list(t instanceof Class ? (Class)t : Object.class, null, null);
 				}
-				else if (f != null && Set.class.isAssignableFrom(f.getType())
-					&& t instanceof ParameterizedType)
+				else if (p != null && Set.class.isAssignableFrom(p.cla)
+					&& p.type instanceof ParameterizedType)
 				{
-					t = ((ParameterizedType)t).getActualTypeArguments()[0];
+					Type t = ((ParameterizedType)p.type).getActualTypeArguments()[0];
 					v = list(null, t instanceof Class ? (Class)t : Object.class, null);
 				}
 				else
 					v = list(Object.class, null, null);
 			else if (c == '{')
-				v = object(f == null ? Object.class : f.getType());
+				v = object(p == null ? Object.class : p.cla);
 			else if (c == '+')
 				v = ref();
 			else if (c == '*')
@@ -426,31 +423,31 @@ final class Setting
 				v = false;
 			else if (c == '>')
 				v = true;
-			else if (t == int.class)
+			else if (p.cla == int.class)
 			{
-				f.setInt(o, (int)Int(1));
+				p.set(o, (int)Int(1));
 				continue;
 			}
-			else if (t == long.class)
+			else if (p.cla == long.class)
 			{
-				f.setLong(o, Int(- 1));
+				p.set(o, Int(- 1));
 				continue;
 			}
-			else if (t == double.class)
+			else if (p.cla == double.class)
 			{
-				f.setDouble(o, number());
+				p.set(o, number());
 				continue;
 			}
-			else if (t == float.class)
+			else if (p.cla == float.class)
 			{
-				f.setFloat(o, (float)number());
+				p.set(o, (float)number());
 				continue;
 			}
-			else if (t == Long.class)
+			else if (p.cla == Long.class)
 				v = Int(- 1);
-			else if (t == Double.class)
+			else if (p.cla == Double.class)
 				v = number();
-			else if (t == Float.class)
+			else if (p.cla == Float.class)
 				v = (float)number();
 			else
 			{
@@ -465,16 +462,20 @@ final class Setting
 
 			try
 			{
-				if (f == null)
+				if (p == null)
 					((HashMap)o).put(n, v);
 				else
-					f.set(o, v);
+					p.set(o, v);
 			}
-			catch (IllegalArgumentException e)
+			catch (InvocationTargetException e)
 			{
-				throw new RuntimeException(cla.getCanonicalName() + "." + n + " : " //
+				throw e;
+			}
+			catch (Exception e)
+			{
+				throw new ClassCastException(cla.getCanonicalName() + "." + n + " : " //
 					+ (v != null ? v.getClass().getCanonicalName() : "null") //
-					+ " forbidden for " + t);
+					+ " forbidden for " + p.cla);
 			}
 		}
 		return o;
