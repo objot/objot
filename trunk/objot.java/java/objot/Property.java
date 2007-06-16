@@ -4,65 +4,67 @@
 //
 package objot;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 
 
-final class Property
+abstract class Property
 {
-	Field f;
 	String name;
+	Class<?> cla;
+	Type type;
 	Class<?>[] clas;
 	boolean[] allows;
 
-	Property(Field f_, Get g, Set s, GetSet gs, boolean get)
+	Property(AccessibleObject p, Class<?> out, String name_, Get g, Set s, GetSet gs,
+		boolean get)
 	{
-		f = f_;
-		Class<?>[] fcs;
+		Class<?>[] pcs;
 		if (gs == null)
-			fcs = get ? g.value() : s.value();
+			pcs = get ? g.value() : s.value();
 		else if (g == null && s == null)
-			fcs = gs.value();
+			pcs = gs.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (get ? Get.class.getName() : Set.class.getName()) + " for " + f);
+				+ (get ? Get.class.getName() : Set.class.getName()) + " for " + p);
 
-		Get cg = get ? f.getDeclaringClass().getAnnotation(Get.class) : null;
-		Set cs = get ? null : f.getDeclaringClass().getAnnotation(Set.class);
-		GetSet cgs = f.getDeclaringClass().getAnnotation(GetSet.class);
-		Class<?>[] ccs;
+		Get cg = get ? out.getAnnotation(Get.class) : null;
+		Set cs = get ? null : out.getAnnotation(Set.class);
+		GetSet cgs = out.getAnnotation(GetSet.class);
+		Class<?>[] ocs;
 		if (cgs == null)
-			ccs = cg != null ? cg.value() : cs != null ? cs.value() : Objot.CS0;
+			ocs = cg != null ? cg.value() : cs != null ? cs.value() : Objot.CS0;
 		else if (cg == null && cs == null)
-			ccs = cgs.value();
+			ocs = cgs.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (get ? Get.class.getName() : Set.class.getName()) + " for "
-				+ f.getDeclaringClass());
+				+ (get ? Get.class.getName() : Set.class.getName()) + " for " + out);
 
-		NameGet ng = get ? f.getAnnotation(NameGet.class) : null;
-		NameSet ns = get ? null : f.getAnnotation(NameSet.class);
-		Name name_ = f.getAnnotation(Name.class);
-		if (name_ == null)
-			name = ng != null ? ng.value() : ns != null ? ns.value() : f.getName();
+		NameGet ng = get ? p.getAnnotation(NameGet.class) : null;
+		NameSet ns = get ? null : p.getAnnotation(NameSet.class);
+		Name name1 = p.getAnnotation(Name.class);
+		if (name1 == null)
+			name = ng != null ? ng.value() : ns != null ? ns.value() : name_;
 		else if (ng == null && ns == null)
-			name = name_.value();
+			name = name1.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (get ? NameGet.class.getName() : NameSet.class.getName()) + " for " + f);
+				+ (get ? NameGet.class.getName() : NameSet.class.getName()) + " for " + p);
 
 		int n = 0;
-		for (Class<?> c: ccs)
+		for (Class<?> c: ocs)
 			if (c != Yes.class && c != No.class)
 				n++;
-		for (Class<?> c: fcs)
+		for (Class<?> c: pcs)
 			if (c != Yes.class && c != No.class)
 				n++;
-		clas = n == ccs.length ? ccs : n == fcs.length ? fcs : new Class<?>[n];
+		clas = n == ocs.length ? ocs : n == pcs.length ? pcs : new Class<?>[n];
 		allows = new boolean[n];
 		boolean allow = true;
 		n = 0;
-		for (Class<?> c: ccs)
+		for (Class<?> c: ocs)
 			if (c == Yes.class)
 				allow = true;
 			else if (c == No.class)
@@ -73,7 +75,7 @@ final class Property
 				allows[n] = allow;
 				n++;
 			}
-		for (Class<?> c: fcs)
+		for (Class<?> c: pcs)
 			if (c == Yes.class)
 				allow = true;
 			else if (c == No.class)
@@ -87,12 +89,12 @@ final class Property
 	}
 
 	/** not thread safe */
-	void into(HashMap<String, Property> m)
+	void into(HashMap<String, Property> map)
 	{
-		Property p = m.get(name);
+		Property p = map.get(name);
 		if (p != null)
-			throw new RuntimeException("duplicate name " + name + ", see " + f);
-		m.put(name, this);
+			throw new RuntimeException("duplicate name " + name + ", see " + p);
+		map.put(name, this);
 	}
 
 	boolean allow(Class<?> c)
@@ -102,4 +104,40 @@ final class Property
 				return allows[x];
 		return clas.length == 0 || ! allows[0];
 	}
+
+	/** @throws InvocationTargetException or Exception */
+	abstract Object get(Object o) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract boolean getBoolean(Object o) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract int getInt(Object o) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract long getLong(Object o) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract float getFloat(Object o) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract double getDouble(Object o) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract void set(Object o, Object v) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract void set(Object o, boolean v) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract void set(Object o, int v) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract void set(Object o, long v) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract void set(Object o, float v) throws Exception;
+
+	/** @throws InvocationTargetException or Exception */
+	abstract void set(Object o, double v) throws Exception;
 }

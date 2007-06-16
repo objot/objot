@@ -4,7 +4,6 @@
 //
 package objot;
 
-import java.lang.reflect.Field;
 import java.sql.Clob;
 import java.util.Calendar;
 import java.util.Date;
@@ -65,10 +64,10 @@ final class Getting
 		else if (! o.getClass().isArray())
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
 			{
-				Class<?> c = pv.getValue().f.getType();
+				Class<?> c = pv.getValue().cla;
 				if (! c.isPrimitive() && ! Number.class.isAssignableFrom(c)
 					&& c != Boolean.class && pv.getValue().allow(forClass))
-					refs(pv.getValue().f.get(o));
+					refs(pv.getValue().get(o));
 			}
 		else if (! o.getClass().getComponentType().isPrimitive())
 			for (Object v: (Object[])o)
@@ -186,20 +185,20 @@ final class Getting
 				if (pv.getValue().allow(forClass))
 				{
 					s.append(S).append(pv.getKey());
-					Field f = pv.getValue().f;
-					Class<?> c = f.getType();
+					Property p = pv.getValue();
+					Class<?> c = p.cla;
 					if (c == double.class)
-						s.append(S).append(f.getDouble(o));
+						s.append(S).append(p.getDouble(o));
 					else if (c == float.class)
-						s.append(S).append(f.getFloat(o));
+						s.append(S).append(p.getFloat(o));
 					else if (c == int.class)
-						s.append(S).append(f.getInt(o));
+						s.append(S).append(p.getInt(o));
 					else if (c == long.class)
-						s.append(S).append(objot.getLong(f.getLong(o)));
+						s.append(S).append(objot.getLong(p.getLong(o)));
 					else if (c == boolean.class)
-						s.append(S).append(f.getBoolean(o) ? '>' : '<');
+						s.append(S).append(p.getBoolean(o) ? '>' : '<');
 					else
-						value(f.get(o), s);
+						value(p.get(o), s);
 				}
 		}
 		s.append(S).append('}');
