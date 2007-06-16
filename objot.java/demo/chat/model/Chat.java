@@ -58,14 +58,12 @@ public class Chat
 	@Get
 	public String getText()
 	{
-		new Exception("get text").printStackTrace();
 		return text;
 	}
 
 	@Set
 	public void setText(String _)
 	{
-		new Exception("set text").printStackTrace();
 		text = _;
 	}
 }

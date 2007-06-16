@@ -26,10 +26,10 @@ class PropMethod
 		String n = _.getName();
 		if (get && (! n.startsWith("get") || _.getParameterTypes().length > 0 //
 		|| _.getReturnType() == void.class))
-			throw new RuntimeException("not available getter " + _);
+			throw new RuntimeException("invalid getter: " + _);
 		if (! get && (! n.startsWith("set") || _.getParameterTypes().length != 1 //
 		|| _.getReturnType() != void.class))
-			throw new RuntimeException("not available setter " + _);
+			throw new RuntimeException("invalid setter: " + _);
 		if (n.length() > 4 && Character.isUpperCase(n.charAt(3))
 			&& Character.isUpperCase(n.charAt(4)))
 			return n.substring(3);
