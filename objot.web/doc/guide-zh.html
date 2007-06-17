@@ -68,7 +68,7 @@
 	<tr><td>null undefined<td>null<td>None</tr>
 	<tr><td>boolean<td>boolean<td>bool</tr>
 	<tr><td>number<td>int long(部分) float double Integer Long(部分) Float Double<td>int long(部分) float</tr>
-	<tr><td>string<td>String<td>unicode str(UTF-8)</tr>
+	<tr><td>string<td>String Clob<td>unicode str(UTF-8)</tr>
 	<tr><td>Date<td>Date<td>datetime</tr>
 	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt; Set&lt;T&gt;<td>list tuple</tr>
 	<tr><td>Object(非Function String Number Boolean)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
@@ -95,10 +95,10 @@ Err = function (hint) {
 ErrUnsigned = function (hint) {
 	this.hint = $(hint);
 }
-$class('Ok'), $class('Err');
-$class('ErrUnsigned', Err); // ErrUnsigned的父类是Err
+$class(true, 'Ok'), $class(true, 'Err');
+$class(true, 'ErrUnsigned', Err); // ErrUnsigned的父类是Err
 </pre>
-3个function定义了构造函数，$class把这些function定义为类。
+3个function定义了构造函数，$class把这些function定义为类，第一个参数表示可否编解码。
 
 <p>使用$get可以将数据编码为字符串：
 <pre>ok = new Ok("I'm Ok");

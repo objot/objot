@@ -34,10 +34,10 @@ $throw = function (x) {
 
 //********************************************************************************************//
 
-/** make class. @param sup superclass or null. @param interfaces... prototypes are copied */
-$class = function (ctorName, sup, interfaces) {
+/** make class. @param SO whether could $get and $set. @param sup superclass or null */
+$class = function (SO, ctorName, sup) {
 	$.s(ctorName);
-	var ctor = $.c(ctorName, 1);
+	var ctor = $.c(ctorName, true);
 	ctor.$name !== ctorName && (ctor.$name = ctorName);
 	ctor.classed && $throw('duplicate class ' + ctor.$name);
 	if (sup) {
@@ -49,10 +49,10 @@ $class = function (ctorName, sup, interfaces) {
 	ctor.$0.prototype = ctor.prototype;
 	if (ctor.prototype.constructor !== ctor)
 		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
-	for (var x = 2; x < arguments.length; x++)
-		$.copy(ctor.prototype, arguments[x].prototype);
-	$.cs[ctor.$name] = ctor;
+	if (SO)
+		$.cs[ctor.$name] = ctor;
 	ctor.classed = true;
+	return ctor;
 }
 /** define the encoding rules. former rules are overrided by later rules.
  * (@param forClass key. @param get what to encode, all if null)... */
@@ -544,18 +544,18 @@ $.is = function (x, clazz, name) {
 		+ (clazz.$name || clazz.name || name || $S(clazz)));
 }
 
-/** @return class (constructor) from class cache, or eval() it */
-$.c = function ($_$, _$_) {
+/** @return class (constructor) from class cache, or if $_$$ is true, eval() */
+$.c = function ($_$, $_$$) {
 	if ($_$ in this.cs)
 		return this.cs[$_$];
-	_$_ || $throw($S($_$) + ' class not found');
-	with(window) _$_ = eval($_$);
-	return typeof _$_ === 'function' ? this.cs[$_$] = _$_
+	$_$$ || $throw($S($_$) + ' class not found');
+	with(window) $_$$ = eval($_$);
+	return typeof $_$$ === 'function' ? this.cs[$_$] = $_$$
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
 	$.cs = { '': Object };
-	$class('Object');
+	$class(true, 'Object');
 
 /** copy another's properties. @return to */
 $.copy = function (to, from) {

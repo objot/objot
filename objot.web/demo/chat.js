@@ -25,8 +25,8 @@ Ok = function (hint) {
 ErrUnsigned = function (hint) {
 	this.hint = $(hint);
 }
-$class('Ok');
-$class('ErrUnsigned', Err);
+$class(true, 'Ok');
+$class(true, 'ErrUnsigned', Err);
 
 //********************************************************************************************//
 
@@ -46,8 +46,8 @@ Chat = function (out, In, datime, text) {
 	this.text = text;
 }
 
-$class('User');
-$class('Chat');
+$class(true, 'User');
+$class(true, 'Chat');
 
 
 _me = null;
@@ -115,8 +115,8 @@ DoChat.post = function (In, text, This, done) {
 
 //********************************************************************************************//
 
-$class('DoSign');
-$class('DoUser');
+$class(false, 'DoSign');
+$class(false, 'DoUser');
 
 $class.get(User, Object, ['id'], DoSign, ['name', 'password'],
 	DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);

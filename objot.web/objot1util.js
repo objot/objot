@@ -73,8 +73,8 @@ Errs = function (hints) {
 	Err.call(this, '');
 	hints && (this.hints = $.a(hints));
 }
-$class('Err');
-$class('Errs', Err);
+$class(true, 'Err');
+$class(true, 'Errs', Err);
 
 
 /** $http wrapped with hint and several callback functions.
@@ -230,4 +230,7 @@ $Pop = function (inner) {
 // \n unsupported in Firefox(not IE) element tooltip and textContent proprety, stupid
 //
 // in IE 6(7?), (null dom node) instanceof (Object etc) causes Javascript error.
+//
+// in Firefox for Linux, onkeydown may be triggered only one key is down,
+//   may use onkeypress instead
 //
