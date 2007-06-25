@@ -231,6 +231,13 @@ $Pop = function (inner) {
 //
 // in IE 6(7?), (null dom node) instanceof (Object etc) causes Javascript error.
 //
+// in IE 6(7?), iframe's window.parent may not be the actual parent window,
+//   but iframe's window.parent.document is the actual parent window document
+//
+// in IE 6(7?), $inp('name', 'a', ...).outerHTML contains no name="a", and
+//   document.getElementsByName('a') returns without this input, stupid
+// and <tr>.innerHTML may not be set directly, should createElement('td')
+//
 // in Firefox for Linux, onkeydown may be triggered only one key is down,
 //   may use onkeypress instead
 //
