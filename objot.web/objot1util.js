@@ -210,7 +210,7 @@ $Pop = function (inner) {
 // in Firefox, predefined function(){}.name can only be assigned without '.'
 //
 // && || ! ? if(x), 1 '0' [] are true, 0 NaN '' null undefined are false
-//   do NOT use x == true/false, use x === true/false instead
+//   do NOT use x == true/false, use Boolean(x) or !!x or x === true/false instead
 //
 // in IE 6(7?), event handler codes may need try { ... } finally {}
 //   otherwise the finally { ... } inside the codes may be ignored, stupid

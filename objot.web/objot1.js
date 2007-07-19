@@ -191,7 +191,7 @@ $set = function (s) {
 				case '[': x = this.l(s, x); o[i] = s.o; break;
 				case '{': x = this.o(s, x); o[i] = s.o; break;
 				case '+': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
-				default: (o[i] = v - 0) != NaN || $throw('illegal number ' + $S(v));
+				default: isNaN(o[i] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o;
 		return x;
@@ -207,7 +207,7 @@ $set = function (s) {
 				case '[': x = this.l(s, x); o[p] = s.o; break;
 				case '{': x = this.o(s, x); o[p] = s.o; break;
 				case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
-				default: (o[p] = v - 0) != NaN || $throw('illegal number ' + $S(v));
+				default: isNaN(o[p] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o;
 		return x;
