@@ -38,20 +38,19 @@ $throw = function (x) {
 $class = function (SO, ctorName, sup) {
 	$.s(ctorName);
 	var ctor = $.c(ctorName, true);
-	ctor.$name !== ctorName && (ctor.$name = ctorName);
-	ctor.classed && $throw('duplicate class ' + ctor.$name);
+	ctor.$name && $throw('duplicate class ' + ctor.$name);
 	if (sup) {
-		$.f(sup).classed || $throw('super class ' + sup.$name + ' not ready');
-		ctor.prototype = $.copy(new sup.$0, ctor.prototype);
+		$.f(sup).$name || $throw('super class ' + (sup.name || $S(sup)) + ' not ready');
+		ctor.prototype = $.copy(new sup.$ctor, ctor.prototype);
 		ctor.prototype.constructor = ctor;
 	}
-	ctor.$0 = function () {};
-	ctor.$0.prototype = ctor.prototype;
+	ctor.$name = ctorName;
+	ctor.$ctor = function () {};
+	ctor.$ctor.prototype = ctor.prototype;
 	if (ctor.prototype.constructor !== ctor)
 		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
 	if (SO)
 		$.cs[ctor.$name] = ctor;
-	ctor.classed = true;
 	return ctor;
 }
 /** define the encoding rules. former rules are overrided by later rules.
@@ -198,7 +197,7 @@ $set = function (s) {
 		return x;
 	}
 	$set.o = function (s, x, p, v) {
-		var o = new ($.c(s[x++]).$0);
+		var o = new ($.c(s[x++]).$ctor);
 		s[x] === '=' && (this.r[s[++x]] = o, x++);
 		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
@@ -406,7 +405,7 @@ $dom.des = function (index, len) {
 
 /** add css class, or remove css class if first argument === 0. @return this */
 $dom.cla = function (clazz) {
-	if (arguments.length < 1 || clazz === 0 && this.className.length < 1)
+	if (arguments.length == 9 || clazz === 0 && this.className.length == 0)
 		return this;
 	var cs = this.className.split(' '), c;
 	X:for (var x = clazz === 0 ? 1 : 0; x < arguments.length; x++)
