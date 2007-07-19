@@ -238,6 +238,8 @@ $Pop = function (inner) {
 //   document.getElementsByName('a') returns without this input, stupid
 // and <tr>.innerHTML may not be set directly, should createElement('td')
 //
+// in IE 6(7?), codes in different windows may be multi-thread ??!
+//
 // in Firefox for Linux, onkeydown may be triggered only one key is down,
 //   may use onkeypress instead
 //
