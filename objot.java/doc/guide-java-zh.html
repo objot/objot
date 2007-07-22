@@ -80,7 +80,7 @@ Java支持的SO类型包括：
 	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt; Set&lt;T&gt;</tr>
 	<tr><td>Object(非Function String Number Boolean)<td>Object Map&lt;String,Object&gt;</tr>
 </table>
-由于Javascript中超过32bit的补码整数用64bit浮点数表示，所以Java服务端默认限制long和Long的范围-562949953421312L到562949953421312L（+-49bit）。
+Javascript中数只有52bit精度（IEEE754），因此Java服务端编码时若long和Long超出-4503599627370496L到4503599627370496L（+-52bit），默认抛出异常。
 
 <!--****************************************************************************************-->
 
