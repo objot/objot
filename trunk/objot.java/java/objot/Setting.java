@@ -210,10 +210,10 @@ final class Setting
 		int[] li = null;
 		long[] ll = null;
 		Object[] lo = null;
-		Object l = null;
+		Object l = null; // be boolean[] int[] long[] or Object[] except java.util.Set 
 		if (listClass != null)
 		{
-			// ArrayList's element array should have protected modifier
+			// ArrayList's field "array" should be "protected"
 			l = new ArrayList<Object>(new AbstractCollection<Object>()
 			{
 				@Override
