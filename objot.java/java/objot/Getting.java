@@ -18,8 +18,16 @@ final class Getting
 	private static final int HASH_MASK = 255;
 	private Objot objot;
 	private Class<?> forClass;
+	/** for object graph, as keys */
 	private Object[][] objs;
+	/**
+	 * for object graph, reference numbers, as values.
+	 * <dd>0: the object is referenced only once, no reference number
+	 * <dd><0: the object is referenced many times, need a reference number
+	 * <dd>>0: reference number
+	 */
 	private int[][] refs;
+	/** for object graph, the number of used (multi) reference numbers */
 	private int refn;
 
 	Getting(Objot o, Class<?> for_)
@@ -43,11 +51,12 @@ final class Getting
 	}
 
 	@SuppressWarnings("unchecked")
+	/** visit the object graph */
 	private void refs(Object o) throws Exception
 	{
 		if (o instanceof String && ((String)o).indexOf(S) >= 0)
 			throw new RuntimeException("String must not contain \20 \\20");
-		if (o == null || ref(o, - 1) < 0)
+		if (o == null || ref(o, - 1) < 0 /* multi references */)
 			return;
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
@@ -61,7 +70,7 @@ final class Getting
 		else if (o instanceof Set)
 			for (Object v: (Set)o)
 				refs(v);
-		else if (! o.getClass().isArray())
+		else if (! o.getClass().isArray()) // other
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
 			{
 				Class<?> c = pv.getValue().cla;
@@ -69,11 +78,17 @@ final class Getting
 					&& c != Boolean.class && pv.getValue().allow(forClass))
 					refs(pv.getValue().get(o));
 			}
-		else if (! o.getClass().getComponentType().isPrimitive())
+		else if (! o.getClass().getComponentType().isPrimitive()) // array
 			for (Object v: (Object[])o)
 				refs(v);
 	}
 
+	/**
+	 * get reference number of the object.
+	 * 
+	 * @param r 0: return the number, <0: refer the object, >0: assign a number if need
+	 * @return 0: no number, <0: need a number, >0: the number
+	 */
 	private int ref(Object o, int r)
 	{
 		int h = (System.identityHashCode(o) >> 3) & HASH_MASK;
