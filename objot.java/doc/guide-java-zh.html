@@ -103,7 +103,7 @@ public class User {
 		name = _;
 	}
 
-	public List<User> friends; // 不被编解码
+	public List&lt;User&gt; friends; // 不被编解码
 
 	@GetSet(DoUser.class) // 相当于 @Get(DoUser.class) @Set(DoUser.class)
 	@NameGet("friends") // 编码的名称
@@ -152,7 +152,7 @@ public class Chat {
 	}
 
 	@ManyToMany
-	public List<User> friends;
+	public List&lt;User&gt; friends;
 
 	@GetSet(DoUser.class)
 	@NameGet("friends")

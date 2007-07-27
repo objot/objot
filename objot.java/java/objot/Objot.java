@@ -51,14 +51,6 @@ public class Objot
 		return l;
 	}
 
-	/** check long value, not too large for Javascript */
-	protected long setLong(long l) throws Exception
-	{
-		if (l < - 4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
-			throw new RuntimeException("setting integer out of range " + l);
-		return l;
-	}
-
 	/** {@link HashSet} by default but not recommended for ORM */
 	protected java.util.Set<Object> newUnique(int len) throws Exception
 	{
