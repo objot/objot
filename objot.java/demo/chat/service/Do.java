@@ -8,8 +8,6 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpSession;
-
 import objot.Err;
 import objot.ErrThrow;
 import objot.Errs;
@@ -29,16 +27,16 @@ import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
 
 
-/** Delegated {@link Session}, and common for services */
+/** Delegated Hibernate {@link Session}, common utilities, request scope */
 public class Do
 {
 	static SessionFactory sessionFactory;
 	private static final Map<Class<?>, ClassValidator<?>> VS //
 	= new ConcurrentHashMap<Class<?>, ClassValidator<?>>(128, 0.8f, 32);
 
-	protected Session $;
-	protected HttpSession http;
+	/** http session scope, if changed to null, close http session */
 	protected Integer me;
+	protected Session $;
 
 	public static ErrThrow err(Err e)
 	{
