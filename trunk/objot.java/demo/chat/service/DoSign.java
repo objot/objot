@@ -10,7 +10,6 @@ import objot.servlet.Service;
 
 import org.hibernate.Hibernate;
 
-import chat.model.ErrUnsigned;
 import chat.model.Ok;
 import chat.model.User;
 
@@ -37,7 +36,7 @@ public class DoSign
 			throw err("user name or password incorrect");
 		else
 			Hibernate.initialize(u.friends); // for out of session use
-		$.http.setAttribute("signed", u.id);
+		$.me = u.id;
 		return u;
 	}
 
@@ -45,16 +44,7 @@ public class DoSign
 	@Signed(need = false)
 	public static Ok out(Do $) throws Exception
 	{
-		$.http.invalidate(); // fire the unbound event immediately
+		$.me = null;
 		return Ok.OK;
-	}
-
-	/** @param $ only {@link Do#http} required */
-	@Transac(level = 0)
-	static void me(Do $) throws Exception
-	{
-		$.me = (Integer)$.http.getAttribute("signed");
-		if ($.me == null)
-			throw err(new ErrUnsigned("not signed in"));
 	}
 }

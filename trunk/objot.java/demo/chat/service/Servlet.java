@@ -18,6 +18,7 @@ import objot.servlet.Servicing;
 
 import org.hibernate.validator.InvalidStateException;
 
+import chat.model.ErrUnsigned;
 import chat.model.Model;
 
 
@@ -92,15 +93,17 @@ public final class Servlet
 			if (Servlet.this.verbose > 0)
 				System.out.println(nameVerbose);
 			Do $ = new Do();
-			$.http = req.getSession();
-			if (sign)
-				DoSign.me($);
-			if (tran > 0)
-				$.$ = Do.sessionFactory.openSession();
+
+			Integer me = (Integer)req.getSession().getAttribute("signed");
+			$.me = me;
+			if (sign && me == null)
+				throw Do.err(new ErrUnsigned("not signed in"));
+
 			try
 			{
 				if (tran > 0)
 				{
+					$.$ = Do.sessionFactory.openSession();
 					$.$.connection().setReadOnly(tranRead);
 					$.$.connection().setTransactionIsolation(tran);
 					$.$.beginTransaction();
@@ -138,6 +141,11 @@ public final class Servlet
 			}
 			finally
 			{
+				if (me != null && $.me == null)
+					req.getSession().invalidate();
+				else if ($.me != me)
+					req.getSession().setAttribute("signed", $.me);
+
 				if ($.$ != null && $.$.isOpen())
 					try
 					{
