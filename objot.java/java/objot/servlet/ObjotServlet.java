@@ -136,7 +136,7 @@ public class ObjotServlet
 			}
 			try
 			{
-				res = s.go(req, hReq, hRes);
+				res = s.serve(req, hReq, hRes);
 			}
 			catch (ErrThrow e)
 			{
