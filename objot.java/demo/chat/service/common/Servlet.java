@@ -2,7 +2,7 @@
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
-package chat.service;
+package chat.service.common;
 
 import java.util.Locale;
 
@@ -14,18 +14,21 @@ import objot.ErrThrow;
 import objot.Errs;
 import objot.Objot;
 import objot.servlet.ObjotServlet;
-import objot.servlet.Servicing;
+import objot.servlet.Serve;
 
+import org.hibernate.SessionFactory;
 import org.hibernate.validator.InvalidStateException;
 
 import chat.model.ErrUnsigned;
-import chat.model.Model;
+import chat.model.common.Model;
+import chat.service.Do;
 
 
 public final class Servlet
 	extends ObjotServlet
 {
 	int verbose = 1;
+	SessionFactory sessionFactory;
 
 	@Override
 	public void init() throws Exception
@@ -50,22 +53,18 @@ public final class Servlet
 			}
 		};
 
-		synchronized (Do.class)
-		{
-			if (Do.sessionFactory == null)
-				Do.sessionFactory = Model.init().buildSessionFactory();
-		}
+		sessionFactory = Model.init().buildSessionFactory();
 	}
 
 	@Override
-	protected Servicing serviceConfig(String name, HttpServletRequest req,
-		HttpServletResponse res) throws Exception
+	protected Serve getServe(String name, HttpServletRequest hReq, HttpServletResponse hRes)
+		throws Exception
 	{
 		return new S().init(objot, name);
 	}
 
 	class S
-		extends Servicing
+		extends Serve
 	{
 		String nameVerbose;
 		boolean sign;
@@ -87,14 +86,14 @@ public final class Servlet
 		}
 
 		@Override
-		public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
+		public CharSequence go(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
 			throws ErrThrow, Exception
 		{
 			if (Servlet.this.verbose > 0)
 				System.out.println(nameVerbose);
 			Do $ = new Do();
 
-			Integer me = (Integer)req.getSession().getAttribute("signed");
+			Integer me = (Integer)hReq.getSession().getAttribute("signed");
 			$.me = me;
 			if (sign && me == null)
 				throw Do.err(new ErrUnsigned("not signed in"));
@@ -103,21 +102,21 @@ public final class Servlet
 			{
 				if (tran > 0)
 				{
-					$.$ = Do.sessionFactory.openSession();
-					$.$.connection().setReadOnly(tranRead);
-					$.$.connection().setTransactionIsolation(tran);
-					$.$.beginTransaction();
+					$.data = sessionFactory.openSession();
+					$.data.connection().setReadOnly(tranRead);
+					$.data.connection().setTransactionIsolation(tran);
+					$.data.beginTransaction();
 				}
 				boolean ok = false;
 				try
 				{
-					CharSequence S;
-					if (Q == null)
-						S = go(null, req, res, $);
+					CharSequence res;
+					if (req == null)
+						res = go(null, hReq, hRes, $);
 					else
-						S = go(null, req, res, objot.set(Q, reqClas[0], cla), $);
+						res = go(null, hReq, hRes, objot.set(req, reqClas[0], cla), $);
 					ok = true;
-					return S;
+					return res;
 				}
 				catch (InvalidStateException e)
 				{
@@ -129,9 +128,9 @@ public final class Servlet
 						try
 						{
 							if (ok && ! tranRead)
-								$.$.getTransaction().commit();
+								$.data.getTransaction().commit();
 							else
-								$.$.getTransaction().rollback();
+								$.data.getTransaction().rollback();
 						}
 						catch (Throwable e)
 						{
@@ -142,14 +141,14 @@ public final class Servlet
 			finally
 			{
 				if (me != null && $.me == null)
-					req.getSession().invalidate();
+					hReq.getSession().invalidate();
 				else if ($.me != me)
-					req.getSession().setAttribute("signed", $.me);
+					hReq.getSession().setAttribute("signed", $.me);
 
-				if ($.$ != null && $.$.isOpen())
+				if ($.data != null && $.data.isOpen())
 					try
 					{
-						$.$.close();
+						$.data.close();
 					}
 					catch (Throwable e)
 					{

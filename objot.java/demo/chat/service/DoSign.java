@@ -12,6 +12,7 @@ import org.hibernate.Hibernate;
 
 import chat.model.Ok;
 import chat.model.User;
+import chat.service.common.Signed;
 
 
 public class DoSign
