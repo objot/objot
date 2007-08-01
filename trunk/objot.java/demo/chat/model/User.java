@@ -17,6 +17,7 @@ import objot.Set;
 
 import org.hibernate.annotations.Proxy;
 
+import chat.model.common.BeSimple;
 import chat.service.DoChat;
 import chat.service.DoSign;
 import chat.service.DoUser;
