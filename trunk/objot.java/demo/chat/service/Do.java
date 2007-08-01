@@ -19,7 +19,6 @@ import org.hibernate.Query;
 import org.hibernate.ReplicationMode;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Restrictions;
@@ -30,13 +29,12 @@ import org.hibernate.validator.InvalidValue;
 /** Delegated Hibernate {@link Session}, common utilities, request scope */
 public class Do
 {
-	static SessionFactory sessionFactory;
 	private static final Map<Class<?>, ClassValidator<?>> VS //
 	= new ConcurrentHashMap<Class<?>, ClassValidator<?>>(128, 0.8f, 32);
 
 	/** http session scope, if changed to null, close http session */
-	protected Integer me;
-	protected Session $;
+	public Integer me;
+	public Session data;
 
 	public static ErrThrow err(Err e)
 	{
@@ -80,9 +78,9 @@ public class Do
 	/** {@link #flush}, {@link #evict} and {@link #refresh} */
 	public <T>T flushRefresh(T o)
 	{
-		$.flush();
-		$.evict(o);
-		$.refresh(o);
+		data.flush();
+		data.evict(o);
+		data.refresh(o);
 		return o;
 	}
 
@@ -105,7 +103,7 @@ public class Do
 	 */
 	public void flush() throws HibernateException
 	{
-		$.flush();
+		data.flush();
 	}
 
 	/**
@@ -120,7 +118,7 @@ public class Do
 	 */
 	public Serializable getIdentifier(Object object) throws HibernateException
 	{
-		return $.getIdentifier(object);
+		return data.getIdentifier(object);
 	}
 
 	/**
@@ -133,7 +131,7 @@ public class Do
 	 */
 	public <T>T evict(T object) throws HibernateException
 	{
-		$.evict(object);
+		data.evict(object);
 		return object;
 	}
 
@@ -153,7 +151,7 @@ public class Do
 	@SuppressWarnings("unchecked")
 	public <T>T load(Class<T> theClass, Serializable id) throws HibernateException
 	{
-		return (T)$.load(theClass, id);
+		return (T)data.load(theClass, id);
 	}
 
 	/**
@@ -166,7 +164,7 @@ public class Do
 	 */
 	public <T>T load(T object, Serializable id) throws HibernateException
 	{
-		$.load(object, id);
+		data.load(object, id);
 		return object;
 	}
 
@@ -180,7 +178,7 @@ public class Do
 	public <T>T replicate(T object, ReplicationMode replicationMode)
 		throws HibernateException
 	{
-		$.replicate(object, replicationMode);
+		data.replicate(object, replicationMode);
 		return object;
 	}
 
@@ -195,7 +193,7 @@ public class Do
 	 */
 	public <T>T save(T object) throws HibernateException
 	{
-		$.save(object);
+		data.save(object);
 		return object;
 	}
 
@@ -212,7 +210,7 @@ public class Do
 	 */
 	public <T>T saveOrUpdate(T object) throws HibernateException
 	{
-		$.saveOrUpdate(object);
+		data.saveOrUpdate(object);
 		return object;
 	}
 
@@ -227,7 +225,7 @@ public class Do
 	 */
 	public <T>T update(T object) throws HibernateException
 	{
-		$.update(object);
+		data.update(object);
 		return object;
 	}
 
@@ -247,7 +245,7 @@ public class Do
 	@SuppressWarnings("unchecked")
 	public <T>T merge(T object) throws HibernateException
 	{
-		return (T)$.merge(object);
+		return (T)data.merge(object);
 	}
 
 	/**
@@ -260,7 +258,7 @@ public class Do
 	 */
 	public <T>T persist(T object) throws HibernateException
 	{
-		$.persist(object);
+		data.persist(object);
 		return object;
 	}
 
@@ -275,7 +273,7 @@ public class Do
 	 */
 	public <T>T delete(T object) throws HibernateException
 	{
-		$.delete(object);
+		data.delete(object);
 		return object;
 	}
 
@@ -295,7 +293,7 @@ public class Do
 	 */
 	public <T>T refresh(T object) throws HibernateException
 	{
-		$.refresh(object);
+		data.refresh(object);
 		return object;
 	}
 
@@ -309,7 +307,7 @@ public class Do
 	@SuppressWarnings("unchecked")
 	public <T>Criteria<T> criteria(Class<T> persistentClass)
 	{
-		return $.createCriteria(persistentClass);
+		return data.createCriteria(persistentClass);
 	}
 
 	/**
@@ -322,7 +320,7 @@ public class Do
 	@SuppressWarnings("unchecked")
 	public <T>Criteria<T> criteria(Class<T> persistentClass, String alias)
 	{
-		return $.createCriteria(persistentClass, alias);
+		return data.createCriteria(persistentClass, alias);
 	}
 
 	/**
@@ -334,7 +332,7 @@ public class Do
 	 */
 	public Query query(String queryString) throws HibernateException
 	{
-		return $.createQuery(queryString);
+		return data.createQuery(queryString);
 	}
 
 	/**
@@ -346,7 +344,7 @@ public class Do
 	 */
 	public SQLQuery sql(String queryString) throws HibernateException
 	{
-		return $.createSQLQuery(queryString);
+		return data.createSQLQuery(queryString);
 	}
 
 	/**
@@ -363,7 +361,7 @@ public class Do
 	@SuppressWarnings("unchecked")
 	public <T>T get(Class<T> clazz, Serializable id) throws HibernateException
 	{
-		return (T)$.get(clazz, id);
+		return (T)data.get(clazz, id);
 	}
 
 	/**
@@ -375,6 +373,6 @@ public class Do
 	 */
 	public String getEntityName(Object object) throws HibernateException
 	{
-		return $.getEntityName(object);
+		return data.getEntityName(object);
 	}
 }
