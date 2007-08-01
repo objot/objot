@@ -1,3 +1,4 @@
+/** Modified for generic entity class */
 package org.hibernate;
 
 import java.util.List;
@@ -10,10 +11,10 @@ import org.hibernate.transform.ResultTransformer;
 
 
 /**
- * Modified for generic entity class. <tt>Criteria</tt> is a simplified API for
- * retrieving entities by composing <tt>Criterion</tt> objects. This is a very
- * convenient approach for functionality like "search" screens where there is a variable
- * number of conditions to be placed upon the result set.<br>
+ * <tt>Criteria</tt> is a simplified API for retrieving entities by composing
+ * <tt>Criterion</tt> objects. This is a very convenient approach for functionality like
+ * "search" screens where there is a variable number of conditions to be placed upon the
+ * result set.<br>
  * <br>
  * The <tt>Session</tt> is a factory for <tt>Criteria</tt>. <tt>Criterion</tt>
  * instances are usually obtained via the factory methods on <tt>Restrictions</tt>. eg.

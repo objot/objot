@@ -27,11 +27,11 @@ public class DoChat
 	 * {@link Chat#datime}(excluded), order by {@link Chat#datime} asc
 	 */
 	@Service
-	public static List<Chat> read(Chat c, Do $) throws Exception
+	public List<Chat> read(Chat c) throws Exception
 	{
-		Criteria<Chat> _ = $.criteria(Chat.class);
+		Criteria<Chat> _ = data.criteria(Chat.class);
 
-		User me = new User().id($.me);
+		User me = new User().id(sess.me);
 		Criterion out = Restrictions.eq("out", me);
 		if (c.in != null)
 			out = Restrictions.and(out, Restrictions.eq("in", c.in));
@@ -45,21 +45,21 @@ public class DoChat
 
 	/** @return with {@link Chat#datime} */
 	@Service
-	public static Chat post(Chat c, Do $) throws Exception
+	public Chat post(Chat c) throws Exception
 	{
-		c.out = new User().id($.me);
+		c.out = new User().id(sess.me);
 		validator(c);
 
 		// List/Set.contains causes fetch rows
 		// // if (! c.in.friends.contains($.load(c.out)))
 		// so count(*)
-		Criteria<?> _ = $.criteria(User.class).setProjection(Projections.rowCount());
+		Criteria<?> _ = data.criteria(User.class).setProjection(Projections.rowCount());
 		_.add(Restrictions.idEq(c.in.id));
 		_.createCriteria("friends").add(Restrictions.idEq(c.out.id));
 		if ((Integer)_.uniqueResult() == 0)
 			throw err("You must be his/her friend");
 		c.datime = new Date();
-		$.save(c);
+		data.save(c);
 		return c;
 	}
 }

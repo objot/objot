@@ -22,14 +22,25 @@ import org.hibernate.validator.InvalidStateException;
 
 import chat.model.ErrUnsigned;
 import chat.model.common.Model;
+import chat.service.Data;
 import chat.service.Do;
+import chat.service.DoChat;
+import chat.service.DoSign;
+import chat.service.DoUser;
+import chat.service.Session;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.servlet.ServletScopes;
 
 
 public final class Servlet
 	extends ObjotServlet
 {
 	int verbose = 1;
-	SessionFactory sessionFactory;
+	SessionFactory dataFactory;
+	Injector container;
 
 	@Override
 	public void init() throws Exception
@@ -37,6 +48,23 @@ public final class Servlet
 		String verb = config.getInitParameter("verbose");
 		verbose = verb != null ? Integer.parseInt(verb) : verbose;
 		Locale.setDefault(Locale.ENGLISH);
+
+		dataFactory = Model.init().buildSessionFactory();
+
+		container = Guice.createInjector(new AbstractModule()
+		{
+			@Override
+			protected void configure()
+			{
+				bindScope(ScopeSession.class, ServletScopes.SESSION);
+				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
+				bind(Session.class);
+				bind(Data.class);
+				bind(DoSign.class);
+				bind(DoUser.class);
+				bind(DoChat.class);
+			}
+		});
 
 		objot = new Objot()
 		{
@@ -53,8 +81,6 @@ public final class Servlet
 				return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 			}
 		};
-
-		sessionFactory = Model.init().buildSessionFactory();
 	}
 
 	@Override
@@ -87,37 +113,36 @@ public final class Servlet
 		}
 
 		@Override
-		public CharSequence go(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
-			throws ErrThrow, Exception
+		public CharSequence serve(char[] req, HttpServletRequest hReq,
+			HttpServletResponse hRes) throws ErrThrow, Exception
 		{
 			if (Servlet.this.verbose > 0)
 				System.out.println(nameVerbose);
-			Do $ = new Do();
 
-			Integer me = (Integer)hReq.getSession().getAttribute("signed");
-			$.me = me;
+			Session sess = container.getInstance(Session.class);
+			SessionImpl data = null;
+			Do s = (Do)container.getInstance(cla);
+
+			Integer me = sess.me;
 			if (sign && me == null)
 				throw Do.err(new ErrUnsigned("not signed in"));
-
 			try
 			{
 				if (tran > 0)
 				{
-					$.data = sessionFactory.openSession();
-					((SessionImpl)$.data).getJDBCContext().borrowConnection() //
-						.setReadOnly(tranRead);
-					((SessionImpl)$.data).getJDBCContext().borrowConnection() //
-						.setTransactionIsolation(tran);
-					$.data.beginTransaction();
+					s.data.data = data = (SessionImpl)dataFactory.openSession();
+					data.getJDBCContext().borrowConnection().setReadOnly(tranRead);
+					data.getJDBCContext().borrowConnection().setTransactionIsolation(tran);
+					data.beginTransaction();
 				}
 				boolean ok = false;
 				try
 				{
 					CharSequence res;
 					if (req == null)
-						res = go(null, hReq, hRes, $);
+						res = serve(s, hReq, hRes);
 					else
-						res = go(null, hReq, hRes, objot.set(req, reqClas[0], cla), $);
+						res = serve(s, hReq, hRes, objot.set(req, reqClas[0], cla));
 					ok = true;
 					return res;
 				}
@@ -131,9 +156,9 @@ public final class Servlet
 						try
 						{
 							if (ok && ! tranRead)
-								$.data.getTransaction().commit();
+								data.getTransaction().commit();
 							else
-								$.data.getTransaction().rollback();
+								data.getTransaction().rollback();
 						}
 						catch (Throwable e)
 						{
@@ -143,15 +168,12 @@ public final class Servlet
 			}
 			finally
 			{
-				if (me != null && $.me == null)
+				if (me != null && sess.me == null)
 					hReq.getSession().invalidate();
-				else if ($.me != me)
-					hReq.getSession().setAttribute("signed", $.me);
-
-				if ($.data != null && $.data.isOpen())
+				if (data != null && data.isOpen())
 					try
 					{
-						$.data.close();
+						data.close();
 					}
 					catch (Throwable e)
 					{

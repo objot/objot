@@ -20,32 +20,32 @@ public class DoSign
 {
 	@Service
 	@Signed(need = false)
-	public static User inUp(User u_, Do $) throws Exception
+	public User inUp(User u_) throws Exception
 	{
 		validator(u_);
-		User u = $.find1(User.class, "name", u_.name);
+		User u = data.find1(User.class, "name", u_.name);
 		// sign up
 		if (u == null)
 		{
 			u = u_;
 			u.friends = new HashSet<User>();
 			u.friends.add(u); // i'm my friend by default
-			$.save(u);
+			data.save(u);
 		}
 		// sign in
 		else if (! u.password.equals(u_.password))
 			throw err("user name or password incorrect");
 		else
 			Hibernate.initialize(u.friends); // for out of session use
-		$.me = u.id;
+		sess.me = u.id;
 		return u;
 	}
 
 	@Service
 	@Signed(need = false)
-	public static Ok out(Do $) throws Exception
+	public Ok out() throws Exception
 	{
-		$.me = null;
+		sess.me = null;
 		return Ok.OK;
 	}
 }
