@@ -1,3 +1,7 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package chat.model.common;
 
 import java.io.File;
@@ -10,6 +14,8 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.util.StringHelper;
 
+import chat.model.Id;
+
 
 public class Model
 {
@@ -18,10 +24,9 @@ public class Model
 		AnnotationConfiguration c = new AnnotationConfiguration();
 		c.setNamingStrategy(new Naming());
 
-		String pkg = Model.class.getPackage().getName();
+		String pkg = Id.class.getPackage().getName();
 		// find the package directory
-		URL url = Model.class.getResource("/" + Model.class.getName().replace('.', '/')
-			+ ".class");
+		URL url = Id.class.getResource("/" + Id.class.getName().replace('.', '/') + ".class");
 		url = new URL(url.toString().substring(0, url.toString().lastIndexOf('/') + 1));
 		if (url.getProtocol().equals("file"))
 		{
