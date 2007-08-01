@@ -52,16 +52,16 @@ public class Serve
 		return objot.get(o, cla);
 	}
 
-	public CharSequence go(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
+	public CharSequence serve(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws ErrThrow, Exception
 	{
 		if (req == null)
-			return go(null, hReq, hRes);
-		return go(null, hReq, hRes, objot.set(req, reqClas[0], cla));
+			return serve(null, hReq, hRes);
+		return serve(null, hReq, hRes, objot.set(req, reqClas[0], cla));
 	}
 
-	public CharSequence go(Object service, HttpServletRequest hReq, HttpServletResponse hRes,
-		Object... reqs) throws ErrThrow, Exception
+	public CharSequence serve(Object service, HttpServletRequest hReq,
+		HttpServletResponse hRes, Object... reqs) throws ErrThrow, Exception
 	{
 		try
 		{
