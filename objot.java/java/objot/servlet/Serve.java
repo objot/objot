@@ -14,7 +14,7 @@ import objot.ErrThrow;
 import objot.Objot;
 
 
-public class Servicing
+public class Serve
 {
 	protected String methodNameDefault = "service";
 
@@ -24,7 +24,7 @@ public class Servicing
 	public Method meth;
 	public Class<?>[] reqClas;
 
-	public Servicing init(Objot o, String name_) throws Exception
+	public Serve init(Objot o, String name_) throws Exception
 	{
 		objot = o;
 		name = name_;
@@ -33,7 +33,7 @@ public class Servicing
 			? methodNameDefault : name.substring(_ + 1));
 	}
 
-	public Servicing init(String claName, String methName) throws Exception
+	public Serve init(String claName, String methName) throws Exception
 	{
 		cla = Class.forName(claName);
 		for (Method m: cla.getMethods())
@@ -46,33 +46,33 @@ public class Servicing
 		throw new Exception("service not found : ".concat(name));
 	}
 
-	public CharSequence get(Object o, HttpServletRequest req, HttpServletResponse res)
+	public CharSequence get(Object o, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws Exception
 	{
 		return objot.get(o, cla);
 	}
 
-	public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
+	public CharSequence go(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws ErrThrow, Exception
 	{
-		if (Q == null)
-			return go(null, req, res);
-		return go(null, req, res, objot.set(Q, reqClas[0], cla));
+		if (req == null)
+			return go(null, hReq, hRes);
+		return go(null, hReq, hRes, objot.set(req, reqClas[0], cla));
 	}
 
-	public CharSequence go(Object service, HttpServletRequest req, HttpServletResponse res,
-		Object... qs) throws ErrThrow, Exception
+	public CharSequence go(Object service, HttpServletRequest hReq, HttpServletResponse hRes,
+		Object... reqs) throws ErrThrow, Exception
 	{
 		try
 		{
-			return get(meth.invoke(service, qs), req, res);
+			return get(meth.invoke(service, reqs), hReq, hRes);
 		}
 		catch (IllegalArgumentException e)
 		{
 			StringBuilder s = new StringBuilder("can not apply (");
-			for (int p = 0; p < qs.length; p++)
+			for (int p = 0; p < reqs.length; p++)
 				s.append(p == 0 ? "" : ", ").append(
-					qs[p] == null ? "null" : qs[p].getClass().getCanonicalName());
+					reqs[p] == null ? "null" : reqs[p].getClass().getCanonicalName());
 			s.append(") to ").append(name).append(e.getMessage() != null ? " : " : "")
 				.append(e.getMessage() != null ? e.getMessage() : "");
 			throw new ErrThrow(null, s.toString());
