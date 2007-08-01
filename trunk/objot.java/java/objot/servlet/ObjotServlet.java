@@ -36,10 +36,10 @@ public class ObjotServlet
 	}
 
 	/** multi thread, will be cached */
-	protected Servicing serviceConfig(String name, HttpServletRequest req,
-		HttpServletResponse res) throws Exception
+	protected Serve getServe(String name, HttpServletRequest req, HttpServletResponse res)
+		throws Exception
 	{
-		return new Servicing().init(objot, name);
+		return new Serve().init(objot, name);
 	}
 
 	/** @see Servlet#destroy() */
@@ -69,8 +69,8 @@ public class ObjotServlet
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-	private ConcurrentHashMap<String, Servicing> cs //
-	= new ConcurrentHashMap<String, Servicing>(128, 0.8f, 32);
+	private ConcurrentHashMap<String, Serve> serves //
+	= new ConcurrentHashMap<String, Serve>(128, 0.8f, 32);
 
 	public void init(ServletConfig c) throws ServletException
 	{
@@ -106,56 +106,56 @@ public class ObjotServlet
 		return getClass().getCanonicalName();
 	}
 
-	public void service(ServletRequest req_, ServletResponse res_)
+	public void service(ServletRequest hReq_, ServletResponse hRes_)
 		throws ServletException, IOException
 	{
-		HttpServletRequest req = (HttpServletRequest)req_;
-		HttpServletResponse res = (HttpServletResponse)res_;
-		res.setContentType("text/plain; charset=UTF-8");
-		res.setHeader("Cache-Control", "no-cache");
+		HttpServletRequest hReq = (HttpServletRequest)hReq_;
+		HttpServletResponse hRes = (HttpServletResponse)hRes_;
+		hRes.setContentType("text/plain; charset=UTF-8");
+		hRes.setHeader("Cache-Control", "no-cache");
 
-		String uri = req.getRequestURI();
-		Servicing conf = null;
-		char[] Q = null;
-		CharSequence S = null;
+		String uri = hReq.getRequestURI();
+		Serve s = null;
+		char[] req = null;
+		CharSequence res = null;
 		try
 		{
 			String name = uri.substring(uri.lastIndexOf('/') + 1);
-			conf = cs.get(name);
-			if (conf == null)
-				cs.put(name, conf = serviceConfig(name, req, res));
-			int len = req.getContentLength();
+			s = serves.get(name);
+			if (s == null)
+				serves.put(name, s = getServe(name, hReq, hRes));
+			int len = hReq.getContentLength();
 			if (len > 0)
 			{
-				InputStream in = req.getInputStream();
+				InputStream in = hReq.getInputStream();
 				byte[] bs = new byte[len];
 				for (int from = 0, done; from < len; from += done)
 					if ((done = in.read(bs, from, len - from)) < 0)
 						throw new EOFException();
-				Q = Objot.utf(bs);
+				req = Objot.utf(bs);
 			}
 			try
 			{
-				S = conf.go(Q, req, res);
+				res = s.go(req, hReq, hRes);
 			}
 			catch (ErrThrow e)
 			{
 				if (e.log)
 					log(e);
-				S = conf.get(e.err, req, res);
+				res = s.get(e.err, hReq, hRes);
 			}
 			catch (Exception e)
 			{
 				log(e);
-				S = conf.get(new Err(e), req, res);
+				res = s.get(new Err(e), hReq, hRes);
 			}
-			if (S == null)
-				res.setContentLength(0);
+			if (res == null)
+				hRes.setContentLength(0);
 			else
 			{
-				byte[] bs = Objot.utf(S);
-				res.setContentLength(bs.length);
-				res.getOutputStream().write(bs);
+				byte[] bs = Objot.utf(res);
+				hRes.setContentLength(bs.length);
+				hRes.getOutputStream().write(bs);
 			}
 		}
 		catch (RuntimeException e)
