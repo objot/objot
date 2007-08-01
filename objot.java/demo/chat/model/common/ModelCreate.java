@@ -1,4 +1,4 @@
-package chat.model;
+package chat.model.common;
 
 import java.io.EOFException;
 import java.io.File;

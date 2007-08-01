@@ -1,4 +1,4 @@
-package chat.model;
+package chat.model.common;
 
 import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 

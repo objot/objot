@@ -1,4 +1,4 @@
-package chat.model;
+package chat.model.common;
 
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
