@@ -1,3 +1,7 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package chat.model.common;
 
 import static java.lang.annotation.ElementType.FIELD;

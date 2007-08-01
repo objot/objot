@@ -17,6 +17,7 @@ import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.impl.SessionImpl;
 import org.hibernate.validator.InvalidStateException;
 
 import chat.model.ErrUnsigned;
@@ -103,8 +104,10 @@ public final class Servlet
 				if (tran > 0)
 				{
 					$.data = sessionFactory.openSession();
-					$.data.connection().setReadOnly(tranRead);
-					$.data.connection().setTransactionIsolation(tran);
+					((SessionImpl)$.data).getJDBCContext().borrowConnection() //
+						.setReadOnly(tranRead);
+					((SessionImpl)$.data).getJDBCContext().borrowConnection() //
+						.setTransactionIsolation(tran);
 					$.data.beginTransaction();
 				}
 				boolean ok = false;
