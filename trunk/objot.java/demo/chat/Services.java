@@ -4,51 +4,72 @@
 //
 package chat;
 
+import static com.google.inject.matcher.Matchers.annotatedWith;
+import static com.google.inject.matcher.Matchers.any;
+import static com.google.inject.matcher.Matchers.not;
+
 import objot.servlet.Service;
+
+import org.hibernate.SessionFactory;
+
 import chat.service.Do;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.ServletScopes;
 
 
 public class Services
 {
-	public static Injector init() throws Exception
+	public static Injector init(final SessionFactory data) throws Exception
 	{
-		Guice.createInjector(new AbstractModule()
+		return Guice.createInjector(new AbstractModule()
 		{
 			@Override
 			protected void configure()
 			{
 				bindScope(ScopeSession.class, ServletScopes.SESSION);
 				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and( //
-					Matchers.not(Matchers.annotatedWith(SignAny.class))), new AspectSign());
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.annotatedWith(TransacSerial.class)), //
-					new AspectTransac(dataFactory, false, false, true));
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.annotatedWith(TransacRepeat.class)).and(
-					Matchers.not(Matchers.annotatedWith(TransacSerial.class))), //
-					new AspectTransac(dataFactory, false, true, false));
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.annotatedWith(TransacReadonly.class)).and(
-					Matchers.not(Matchers.annotatedWith(TransacCommit.class).or(
-						Matchers.annotatedWith(TransacRepeat.class)).or(
-						Matchers.annotatedWith(TransacSerial.class)))), //
-					new AspectTransac(dataFactory, true, false, false));
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.not(Matchers.annotatedWith(TransacAny.class).or(
-						Matchers.annotatedWith(TransacReadonly.class)).or(
-						Matchers.annotatedWith(TransacRepeat.class)).or(
-						Matchers.annotatedWith(TransacSerial.class)))), //
-					new AspectTransac(dataFactory, false, false, false));
+
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					not(annotatedWith(SignAny.class))), //
+					new AspectSign());
+
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					annotatedWith(TransacReadonly.class)).and(
+					annotatedWith(TransacSerial.class)), //
+					new AspectTransac(data, true, false, true));
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					annotatedWith(TransacSerial.class)), //
+					new AspectTransac(data, false, false, true));
+
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					annotatedWith(TransacReadonly.class)).and(
+					annotatedWith(TransacCommit.class)).and(
+					not(annotatedWith(TransacRepeat.class))).and(
+					not(annotatedWith(TransacSerial.class))), //
+					new AspectTransac(data, true, true, false));
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					annotatedWith(TransacCommit.class)).and(
+					not(annotatedWith(TransacRepeat.class))).and(
+					not(annotatedWith(TransacSerial.class))), //
+					new AspectTransac(data, false, true, false));
+
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					annotatedWith(TransacReadonly.class)).and(
+					not(annotatedWith(TransacCommit.class))).and(
+					not(annotatedWith(TransacSerial.class))), //
+					new AspectTransac(data, true, false, false));
+				bindInterceptor(any(), annotatedWith(Service.class).and(
+					not(annotatedWith(TransacAny.class))).and(
+					not(annotatedWith(TransacReadonly.class))).and(
+					not(annotatedWith(TransacCommit.class))).and(
+					not(annotatedWith(TransacSerial.class))), //
+					new AspectTransac(data, false, false, false));
 				try
 				{
-					for (Class<?> c: PackageClass.getClasses(Do.class))
+					for (Class<?> c: Models.getPackageClasses(Do.class))
 						bind(c);
 				}
 				catch (RuntimeException e)

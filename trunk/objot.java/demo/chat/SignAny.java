@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** for service, signed or unsigned. must be signed if no this annotation */
+/** service in signed or unsigned session, and in signed session if no this annotation */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SignAny

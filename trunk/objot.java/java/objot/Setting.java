@@ -162,6 +162,11 @@ final class Setting
 			{
 				throw new UnsupportedOperationException();
 			}
+
+			@SuppressWarnings("unused")
+			public void free()
+			{
+			}
 		};
 	}
 
@@ -210,7 +215,7 @@ final class Setting
 		int[] li = null;
 		long[] ll = null;
 		Object[] lo = null;
-		Object l = null; // be boolean[] int[] long[] or Object[] except java.util.Set 
+		Object l = null; // be boolean[] int[] long[] or Object[] except java.util.Set
 		if (listClass != null)
 		{
 			// ArrayList's field "array" should be "protected"
