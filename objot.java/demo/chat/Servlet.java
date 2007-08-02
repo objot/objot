@@ -15,18 +15,18 @@ import objot.Errs;
 import objot.Objot;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
+import objot.servlet.Service;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.impl.SessionImpl;
 import org.hibernate.validator.InvalidStateException;
 
-import chat.model.ErrUnsigned;
 import chat.service.Do;
 import chat.service.Session;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.matcher.Matchers;
 import com.google.inject.servlet.ServletScopes;
 
 
@@ -34,8 +34,8 @@ public final class Servlet
 	extends ObjotServlet
 {
 	int verbose = 1;
-	SessionFactory dataFactory;
 	Injector container;
+	SessionFactory dataFactory;
 
 	@Override
 	public void init() throws Exception
@@ -53,6 +53,27 @@ public final class Servlet
 			{
 				bindScope(ScopeSession.class, ServletScopes.SESSION);
 				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
+				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and( //
+					Matchers.not(Matchers.annotatedWith(SignAny.class))), new AspectSign());
+				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
+					Matchers.annotatedWith(TransacSerial.class)), //
+					new AspectTransac(dataFactory, false, false, true));
+				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
+					Matchers.annotatedWith(TransacRepeat.class)).and(
+					Matchers.not(Matchers.annotatedWith(TransacSerial.class))), //
+					new AspectTransac(dataFactory, false, true, false));
+				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
+					Matchers.annotatedWith(TransacReadonly.class)).and(
+					Matchers.not(Matchers.annotatedWith(TransacCommit.class).or(
+						Matchers.annotatedWith(TransacRepeat.class)).or(
+						Matchers.annotatedWith(TransacSerial.class)))), //
+					new AspectTransac(dataFactory, true, false, false));
+				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
+					Matchers.not(Matchers.annotatedWith(TransacAny.class).or(
+						Matchers.annotatedWith(TransacReadonly.class)).or(
+						Matchers.annotatedWith(TransacRepeat.class)).or(
+						Matchers.annotatedWith(TransacSerial.class)))), //
+					new AspectTransac(dataFactory, false, false, false));
 				try
 				{
 					for (Class<?> c: PackageClass.getClasses(Do.class))
@@ -97,9 +118,6 @@ public final class Servlet
 		extends Serve
 	{
 		String nameVerbose;
-		boolean sign;
-		int tran;
-		boolean tranRead;
 
 		@Override
 		public S init(String claName, String methName) throws Exception
@@ -107,11 +125,6 @@ public final class Servlet
 			super.init("chat.service.".concat(claName), methName);
 			if (Servlet.this.verbose > 0)
 				nameVerbose = "\n-------------------- " + name + " --------------------";
-			SignAny s = meth.getAnnotation(SignAny.class);
-			sign = s == null || s.need();
-			TransacAny t = meth.getAnnotation(TransacAny.class);
-			tran = t == null ? TransacAny.DEFAULT : t.level();
-			tranRead = t != null && t.readOnly();
 			return this;
 		}
 
@@ -122,66 +135,30 @@ public final class Servlet
 			if (Servlet.this.verbose > 0)
 				System.out.println(nameVerbose);
 
-			Session sess = container.getInstance(Session.class);
-			SessionImpl data = null;
 			Do s = (Do)container.getInstance(cla);
-
+			Session sess = s.sess;
 			Integer me = sess.me;
-			if (sign && me == null)
-				throw Do.err(new ErrUnsigned("not signed in"));
+			boolean ok = false;
 			try
 			{
-				if (tran > 0)
-				{
-					s.data.data = data = (SessionImpl)dataFactory.openSession();
-					data.getJDBCContext().borrowConnection().setReadOnly(tranRead);
-					data.getJDBCContext().borrowConnection().setTransactionIsolation(tran);
-					data.beginTransaction();
-				}
-				boolean ok = false;
-				try
-				{
-					CharSequence res;
-					if (req == null)
-						res = serve(s, hReq, hRes);
-					else
-						res = serve(s, hReq, hRes, objot.set(req, reqClas[0], cla));
-					ok = true;
-					return res;
-				}
-				catch (InvalidStateException e)
-				{
-					throw Do.err(new Errs(e.getInvalidValues()));
-				}
-				finally
-				{
-					if (tran > 0)
-						try
-						{
-							if (ok && ! tranRead)
-								data.getTransaction().commit();
-							else
-								data.getTransaction().rollback();
-						}
-						catch (Throwable e)
-						{
-							Servlet.this.log(e);
-						}
-				}
+				CharSequence res;
+				if (req == null)
+					res = serve(s, hReq, hRes);
+				else
+					res = serve(s, hReq, hRes, objot.set(req, reqClas[0], cla));
+				ok = true;
+				return res;
+			}
+			catch (InvalidStateException e)
+			{
+				throw Do.err(new Errs(e.getInvalidValues()));
 			}
 			finally
 			{
 				if (me != null && sess.me == null)
 					hReq.getSession().invalidate();
-				if (data != null && data.isOpen())
-					try
-					{
-						data.close();
-					}
-					catch (Throwable e)
-					{
-						Servlet.this.log(e);
-					}
+				// like open session in view
+				AspectTransac.invokeFinally(s.data, ok, Servlet.this);
 			}
 		}
 	}
