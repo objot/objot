@@ -10,16 +10,16 @@ import objot.servlet.Service;
 
 import org.hibernate.Hibernate;
 
+import chat.SignAny;
 import chat.model.Ok;
 import chat.model.User;
-import chat.service.common.Signed;
 
 
 public class DoSign
 	extends Do
 {
 	@Service
-	@Signed(need = false)
+	@SignAny
 	public User inUp(User u_) throws Exception
 	{
 		validator(u_);
@@ -42,7 +42,7 @@ public class DoSign
 	}
 
 	@Service
-	@Signed(need = false)
+	@SignAny
 	public Ok out() throws Exception
 	{
 		sess.me = null;

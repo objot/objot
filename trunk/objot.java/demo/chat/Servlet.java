@@ -2,7 +2,7 @@
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
-package chat.service.common;
+package chat;
 
 import java.util.Locale;
 
@@ -21,12 +21,7 @@ import org.hibernate.impl.SessionImpl;
 import org.hibernate.validator.InvalidStateException;
 
 import chat.model.ErrUnsigned;
-import chat.model.common.Model;
-import chat.service.Data;
 import chat.service.Do;
-import chat.service.DoChat;
-import chat.service.DoSign;
-import chat.service.DoUser;
 import chat.service.Session;
 
 import com.google.inject.AbstractModule;
@@ -58,11 +53,19 @@ public final class Servlet
 			{
 				bindScope(ScopeSession.class, ServletScopes.SESSION);
 				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
-				bind(Session.class);
-				bind(Data.class);
-				bind(DoSign.class);
-				bind(DoUser.class);
-				bind(DoChat.class);
+				try
+				{
+					for (Class<?> c: PackageClass.getClasses(Do.class))
+						bind(c);
+				}
+				catch (RuntimeException e)
+				{
+					throw e;
+				}
+				catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
 			}
 		});
 
@@ -104,10 +107,10 @@ public final class Servlet
 			super.init("chat.service.".concat(claName), methName);
 			if (Servlet.this.verbose > 0)
 				nameVerbose = "\n-------------------- " + name + " --------------------";
-			Signed s = meth.getAnnotation(Signed.class);
+			SignAny s = meth.getAnnotation(SignAny.class);
 			sign = s == null || s.need();
-			Transac t = meth.getAnnotation(Transac.class);
-			tran = t == null ? Transac.DEFAULT : t.level();
+			TransacAny t = meth.getAnnotation(TransacAny.class);
+			tran = t == null ? TransacAny.DEFAULT : t.level();
 			tranRead = t != null && t.readOnly();
 			return this;
 		}

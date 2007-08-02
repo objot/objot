@@ -6,7 +6,7 @@ package chat.service;
 
 import java.io.Serializable;
 
-import chat.service.common.ScopeSession;
+import chat.ScopeSession;
 
 
 @ScopeSession
