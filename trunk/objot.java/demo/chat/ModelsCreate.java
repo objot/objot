@@ -14,6 +14,7 @@ import org.hibernate.impl.SessionImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import chat.model.Id;
+import chat.model.IdAuto;
 import chat.model.User;
 import chat.service.Data;
 
@@ -86,14 +87,20 @@ public class ModelsCreate
 		}
 	}
 
+	/** @return object with specified id, may be detached */
 	static <T extends Id<T>>T persist(Data d, T o, int id) throws Exception
 	{
-		d.persist(o);
-		String q = "update " + d.getEntityName(o) + " set id=" + id + " where id=?";
-		d.evict(o);
-		if (d.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
-			throw new Exception("failed persist " + o + " with id = " + id);
-		o.id(id);
+		if (o instanceof IdAuto)
+		{
+			d.persist(o);
+			String q = "update " + d.getEntityName(o) + " set id=" + id + " where id=?";
+			d.evict(o);
+			if (d.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
+				throw new Exception("failed persist " + o + " with id = " + id);
+			o.id(id);
+		}
+		else
+			d.persist(o.id(id));
 		return o;
 	}
 
