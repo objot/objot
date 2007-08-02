@@ -11,7 +11,7 @@ import org.hibernate.util.StringHelper;
 import chat.model.Id;
 
 
-public class Model
+public class Models
 {
 	public static AnnotationConfiguration init() throws Exception
 	{
