@@ -10,8 +10,8 @@ import objot.servlet.Service;
 
 import org.hibernate.Hibernate;
 
-import chat.SignAny;
-import chat.TransacAny;
+import chat.Sign;
+import chat.Transac;
 import chat.model.Ok;
 import chat.model.User;
 
@@ -20,7 +20,7 @@ public class DoSign
 	extends Do
 {
 	@Service
-	@SignAny
+	@Sign.Any
 	public User inUp(User u_) throws Exception
 	{
 		validator(u_);
@@ -44,8 +44,8 @@ public class DoSign
 	}
 
 	@Service
-	@SignAny
-	@TransacAny
+	@Sign.Any
+	@Transac.Any
 	public Ok out() throws Exception
 	{
 		sess.me = null;

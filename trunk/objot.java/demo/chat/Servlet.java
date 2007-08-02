@@ -109,7 +109,7 @@ public final class Servlet
 				if (me != null && sess.me == null)
 					hReq.getSession().invalidate();
 				// like open session in view
-				AspectTransac.invokeFinally(s.data, ok, Servlet.this);
+				Transac.Aspect.invokeFinally(s.data, ok, Servlet.this);
 			}
 		}
 	}

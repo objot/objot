@@ -15,7 +15,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import chat.TransacReadonly;
+import chat.Transac;
 import chat.model.Chat;
 import chat.model.User;
 
@@ -28,7 +28,7 @@ public class DoChat
 	 * {@link Chat#datime}(excluded), order by {@link Chat#datime} asc
 	 */
 	@Service
-	@TransacReadonly
+	@Transac.Readonly
 	public List<Chat> read(Chat c) throws Exception
 	{
 		Criteria<Chat> _ = data.criteria(Chat.class);
