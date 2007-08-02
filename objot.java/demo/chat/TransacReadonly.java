@@ -10,7 +10,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** for service, must in a readonly or writable transaction */
+/**
+ * service in readonly or writable transaction, and in writable transaction if no this
+ * annotation
+ */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface TransacReadonly

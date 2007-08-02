@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** for service, must in a writable transaction with repeatable read isolation or higher */
+/** service in transaction with repeatable read isolation or higher, by default */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface TransacRepeat

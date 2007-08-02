@@ -9,7 +9,7 @@ import org.hibernate.tool.hbm2ddl.SchemaUpdate;
 
 public class ModelsUpdate
 {
-	/** @param args whether to export, false by default */
+	/** @param args whether to execute, false by default */
 	public static void main(String... args) throws Exception
 	{
 		SchemaUpdate sch = new SchemaUpdate(Models.init());

@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * for service, no transaction or any transaction. must in a transaction if no this
+ * service in no transaction or any transaction, and in suitable transaction if no this
  * annotation
  */
 @Retention(RetentionPolicy.RUNTIME)

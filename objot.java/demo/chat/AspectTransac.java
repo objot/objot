@@ -1,3 +1,7 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package chat;
 
 import java.sql.Connection;
@@ -17,15 +21,16 @@ public class AspectTransac
 	implements MethodInterceptor
 {
 	SessionFactory dataFactory;
-	/** 0 for readonly */
+	boolean read;
 	int isolation;
 
-	public AspectTransac(SessionFactory data, boolean readonly, boolean repeat, boolean serial)
+	public AspectTransac(SessionFactory data, boolean readonly, boolean commit, boolean serial)
 	{
 		dataFactory = data;
+		read = readonly;
 		isolation = serial ? Connection.TRANSACTION_SERIALIZABLE //
-			: repeat ? Connection.TRANSACTION_REPEATABLE_READ : readonly ? 0
-				: Connection.TRANSACTION_READ_COMMITTED;
+			: commit ? Connection.TRANSACTION_READ_COMMITTED
+				: Connection.TRANSACTION_REPEATABLE_READ;
 	}
 
 	/** open hibernate session, begin transaction */
@@ -37,7 +42,7 @@ public class AspectTransac
 			data.data = hib = (SessionImpl)dataFactory.openSession();
 		if (hib.getTransaction().isActive())
 		{
-			if (isolation > 0 && hib.getJDBCContext().borrowConnection().isReadOnly())
+			if (! read && hib.getJDBCContext().borrowConnection().isReadOnly())
 				throw new Exception("transaction of " + meth + " must be writable");
 			if (isolation > hib.getJDBCContext().borrowConnection().getTransactionIsolation())
 				throw new Exception("transaction of " + meth
@@ -47,7 +52,7 @@ public class AspectTransac
 							? "repeatable read" : "read committed") + " isolation");
 			return meth.proceed();
 		}
-		hib.getJDBCContext().borrowConnection().setReadOnly(isolation == 0);
+		hib.getJDBCContext().borrowConnection().setReadOnly(read);
 		if (isolation > 0)
 			hib.getJDBCContext().borrowConnection().setTransactionIsolation(isolation);
 		hib.beginTransaction();

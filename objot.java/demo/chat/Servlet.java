@@ -15,7 +15,6 @@ import objot.Errs;
 import objot.Objot;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
-import objot.servlet.Service;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.validator.InvalidStateException;
@@ -23,11 +22,7 @@ import org.hibernate.validator.InvalidStateException;
 import chat.service.Do;
 import chat.service.Session;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.matcher.Matchers;
-import com.google.inject.servlet.ServletScopes;
 
 
 public final class Servlet
@@ -45,7 +40,7 @@ public final class Servlet
 		Locale.setDefault(Locale.ENGLISH);
 
 		dataFactory = Models.init().buildSessionFactory();
-		container = Services.init();
+		container = Services.init(dataFactory);
 		objot = new Objot()
 		{
 			@Override
