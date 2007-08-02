@@ -13,6 +13,8 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.impl.SessionImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import chat.model.Id;
+import chat.model.User;
 import chat.service.Data;
 
 
@@ -23,6 +25,7 @@ public class ModelsCreate
 	{
 		boolean execute = args.length < 1 ? false : Boolean.valueOf(args[0]);
 		AnnotationConfiguration config = Models.init();
+		config.setProperty("hibernate.format_sql", "true");
 		SchemaExport sch = new SchemaExport(config);
 		String name = File.createTempFile(ModelsCreate.class.getName(), "")
 			.getCanonicalPath();
@@ -46,6 +49,9 @@ public class ModelsCreate
 		{
 			Thread.sleep(300);
 			config.setProperty("hibernate.hbm2ddl.auto", "false");
+			config.setProperty("hibernate.cache.use_second_level_cache", "false");
+			config.setProperty("hibernate.cache.use_query_cache", "false");
+			config.setProperty("hibernate.format_sql", "false");
 			SessionImpl hib = (SessionImpl)config.buildSessionFactory().openSession();
 			try
 			{
@@ -80,7 +86,22 @@ public class ModelsCreate
 		}
 	}
 
+	static <T extends Id<T>>T persist(Data d, T o, int id) throws Exception
+	{
+		d.persist(o);
+		String q = "update " + d.getEntityName(o) + " set id=" + id + " where id=?";
+		d.evict(o);
+		if (d.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
+			throw new Exception("failed persist " + o + " with id = " + id);
+		o.id(id);
+		return o;
+	}
+
 	public static void init(Data data) throws Exception
 	{
+		User foo = new User();
+		foo.name = "foo";
+		foo.password = "foo";
+		persist(data, foo, 11);
 	}
 }

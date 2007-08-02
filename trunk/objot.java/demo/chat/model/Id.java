@@ -6,7 +6,11 @@ package chat.model;
 
 public abstract class Id<T extends Id<T>>
 {
-	/** @return 0 if id == null, or id */
+	/**
+	 * get identifier, the identifier property name must be "id"
+	 * 
+	 * @return 0 if id == null, or id
+	 */
 	public abstract int id();
 
 	/**
