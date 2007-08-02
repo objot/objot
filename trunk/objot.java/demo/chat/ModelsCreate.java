@@ -11,13 +11,13 @@ import java.io.FileReader;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 
-public class ModelCreate
+public class ModelsCreate
 {
 	/** @param args whether to export, whether generate drop, false by default */
 	public static void main(String... args) throws Exception
 	{
-		SchemaExport sch = new SchemaExport(Model.init());
-		String name = File.createTempFile(ModelCreate.class.getName(), "").getCanonicalPath();
+		SchemaExport sch = new SchemaExport(Models.init());
+		String name = File.createTempFile(ModelsCreate.class.getName(), "").getCanonicalPath();
 		sch.setOutputFile(name);
 		sch.execute(false, args.length < 1 ? false : Boolean.valueOf(args[0]), //
 			false, args.length < 2 ? true : ! Boolean.valueOf(args[1]));

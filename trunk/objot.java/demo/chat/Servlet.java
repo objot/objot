@@ -44,52 +44,8 @@ public final class Servlet
 		verbose = verb != null ? Integer.parseInt(verb) : verbose;
 		Locale.setDefault(Locale.ENGLISH);
 
-		dataFactory = Model.init().buildSessionFactory();
-
-		container = Guice.createInjector(new AbstractModule()
-		{
-			@Override
-			protected void configure()
-			{
-				bindScope(ScopeSession.class, ServletScopes.SESSION);
-				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and( //
-					Matchers.not(Matchers.annotatedWith(SignAny.class))), new AspectSign());
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.annotatedWith(TransacSerial.class)), //
-					new AspectTransac(dataFactory, false, false, true));
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.annotatedWith(TransacRepeat.class)).and(
-					Matchers.not(Matchers.annotatedWith(TransacSerial.class))), //
-					new AspectTransac(dataFactory, false, true, false));
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.annotatedWith(TransacReadonly.class)).and(
-					Matchers.not(Matchers.annotatedWith(TransacCommit.class).or(
-						Matchers.annotatedWith(TransacRepeat.class)).or(
-						Matchers.annotatedWith(TransacSerial.class)))), //
-					new AspectTransac(dataFactory, true, false, false));
-				bindInterceptor(Matchers.any(), Matchers.annotatedWith(Service.class).and(
-					Matchers.not(Matchers.annotatedWith(TransacAny.class).or(
-						Matchers.annotatedWith(TransacReadonly.class)).or(
-						Matchers.annotatedWith(TransacRepeat.class)).or(
-						Matchers.annotatedWith(TransacSerial.class)))), //
-					new AspectTransac(dataFactory, false, false, false));
-				try
-				{
-					for (Class<?> c: PackageClass.getClasses(Do.class))
-						bind(c);
-				}
-				catch (RuntimeException e)
-				{
-					throw e;
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-			}
-		});
-
+		dataFactory = Models.init().buildSessionFactory();
+		container = Services.init();
 		objot = new Objot()
 		{
 			@Override
