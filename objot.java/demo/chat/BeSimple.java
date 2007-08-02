@@ -2,14 +2,12 @@
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
-package chat.model.common;
-
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+package chat;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Clob;
 import java.sql.SQLException;
@@ -24,10 +22,10 @@ import org.hibernate.validator.Validator;
 import org.hibernate.validator.ValidatorClass;
 
 
-@Documented
 @ValidatorClass(BeSimple.V.class)
-@Target( { METHOD, FIELD })
-@Retention(RUNTIME)
+@Retention(RetentionPolicy.RUNTIME)
+@Target( { ElementType.METHOD, ElementType.FIELD })
+@Documented
 public @interface BeSimple
 {
 	int min() default 1;

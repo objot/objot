@@ -1,4 +1,6 @@
-package chat.service.common;
+package chat;
+
+import com.google.inject.ScopeAnnotation;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -7,15 +9,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.google.inject.ScopeAnnotation;
 
-
-/** one instance per service session. */
+/** one instance per service request */
 @Target( { ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 @ScopeAnnotation
-public @interface ScopeSession
+public @interface ScopeRequest
 {
 }

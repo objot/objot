@@ -14,7 +14,7 @@ import objot.Errs;
 import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
 
-import chat.service.common.ScopeRequest;
+import chat.ScopeRequest;
 
 import com.google.inject.Inject;
 

@@ -17,7 +17,7 @@ import org.hibernate.Transaction;
 import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Restrictions;
 
-import chat.service.common.ScopeRequest;
+import chat.ScopeRequest;
 
 
 /** Delegated {@link org.hibernate.Session} */
