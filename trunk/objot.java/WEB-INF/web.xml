@@ -10,7 +10,7 @@
 
 	<servlet>
 		<servlet-name>servlet</servlet-name>
-		<servlet-class>chat.service.common.Servlet</servlet-class>
+		<servlet-class>chat.Servlet</servlet-class>
 		<init-param>
 			<param-name>verbose</param-name>
 			<param-value>1</param-value>

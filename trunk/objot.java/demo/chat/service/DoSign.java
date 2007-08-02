@@ -11,6 +11,7 @@ import objot.servlet.Service;
 import org.hibernate.Hibernate;
 
 import chat.SignAny;
+import chat.TransacAny;
 import chat.model.Ok;
 import chat.model.User;
 
@@ -38,11 +39,13 @@ public class DoSign
 		else
 			Hibernate.initialize(u.friends); // for out of session use
 		sess.me = u.id;
+		System.out.println(u.friends.size());
 		return u;
 	}
 
 	@Service
 	@SignAny
+	@TransacAny
 	public Ok out() throws Exception
 	{
 		sess.me = null;
