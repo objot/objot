@@ -6,7 +6,7 @@ package chat.service;
 
 import objot.servlet.Service;
 
-import chat.TransacReadonly;
+import chat.Transac;
 import chat.model.Ok;
 import chat.model.User;
 
@@ -16,7 +16,7 @@ public class DoUser
 {
 	/** @return me with {@link User#friends_} */
 	@Service
-	@TransacReadonly
+	@Transac.Readonly
 	public User me() throws Exception
 	{
 		User me = data.load(User.class, sess.me);
@@ -42,7 +42,7 @@ public class DoUser
 	 * @return array of User or null if not found
 	 */
 	@Service
-	@TransacReadonly
+	@Transac.Readonly
 	public User[] get(User[] us) throws Exception
 	{
 		for (int i = 0; i < us.length; i++)

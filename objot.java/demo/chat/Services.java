@@ -33,40 +33,40 @@ public class Services
 				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
 
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					not(annotatedWith(SignAny.class))), //
-					new AspectSign());
+					not(annotatedWith(Sign.Any.class))), //
+					new Sign.Aspect());
 
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					annotatedWith(TransacReadonly.class)).and(
-					annotatedWith(TransacSerial.class)), //
-					new AspectTransac(data, true, false, true));
+					annotatedWith(Transac.Readonly.class)).and(
+					annotatedWith(Transac.Serial.class)), //
+					new Transac.Aspect(data, true, false, true));
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					annotatedWith(TransacSerial.class)), //
-					new AspectTransac(data, false, false, true));
+					annotatedWith(Transac.Serial.class)), //
+					new Transac.Aspect(data, false, false, true));
 
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					annotatedWith(TransacReadonly.class)).and(
-					annotatedWith(TransacCommit.class)).and(
-					not(annotatedWith(TransacRepeat.class))).and(
-					not(annotatedWith(TransacSerial.class))), //
-					new AspectTransac(data, true, true, false));
+					annotatedWith(Transac.Readonly.class)).and(
+					annotatedWith(Transac.Commit.class)).and(
+					not(annotatedWith(Transac.Repeat.class))).and(
+					not(annotatedWith(Transac.Serial.class))), //
+					new Transac.Aspect(data, true, true, false));
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					annotatedWith(TransacCommit.class)).and(
-					not(annotatedWith(TransacRepeat.class))).and(
-					not(annotatedWith(TransacSerial.class))), //
-					new AspectTransac(data, false, true, false));
+					annotatedWith(Transac.Commit.class)).and(
+					not(annotatedWith(Transac.Repeat.class))).and(
+					not(annotatedWith(Transac.Serial.class))), //
+					new Transac.Aspect(data, false, true, false));
 
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					annotatedWith(TransacReadonly.class)).and(
-					not(annotatedWith(TransacCommit.class))).and(
-					not(annotatedWith(TransacSerial.class))), //
-					new AspectTransac(data, true, false, false));
+					annotatedWith(Transac.Readonly.class)).and(
+					not(annotatedWith(Transac.Commit.class))).and(
+					not(annotatedWith(Transac.Serial.class))), //
+					new Transac.Aspect(data, true, false, false));
 				bindInterceptor(any(), annotatedWith(Service.class).and(
-					not(annotatedWith(TransacAny.class))).and(
-					not(annotatedWith(TransacReadonly.class))).and(
-					not(annotatedWith(TransacCommit.class))).and(
-					not(annotatedWith(TransacSerial.class))), //
-					new AspectTransac(data, false, false, false));
+					not(annotatedWith(Transac.Any.class))).and(
+					not(annotatedWith(Transac.Readonly.class))).and(
+					not(annotatedWith(Transac.Commit.class))).and(
+					not(annotatedWith(Transac.Serial.class))), //
+					new Transac.Aspect(data, false, false, false));
 				try
 				{
 					for (Class<?> c: Models.getPackageClasses(Do.class))
