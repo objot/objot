@@ -117,6 +117,12 @@ final class Setting
 				return new StringReader(s);
 			}
 
+			@SuppressWarnings("unused")
+			public Reader getCharacterStream(long pos, long length)
+			{
+				throw new UnsupportedOperationException();
+			}
+
 			public String getSubString(long pos, int length)
 			{
 				int x = (int)Math.min(pos - 1, Integer.MAX_VALUE);
