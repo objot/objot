@@ -320,21 +320,42 @@ $this = function (dom, o) {
 }
 	$fox && ($dom.$dom = false); // for dom node's constructor, be false for event attach
 
-	(function (s1, f1, s2, f2) {
-		$dom.$ = '';
-		for (var x in s1)
-			$dom.$ += x + '=' + f1.replace(/#/g, s1[x]) + '\n';
-		for (var x in s2)
-			$dom.$ += x + '=' + f2.replace(/#/g, s2[x]) + '\n';
-	})(
-{ $a:'a', $s:'span', $br:'br', $l:'label', $d:'div', $p:'p',
-  $tab:'table', $tb:'tbody', $tr:'tr', $td:'td',
-  $img:'img', $ul:'ul', $ol:'ol', $li:'li', $h1:'h1', $h2:'h2', $h3:'h3', $h4:'h4',
-  $bn:'button', $inp:'input', $sel:'select', $opt:'option', $lns:'textarea' },
-	"function () {\n	return $doms('#', arguments);\n}",
-{ $ln:'text', $chk:'check', $rad:'radio' },
-	"function () {\n	return $doms('input', arguments).att('type', '#');\n}"
-	), eval($dom.$), delete $dom.$;
+with ($)
+{
+$._ = function (n) { return function () {
+	return $doms(n, arguments);
+}}
+$a = _('a');
+$s = _('span');
+$br = _('br');
+$l = _('label');
+$d = _('div');
+$p = _('p');
+$tab = _('table');
+$tb = _('tbody');
+$tr = _('tr');
+$td = _('td');
+$img = _('img');
+$ul = _('ul');
+$ol = _('ol');
+$li = _('li');
+$h1 = _('h1');
+$h2 = _('h2');
+$h3 = _('h3');
+$h4 = _('h4');
+$bn = _('button');
+$inp = _('input');
+$sel = _('select');
+$opt = _('option');
+$lns = _('textarea');
+$._ = function (t) { return function () {
+	return $doms('input', arguments).att('type', t);
+}}
+$ln = _('text');
+$chk = _('check');
+$rad = _('radio');
+delete _;
+}
 /** <a href=javascript://>... */
 $a0 = function () {
 	return $doms('a', arguments).att('href', 'javascript://');
