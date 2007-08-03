@@ -1,4 +1,4 @@
-#Thu Aug 02 20:40:47 HKT 2007
+#Fri Aug 03 16:08:14 HKT 2007
 eclipse.preferences.version=1
 formatter_profile=_Objot
 formatter_settings_version=10
@@ -6,7 +6,7 @@ internal.default.compliance=default
 org.eclipse.jdt.ui.exception.name=e
 org.eclipse.jdt.ui.gettersetter.use.is=true
 org.eclipse.jdt.ui.ignorelowercasenames=true
-org.eclipse.jdt.ui.importorder=java;javax;objot;chat;
+org.eclipse.jdt.ui.importorder=objot;chat;
 org.eclipse.jdt.ui.javadoc=false
 org.eclipse.jdt.ui.keywordthis=false
 org.eclipse.jdt.ui.ondemandthreshold=99

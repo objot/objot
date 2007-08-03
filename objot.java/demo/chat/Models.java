@@ -10,7 +10,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
-
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.util.StringHelper;
