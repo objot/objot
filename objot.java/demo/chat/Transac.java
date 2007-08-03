@@ -62,17 +62,24 @@ public class Transac
 	public static class Aspect
 		implements MethodInterceptor
 	{
-		SessionFactory dataFactory;
 		boolean read;
 		int isolation;
+		SessionFactory dataFactory;
+		boolean evict;
 
-		public Aspect(SessionFactory d, boolean readonly, boolean commit, boolean serial)
+		/**
+		 * @param evict_ see {@link org.hibernate.Session#flush} and
+		 *            {@link org.hibernate.Session#clear}
+		 */
+		public Aspect(boolean readonly, boolean commit, boolean serial, SessionFactory d,
+			boolean evict_)
 		{
-			dataFactory = d;
 			read = readonly;
 			isolation = serial ? Connection.TRANSACTION_SERIALIZABLE //
 				: commit ? Connection.TRANSACTION_READ_COMMITTED
 					: Connection.TRANSACTION_REPEATABLE_READ;
+			dataFactory = d;
+			evict = evict_;
 		}
 
 		/** open hibernate session, begin transaction */
@@ -99,7 +106,13 @@ public class Transac
 			if (isolation > 0)
 				hib.getJDBCContext().borrowConnection().setTransactionIsolation(isolation);
 			hib.beginTransaction();
-			return meth.proceed();
+			Object o = meth.proceed();
+			if (evict)
+			{
+				hib.flush();
+				hib.clear();
+			}
+			return o;
 		}
 
 		/**

@@ -19,6 +19,7 @@ import objot.servlet.Serve;
 import org.hibernate.SessionFactory;
 import org.hibernate.validator.InvalidStateException;
 
+import chat.model.Id;
 import chat.service.Do;
 import chat.service.Session;
 
@@ -40,13 +41,15 @@ public final class Servlet
 		Locale.setDefault(Locale.ENGLISH);
 
 		dataFactory = Models.init().buildSessionFactory();
-		container = Services.init(dataFactory);
+		container = Services.init(dataFactory, false);
 		objot = new Objot()
 		{
+			String modelPrefix = Id.class.getPackage().getName() + ".";
+
 			@Override
 			protected Class<?> classByName(String name) throws Exception
 			{
-				return Class.forName("chat.model.".concat(name));
+				return Class.forName(modelPrefix.concat(name));
 			}
 
 			/** include {@link Err} and {@link Errs} */

@@ -27,6 +27,7 @@ public class ModelsCreate
 		boolean execute = args.length < 1 ? false : Boolean.valueOf(args[0]);
 		AnnotationConfiguration config = Models.init();
 		config.setProperty("hibernate.format_sql", "true");
+
 		SchemaExport sch = new SchemaExport(config);
 		String name = File.createTempFile(ModelsCreate.class.getName(), "")
 			.getCanonicalPath();
@@ -59,9 +60,10 @@ public class ModelsCreate
 				hib.getJDBCContext().borrowConnection().setTransactionIsolation(
 					Connection.TRANSACTION_SERIALIZABLE);
 				hib.beginTransaction();
-				Data data = new Data();
-				data.data = hib;
-				init(data);
+				ModelsCreate m = new ModelsCreate();
+				m.data = new Data();
+				m.data.data = hib;
+				m.init();
 				hib.getTransaction().commit();
 			}
 			finally
@@ -87,28 +89,30 @@ public class ModelsCreate
 		}
 	}
 
+	Data data;
+
 	/** @return object with specified id, may be detached */
-	static <T extends Id<T>>T persist(Data d, T o, int id) throws Exception
+	<T extends Id<T>>T persist(T o, int id) throws Exception
 	{
 		if (o instanceof IdAuto)
 		{
-			d.persist(o);
-			String q = "update " + d.getEntityName(o) + " set id=" + id + " where id=?";
-			d.evict(o);
-			if (d.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
+			data.persist(o);
+			String q = "update " + data.getEntityName(o) + " set id=" + id + " where id=?";
+			data.evict(o);
+			if (data.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
 				throw new Exception("failed persist " + o + " with id = " + id);
 			o.id(id);
 		}
 		else
-			d.persist(o.id(id));
+			data.persist(o.id(id));
 		return o;
 	}
 
-	public static void init(Data data) throws Exception
+	public void init() throws Exception
 	{
 		User foo = new User();
 		foo.name = "foo";
 		foo.password = "foo";
-		persist(data, foo, 11);
+		persist(foo, 11);
 	}
 }
