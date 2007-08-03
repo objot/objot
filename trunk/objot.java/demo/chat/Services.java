@@ -22,7 +22,8 @@ import com.google.inject.servlet.ServletScopes;
 
 public class Services
 {
-	public static Injector init(final SessionFactory data) throws Exception
+	public static Injector init(final SessionFactory data, final boolean evict)
+		throws Exception
 	{
 		return Guice.createInjector(new AbstractModule()
 		{
@@ -39,34 +40,35 @@ public class Services
 				bindInterceptor(any(), annotatedWith(Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					annotatedWith(Transac.Serial.class)), //
-					new Transac.Aspect(data, true, false, true));
+					new Transac.Aspect(true, false, true, data, evict));
 				bindInterceptor(any(), annotatedWith(Service.class).and(
 					annotatedWith(Transac.Serial.class)), //
-					new Transac.Aspect(data, false, false, true));
+					new Transac.Aspect(false, false, true, data, evict));
 
 				bindInterceptor(any(), annotatedWith(Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					annotatedWith(Transac.Commit.class)).and(
 					not(annotatedWith(Transac.Repeat.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(data, true, true, false));
+					new Transac.Aspect(true, true, false, data, evict));
 				bindInterceptor(any(), annotatedWith(Service.class).and(
 					annotatedWith(Transac.Commit.class)).and(
 					not(annotatedWith(Transac.Repeat.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(data, false, true, false));
+					new Transac.Aspect(false, true, false, data, evict));
 
 				bindInterceptor(any(), annotatedWith(Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					not(annotatedWith(Transac.Commit.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(data, true, false, false));
+					new Transac.Aspect(true, false, false, data, evict));
 				bindInterceptor(any(), annotatedWith(Service.class).and(
 					not(annotatedWith(Transac.Any.class))).and(
 					not(annotatedWith(Transac.Readonly.class))).and(
 					not(annotatedWith(Transac.Commit.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(data, false, false, false));
+					new Transac.Aspect(false, false, false, data, evict));
+
 				try
 				{
 					for (Class<?> c: Models.getPackageClasses(Do.class))
