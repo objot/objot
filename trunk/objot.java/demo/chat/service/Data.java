@@ -5,7 +5,6 @@
 package chat.service;
 
 import java.io.Serializable;
-
 import org.hibernate.Criteria;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;

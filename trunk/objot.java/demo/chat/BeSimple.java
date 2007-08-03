@@ -13,7 +13,6 @@ import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Iterator;
-
 import org.hibernate.mapping.Column;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.SingleTableSubclass;

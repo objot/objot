@@ -8,7 +8,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileReader;
 import java.sql.Connection;
-
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.impl.SessionImpl;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
