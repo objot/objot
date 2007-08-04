@@ -5,9 +5,6 @@
 package chat.service;
 
 import java.util.HashSet;
-
-import objot.servlet.Service;
-
 import org.hibernate.Hibernate;
 
 import chat.Sign;
@@ -39,7 +36,6 @@ public class DoSign
 		else
 			Hibernate.initialize(u.friends); // for out of session use
 		sess.me = u.id;
-		System.out.println(u.friends.size());
 		return u;
 	}
 

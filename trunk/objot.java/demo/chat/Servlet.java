@@ -72,10 +72,14 @@ public final class Servlet
 	{
 		String nameVerbose;
 
+		{
+			serviceAnno = Do.Service.class;
+		}
+
 		@Override
 		public S init(String claName, String methName) throws Exception
 		{
-			super.init("chat.service.".concat(claName), methName);
+			super.init(Do.class.getPackage().getName() + '.' + claName, methName);
 			if (Servlet.this.verbose > 0)
 				nameVerbose = "\n-------------------- " + name + " --------------------";
 			return this;
@@ -88,9 +92,22 @@ public final class Servlet
 			if (Servlet.this.verbose > 0)
 				System.out.println(nameVerbose);
 
+			Session sess = (Session)hReq.getSession().getAttribute("scope");
+			if (sess != null)
+				Scope.session(sess);
+			else
+				synchronized (hReq.getSession()) // double check
+				{
+					sess = (Session)hReq.getSession().getAttribute("scope");
+					if (sess != null)
+						Scope.session(sess);
+					else
+						hReq.getSession().setAttribute("scope", sess = Scope.session(sess));
+				}
+			Scope.request();
 			Do s = (Do)container.getInstance(cla);
-			Session sess = s.sess;
 			Integer me = sess.me;
+
 			boolean ok = false;
 			try
 			{

@@ -4,6 +4,8 @@
 //
 package chat.service;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,13 +16,13 @@ import objot.Errs;
 import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
 
-import chat.ScopeRequest;
+import chat.Scope;
 
 import com.google.inject.Inject;
 
 
 /** common utilities */
-@ScopeRequest
+@Scope.Request
 public abstract class Do
 {
 	private static final Map<Class<?>, ClassValidator<?>> VS //
@@ -37,6 +39,12 @@ public abstract class Do
 	public DoUser doUser;
 	@Inject
 	public DoChat doChat;
+
+	/** @see objot.servlet.Service */
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Service
+	{
+	}
 
 	public static ErrThrow err(Err e)
 	{

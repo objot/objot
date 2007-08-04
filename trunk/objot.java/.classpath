@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/guice-1.0.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/cglib-nodep-2.2.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/aopalliance.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/guice-servlet-1.0.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/junit-4.4.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>

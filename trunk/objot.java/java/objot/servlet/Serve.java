@@ -4,6 +4,7 @@
 //
 package objot.servlet;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import objot.Objot;
 public class Serve
 {
 	protected String methodNameDefault = "service";
+	protected Class<? extends Annotation> serviceAnno = Service.class;
 
 	public Objot objot;
 	public String name;
@@ -36,7 +38,7 @@ public class Serve
 	{
 		cla = Class.forName(claName);
 		for (Method m: cla.getMethods())
-			if (m.getName().equals(methName) && m.isAnnotationPresent(Service.class))
+			if (m.getName().equals(methName) && m.isAnnotationPresent(serviceAnno))
 			{
 				meth = m;
 				reqClas = m.getParameterTypes();

@@ -4,8 +4,6 @@
 //
 package chat.service;
 
-import objot.servlet.Service;
-
 import chat.Transac;
 import chat.model.Ok;
 import chat.model.User;

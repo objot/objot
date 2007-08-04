@@ -16,14 +16,15 @@ import org.hibernate.Transaction;
 import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Restrictions;
 
-import chat.ScopeRequest;
+import chat.Scope;
 
 
 /** Delegated {@link org.hibernate.Session} */
-@ScopeRequest
+@Scope.Request
 public class Data
 {
-	public Session data;
+	public Session hib;
+	public int times;
 
 	/** @see Hibernate#initialize */
 	public <T>T fetch(T o)
@@ -35,9 +36,9 @@ public class Data
 	/** {@link #flush}, {@link #evict} and {@link #refresh} */
 	public <T>T flushRefresh(T o)
 	{
-		data.flush();
-		data.evict(o);
-		data.refresh(o);
+		hib.flush();
+		hib.evict(o);
+		hib.refresh(o);
 		return o;
 	}
 
@@ -60,7 +61,7 @@ public class Data
 	 */
 	public void flush() throws HibernateException
 	{
-		data.flush();
+		hib.flush();
 	}
 
 	/**
@@ -75,7 +76,7 @@ public class Data
 	 */
 	public Serializable getIdentifier(Object object) throws HibernateException
 	{
-		return data.getIdentifier(object);
+		return hib.getIdentifier(object);
 	}
 
 	/**
@@ -88,7 +89,7 @@ public class Data
 	 */
 	public <T>T evict(T object) throws HibernateException
 	{
-		data.evict(object);
+		hib.evict(object);
 		return object;
 	}
 
@@ -108,7 +109,7 @@ public class Data
 	@SuppressWarnings("unchecked")
 	public <T>T load(Class<T> theClass, Serializable id) throws HibernateException
 	{
-		return (T)data.load(theClass, id);
+		return (T)hib.load(theClass, id);
 	}
 
 	/**
@@ -121,7 +122,7 @@ public class Data
 	 */
 	public <T>T load(T object, Serializable id) throws HibernateException
 	{
-		data.load(object, id);
+		hib.load(object, id);
 		return object;
 	}
 
@@ -135,7 +136,7 @@ public class Data
 	public <T>T replicate(T object, ReplicationMode replicationMode)
 		throws HibernateException
 	{
-		data.replicate(object, replicationMode);
+		hib.replicate(object, replicationMode);
 		return object;
 	}
 
@@ -151,7 +152,7 @@ public class Data
 	 */
 	public <T>T save(T object) throws HibernateException
 	{
-		data.save(object);
+		hib.save(object);
 		return object;
 	}
 
@@ -168,7 +169,7 @@ public class Data
 	 */
 	public <T>T saveOrUpdate(T object) throws HibernateException
 	{
-		data.saveOrUpdate(object);
+		hib.saveOrUpdate(object);
 		return object;
 	}
 
@@ -183,7 +184,7 @@ public class Data
 	 */
 	public <T>T update(T object) throws HibernateException
 	{
-		data.update(object);
+		hib.update(object);
 		return object;
 	}
 
@@ -203,7 +204,7 @@ public class Data
 	@SuppressWarnings("unchecked")
 	public <T>T merge(T object) throws HibernateException
 	{
-		return (T)data.merge(object);
+		return (T)hib.merge(object);
 	}
 
 	/**
@@ -216,7 +217,7 @@ public class Data
 	 */
 	public <T>T persist(T object) throws HibernateException
 	{
-		data.persist(object);
+		hib.persist(object);
 		return object;
 	}
 
@@ -231,7 +232,7 @@ public class Data
 	 */
 	public <T>T delete(T object) throws HibernateException
 	{
-		data.delete(object);
+		hib.delete(object);
 		return object;
 	}
 
@@ -251,7 +252,7 @@ public class Data
 	 */
 	public <T>T refresh(T object) throws HibernateException
 	{
-		data.refresh(object);
+		hib.refresh(object);
 		return object;
 	}
 
@@ -265,7 +266,7 @@ public class Data
 	@SuppressWarnings("unchecked")
 	public <T>Criteria<T> criteria(Class<T> persistentClass)
 	{
-		return data.createCriteria(persistentClass);
+		return hib.createCriteria(persistentClass);
 	}
 
 	/**
@@ -278,7 +279,7 @@ public class Data
 	@SuppressWarnings("unchecked")
 	public <T>Criteria<T> criteria(Class<T> persistentClass, String alias)
 	{
-		return data.createCriteria(persistentClass, alias);
+		return hib.createCriteria(persistentClass, alias);
 	}
 
 	/**
@@ -290,7 +291,7 @@ public class Data
 	 */
 	public Query query(String queryString) throws HibernateException
 	{
-		return data.createQuery(queryString);
+		return hib.createQuery(queryString);
 	}
 
 	/**
@@ -302,7 +303,7 @@ public class Data
 	 */
 	public SQLQuery sql(String queryString) throws HibernateException
 	{
-		return data.createSQLQuery(queryString);
+		return hib.createSQLQuery(queryString);
 	}
 
 	/**
@@ -319,7 +320,7 @@ public class Data
 	@SuppressWarnings("unchecked")
 	public <T>T get(Class<T> clazz, Serializable id) throws HibernateException
 	{
-		return (T)data.get(clazz, id);
+		return (T)hib.get(clazz, id);
 	}
 
 	/**
@@ -331,6 +332,6 @@ public class Data
 	 */
 	public String getEntityName(Object object) throws HibernateException
 	{
-		return data.getEntityName(object);
+		return hib.getEntityName(object);
 	}
 }
