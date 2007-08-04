@@ -22,7 +22,10 @@ public class DoUser
 		return me;
 	}
 
-	/** update {@link User#friends} if SO' {@link User#friends_} is not null */
+	/**
+	 * update {@link User#friends} if SO' {@link User#friends_} is not null. also persist
+	 * SO' {@link User#friends_}
+	 */
 	@Service
 	public Ok update(User u) throws Exception
 	{

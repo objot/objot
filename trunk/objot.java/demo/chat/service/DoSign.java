@@ -15,6 +15,7 @@ import chat.model.User;
 public class DoSign
 	extends Do
 {
+	/** when sign up, also persist SO. */
 	@Service
 	@Sign.Any
 	public User inUp(User u_) throws Exception
@@ -32,8 +33,6 @@ public class DoSign
 		// sign in
 		else if (! u.password.equals(u_.password))
 			throw err("user name or password incorrect");
-		else
-			data.fetch(u.friends); // for out of session use
 		sess.me = u.id;
 		return u;
 	}

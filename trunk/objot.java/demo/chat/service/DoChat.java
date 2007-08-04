@@ -45,7 +45,11 @@ public class DoChat
 		return _.addOrder(Order.asc("datime")).list();
 	}
 
-	/** @return with {@link Chat#datime} */
+	/**
+	 * also persist SO
+	 * 
+	 * @return with {@link Chat#datime}
+	 */
 	@Service
 	public Chat post(Chat c) throws Exception
 	{
