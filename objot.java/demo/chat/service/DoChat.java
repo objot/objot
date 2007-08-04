@@ -6,9 +6,6 @@ package chat.service;
 
 import java.util.Date;
 import java.util.List;
-
-import objot.servlet.Service;
-
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;

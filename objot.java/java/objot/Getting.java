@@ -65,10 +65,10 @@ final class Getting
 					refs(pv.getValue());
 			}
 		else if (o instanceof List)
-			for (Object v: (List)o)
+			for (Object v: (List<?>)o)
 				refs(v);
 		else if (o instanceof Set)
-			for (Object v: (Set)o)
+			for (Object v: (Set<?>)o)
 				refs(v);
 		else if (! o.getClass().isArray()) // other
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
@@ -133,7 +133,7 @@ final class Getting
 	{
 		if (o instanceof List)
 		{
-			List<?> l = (List)o;
+			List<?> l = (List<?>)o;
 			s.append(S).append(l.size());
 			ref(o, s);
 			for (Object v: l)
@@ -141,7 +141,7 @@ final class Getting
 		}
 		else if (o instanceof Set)
 		{
-			Set<?> l = (Set)o;
+			Set<?> l = (Set<?>)o;
 			s.append(S).append(l.size());
 			ref(o, s);
 			for (Object v: l)

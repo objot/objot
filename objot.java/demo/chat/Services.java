@@ -7,9 +7,6 @@ package chat;
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;
 import static com.google.inject.matcher.Matchers.not;
-
-import objot.servlet.Service;
-
 import org.hibernate.SessionFactory;
 
 import chat.service.Do;
@@ -17,7 +14,6 @@ import chat.service.Do;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.servlet.ServletScopes;
 
 
 public class Services
@@ -30,39 +26,39 @@ public class Services
 			@Override
 			protected void configure()
 			{
-				bindScope(ScopeSession.class, ServletScopes.SESSION);
-				bindScope(ScopeRequest.class, ServletScopes.REQUEST);
+				bindScope(Scope.Session.class, Scope.SESSION);
+				bindScope(Scope.Request.class, Scope.REQUEST);
 
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					not(annotatedWith(Sign.Any.class))), //
 					new Sign.Aspect());
 
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					annotatedWith(Transac.Serial.class)), //
 					new Transac.Aspect(true, false, true, data, evict));
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Serial.class)), //
 					new Transac.Aspect(false, false, true, data, evict));
 
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					annotatedWith(Transac.Commit.class)).and(
 					not(annotatedWith(Transac.Repeat.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
 					new Transac.Aspect(true, true, false, data, evict));
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Commit.class)).and(
 					not(annotatedWith(Transac.Repeat.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
 					new Transac.Aspect(false, true, false, data, evict));
 
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					not(annotatedWith(Transac.Commit.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
 					new Transac.Aspect(true, false, false, data, evict));
-				bindInterceptor(any(), annotatedWith(Service.class).and(
+				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					not(annotatedWith(Transac.Any.class))).and(
 					not(annotatedWith(Transac.Readonly.class))).and(
 					not(annotatedWith(Transac.Commit.class))).and(

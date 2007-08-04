@@ -8,17 +8,29 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.MappedSuperclass;
 
-import objot.GetSet;
+import objot.Get;
+import objot.Set;
 
 
 @MappedSuperclass
-public abstract class IdAuto<T extends IdAuto<T>>
+public abstract class IdAutoBean<T extends IdAutoBean<T>>
 	extends Id<T>
 {
-	@GetSet
+	private Integer id; // use Integer just for less object creation
+
+	@Get
 	@javax.persistence.Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY /* start from 1 */)
-	public Integer id; // use Integer just for less object creation
+	public Integer getId()
+	{
+		return id;
+	}
+
+	@Set
+	public void setId(Integer v)
+	{
+		id = v;
+	}
 
 	/** @return 0 if {@link #id} == null, or (int){@link #id} */
 	@Override

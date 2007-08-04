@@ -14,6 +14,7 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import chat.model.Id;
 import chat.model.IdAuto;
+import chat.model.IdAutoBean;
 import chat.model.User;
 import chat.service.Data;
 
@@ -61,7 +62,7 @@ public class ModelsCreate
 				hib.beginTransaction();
 				ModelsCreate m = new ModelsCreate();
 				m.data = new Data();
-				m.data.data = hib;
+				m.data.hib = hib;
 				m.init();
 				hib.getTransaction().commit();
 			}
@@ -93,7 +94,7 @@ public class ModelsCreate
 	/** @return object with specified id, may be detached */
 	<T extends Id<T>>T persist(T o, int id) throws Exception
 	{
-		if (o instanceof IdAuto)
+		if (o instanceof IdAuto || o instanceof IdAutoBean)
 		{
 			data.persist(o);
 			String q = "update " + data.getEntityName(o) + " set id=" + id + " where id=?";

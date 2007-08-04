@@ -86,31 +86,33 @@ public class Transac
 		public Object invoke(MethodInvocation meth) throws Throwable
 		{
 			Data data = ((Do)meth.getThis()).data;
-			SessionImpl hib = (SessionImpl)data.data;
+			SessionImpl hib = (SessionImpl)data.hib;
 			if (hib == null)
-				data.data = hib = (SessionImpl)dataFactory.openSession();
-			if (hib.getTransaction().isActive())
+				data.hib = hib = (SessionImpl)dataFactory.openSession();
+			if (! hib.getTransaction().isActive())
 			{
-				if (! read && hib.getJDBCContext().borrowConnection().isReadOnly())
-					throw new Exception("transaction of " + meth + " must be writable");
-				if (isolation > hib.getJDBCContext().borrowConnection()
-					.getTransactionIsolation())
-					throw new Exception("transaction of " + meth
-						+ " must be at least " //
-						+ (isolation == Connection.TRANSACTION_SERIALIZABLE ? "serializable"
-							: isolation == Connection.TRANSACTION_REPEATABLE_READ
-								? "repeatable read" : "read committed") + " isolation");
-				return meth.proceed();
+				hib.getJDBCContext().borrowConnection().setReadOnly(read);
+				if (isolation > 0)
+					hib.getJDBCContext().borrowConnection()
+						.setTransactionIsolation(isolation);
+				hib.beginTransaction();
 			}
-			hib.getJDBCContext().borrowConnection().setReadOnly(read);
-			if (isolation > 0)
-				hib.getJDBCContext().borrowConnection().setTransactionIsolation(isolation);
-			hib.beginTransaction();
+			else if (! read && hib.getJDBCContext().borrowConnection().isReadOnly())
+				throw new Exception("transaction of " + meth + " must be writable");
+			else if (isolation > hib.getJDBCContext().borrowConnection()
+				.getTransactionIsolation())
+				throw new Exception("transaction of " + meth
+					+ " must be at least " //
+					+ (isolation == Connection.TRANSACTION_SERIALIZABLE ? "serializable"
+						: isolation == Connection.TRANSACTION_REPEATABLE_READ
+							? "repeatable read" : "read committed") + " isolation");
+			++data.times;
 			Object o = meth.proceed();
-			if (evict)
+			if (--data.times <= 0)
 			{
 				hib.flush();
-				hib.clear();
+				if (evict)
+					hib.clear();
 			}
 			return o;
 		}
@@ -121,25 +123,25 @@ public class Transac
 		 */
 		public static void invokeFinally(Data data, boolean commit, ObjotServlet log)
 		{
-			if (data.data == null)
+			if (data.hib == null)
 				return;
-			if (data.data.getTransaction().isActive())
+			if (data.hib.getTransaction().isActive())
 				try
 				{
 					if (commit)
-						data.data.getTransaction().commit();
+						data.hib.getTransaction().commit();
 					else
-						data.data.getTransaction().rollback();
+						data.hib.getTransaction().rollback();
 				}
 				catch (Throwable e)
 				{
 					if (log != null)
 						log.log(e);
 				}
-			if (data.data.isOpen())
+			if (data.hib.isOpen())
 				try
 				{
-					data.data.close();
+					data.hib.close();
 				}
 				catch (Throwable e)
 				{

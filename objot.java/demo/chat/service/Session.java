@@ -6,10 +6,10 @@ package chat.service;
 
 import java.io.Serializable;
 
-import chat.ScopeSession;
+import chat.Scope;
 
 
-@ScopeSession
+@Scope.Session
 public class Session
 	implements Serializable
 {
