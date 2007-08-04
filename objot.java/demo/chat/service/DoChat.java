@@ -22,23 +22,26 @@ public class DoChat
 {
 	/**
 	 * read chats according to SO' {@link Chat#out} and {@link Chat#in} from
-	 * {@link Chat#datime}(excluded), order by {@link Chat#datime} asc
+	 * {@link Chat#datime}(excluded, or oldest if null), order by {@link Chat#datime} asc
 	 */
 	@Service
 	@Transac.Readonly
 	public List<Chat> read(Chat c) throws Exception
 	{
 		Criteria<Chat> _ = data.criteria(Chat.class);
-
 		User me = new User().id(sess.me);
+
 		Criterion out = Restrictions.eq("out", me);
 		if (c.in != null)
-			out = Restrictions.and(out, Restrictions.eq("in", c.in));
+			out = Restrictions.and(out, // chats from me
+				Restrictions.eq("in", c.in));
 		Criterion in = Restrictions.eq("in", me);
 		if (c.out != null)
-			in = Restrictions.and(in, Restrictions.eq("out", c.out));
-
-		_.add(Restrictions.or(out, in)).add(Restrictions.gt("datime", c.datime));
+			in = Restrictions.and(in, // chats to me
+				Restrictions.eq("out", c.out));
+		_.add(Restrictions.or(out, in));
+		if (c.datime != null)
+			_.add(Restrictions.gt("datime", c.datime));
 		return _.addOrder(Order.asc("datime")).list();
 	}
 

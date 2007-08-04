@@ -30,7 +30,7 @@ public class Sign
 		public Object invoke(MethodInvocation meth) throws Throwable
 		{
 			Do s = (Do)meth.getThis();
-			if (s.sess.me == null)
+			if (s.sess.me == 0)
 				throw Do.err(new ErrUnsigned("not signed in"));
 			return meth.proceed();
 		}

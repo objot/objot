@@ -16,42 +16,35 @@ import objot.Set;
 public abstract class IdAutoBean<T extends IdAutoBean<T>>
 	extends Id<T>
 {
-	private Integer id; // use Integer just for less object creation
+	private int id; // use Integer just for less object creation
 
 	@Get
 	@javax.persistence.Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY /* start from 1 */)
-	public Integer getId()
+	public int getId()
 	{
 		return id;
 	}
 
 	@Set
-	public void setId(Integer v)
+	public void setId(int v)
 	{
 		id = v;
 	}
 
-	/** @return 0 if {@link #id} == null, or (int){@link #id} */
+	/** {@inheritDoc} */
 	@Override
 	public int id()
 	{
-		return id == null ? 0 : id;
+		return id;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	@SuppressWarnings("unchecked")
 	public T id(int id_)
 	{
-		id = id_ == 0 ? null : id_;
-		return (T)this;
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public T id(Integer id_)
-	{
-		id = id_ == null || (int)id_ == 0 ? null : id_;
+		id = id_;
 		return (T)this;
 	}
 }

@@ -5,7 +5,6 @@
 package chat.service;
 
 import java.util.HashSet;
-import org.hibernate.Hibernate;
 
 import chat.Sign;
 import chat.Transac;
@@ -34,7 +33,7 @@ public class DoSign
 		else if (! u.password.equals(u_.password))
 			throw err("user name or password incorrect");
 		else
-			Hibernate.initialize(u.friends); // for out of session use
+			data.fetch(u.friends); // for out of session use
 		sess.me = u.id;
 		return u;
 	}
@@ -44,7 +43,7 @@ public class DoSign
 	@Transac.Any
 	public Ok out() throws Exception
 	{
-		sess.me = null;
+		sess.me = 0;
 		return Ok.OK;
 	}
 }

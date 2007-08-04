@@ -10,30 +10,28 @@ public class ErrThrow
 	private static final long serialVersionUID = 1022295548108006861L;
 
 	public final Err err;
-	public boolean log = false;
+	public boolean log;
 
 	public ErrThrow(Err e)
 	{
-		super((e = e != null ? e : new Err()).hint);
-		err = e;
+		err = e != null ? e : new Err();
 	}
 
 	public ErrThrow(Err e, String hint)
 	{
-		super((e = e != null ? e : new Err(hint)).hint);
-		err = e;
+		err = e != null ? e : new Err(hint);
 	}
 
 	public ErrThrow(Err e, Throwable cause)
 	{
-		super((e = e != null ? e : new Err(cause)).hint, cause);
-		err = e;
+		super(cause);
+		err = e != null ? e : new Err(cause);
 	}
 
 	public ErrThrow(Err e, String hint, Throwable cause)
 	{
-		super((e = e != null ? e : new Err(hint, cause)).hint, cause);
-		err = e;
+		super(cause);
+		err = e != null ? e : new Err(hint, cause);
 	}
 
 	/** whether to log this exception */
@@ -41,5 +39,11 @@ public class ErrThrow
 	{
 		log = _;
 		return this;
+	}
+
+	@Override
+	public String getMessage()
+	{
+		return err.toString();
 	}
 }
