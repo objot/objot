@@ -6,29 +6,15 @@ package chat.model;
 
 public abstract class Id<T extends Id<T>>
 {
-	/**
-	 * get identifier, the identifier property name must be "id"
-	 * 
-	 * @return 0 if id == null, or id
-	 */
+	/** get identifier, the identifier property name must be "id" */
 	public abstract int id();
 
 	/**
-	 * set id
+	 * set identifier
 	 * 
 	 * @return self
 	 */
 	public T id(int id_)
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * set id
-	 * 
-	 * @return self
-	 */
-	public T id(Integer id_)
 	{
 		throw new UnsupportedOperationException();
 	}

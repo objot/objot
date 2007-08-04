@@ -40,7 +40,7 @@ public final class Servlet
 		Locale.setDefault(Locale.ENGLISH);
 
 		dataFactory = Models.init().buildSessionFactory();
-		container = Services.init(dataFactory, false);
+		container = Services.init(dataFactory, false, verbose);
 		objot = new Objot()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";
@@ -70,28 +70,20 @@ public final class Servlet
 	class S
 		extends Serve
 	{
-		String nameVerbose;
-
 		{
 			serviceAnno = Do.Service.class;
 		}
 
 		@Override
-		public S init(String claName, String methName) throws Exception
+		public Serve init(String claName, String methName) throws Exception
 		{
-			super.init(Do.class.getPackage().getName() + '.' + claName, methName);
-			if (Servlet.this.verbose > 0)
-				nameVerbose = "\n-------------------- " + name + " --------------------";
-			return this;
+			return super.init(Do.class.getPackage().getName() + '.' + claName, methName);
 		}
 
 		@Override
 		public CharSequence serve(char[] req, HttpServletRequest hReq,
 			HttpServletResponse hRes) throws ErrThrow, Exception
 		{
-			if (Servlet.this.verbose > 0)
-				System.out.println(nameVerbose);
-
 			Session sess = (Session)hReq.getSession().getAttribute("scope");
 			if (sess != null)
 				Scope.session(sess);
@@ -106,7 +98,7 @@ public final class Servlet
 				}
 			Scope.request();
 			Do s = (Do)container.getInstance(cla);
-			Integer me = sess.me;
+			int me = sess.me;
 
 			boolean ok = false;
 			try
@@ -125,7 +117,7 @@ public final class Servlet
 			}
 			finally
 			{
-				if (me != null && sess.me == null)
+				if (me != 0 && sess.me == 0)
 					hReq.getSession().invalidate();
 				// like open session in view
 				Transac.Aspect.invokeFinally(s.data, ok, Servlet.this);

@@ -22,7 +22,7 @@ public class DoUser
 		return me;
 	}
 
-	/** update {@link User#friends} if SO' is not null */
+	/** update {@link User#friends} if SO' {@link User#friends_} is not null */
 	@Service
 	public Ok update(User u) throws Exception
 	{
@@ -35,17 +35,17 @@ public class DoUser
 	}
 
 	/**
-	 * by {@link User#id} (if > 0) or {@link User#name} (if not null).
+	 * by {@link User#id} if > 0, or {@link User#name} if not null.
 	 * 
-	 * @return array of User or null if not found
+	 * @return array of Users or some nulls if not found
 	 */
 	@Service
 	@Transac.Readonly
 	public User[] get(User[] us) throws Exception
 	{
 		for (int i = 0; i < us.length; i++)
-			us[i] = us[i].id != null && us[i].id > 0 ? data.get(User.class, us[i].id)
-				: us[i].name != null ? data.find1(User.class, "name", us[i].name) : null;
+			us[i] = us[i].id > 0 ? data.get(User.class, us[i].id) : //
+				us[i].name != null ? data.find1(User.class, "name", us[i].name) : null;
 		return us;
 	}
 }

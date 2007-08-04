@@ -15,6 +15,6 @@ public class Session
 {
 	private static final long serialVersionUID = 7410743024790602503L;
 
-	/** if changed from non null to null, close service session */
-	public Integer me;
+	/** if changed from not 0 to 0, close service session */
+	public int me;
 }

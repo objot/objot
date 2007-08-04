@@ -14,6 +14,7 @@ import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.TransientObjectException;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 import chat.Scope;
@@ -40,6 +41,11 @@ public class Data
 		hib.evict(o);
 		hib.refresh(o);
 		return o;
+	}
+
+	public Integer count(Criteria<?> c)
+	{
+		return (Integer)c.setProjection(Projections.rowCount()).uniqueResult();
 	}
 
 	public <T>T find1(Class<T> clazz, String prop, Object eq)

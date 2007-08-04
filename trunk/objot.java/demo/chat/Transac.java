@@ -64,22 +64,21 @@ public class Transac
 	{
 		boolean read;
 		int isolation;
+		boolean sub;
 		SessionFactory dataFactory;
-		boolean evict;
+		int verbose;
 
-		/**
-		 * @param evict_ see {@link org.hibernate.Session#flush} and
-		 *            {@link org.hibernate.Session#clear}
-		 */
-		public Aspect(boolean readonly, boolean commit, boolean serial, SessionFactory d,
-			boolean evict_)
+		/** @param subRequest sequent sub requests in a request */
+		public Aspect(boolean readonly, boolean commit, boolean serial, boolean subRequest,
+			SessionFactory d, int verbose_)
 		{
-			read = readonly;
+			read = readonly && ! subRequest;
 			isolation = serial ? Connection.TRANSACTION_SERIALIZABLE //
 				: commit ? Connection.TRANSACTION_READ_COMMITTED
 					: Connection.TRANSACTION_REPEATABLE_READ;
+			sub = subRequest;
 			dataFactory = d;
-			evict = evict_;
+			verbose = verbose_;
 		}
 
 		/** open hibernate session, begin transaction */
@@ -89,31 +88,47 @@ public class Transac
 			SessionImpl hib = (SessionImpl)data.hib;
 			if (hib == null)
 				data.hib = hib = (SessionImpl)dataFactory.openSession();
-			if (! hib.getTransaction().isActive())
+
+			data.times++;
+			Object o;
+			try
 			{
-				hib.getJDBCContext().borrowConnection().setReadOnly(read);
-				if (isolation > 0)
-					hib.getJDBCContext().borrowConnection()
-						.setTransactionIsolation(isolation);
-				hib.beginTransaction();
-			}
-			else if (! read && hib.getJDBCContext().borrowConnection().isReadOnly())
-				throw new Exception("transaction of " + meth + " must be writable");
-			else if (isolation > hib.getJDBCContext().borrowConnection()
-				.getTransactionIsolation())
-				throw new Exception("transaction of " + meth
-					+ " must be at least " //
-					+ (isolation == Connection.TRANSACTION_SERIALIZABLE ? "serializable"
-						: isolation == Connection.TRANSACTION_REPEATABLE_READ
-							? "repeatable read" : "read committed") + " isolation");
-			++data.times;
-			Object o = meth.proceed();
-			if (--data.times <= 0)
-			{
-				hib.flush();
-				if (evict)
+				if (verbose > 0)
+					if (data.times == 1)
+						System.out.println("\n================ "
+							+ meth.getMethod().getDeclaringClass().getName() + "-"
+							+ meth.getMethod().getName() + " ================");
+					else
+						System.out.println("---------------- "
+							+ meth.getMethod().getDeclaringClass().getName() + "-"
+							+ meth.getMethod().getName() + " ----------------");
+				if (! hib.getTransaction().isActive())
+				{
+					hib.getJDBCContext().borrowConnection().setReadOnly(read);
+					if (isolation > 0)
+						hib.getJDBCContext().borrowConnection().setTransactionIsolation(
+							isolation);
+					hib.beginTransaction();
+				}
+				else if (! read && hib.getJDBCContext().borrowConnection().isReadOnly())
+					throw new Exception("transaction of " + meth + " must be writable");
+				else if (isolation > hib.getJDBCContext().borrowConnection()
+					.getTransactionIsolation())
+					throw new Exception("transaction of " + meth
+						+ " must be at least " //
+						+ (isolation == Connection.TRANSACTION_SERIALIZABLE ? "serializable"
+							: isolation == Connection.TRANSACTION_REPEATABLE_READ
+								? "repeatable read" : "read committed") + " isolation");
+				if (sub)
 					hib.clear();
+				o = meth.proceed();
 			}
+			finally
+			{
+				data.times--;
+			}
+			if (data.times == 0)
+				hib.flush();
 			return o;
 		}
 
