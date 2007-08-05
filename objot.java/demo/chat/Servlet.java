@@ -8,10 +8,10 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import objot.codec.Codec;
 import objot.codec.Err;
 import objot.codec.ErrThrow;
 import objot.codec.Errs;
-import objot.codec.Codec;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
@@ -39,8 +39,8 @@ public final class Servlet
 		verbose = verb != null ? Integer.parseInt(verb) : verbose;
 		Locale.setDefault(Locale.ENGLISH);
 
-		dataFactory = Models.init().buildSessionFactory();
-		container = Services.init(dataFactory, false, verbose);
+		dataFactory = Models.build().buildSessionFactory();
+		container = Services.build(dataFactory, false, verbose);
 		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";

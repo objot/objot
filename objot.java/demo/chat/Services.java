@@ -19,7 +19,7 @@ import com.google.inject.Injector;
 public class Services
 {
 	/** @param subRequest sequent sub requests in a request */
-	public static Injector init(final SessionFactory d, final boolean subRequest,
+	public static Injector build(final SessionFactory d, final boolean subRequest,
 		final int verbose) throws Exception
 	{
 		return Guice.createInjector(new AbstractModule()

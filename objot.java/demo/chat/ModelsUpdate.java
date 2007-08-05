@@ -4,23 +4,45 @@
 //
 package chat;
 
-import org.hibernate.tool.hbm2ddl.SchemaUpdate;
+import org.hibernate.pretty.DDLFormatter;
+import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 
 
 public class ModelsUpdate
+	extends Models
 {
+
 	/** @param args whether to execute, false by default */
 	public static void main(String... args) throws Exception
 	{
-		SchemaUpdate sch = new SchemaUpdate(Models.init());
-		sch.execute(true, args.length < 1 ? false : Boolean.valueOf(args[0]));
+		new ModelsUpdate(args.length < 1 ? false : Boolean.valueOf(args[0]));
+	}
 
-		Thread.sleep(300);
-		if (sch.getExceptions().size() == 0)
-			System.err.println("\n================================================"
-				+ "\nSomething may be ignored such as column default values"
+	public ModelsUpdate(boolean execute) throws Exception
+	{
+		try
+		{
+			start();
+
+			String[] ss = conf.generateSchemaUpdateScript(dialect, //
+				new DatabaseMetadata(conn, dialect));
+			System.out.println();
+			for (String s: ss)
+			{
+				System.out.println(new DDLFormatter(s).format());
+				if (execute)
+					stat.executeUpdate(s);
+			}
+
+			hib.getTransaction().commit();
+			Thread.sleep(200);
+			System.err.println("\n\n---------------- end ----------------"
+				+ "\nSomething may be ignored such as unique indices, column default values"
 				+ "\nCheck them manually");
-		for (Object e: sch.getExceptions())
-			((Exception)e).printStackTrace();
+		}
+		finally
+		{
+			close();
+		}
 	}
 }
