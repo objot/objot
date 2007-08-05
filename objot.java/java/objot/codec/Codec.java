@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 
-public class Objot
+public class Codec
 {
 	public static final char S = '\20';
 

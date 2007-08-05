@@ -15,6 +15,11 @@ public class ModelsUpdate
 		SchemaUpdate sch = new SchemaUpdate(Models.init());
 		sch.execute(true, args.length < 1 ? false : Boolean.valueOf(args[0]));
 
+		Thread.sleep(300);
+		if (sch.getExceptions().size() == 0)
+			System.err.println("\n================================================"
+				+ "\nSomething may be ignored such as column default values"
+				+ "\nCheck them manually");
 		for (Object e: sch.getExceptions())
 			((Exception)e).printStackTrace();
 	}

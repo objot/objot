@@ -3,7 +3,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import objot.codec.Objot;
+import objot.codec.Codec;
 
 
 public class Test1
@@ -52,7 +52,7 @@ public class Test1
 		z[0] = z;
 
 		//
-		Objot objot = new Objot();
+		Codec objot = new Codec();
 		CharSequence s = objot.get(z, Object.class);
 		Object o = objot.set(s.toString().toCharArray(), Object.class, Object.class);
 		CharSequence s2 = objot.get(o, Object.class);

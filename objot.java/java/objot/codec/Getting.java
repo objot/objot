@@ -14,9 +14,9 @@ import java.util.Set;
 
 final class Getting
 {
-	private static final char S = Objot.S;
+	private static final char S = Codec.S;
 	private static final int HASH_MASK = 255;
-	private Objot objot;
+	private Codec objot;
 	private Class<?> forClass;
 	/** for object graph, as keys */
 	private Object[][] objs;
@@ -30,7 +30,7 @@ final class Getting
 	/** for object graph, the number of used (multi) reference numbers */
 	private int refn;
 
-	Getting(Objot o, Class<?> for_)
+	Getting(Codec o, Class<?> for_)
 	{
 		objot = o;
 		forClass = for_;

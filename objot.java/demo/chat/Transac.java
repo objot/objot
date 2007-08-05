@@ -22,7 +22,7 @@ import chat.service.Do;
 
 
 /** service in transaction */
-@Target(ElementType.PACKAGE)
+@Target(ElementType.PACKAGE /* just for eclipse auto completion */)
 public @interface Transac
 {
 	/** no transaction or any transaction, and suitable transaction if no this annotation */
