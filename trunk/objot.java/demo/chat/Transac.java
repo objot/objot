@@ -22,7 +22,8 @@ import chat.service.Do;
 
 
 /** service in transaction */
-public class Transac
+@Target(ElementType.PACKAGE)
+public @interface Transac
 {
 	/** no transaction or any transaction, and suitable transaction if no this annotation */
 	@Retention(RetentionPolicy.RUNTIME)

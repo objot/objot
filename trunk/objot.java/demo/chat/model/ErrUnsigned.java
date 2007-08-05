@@ -4,7 +4,7 @@
 //
 package chat.model;
 
-import objot.Err;
+import objot.codec.Err;
 
 
 public class ErrUnsigned

@@ -1,8 +1,8 @@
 import java.util.Date;
 
-import objot.Get;
-import objot.GetSet;
-import objot.Set;
+import objot.codec.Get;
+import objot.codec.GetSet;
+import objot.codec.Set;
 
 
 public class A

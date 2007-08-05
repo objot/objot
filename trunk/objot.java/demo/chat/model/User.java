@@ -10,10 +10,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import objot.Get;
-import objot.GetSet;
-import objot.NameGet;
-import objot.Set;
+import objot.codec.Get;
+import objot.codec.GetSet;
+import objot.codec.NameGet;
+import objot.codec.Set;
 
 import org.hibernate.annotations.Proxy;
 

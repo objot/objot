@@ -3,7 +3,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import objot.Objot;
+import objot.codec.Objot;
 
 
 public class Test1

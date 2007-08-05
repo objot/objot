@@ -4,7 +4,7 @@
 //
 package chat.model;
 
-import objot.Get;
+import objot.codec.Get;
 
 
 public class Ok

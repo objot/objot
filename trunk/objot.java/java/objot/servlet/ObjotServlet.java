@@ -17,9 +17,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import objot.Err;
-import objot.ErrThrow;
-import objot.Objot;
+import objot.codec.Err;
+import objot.codec.ErrThrow;
+import objot.codec.Objot;
 
 
 public class ObjotServlet

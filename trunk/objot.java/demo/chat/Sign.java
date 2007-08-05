@@ -15,7 +15,8 @@ import chat.model.ErrUnsigned;
 import chat.service.Do;
 
 
-public class Sign
+@Target(ElementType.PACKAGE)
+public @interface Sign
 {
 	/** service in signed or unsigned session, and in signed session if no this annotation */
 	@Retention(RetentionPolicy.RUNTIME)

@@ -8,7 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.MappedSuperclass;
 
-import objot.GetSet;
+import objot.codec.GetSet;
 
 
 @MappedSuperclass
