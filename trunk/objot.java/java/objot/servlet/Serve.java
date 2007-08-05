@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import objot.codec.ErrThrow;
-import objot.codec.Objot;
+import objot.codec.Codec;
 
 
 public class Serve
@@ -19,13 +19,13 @@ public class Serve
 	protected String methodNameDefault = "service";
 	protected Class<? extends Annotation> serviceAnno = Service.class;
 
-	public Objot objot;
+	public Codec objot;
 	public String name;
 	public Class<?> cla;
 	public Method meth;
 	public Class<?>[] reqClas;
 
-	public Serve init(Objot o, String name_) throws Exception
+	public Serve init(Codec o, String name_) throws Exception
 	{
 		objot = o;
 		name = name_;

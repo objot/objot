@@ -25,7 +25,7 @@ import java.util.Set;
 
 final class Setting
 {
-	private Objot objot;
+	private Codec objot;
 	private Class<?> forClass;
 	private char[] bs;
 	private int bx;
@@ -33,7 +33,7 @@ final class Setting
 	private Object[] refs;
 	private int intOrLongOrNot;
 
-	Setting(Objot o, Class<?> for_, char[] s)
+	Setting(Codec o, Class<?> for_, char[] s)
 	{
 		objot = o;
 		forClass = for_;
@@ -78,7 +78,7 @@ final class Setting
 		bx = ++by;
 		if (bx >= bs.length)
 			throw new RuntimeException("termination unexpected");
-		while (by < bs.length && bs[by] != Objot.S)
+		while (by < bs.length && bs[by] != Codec.S)
 			by++;
 		return bx;
 	}
@@ -264,7 +264,7 @@ final class Setting
 		{
 			bxy();
 			ref = (int)Int(1);
-			refs = Objot.ensureN(refs, ref + 1);
+			refs = Codec.ensureN(refs, ref + 1);
 			refs[ref] = l;
 			bxy();
 		}
@@ -377,7 +377,7 @@ final class Setting
 		{
 			bxy();
 			ref = (int)Int(1);
-			refs = Objot.ensureN(refs, ref + 1);
+			refs = Codec.ensureN(refs, ref + 1);
 			bxy();
 		}
 		Object o = cla.newInstance();

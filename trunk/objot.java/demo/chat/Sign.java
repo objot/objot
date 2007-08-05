@@ -15,7 +15,7 @@ import chat.model.ErrUnsigned;
 import chat.service.Do;
 
 
-@Target(ElementType.PACKAGE)
+@Target(ElementType.PACKAGE /* just for eclipse auto completion */)
 public @interface Sign
 {
 	/** service in signed or unsigned session, and in signed session if no this annotation */

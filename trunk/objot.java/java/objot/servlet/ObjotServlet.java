@@ -19,26 +19,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import objot.codec.Err;
 import objot.codec.ErrThrow;
-import objot.codec.Objot;
+import objot.codec.Codec;
 
 
 public class ObjotServlet
 	implements Servlet
 {
 	protected ServletConfig config;
-	protected Objot objot;
+	protected Codec codec;
 
-	/** @set {@link #objot} */
+	/** @set {@link #codec} */
 	protected void init() throws Exception
 	{
-		objot = new Objot();
+		codec = new Codec();
 	}
 
 	/** multi thread, will be cached */
 	protected Serve getServe(String name, HttpServletRequest req, HttpServletResponse res)
 		throws Exception
 	{
-		return new Serve().init(objot, name);
+		return new Serve().init(codec, name);
 	}
 
 	/** @see Servlet#destroy() */
@@ -131,7 +131,7 @@ public class ObjotServlet
 				for (int from = 0, done; from < len; from += done)
 					if ((done = in.read(bs, from, len - from)) < 0)
 						throw new EOFException();
-				req = Objot.utf(bs);
+				req = Codec.utf(bs);
 			}
 			try
 			{
@@ -152,7 +152,7 @@ public class ObjotServlet
 				hRes.setContentLength(0);
 			else
 			{
-				byte[] bs = Objot.utf(res);
+				byte[] bs = Codec.utf(res);
 				hRes.setContentLength(bs.length);
 				hRes.getOutputStream().write(bs);
 			}

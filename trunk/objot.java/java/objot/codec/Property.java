@@ -35,7 +35,7 @@ abstract class Property
 		GetSet cgs = out.getAnnotation(GetSet.class);
 		Class<?>[] ocs;
 		if (cgs == null)
-			ocs = cg != null ? cg.value() : cs != null ? cs.value() : Objot.CS0;
+			ocs = cg != null ? cg.value() : cs != null ? cs.value() : Codec.CS0;
 		else if (cg == null && cs == null)
 			ocs = cgs.value();
 		else

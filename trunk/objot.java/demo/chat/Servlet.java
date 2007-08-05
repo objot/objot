@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import objot.codec.Err;
 import objot.codec.ErrThrow;
 import objot.codec.Errs;
-import objot.codec.Objot;
+import objot.codec.Codec;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
@@ -41,7 +41,7 @@ public final class Servlet
 
 		dataFactory = Models.init().buildSessionFactory();
 		container = Services.init(dataFactory, false, verbose);
-		objot = new Objot()
+		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";
 
@@ -64,7 +64,7 @@ public final class Servlet
 	protected Serve getServe(String name, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws Exception
 	{
-		return new S().init(objot, name);
+		return new S().init(codec, name);
 	}
 
 	class S

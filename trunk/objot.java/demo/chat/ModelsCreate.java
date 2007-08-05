@@ -24,7 +24,13 @@ public class ModelsCreate
 	/** @param args whether to execute, whether generate drop, false by default */
 	public static void main(String... args) throws Exception
 	{
-		boolean execute = args.length < 1 ? false : Boolean.valueOf(args[0]);
+		create(args.length < 1 ? false : Boolean.valueOf(args[0]), //
+			args.length < 2 ? false : Boolean.valueOf(args[1]));
+
+	}
+
+	public static void create(boolean execute, boolean drop) throws Exception
+	{
 		AnnotationConfiguration config = Models.init();
 		config.setProperty("hibernate.format_sql", "true");
 
@@ -32,8 +38,7 @@ public class ModelsCreate
 		String name = File.createTempFile(ModelsCreate.class.getName(), "")
 			.getCanonicalPath();
 		sch.setOutputFile(name);
-		sch.execute(false, execute, false, //
-			args.length < 2 ? true : ! Boolean.valueOf(args[1]));
+		sch.execute(false, execute, false, !drop);
 
 		File f = new File(name);
 		f.deleteOnExit();
