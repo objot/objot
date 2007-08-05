@@ -7,11 +7,15 @@ package chat;
 import java.io.File;
 import java.net.JarURLConnection;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.NamingStrategy;
+import org.hibernate.dialect.Dialect;
+import org.hibernate.impl.SessionImpl;
 import org.hibernate.util.StringHelper;
 
 import chat.model.Id;
@@ -19,11 +23,11 @@ import chat.model.Id;
 
 public class Models
 {
-	public static AnnotationConfiguration init() throws Exception
+	public static AnnotationConfiguration build() throws Exception
 	{
-		AnnotationConfiguration c = new AnnotationConfiguration();
+		AnnotationConfiguration conf = new AnnotationConfiguration();
 
-		c.setNamingStrategy(new NamingStrategy()
+		conf.setNamingStrategy(new NamingStrategy()
 		{
 			public String classToTableName(String entity)
 			{
@@ -82,9 +86,9 @@ public class Models
 			}
 		});
 
-		for (Class<?> cla: getPackageClasses(Id.class))
-			c.addAnnotatedClass(cla);
-		return c;
+		for (Class<?> c: getPackageClasses(Id.class))
+			conf.addAnnotatedClass(c);
+		return conf;
 	}
 
 	/**
@@ -130,5 +134,59 @@ public class Models
 		else
 			throw new Exception(url.getProtocol() + " will be supported soon");
 		return clas;
+	}
+
+	protected AnnotationConfiguration conf;
+	protected Dialect dialect;
+	protected SessionImpl hib;
+	protected Connection conn;
+	protected Statement stat;
+
+	protected Models()
+	{
+	}
+
+	/** for database create and update */
+	protected void start() throws Exception
+	{
+		conf = build();
+		conf.setProperty("hibernate.hbm2ddl.auto", "false");
+		conf.setProperty("hibernate.cache.use_second_level_cache", "false");
+		conf.setProperty("hibernate.cache.use_query_cache", "false");
+		conf.setProperty("hibernate.format_sql", "false");
+		hib = (SessionImpl)conf.buildSessionFactory().openSession();
+		dialect = hib.getFactory().getDialect();
+		conn = hib.getJDBCContext().borrowConnection();
+		conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+		hib.beginTransaction();
+		stat = conn.createStatement();
+	}
+
+	protected void close() throws Exception
+	{
+		if (stat != null)
+			try
+			{
+				stat.close();
+			}
+			catch (Throwable e)
+			{
+			}
+		if (hib != null && hib.getTransaction().isActive())
+			try
+			{
+				hib.getTransaction().rollback();
+			}
+			catch (Throwable e)
+			{
+			}
+		if (hib != null)
+			try
+			{
+				hib.close();
+			}
+			catch (Throwable e)
+			{
+			}
 	}
 }
