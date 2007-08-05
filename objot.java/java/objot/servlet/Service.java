@@ -7,7 +7,7 @@ package objot.servlet;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import objot.Objot;
+import objot.codec.Objot;
 
 
 /**

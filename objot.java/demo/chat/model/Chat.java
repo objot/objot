@@ -13,10 +13,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import objot.Get;
-import objot.GetSet;
-import objot.Name;
-import objot.Set;
+import objot.codec.Get;
+import objot.codec.GetSet;
+import objot.codec.Name;
+import objot.codec.Set;
 
 import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.Length;

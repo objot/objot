@@ -2,7 +2,7 @@
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
-package objot;
+package objot.codec;
 
 import java.sql.Clob;
 import java.util.Calendar;

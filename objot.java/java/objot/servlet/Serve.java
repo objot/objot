@@ -10,8 +10,8 @@ import java.lang.reflect.Method;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import objot.ErrThrow;
-import objot.Objot;
+import objot.codec.ErrThrow;
+import objot.codec.Objot;
 
 
 public class Serve

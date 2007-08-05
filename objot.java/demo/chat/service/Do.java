@@ -9,9 +9,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import objot.Err;
-import objot.ErrThrow;
-import objot.Errs;
+import objot.codec.Err;
+import objot.codec.ErrThrow;
+import objot.codec.Errs;
 
 import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;

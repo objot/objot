@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
-import objot.ErrThrow;
+import objot.codec.ErrThrow;
 
 import org.junit.Test;
 

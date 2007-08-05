@@ -1,6 +1,6 @@
 package test.chat;
 
-import objot.ErrThrow;
+import objot.codec.ErrThrow;
 
 import org.junit.Test;
 

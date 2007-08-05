@@ -2,7 +2,7 @@
 // Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
-package objot;
+package objot.codec;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,16 +12,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** the annotated field could be get while {@link Getting#go} or {@link Setting#go} */
-@Target( { ElementType.TYPE, ElementType.FIELD })
+/** The name of the encoded field for getting */
+@Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface GetSet
+public @interface NameGet
 {
-	/**
-	 * getting and setting rules about the class specified in {@link Getting#go} or
-	 * {@link Setting#go}
-	 */
-	Class<?>[] value() default {};
+	String value();
 }

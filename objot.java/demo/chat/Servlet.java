@@ -8,10 +8,10 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import objot.Err;
-import objot.ErrThrow;
-import objot.Errs;
-import objot.Objot;
+import objot.codec.Err;
+import objot.codec.ErrThrow;
+import objot.codec.Errs;
+import objot.codec.Objot;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
