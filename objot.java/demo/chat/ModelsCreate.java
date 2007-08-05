@@ -6,7 +6,6 @@ package chat;
 
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import org.hibernate.pretty.DDLFormatter;
 
 import chat.model.Id;
 import chat.model.IdAuto;
@@ -31,42 +30,22 @@ public class ModelsCreate
 	{
 		try
 		{
-			start();
-
+			start(execute);
 			String[] cs = conf.generateSchemaCreationScript(dialect);
 			System.out.println();
 			if (drop)
 			{
-				DatabaseMetaData meta = conn.getMetaData();
-				ResultSet t = meta.getTables(null, null, "%", new String[] { "TABLE" });
-				while (t.next())
-				{
-					String name = t.getString("TABLE_NAME");
-					for (ResultSet k = meta.getImportedKeys(null, null, name); k.next();)
-					{
-						String s = "alter table " + name + " drop constraint "
-							+ k.getString("FK_NAME");
-						System.out.println(s);
-						if (execute)
-							stat.executeUpdate(s);
-					}
-				}
-				t.beforeFirst();
-				while (t.next())
-				{
-					String s = "drop table " + t.getString("TABLE_NAME");
-					System.out.println(s);
-					if (execute)
-						stat.executeUpdate(s);
-				}
+				DatabaseMetaData m = conn.getMetaData();
+				ResultSet t = m.getTables(null, null, "%", new String[] { "TABLE" });
+				for (String name; t.next() && (name = t.getString("TABLE_NAME")) != null;)
+					for (ResultSet k = m.getImportedKeys(null, null, name); k.next();)
+						sql("alter table " + name + " drop constraint "
+							+ k.getString("FK_NAME"), false);
+				for (t.beforeFirst(); t.next();)
+					sql("drop table " + t.getString("TABLE_NAME"), false);
 			}
 			for (String s: cs)
-			{
-				System.out.println(new DDLFormatter(s).format());
-				if (execute)
-					stat.executeUpdate(s);
-			}
-
+				sql(s, true);
 			if (execute)
 			{
 				System.out.println();
@@ -74,7 +53,6 @@ public class ModelsCreate
 				data.hib = hib;
 				init();
 			}
-
 			hib.getTransaction().commit();
 			Thread.sleep(200);
 			System.err.println("\n\n---------------- end ----------------");

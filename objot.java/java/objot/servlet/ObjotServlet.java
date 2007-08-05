@@ -17,9 +17,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import objot.codec.Codec;
 import objot.codec.Err;
 import objot.codec.ErrThrow;
-import objot.codec.Codec;
 
 
 public class ObjotServlet

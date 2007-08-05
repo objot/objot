@@ -4,7 +4,6 @@
 //
 package chat;
 
-import org.hibernate.pretty.DDLFormatter;
 import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
 
 
@@ -22,18 +21,12 @@ public class ModelsUpdate
 	{
 		try
 		{
-			start();
-
+			start(execute);
 			String[] ss = conf.generateSchemaUpdateScript(dialect, //
 				new DatabaseMetadata(conn, dialect));
 			System.out.println();
 			for (String s: ss)
-			{
-				System.out.println(new DDLFormatter(s).format());
-				if (execute)
-					stat.executeUpdate(s);
-			}
-
+				sql(s, true);
 			hib.getTransaction().commit();
 			Thread.sleep(200);
 			System.err.println("\n\n---------------- end ----------------"
