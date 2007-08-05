@@ -16,6 +16,7 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.impl.SessionImpl;
+import org.hibernate.pretty.DDLFormatter;
 import org.hibernate.util.StringHelper;
 
 import chat.model.Id;
@@ -147,7 +148,7 @@ public class Models
 	}
 
 	/** for database create and update */
-	protected void start() throws Exception
+	protected void start(boolean execute) throws Exception
 	{
 		conf = build();
 		conf.setProperty("hibernate.hbm2ddl.auto", "false");
@@ -159,7 +160,15 @@ public class Models
 		conn = hib.getJDBCContext().borrowConnection();
 		conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 		hib.beginTransaction();
-		stat = conn.createStatement();
+		if (execute)
+			stat = conn.createStatement();
+	}
+
+	protected void sql(String s, boolean format) throws Exception
+	{
+		System.out.println(format ? new DDLFormatter(s).format() : s);
+		if (stat != null)
+			stat.executeUpdate(s);
 	}
 
 	protected void close() throws Exception
