@@ -91,42 +91,21 @@ table { width:100%; }
 
 
 <body>
-<h2>Chat - <a href=http://objot.info>Objot</a> demo</h2>
-<div id=SignOut><a href="javascript:location.reload()">Sign out</a></div>
-<table cellspacing=0 cellpadding=0><tr>
-<td id=Me><div class=min><!--stupid IE--></div>
-<td id=Chatss><div class=min><!--stupid IE--></div>
-</table>
+<noscript>Javascript is required</noscript>
+<!-- these scripts access <body> immediately so load them inside <body> -->
+<script src="../objot1.js"></script>
+<script src="../objot1util.js"></script>
+<script src="chat.js"></script>
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
-<noscript>Javascript is required</noscript>
-<script src="../objot1.js"></script>
-<script src="../objot1util.js"></script>
-<script src="chat.js"></script>
-<script>
-window.onload = function () {
-	var box = $s();
-	var pop = $Pop(box);
-	$Http(box, DoSign.out(this, function () {
-		box = $s('id', 'SignIn').des(true, box);
-		new _SignIn(box, null, function () {
-			pop.des(), start();
-		});
-	}));
-}
-window.onunload = function () {
-	// clean and prevent Firefox memory cache
-	$dom.des.call($D.body, 0);
-}
 
-function start() {
-	var me = new _Me($dom($id('Me')));
-	var chatss = new _Chatss($dom($id('Chatss')));
-	me.thisChat = chatss;
-	me.onChat = chatss.doChat;
-}
-</script>
+<h2>Chat - <a href=http://objot.info>Objot</a> demo</h2>
+<div id=SignOut><a href="javascript:location.reload()">Sign out</a></div>
+<table cellspacing=0 cellpadding=0><tr>
+	<td id=Me><div class=min><!--stupid IE--></div>
+	<td id=Chatss><div class=min><!--stupid IE--></div>
+</table>
 </body>
 </html>

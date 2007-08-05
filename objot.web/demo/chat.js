@@ -9,8 +9,6 @@ onerror = function(m, f, l) {
 	return true;
 }
 
-$dom($D.body);
-
 $Do.Url = '/objot/service/';
 $Do.Timeout = 5000;
 $http.doneDelay = 300;
@@ -387,3 +385,24 @@ _Chats.prototype = {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
+window.onload = function () {
+	var box = $s();
+	var pop = $Pop(box);
+	$Http(box, DoSign.out(this, function () {
+		box = $s('id', 'SignIn').des(true, box);
+		new _SignIn(box, null, function () {
+			pop.des(), start();
+		});
+	}));
+}
+window.onunload = function () {
+	// clean and prevent Firefox memory cache
+	$dom.des.call($D.body, 0);
+}
+
+function start() {
+	var me = new _Me($dom($id('Me')));
+	var chatss = new _Chatss($dom($id('Chatss')));
+	me.thisChat = chatss;
+	me.onChat = chatss.doChat;
+}
