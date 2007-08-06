@@ -13,7 +13,8 @@ import java.lang.annotation.Target;
 import com.google.inject.ScopeAnnotation;
 
 
-public class Scope
+@Target(ElementType.PACKAGE /* just for eclipse auto completion */)
+public @interface Scope
 {
 	/** one instance per service session */
 	@ScopeAnnotation
