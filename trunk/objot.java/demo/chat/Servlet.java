@@ -39,7 +39,7 @@ public final class Servlet
 		verbose = verb != null ? Integer.parseInt(verb) : verbose;
 		Locale.setDefault(Locale.ENGLISH);
 
-		dataFactory = Models.build().buildSessionFactory();
+		dataFactory = Models.build(false).buildSessionFactory();
 		container = Services.build(dataFactory, false, verbose);
 		codec = new Codec()
 		{

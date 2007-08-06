@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.NamingStrategy;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.impl.SessionImpl;
@@ -24,9 +25,12 @@ import chat.model.Id;
 
 public class Models
 {
-	public static AnnotationConfiguration build() throws Exception
+	/** @param test whether use the testing database */
+	public static AnnotationConfiguration build(boolean test) throws Exception
 	{
 		AnnotationConfiguration conf = new AnnotationConfiguration();
+		if (test)
+			conf.setProperty(Environment.URL, conf.getProperty(Environment.URL + ".test"));
 
 		conf.setNamingStrategy(new NamingStrategy()
 		{
@@ -148,13 +152,13 @@ public class Models
 	}
 
 	/** for database create and update */
-	protected void start(boolean execute) throws Exception
+	protected void start(boolean execute, boolean test) throws Exception
 	{
-		conf = build();
-		conf.setProperty("hibernate.hbm2ddl.auto", "false");
-		conf.setProperty("hibernate.cache.use_second_level_cache", "false");
-		conf.setProperty("hibernate.cache.use_query_cache", "false");
-		conf.setProperty("hibernate.format_sql", "false");
+		conf = build(test);
+		conf.setProperty(Environment.HBM2DDL_AUTO, "false");
+		conf.setProperty(Environment.USE_SECOND_LEVEL_CACHE, "false");
+		conf.setProperty(Environment.USE_QUERY_CACHE, "false");
+		conf.setProperty(Environment.FORMAT_SQL, "false");
 		hib = (SessionImpl)conf.buildSessionFactory().openSession();
 		dialect = hib.getFactory().getDialect();
 		conn = hib.getJDBCContext().borrowConnection();

@@ -64,7 +64,7 @@ public class TestDoSign
 		b = doSign.inUp(b);
 		asser(a.id != b.id);
 		data.hib.clear();
-		assertEquals(2, (int)data.count(data.criteria(User.class)));
+		assertEquals(3, (int)data.count(data.criteria(User.class))); // + user "admin"
 	}
 
 	@Test
