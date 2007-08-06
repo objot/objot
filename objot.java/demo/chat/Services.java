@@ -27,8 +27,8 @@ public class Services
 			@Override
 			protected void configure()
 			{
-				bindScope(Scope.Session.class, Scope.SESSION);
-				bindScope(Scope.Request.class, Scope.REQUEST);
+				bindScope(Scope.Session.class, Scopes.SESSION);
+				bindScope(Scope.Request.class, Scopes.REQUEST);
 
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					not(annotatedWith(Sign.Any.class))), //

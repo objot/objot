@@ -14,7 +14,7 @@ import org.junit.BeforeClass;
 
 import chat.Models;
 import chat.ModelsCreate;
-import chat.Scope;
+import chat.Scopes;
 import chat.Services;
 import chat.Transac;
 import chat.model.Id;
@@ -43,8 +43,8 @@ public class TestDo
 	}
 
 	{
-		sess = Scope.session(null);
-		Scope.request();
+		sess = Scopes.session(null);
+		Scopes.request();
 		data = container.getInstance(Data.class);
 		System.out.println("\n************************************************");
 	}
