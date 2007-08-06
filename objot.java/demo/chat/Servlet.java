@@ -29,15 +29,20 @@ public final class Servlet
 	extends ObjotServlet
 {
 	int verbose = 1;
+	boolean dataTest;
 	Injector container;
 	SessionFactory dataFactory;
 
 	@Override
 	public void init() throws Exception
 	{
+		Locale.setDefault(Locale.ENGLISH);
 		String verb = config.getInitParameter("verbose");
 		verbose = verb != null ? Integer.parseInt(verb) : verbose;
-		Locale.setDefault(Locale.ENGLISH);
+		String test = config.getInitParameter("data.test");
+		dataTest = test != null ? Boolean.parseBoolean(test) : dataTest;
+		if (dataTest)
+			new ModelsCreate(true, true, true);
 
 		dataFactory = Models.build(false).buildSessionFactory();
 		container = Services.build(dataFactory, false, verbose);
