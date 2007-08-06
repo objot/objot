@@ -13,6 +13,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 
 import chat.Models;
+import chat.ModelsCreate;
 import chat.Scope;
 import chat.Services;
 import chat.Transac;
@@ -36,7 +37,8 @@ public class TestDo
 	public static void beforeAll() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		dataFactory = Models.build().buildSessionFactory();
+		new ModelsCreate(true, true, true);
+		dataFactory = Models.build(true).buildSessionFactory();
 		container = Services.build(dataFactory, true, 1);
 	}
 

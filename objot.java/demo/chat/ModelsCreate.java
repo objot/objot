@@ -21,16 +21,17 @@ public class ModelsCreate
 	public static void main(String... args) throws Exception
 	{
 		new ModelsCreate(args.length < 1 ? false : Boolean.valueOf(args[0]), //
-			args.length < 2 ? false : Boolean.valueOf(args[1]));
+			args.length < 2 ? false : Boolean.valueOf(args[1]), false);
 	}
 
 	Data data;
 
-	public ModelsCreate(boolean execute, boolean drop) throws Exception
+	/** @param test whether use the testing database */
+	public ModelsCreate(boolean execute, boolean drop, boolean test) throws Exception
 	{
 		try
 		{
-			start(execute);
+			start(execute, test);
 			String[] cs = conf.generateSchemaCreationScript(dialect);
 			System.out.println();
 			if (drop)
@@ -84,8 +85,8 @@ public class ModelsCreate
 	void init() throws Exception
 	{
 		User foo = new User();
-		foo.name = "foo";
-		foo.password = "foo";
+		foo.name = "admin";
+		foo.password = "admin";
 		persist(foo, 11);
 	}
 }
