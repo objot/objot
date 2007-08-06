@@ -91,17 +91,17 @@ public final class Servlet
 		{
 			Session sess = (Session)hReq.getSession().getAttribute("scope");
 			if (sess != null)
-				Scope.session(sess);
+				Scopes.session(sess);
 			else
 				synchronized (hReq.getSession()) // double check
 				{
 					sess = (Session)hReq.getSession().getAttribute("scope");
 					if (sess != null)
-						Scope.session(sess);
+						Scopes.session(sess);
 					else
-						hReq.getSession().setAttribute("scope", sess = Scope.session(sess));
+						hReq.getSession().setAttribute("scope", sess = Scopes.session(sess));
 				}
-			Scope.request();
+			Scopes.request();
 			Do s = (Do)container.getInstance(cla);
 			int me = sess.me;
 
