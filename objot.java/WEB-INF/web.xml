@@ -14,6 +14,8 @@
 		<init-param>
 			<param-name>verbose</param-name>
 			<param-value>1</param-value>
+		</init-param>
+		<init-param>
 			<param-name>data.test</param-name>
 			<param-value>false</param-value><!-- true to use testing database -->
 		</init-param>
