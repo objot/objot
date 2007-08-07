@@ -17,7 +17,8 @@
 		</init-param>
 		<init-param>
 			<param-name>data.test</param-name>
-			<param-value>false</param-value><!-- true to use testing database -->
+			<!-- true (or system parameter -Ddata.test) to use testing database -->
+			<param-value>false</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

@@ -39,12 +39,13 @@ public final class Servlet
 		Locale.setDefault(Locale.ENGLISH);
 		String verb = config.getInitParameter("verbose");
 		verbose = verb != null ? Integer.parseInt(verb) : verbose;
+		dataTest = System.getProperty("data.test") != null;
 		String test = config.getInitParameter("data.test");
-		dataTest = test != null ? Boolean.parseBoolean(test) : dataTest;
+		dataTest |= test != null && Boolean.parseBoolean(test);
 		if (dataTest)
 			new ModelsCreate(true, true, true);
 
-		dataFactory = Models.build(false).buildSessionFactory();
+		dataFactory = Models.build(dataTest).buildSessionFactory();
 		container = Services.build(dataFactory, false, verbose);
 		codec = new Codec()
 		{
