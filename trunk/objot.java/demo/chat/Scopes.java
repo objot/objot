@@ -20,7 +20,7 @@ public class Scopes
 	public static Session session(Session s)
 	{
 		if (s == null)
-			s = new chat.service.Session();
+			s = new Session();
 		session.set(s);
 		return s;
 	}
