@@ -31,7 +31,7 @@ $class(true, 'ErrUnsigned', Err);
 DatimeMin = new Date(0);
 
 User = function (id, name, pass) {
-	this.id = id;
+	this.id = id || 0;
 	this.name = name;
 	this.password = pass;
 	this.friends;
