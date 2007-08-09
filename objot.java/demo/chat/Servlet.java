@@ -37,8 +37,7 @@ public final class Servlet
 	public void init() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		String verb = config.getInitParameter("verbose");
-		verbose = verb != null ? Integer.parseInt(verb) : verbose;
+		ServletLog.logger = context;
 		dataTest = System.getProperty("data.test") != null;
 		String test = config.getInitParameter("data.test");
 		dataTest |= test != null && Boolean.parseBoolean(test);
@@ -126,7 +125,7 @@ public final class Servlet
 				if (me != 0 && sess.me == 0)
 					hReq.getSession().invalidate();
 				// like open session in view
-				Transac.Aspect.invokeFinally(s.data, ok, Servlet.this);
+				Transac.Aspect.invokeFinally(s.data, ok);
 			}
 		}
 	}

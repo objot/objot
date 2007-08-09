@@ -9,11 +9,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.sql.Connection;
-
-import objot.servlet.ObjotServlet;
-
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.impl.SessionImpl;
 
@@ -63,6 +62,8 @@ public @interface Transac
 	public static class Aspect
 		implements MethodInterceptor
 	{
+		static final Log LOG = LogFactory.getLog(Aspect.class);
+
 		boolean read;
 		int isolation;
 		boolean sub;
@@ -137,7 +138,7 @@ public @interface Transac
 		 * commit or cancel transaction, close hibernate session. like open session in
 		 * view
 		 */
-		public static void invokeFinally(Data data, boolean commit, ObjotServlet log)
+		public static void invokeFinally(Data data, boolean commit)
 		{
 			if (data.hib == null)
 				return;
@@ -151,8 +152,8 @@ public @interface Transac
 				}
 				catch (Throwable e)
 				{
-					if (log != null)
-						log.log(e);
+					if (LOG.isWarnEnabled())
+						LOG.warn(e);
 				}
 			if (data.hib.isOpen())
 				try
@@ -161,8 +162,8 @@ public @interface Transac
 				}
 				catch (Throwable e)
 				{
-					if (log != null)
-						log.log(e);
+					if (LOG.isWarnEnabled())
+						LOG.warn(e);
 				}
 		}
 	}

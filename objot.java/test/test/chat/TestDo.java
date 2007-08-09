@@ -52,7 +52,7 @@ public class TestDo
 	@After
 	public void afterTest() throws Exception
 	{
-		Transac.Aspect.invokeFinally(data, false, null);
+		Transac.Aspect.invokeFinally(data, false);
 	}
 
 	// ********************************************************************************
