@@ -29,8 +29,8 @@ public class ServletLog
 		all, trace, debug, info, warn, error, fatal, off
 	}
 
-	public static final String PROP_LEVEL = ServletLog.class.getName() + ".level";
-	public static final String PROP_PREFIX = ServletLog.class.getName() + ".prefix";
+	public static final String PROP_LEVEL = "servlet.log.level";
+	public static final String PROP_PREFIX = "servlet.log.prefix";
 
 	static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss.SSS", Locale.UK);
@@ -45,6 +45,9 @@ public class ServletLog
 	public ServletLog(String name_)
 	{
 		propName = ".".concat(name_);
+		System.out.println(name_);
+		if (name_.startsWith("org.hibernate.SQL"))
+			System.out.println(name_);
 	}
 
 	public void setLogFactory(LogFactory f)
