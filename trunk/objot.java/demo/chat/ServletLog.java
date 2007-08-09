@@ -31,6 +31,7 @@ public class ServletLog
 
 	public static final String PROP_LEVEL = "servlet.log.level";
 	public static final String PROP_PREFIX = "servlet.log.prefix";
+	public static final String PROP_POSTFIX = "servlet.log.postfix";
 
 	static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss.SSS", Locale.UK);
@@ -40,37 +41,35 @@ public class ServletLog
 	String propName;
 	/** prepend to the log message before logging */
 	String prefix;
+	/** append to the log message before logging */
+	String postfix;
 	int level;
 
 	public ServletLog(String name_)
 	{
 		propName = ".".concat(name_);
-		System.out.println(name_);
-		if (name_.startsWith("org.hibernate.SQL"))
-			System.out.println(name_);
 	}
 
 	public void setLogFactory(LogFactory f)
 	{
 		factory = f;
 
-		String lev = (String)factory.getAttribute(PROP_LEVEL + propName);
-		for (int i = String.valueOf(propName).lastIndexOf("."); lev == null && i >= 0;)
-		{
-			String n = propName.substring(0, i);
-			lev = (String)factory.getAttribute(PROP_LEVEL + n);
-			i = String.valueOf(n).lastIndexOf(".");
-		}
-		setLevel((lev == null ? Level.info : Level.valueOf(lev)).ordinal());
-		String pre = (String)factory.getAttribute(PROP_PREFIX + propName);
-		for (int i = String.valueOf(propName).lastIndexOf("."); pre == null && i >= 0;)
-		{
-			String n = propName.substring(0, i);
-			pre = (String)factory.getAttribute(PROP_PREFIX + n);
-			i = String.valueOf(n).lastIndexOf(".");
-		}
-		prefix = pre == null ? "" : pre;
+		setLevel(Level.valueOf(getProperty(PROP_LEVEL, Level.info.name())).ordinal());
+		prefix = getProperty(PROP_PREFIX, " -- ");
+		postfix = getProperty(PROP_POSTFIX, " -- ");
 		propName = null;
+	}
+
+	String getProperty(String propBegin, String byDefault)
+	{
+		String p = (String)factory.getAttribute(propBegin + propName);
+		for (int i = String.valueOf(propName).lastIndexOf("."); p == null && i >= 0;)
+		{
+			String n = propName.substring(0, i);
+			p = (String)factory.getAttribute(propBegin + n);
+			i = String.valueOf(n).lastIndexOf(".");
+		}
+		return p == null ? byDefault : p;
 	}
 
 	public void setLevel(int level_)
@@ -102,15 +101,14 @@ public class ServletLog
 			method = s.getMethodName();
 		}
 		if (logger != null)
-			logger.log(l.name() + " == " + clazz + '-' + method + "() == " + prefix
-				+ String.valueOf(message), t);
+			logger.log(l.name() + prefix + String.valueOf(message) + postfix + clazz + '-'
+				+ method, t);
 		else
 		{
 			StringBuilder s = new StringBuilder();
-			s.append(l.name()).append(" == ");
-			s.append(DATE_FORMAT.format(new Date())).append(" == ");
-			s.append(clazz).append('-').append(method).append("() == ");
-			s.append(prefix).append(message);
+			s.append(l.name()).append(' ').append(DATE_FORMAT.format(new Date()));
+			s.append(prefix).append(message).append(postfix);
+			s.append(clazz).append('-').append(method);
 			if (t != null)
 			{
 				StringWriter ts = new StringWriter(1024);
