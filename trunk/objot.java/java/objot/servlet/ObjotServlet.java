@@ -25,6 +25,7 @@ import objot.codec.ErrThrow;
 public class ObjotServlet
 	implements Servlet
 {
+	protected ServletContext context;
 	protected ServletConfig config;
 	protected Codec codec;
 
@@ -44,26 +45,8 @@ public class ObjotServlet
 	/** @see Servlet#destroy() */
 	public void destroy()
 	{
-		log("\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%" + getClass().getName()
+		context.log("\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%" + getClass().getName()
 			+ " ################================\n\n");
-	}
-
-	/** @see ServletContext#log(String) */
-	public void log(String hint)
-	{
-		config.getServletContext().log(hint);
-	}
-
-	/** @see ServletContext#log(String, Throwable) */
-	public void log(Throwable e)
-	{
-		config.getServletContext().log("", e);
-	}
-
-	/** @see ServletContext#log(String, Throwable) */
-	public void log(String hint, Throwable t)
-	{
-		config.getServletContext().log(hint, t);
 	}
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -74,7 +57,8 @@ public class ObjotServlet
 	public void init(ServletConfig c) throws ServletException
 	{
 		config = c;
-		log("\n\n================################ " + getClass().getName()
+		context = config.getServletContext();
+		context.log("\n\n================################ " + getClass().getName()
 			+ " %%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$\n\n");
 		try
 		{
@@ -140,12 +124,12 @@ public class ObjotServlet
 			catch (ErrThrow e)
 			{
 				if (e.log)
-					log(e);
+					context.log("", e);
 				res = s.get(e.err, hReq, hRes);
 			}
 			catch (Exception e)
 			{
-				log(e);
+				context.log("", e);
 				res = s.get(new Err(e), hReq, hRes);
 			}
 			if (res == null)

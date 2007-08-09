@@ -12,10 +12,6 @@
 		<servlet-name>servlet</servlet-name>
 		<servlet-class>chat.Servlet</servlet-class>
 		<init-param>
-			<param-name>verbose</param-name>
-			<param-value>1</param-value>
-		</init-param>
-		<init-param>
 			<param-name>data.test</param-name>
 			<!-- true (or system parameter -Ddata.test) to use testing database -->
 			<param-value>false</param-value>

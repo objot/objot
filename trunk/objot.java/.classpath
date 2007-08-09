@@ -11,7 +11,6 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-annotations.jar" sourcepath="/work/app/dev/hibernate-annotations-3.3.0.GA.zip"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/ejb3-persistence.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-commons-annotations.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-collections-2.1.1.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/antlr-2.7.6.jar"/>
@@ -21,5 +20,6 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/guice-1.0.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/cglib-nodep-2.2.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/aopalliance.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar" sourcepath="/work/app/dev/commons-logging-1.0.4.zip"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>
