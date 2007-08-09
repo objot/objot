@@ -19,8 +19,7 @@ import com.google.inject.Injector;
 public class Services
 {
 	/** @param subRequest sequent sub requests in a request */
-	public static Injector build(final SessionFactory d, final boolean subRequest,
-		final int verbose) throws Exception
+	public static Injector build(final SessionFactory d, final boolean subRequest) throws Exception
 	{
 		return Guice.createInjector(new AbstractModule()
 		{
@@ -37,34 +36,34 @@ public class Services
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					annotatedWith(Transac.Serial.class)), //
-					new Transac.Aspect(true, false, true, subRequest, d, verbose));
+					new Transac.Aspect(true, false, true, subRequest, d));
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Serial.class)), //
-					new Transac.Aspect(false, false, true, subRequest, d, verbose));
+					new Transac.Aspect(false, false, true, subRequest, d));
 
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					annotatedWith(Transac.Commit.class)).and(
 					not(annotatedWith(Transac.Repeat.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(true, true, false, subRequest, d, verbose));
+					new Transac.Aspect(true, true, false, subRequest, d));
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Commit.class)).and(
 					not(annotatedWith(Transac.Repeat.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(false, true, false, subRequest, d, verbose));
+					new Transac.Aspect(false, true, false, subRequest, d));
 
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					annotatedWith(Transac.Readonly.class)).and(
 					not(annotatedWith(Transac.Commit.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(true, false, false, subRequest, d, verbose));
+					new Transac.Aspect(true, false, false, subRequest, d));
 				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
 					not(annotatedWith(Transac.Any.class))).and(
 					not(annotatedWith(Transac.Readonly.class))).and(
 					not(annotatedWith(Transac.Commit.class))).and(
 					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(false, false, false, subRequest, d, verbose));
+					new Transac.Aspect(false, false, false, subRequest, d));
 
 				try
 				{

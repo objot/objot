@@ -45,7 +45,7 @@ public class ObjotServlet
 	/** @see Servlet#destroy() */
 	public void destroy()
 	{
-		context.log("\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%" + getClass().getName()
+		context.log("\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%% " + getClass().getName()
 			+ " ################================\n\n");
 	}
 

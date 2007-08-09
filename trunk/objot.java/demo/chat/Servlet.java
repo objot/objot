@@ -15,6 +15,7 @@ import objot.codec.Errs;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.validator.InvalidStateException;
 
@@ -28,7 +29,6 @@ import com.google.inject.Injector;
 public final class Servlet
 	extends ObjotServlet
 {
-	int verbose = 1;
 	boolean dataTest;
 	Injector container;
 	SessionFactory dataFactory;
@@ -37,7 +37,17 @@ public final class Servlet
 	public void init() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
+
 		ServletLog.logger = context;
+		if (! (LogFactory.getLog(Servlet.class) instanceof ServletLog))
+		{
+			String s = "\n\n**************** WARNING ****************\n no "
+				+ ServletLog.class.getName()
+				+ " loaded, please check commons-logging.properties\n\n";
+			System.err.println(s);
+			context.log(s);
+		}
+
 		dataTest = System.getProperty("data.test") != null;
 		String test = config.getInitParameter("data.test");
 		dataTest |= test != null && Boolean.parseBoolean(test);
@@ -45,7 +55,7 @@ public final class Servlet
 			new ModelsCreate(true, true, true);
 
 		dataFactory = Models.build(dataTest).buildSessionFactory();
-		container = Services.build(dataFactory, false, verbose);
+		container = Services.build(dataFactory, false);
 		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";

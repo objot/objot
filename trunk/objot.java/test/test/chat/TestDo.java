@@ -39,7 +39,7 @@ public class TestDo
 		Locale.setDefault(Locale.ENGLISH);
 		new ModelsCreate(true, true, true);
 		dataFactory = Models.build(true).buildSessionFactory();
-		container = Services.build(dataFactory, true, 1);
+		container = Services.build(dataFactory, true);
 	}
 
 	{

@@ -68,11 +68,10 @@ public @interface Transac
 		int isolation;
 		boolean sub;
 		SessionFactory dataFactory;
-		int verbose;
 
 		/** @param subRequest sequent sub requests in a request */
 		public Aspect(boolean readonly, boolean commit, boolean serial, boolean subRequest,
-			SessionFactory d, int verbose_)
+			SessionFactory d)
 		{
 			read = readonly && ! subRequest;
 			isolation = serial ? Connection.TRANSACTION_SERIALIZABLE //
@@ -80,7 +79,6 @@ public @interface Transac
 					: Connection.TRANSACTION_REPEATABLE_READ;
 			sub = subRequest;
 			dataFactory = d;
-			verbose = verbose_;
 		}
 
 		/** open hibernate session, begin transaction */
@@ -95,13 +93,13 @@ public @interface Transac
 			Object o;
 			try
 			{
-				if (verbose > 0)
+				if (LOG.isDebugEnabled())
 					if (data.times == 1)
-						System.out.println("\n================ "
+						LOG.debug("\n================ "
 							+ meth.getMethod().getDeclaringClass().getName() + "-"
 							+ meth.getMethod().getName() + " ================");
 					else
-						System.out.println("---------------- "
+						LOG.debug("---------------- "
 							+ meth.getMethod().getDeclaringClass().getName() + "-"
 							+ meth.getMethod().getName() + " ----------------");
 				if (! hib.getTransaction().isActive())
