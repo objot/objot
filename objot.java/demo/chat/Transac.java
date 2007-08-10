@@ -95,7 +95,7 @@ public @interface Transac
 			{
 				if (LOG.isDebugEnabled())
 					if (data.times == 1)
-						LOG.debug("\n================ "
+						LOG.debug("================ "
 							+ meth.getMethod().getDeclaringClass().getName() + "-"
 							+ meth.getMethod().getName() + " ================");
 					else
