@@ -11,7 +11,6 @@ import com.google.inject.Scope;
 
 public class Scopes
 {
-
 	static final ThreadLocal<Session> session //
 	= new ThreadLocal<Session>();
 	static final ThreadLocal<HashMap<Key<?>, Object>> request //
