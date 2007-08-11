@@ -17,24 +17,27 @@ import chat.service.Data;
 public class ModelsCreate
 	extends Models
 {
-	/** @param args whether to execute, whether generate drop, false by default */
+	/** @param args whether to execute, whether drop, false by default */
 	public static void main(String... args) throws Exception
 	{
-		new ModelsCreate(args.length < 1 ? false : Boolean.valueOf(args[0]), //
-			args.length < 2 ? false : Boolean.valueOf(args[1]), false);
+		new ModelsCreate(args.length > 0 && Boolean.valueOf(args[0]), //
+			args.length > 1 && Boolean.valueOf(args[1]) ? 1 : 0, false);
 	}
 
 	Data data;
 
-	/** @param test whether use the testing database */
-	public ModelsCreate(boolean execute, boolean drop, boolean test) throws Exception
+	/**
+	 * @param drop 0 create only, >0 drop and then create, <0 drop only
+	 * @param test whether use the testing database
+	 */
+	public ModelsCreate(boolean execute, int drop, boolean test) throws Exception
 	{
 		try
 		{
 			start(execute, test);
-			String[] cs = conf.generateSchemaCreationScript(dialect);
+			String[] cs = drop >= 0 ? conf.generateSchemaCreationScript(dialect) : null;
 			System.out.println();
-			if (drop)
+			if (drop != 0)
 			{
 				DatabaseMetaData m = conn.getMetaData();
 				ResultSet t = m.getTables(null, null, "%", new String[] { "TABLE" });
@@ -45,18 +48,21 @@ public class ModelsCreate
 				for (t.beforeFirst(); t.next();)
 					sql("drop table " + t.getString("TABLE_NAME"), false);
 			}
-			for (String s: cs)
-				sql(s, true);
-			if (execute)
+			if (drop >= 0)
 			{
-				System.out.println();
-				data = new Data();
-				data.hib = hib;
-				init();
+				for (String s: cs)
+					sql(s, true);
+				if (execute)
+				{
+					System.out.println();
+					data = new Data();
+					data.hib = hib;
+					init();
+				}
 			}
 			hib.getTransaction().commit();
 			Thread.sleep(200);
-			System.err.println("\n\n---------------- end ----------------");
+			LOG.info("\n================ end ================\n");
 		}
 		finally
 		{

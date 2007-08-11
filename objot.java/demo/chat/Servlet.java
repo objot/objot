@@ -5,6 +5,7 @@
 package chat;
 
 import java.util.Locale;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -17,9 +18,12 @@ import objot.servlet.Serve;
 
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
+import org.hibernate.cache.Cache;
+import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.validator.InvalidStateException;
 
 import chat.model.Id;
+import chat.model.Ok;
 import chat.service.Do;
 import chat.service.Session;
 
@@ -51,8 +55,9 @@ public final class Servlet
 		dataTest = System.getProperty("data.test") != null;
 		String test = config.getInitParameter("data.test");
 		dataTest |= test != null && Boolean.parseBoolean(test);
+		context.log("\n================ for test ================\n");
 		if (dataTest)
-			new ModelsCreate(true, true, true);
+			new ModelsCreate(true, - 1, true);
 
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 		container = Services.build(dataFactory, false);
@@ -92,6 +97,8 @@ public final class Servlet
 		@Override
 		public Serve init(String claName, String methName) throws Exception
 		{
+			if (dataTest && "test".equals(claName))
+				return this;
 			return super.init(Do.class.getPackage().getName() + '.' + claName, methName);
 		}
 
@@ -99,6 +106,16 @@ public final class Servlet
 		public CharSequence serve(char[] req, HttpServletRequest hReq,
 			HttpServletResponse hRes) throws ErrThrow, Exception
 		{
+			if (cla == null) // test
+			{
+				dataFactory.evictQueries();
+				for (Cache c: ((Map<?, Cache>)((SessionFactoryImpl)dataFactory)
+					.getAllSecondLevelCacheRegions()).values())
+					c.clear();
+				new ModelsCreate(true, 1, true);
+				return codec.get(Ok.OK, Object.class);
+			}
+
 			Session sess = (Session)hReq.getSession().getAttribute("scope");
 			if (sess != null)
 				Scopes.session(sess);
@@ -122,7 +139,7 @@ public final class Servlet
 				if (req == null)
 					res = serve(s, hReq, hRes);
 				else
-					res = serve(s, hReq, hRes, objot.set(req, reqClas[0], cla));
+					res = serve(s, hReq, hRes, codec.set(req, reqClas[0], cla));
 				ok = true;
 				return res;
 			}

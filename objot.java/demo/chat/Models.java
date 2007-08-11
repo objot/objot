@@ -12,6 +12,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.NamingStrategy;
@@ -25,6 +27,8 @@ import chat.model.Id;
 
 public class Models
 {
+	static final Log LOG = LogFactory.getLog(Models.class);
+
 	/** @param test whether use the testing database */
 	public static AnnotationConfiguration build(boolean test) throws Exception
 	{
