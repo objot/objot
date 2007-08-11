@@ -30,11 +30,13 @@ public class ServletLog
 
 	public static final String PROP_LEVEL = "servlet.log.level";
 	public static final String PROP_FORMAT = "servlet.log.format";
+	public static final String PROP_CONSOLE_FORMAT = "servlet.log.console.format";
 	public static final String FORMAT_DATE = "$date";
 	public static final String FORMAT_LEVEL = "$level";
 	public static final String FORMAT_LOG = "$log";
 	public static final String FORMAT_CALL = "$call";
-	public static final String FORMAT = "$date $level -- $log\t---- $call";
+	public static final String FORMAT = "$level -- $log\t---- $call";
+	public static final String FORMAT_CONSOLE = "$date $level -- $log\t---- $call";
 	public static final SimpleDateFormat DATE = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss.SSS");
 
@@ -55,7 +57,8 @@ public class ServletLog
 		factory = f;
 
 		setLevel(Level.valueOf(getProperty(PROP_LEVEL, Level.info.name())).ordinal());
-		format = getProperty(PROP_FORMAT, FORMAT);
+		format = logger != null ? getProperty(PROP_FORMAT, FORMAT) //
+			: getProperty(PROP_CONSOLE_FORMAT, getProperty(PROP_FORMAT, FORMAT_CONSOLE));
 		propName = null;
 	}
 
@@ -92,8 +95,7 @@ public class ServletLog
 		StringBuilder s = new StringBuilder(format);
 		int i = s.indexOf(FORMAT_DATE);
 		if (i >= 0)
-			s.replace(i, i + FORMAT_DATE.length(), //
-				logger != null ? "" : DATE.format(new Date()));
+			s.replace(i, i + FORMAT_DATE.length(), DATE.format(new Date()));
 		i = s.indexOf(FORMAT_LEVEL);
 		if (i >= 0)
 			s.replace(i, i + FORMAT_LEVEL.length(), l.name());

@@ -5,10 +5,11 @@ import java.util.logging.LogRecord;
 
 
 /**
- * replace {@link java.util.logging.SimpleFormatter} (for Apache Tomcat: add
- * {@link SimpleFormatter}.class file to bin/bootstrap.jar, and set
- * java.util.logging.ConsoleHandler.formatter = SimpleFormatter in
- * conf/logging.propreties)
+ * replace {@link java.util.logging.SimpleFormatter}
+ * <p>
+ * for Apache Tomcat:<br>
+ * add {@link SimpleFormatter}.class file to bin/bootstrap.jar, and set
+ * java.util.logging.ConsoleHandler.formatter = SimpleFormatter in conf/logging.propreties
  */
 
 public class SimpleFormatter

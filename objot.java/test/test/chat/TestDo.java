@@ -46,7 +46,7 @@ public class TestDo
 		sess = Scopes.session(null);
 		Scopes.request();
 		data = container.getInstance(Data.class);
-		System.err.println("\n\n************************************************\n\n");
+		System.err.println("\n\n************************************************\n");
 	}
 
 	@After
