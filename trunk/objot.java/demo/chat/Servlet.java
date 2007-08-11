@@ -41,9 +41,9 @@ public final class Servlet
 		ServletLog.logger = context;
 		if (! (LogFactory.getLog(Servlet.class) instanceof ServletLog))
 		{
-			String s = "\n\n**************** WARNING ****************\n no "
-				+ ServletLog.class.getName()
-				+ " loaded, please check commons-logging.properties\n\n";
+			String s = "\n\n**************** WARNING ****************\n"
+				+ " org.apache.commons.logging.Log = " + ServletLog.class.getName()
+				+ " should be in commons-logging.properties\n\n";
 			System.err.println(s);
 			context.log(s);
 		}

@@ -69,6 +69,15 @@
 并且确保/tmp目录（或者C:\tmp之类）可写，或者修改hibernate.properties中hsqldb文件前缀。
 对于Apache Tomcat，请使用6.0及以上版本，之前版本没有正确分离服务器根和web应用的commons-logging配置，这将导致无限递归。
 
+<p>参照下列步骤可以简单地建立一个典型的中小规模web项目服务端：
+<ol>
+	<li>将源码中的objot.codec, objot.servlet, chat, chat.model, chat.service, test.chat包拷贝到项目中</li>
+	<li>将源码中WEB-INF/web.xml拷贝到项目中</li>
+	<li>重构包名</li>
+	<li>根据新的包名，修改web.xml中chat.Servlet, commons-logging.properties中chat.ServletLog类名</li>
+	<li>根据项目需求进行修改、开发</li>
+</ol>
+
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
@@ -121,7 +130,7 @@ public class User {
 与任何类对应时，id均可编解码；与DoUser类对应时，friends_可编解码，并且编码名称为friends；与DoChat或者DoUser对应时，name可编码，与DoUser或DoSign对应时，name可解码。
 @GetSet不能用于getter和setter，用于field时相当于@Get且@Set。
 
-<p>在类上定义@Get、@Set、@GetSet，其设置的对应类将被插入到属性的@Get、@Set、@GetSet中：
+<p>在类上定义@Get、@Set、@GetSet，其指定的类对应规则将被插入到属性的@Get、@Set、@GetSet中：
 <pre>@GetSet(DoChat.class)
 public class Chat {
 	@GetSet(Object.class) // 实际是@GetSet({DoChat.class, Object.class})
