@@ -19,7 +19,7 @@ public class Serve
 	protected String methodNameDefault = "service";
 	protected Class<? extends Annotation> serviceAnno = Service.class;
 
-	public Codec objot;
+	public Codec codec;
 	public String name;
 	public Class<?> cla;
 	public Method meth;
@@ -27,7 +27,7 @@ public class Serve
 
 	public Serve init(Codec o, String name_) throws Exception
 	{
-		objot = o;
+		codec = o;
 		name = name_;
 		int _ = name.lastIndexOf('-');
 		return init(_ < 0 ? name : name.substring(0, _), _ < 0 || _ >= name.length() - 1
@@ -50,7 +50,7 @@ public class Serve
 	public CharSequence get(Object o, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws Exception
 	{
-		return objot.get(o, cla);
+		return codec.get(o, cla);
 	}
 
 	public CharSequence serve(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
@@ -58,7 +58,7 @@ public class Serve
 	{
 		if (req == null)
 			return serve(null, hReq, hRes);
-		return serve(null, hReq, hRes, objot.set(req, reqClas[0], cla));
+		return serve(null, hReq, hRes, codec.set(req, reqClas[0], cla));
 	}
 
 	public CharSequence serve(Object service, HttpServletRequest hReq,

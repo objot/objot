@@ -14,7 +14,7 @@ public class ModelsUpdate
 	/** @param args whether to execute, false by default */
 	public static void main(String... args) throws Exception
 	{
-		new ModelsUpdate(args.length < 1 ? false : Boolean.valueOf(args[0]));
+		new ModelsUpdate(args.length > 0 && Boolean.valueOf(args[0]));
 	}
 
 	public ModelsUpdate(boolean execute) throws Exception
@@ -29,9 +29,9 @@ public class ModelsUpdate
 				sql(s, true);
 			hib.getTransaction().commit();
 			Thread.sleep(200);
-			System.err.println("\n\n---------------- end ----------------"
+			LOG.info("\n================ end ================"
 				+ "\nSomething may be ignored such as unique indices, column default values"
-				+ "\nCheck them manually");
+				+ "\nCheck them manually\n");
 		}
 		finally
 		{
