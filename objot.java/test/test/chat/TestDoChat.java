@@ -1,7 +1,6 @@
 package test.chat;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 
 import objot.codec.ErrThrow;
@@ -16,10 +15,10 @@ import chat.service.DoChat;
 public class TestDoChat
 	extends TestDo
 {
-	DoChat doChat;
-	User me;
-	User it;
 	static final Date DATE0 = new Date(0);
+	DoChat doChat;
+	User u1;
+	User u2;
 
 	{
 		doChat = container.getInstance(DoChat.class);
@@ -29,16 +28,16 @@ public class TestDoChat
 	{
 		User u = new User();
 		u.name = u.password = "b";
-		it = doChat.doSign.inUp(u);
+		u2 = doChat.doSign.inUp(u);
 		// just for sub requests, since PersistentBag/List/Set won't be evicted
-		it.friends = new HashSet<User>(it.friends);
+		u2.friends = copy(u2.friends);
 		u = new User();
 		u.name = u.password = "a";
 		doChat.doSign.inUp(u);
-		me = doChat.doUser.me();
+		u1 = doChat.doUser.me();
 		// just for sub requests, since PersistentBag/List/Set won't be evicted
-		me.friends = new HashSet<User>(me.friends);
-		me.friends_ = null;
+		u1.friends = copy(u1.friends);
+		u1.friends_ = null;
 	}
 
 	@Test
@@ -46,7 +45,7 @@ public class TestDoChat
 	{
 		signIn();
 		Chat c = new Chat();
-		c.in = me;
+		c.in = u1;
 		c.text = "post1";
 		c.datime = DATE0;
 		long time = System.currentTimeMillis();
@@ -61,7 +60,7 @@ public class TestDoChat
 	{
 		signIn();
 		Chat c = new Chat();
-		c.in = it;
+		c.in = u2;
 		c.text = "post1";
 		c.datime = DATE0;
 		doChat.post(c);
@@ -71,14 +70,14 @@ public class TestDoChat
 	public void post_fromFriend() throws Exception
 	{
 		signIn();
-		(it.friends_ = copy(it.friends)).add(me);
-		doChat.doSign.inUp(it);
-		doChat.doUser.update(it);
-		(me.friends_ = copy(me.friends)).add(it);
-		doChat.doSign.inUp(me);
-		doChat.doUser.update(me);
+		(u2.friends_ = u2.friends).add(u1);
+		doChat.doSign.inUp(u2);
+		doChat.doUser.update(u2);
+		(u1.friends_ = u1.friends).add(u2);
+		doChat.doSign.inUp(u1);
+		doChat.doUser.update(u1);
 		Chat c = new Chat();
-		c.in = it;
+		c.in = u2;
 		c.text = "post1";
 		c.datime = DATE0;
 		doChat.post(c);
@@ -89,12 +88,12 @@ public class TestDoChat
 	{
 		signIn();
 		Chat c = new Chat();
-		c.in = me;
+		c.in = u1;
 		c.text = "post1";
 		c.datime = DATE0;
 		doChat.post(c);
 		Chat cc = new Chat();
-		cc.in = me;
+		cc.in = u1;
 		List<Chat> s = doChat.read(cc);
 		asserts(BAG, new Chat[] { c }, s);
 		cc = s.get(0);
@@ -109,12 +108,12 @@ public class TestDoChat
 	{
 		signIn();
 		Chat c = new Chat();
-		c.in = me;
+		c.in = u1;
 		c.text = "post1";
 		c.datime = DATE0;
 		doChat.post(c);
 		Chat cc = new Chat();
-		cc.in = me;
+		cc.in = u1;
 		cc.datime = c.datime;
 		assertEquals(0, doChat.read(cc).size());
 		cc.datime = new Date(c.datime.getTime() - 1);
@@ -125,25 +124,25 @@ public class TestDoChat
 	public void read_eachOther() throws Exception
 	{
 		signIn();
-		(it.friends_ = copy(it.friends)).add(me);
-		doChat.doSign.inUp(it);
-		doChat.doUser.update(it);
-		(me.friends_ = copy(me.friends)).add(it);
-		doChat.doSign.inUp(me);
-		doChat.doUser.update(me);
+		(u2.friends_ = u2.friends).add(u1);
+		doChat.doSign.inUp(u2);
+		doChat.doUser.update(u2);
+		(u1.friends_ = u1.friends).add(u2);
+		doChat.doSign.inUp(u1);
+		doChat.doUser.update(u1);
 
 		Chat c = new Chat();
-		c.in = it;
+		c.in = u2;
 		c.text = "post1";
 		c.datime = DATE0;
 		doChat.post(c);
-		doChat.doSign.inUp(it);
-		c.in = me;
+		doChat.doSign.inUp(u2);
+		c.in = u1;
 		c.text = "post2";
 		doChat.post(c);
 
 		Chat cc = new Chat();
-		cc.in = me;
+		cc.in = u1;
 		cc.datime = c.datime;
 		assertEquals(0, doChat.read(cc).size());
 		cc.datime = new Date(c.datime.getTime() - 1);

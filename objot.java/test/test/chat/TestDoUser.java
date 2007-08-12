@@ -11,7 +11,8 @@ public class TestDoUser
 	extends TestDo
 {
 	DoUser doUser;
-	User me;
+	User u1;
+	User u2;
 
 	{
 		doUser = container.getInstance(DoUser.class);
@@ -19,56 +20,56 @@ public class TestDoUser
 
 	void signIn() throws Exception
 	{
-		User a = new User();
-		a.name = a.password = "a";
-		doUser.doSign.inUp(a);
-		me = doUser.me();
-		data.evict(me.friends);
-		data.fetch(me.friends);
-		me.friends_ = null;
+		User u = new User();
+		u.name = u.password = "b";
+		u2 = doUser.doSign.inUp(u);
+		// just for sub requests, since PersistentBag/List/Set won't be evicted
+		u2.friends = copy(u2.friends);
+		u = new User();
+		u.name = u.password = "a";
+		doUser.doSign.inUp(u);
+		u1 = doUser.doUser.me();
+		// just for sub requests, since PersistentBag/List/Set won't be evicted
+		u1.friends = copy(u1.friends);
+		u1.friends_ = null;
 	}
 
 	@Test
 	public void me() throws Exception
 	{
 		signIn();
-		assertEquals(sess.me, me.id);
-		assertEquals("a", me.name);
+		assertEquals(sess.me, u1.id);
+		assertEquals("a", u1.name);
 	}
 
 	@Test
 	public void update() throws Exception
 	{
 		signIn();
-		User b = new User();
-		b.name = b.password = "b";
-		(me.friends_ = copy(me.friends)).add(doUser.doSign.inUp(b));
-		doUser.update(me);
-		assertEquals(2, doUser.me().friends.size());
-		asserts(me.friends_, doUser.me().friends);
+		(u1.friends_ = u1.friends).add(u2);
+		doUser.update(u1);
+		asserts(new User[] { u1, u2 }, doUser.me().friends);
+		(u1.friends_ = u1.friends).remove(u1);
+		doUser.update(u1);
+		asserts(new User[] { u2 }, doUser.me().friends);
 	}
 
 	@Test(expected = HibernateException.class)
 	public void update_existId() throws Exception
 	{
 		signIn();
-		User b = new User();
-		b.name = b.password = "b";
-		(me.friends_ = copy(me.friends)).add(doUser.doSign.inUp(b));
-		doUser.update(me);
-		b = new User();
-		b.id = ((User)me.friends.toArray()[me.friends.size() - 1]).id;
-		me.friends_.add(b); // aready exist id
-		doUser.update(me);
+		(u1.friends_ = u1.friends).add(u2);
+		doUser.update(u1);
+		User x = new User();
+		x.id = ((User)u1.friends.toArray()[u1.friends.size() - 1]).id;
+		u1.friends_.add(x); // aready exist id
+		doUser.update(u1);
 	}
 
 	@Test
 	public void get() throws Exception
 	{
 		signIn();
-		User b = new User();
-		b.name = b.password = "b";
-		doUser.doSign.inUp(b);
 		User[] s = new User[] { new User(), new User(), new User() };
 		s[1].id = sess.me;
 		s[2].name = "b";
