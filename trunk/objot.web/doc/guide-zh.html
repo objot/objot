@@ -372,9 +372,11 @@ d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有�
 
 <p>给节点设置的事件函数，其this对象默认是节点自身，也可以定义为其他对象：
 <pre>$this(d, new Date());
+d = $d('this', new Date());
 </pre>
 这样节点的事件函数的this对象都是一个时间对象。事件函数的第一个参数是一个Event对象：
 <pre>function onClick(e) {
+	$.is(this, Date); // this是Date对象
 	alert(e.target); // 产生事件的直接节点，可能不是设置事件函数的节点（bubble机制）
 	e.stop(); // 停止bubble
 }
@@ -392,7 +394,7 @@ d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有�
 		$p().add($l().tx('Password'), this.pass = $inp('type', 'password')),
 			// &lt;p&gt;&lt;label&gt;Password&lt;/label&gt;&lt;input type=password&gt;&lt;/p&gt;
 		$p('s', 'text-align:center').add( // &lt;p style="text-align:center"&gt;
-			this.submit = $this($bn('click', this.doSign), this).tx('Signin / Signup'),
+			this.submit = $bn('click', this.doSign, 'this', this).tx('Signin / Signup'),
 				// &lt;button&gt;Signin / Signup&lt;/button&gt;并绑定onclick事件
 			this.http = $s()) // &lt;span&gt;&lt;/span&gt;&lt;/p&gt;
 	);

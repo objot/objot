@@ -9,12 +9,6 @@ $ = function (x) {
 	return x == null ? '' : String(x);
 }
 
-/** @return x, or cached {} if null/undefined */
-$$ = function (x) {
-	return x == null ? $$.o : x;
-}
-	$$.o = {};
-
 /* @return x, or a short string followed by ... */
 $S = function (x) {
 	return x === null ? 'null' // stupid IE, null COM not null
@@ -284,8 +278,9 @@ $id = function (id) {
 	return $D.getElementById(id);
 }
 
-/** create a dom element and set properties. c property for css class, s for css style.
- * function value as event handler.
+/** create a dom element and set properties. property 'c' for css class, 's' for css style,
+ * 'this' for "this" in event handler (same as $this).
+ * function value (except 'this' property) for event handler.
  * @param domOrName dom object or tag name.
  * ((@param prop. @param value) || @param prop object as map) ... */
 $dom = function (domOrName, prop, value) {
@@ -295,30 +290,29 @@ $dom = function (domOrName, prop, value) {
  * @param props array of prop and value or map.
  * @param from the index props start from, 0 if missing */
 $doms = function (domOrName, props, from) {
-	var m = typeof domOrName === 'string' ? $D.createElement(domOrName) : $.o(domOrName);
+	var m = typeof domOrName == 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	m !== window || $throw('apply $dom or $doms to window forbidden');
 	!m.constructor ? $.copy(m, $dom) // ie6(7?)
-		: m.constructor.$dom == null && delete $.copy(m.constructor.prototype, $dom).prototype;
+		: m.constructor.$ON == null && delete $.copy(m.constructor.prototype, $dom).prototype;
 	for (var v, p, x = from || 0; x < props.length; x++)
 		if ((p = props[x]) == null)
 			$throw('arguments[' + x + '] must not be null');
-		else if (typeof p === 'string')
-			if (v = props[++x], v === undefined && (v = null), typeof v === 'function')
-				m.attach(p, v);
-			else
-				p == 's' ? m.style.cssText = v : p == 'c' ? m.className = v : m[p] = v;
-		else for (var pp in p)
-			if (v = p[pp], v === undefined && (v = null), typeof v === 'function')
-				m.attach(pp, v);
-			else
-				pp == 's' ? m.style.cssText = v : pp == 'c' ? m.className = v : m[pp] = v;
+		else if (typeof p == 'string') {
+			v = props[++x], v === undefined && (v = null);
+			p == 'this' ? m.$THIS = v : typeof v == 'function' ? m.attach(p, v) :
+			p == 's' ? m.style.cssText = v : p == 'c' ? m.className = v : m[p] = v;
+		} else for (var pp in p) {
+			v = p[pp], v === undefined && (v = null);
+			pp == 'this' ? m.$THIS = v : typeof v == 'function' ? m.attach(pp, v) :
+			pp == 's' ? m.style.cssText = v : pp == 'c' ? m.className = v : m[pp] = v;
+		}
 	return m;
 }
 /** @param o as "this" in event handler of the dom object */
 $this = function (dom, o) {
-	return dom.$this = o, dom;
+	return dom.$THIS = o, dom;
 }
-	$fox && ($dom.$dom = false); // for dom node's constructor, be false for event attach
+	$fox && ($dom.$ON = false); // for dom node's constructor, be false for event attach
 
 with ($)
 {
@@ -402,11 +396,11 @@ $dom.rem = function (index, len) {
 			this.removeChild(arguments[x]);
 	return this;
 }
-/** like rem() and recursively detach event handlers and $this for no IE memory leak.
+/** like rem() and recursively detach event handlers and "this" to avoid IE memory leak.
  * @return this */
 $dom.des = function (index, len) {
 	if (arguments.length == 0)
-		this.$dom && (this.$dom = null), this.$this && (this.$this = null),
+		this.$ON && (this.$ON = null), this.$THIS && (this.$THIS = null),
 		this.parentNode && this.parentNode.removeChild(this),
 		index = 0;
 	if (index === true)
@@ -487,14 +481,14 @@ $dom.show = function (v) {
 
 /** attach event handler, if (oldHandler) old is detached and handler is attached.
  * handler ignored if already attached.
- * in event handler, "this" is this element or element.$this if available,
+ * in event handler, "this" is this element or the object specified by $this if any,
  * and first arugment is event object which target is the source dom element
  *   and which stop() is for cancel bubble.
  * @return this */
 $dom.attach = function (type, handler, oldHandler) {
 	if (oldHandler)
 		detach(type, oldHandler);
-	var x, s = this.$dom || (this.$dom = [1, 0, 0]); // [free, next, handler, ...]
+	var x, s = this.$ON || (this.$ON = [1, 0, 0]); // [free, next, handler, ...]
 	if (x = s[type])
 		do if (s[x + 1] === handler)
 			return this;
@@ -512,7 +506,7 @@ $dom.attach = function (type, handler, oldHandler) {
 }
 /* detach event handler. @return this */
 $dom.detach = function (type, handler) {
-	var s = this.$dom;
+	var s = this.$ON;
 	if (s)
 		for (var x = type, y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
@@ -564,13 +558,13 @@ $.is = function (x, clazz, name) {
 		+ (clazz.$name || clazz.name || name || $S(clazz)));
 }
 
-/** @return class (constructor) from class cache, or if $_$$ is true, eval() */
-$.c = function ($_$, $_$$) {
+/** @return class (constructor) from class cache, or if $_$_ is true, eval() */
+$.c = function ($_$, $_$_) {
 	if ($_$ in this.cs)
 		return this.cs[$_$];
-	$_$$ || $throw($S($_$) + ' class not found');
-	with(window) $_$$ = eval($_$);
-	return typeof $_$$ === 'function' ? this.cs[$_$] = $_$$
+	$_$_ || $throw($S($_$) + ' class not found');
+	with(window) $_$_ = eval($_$);
+	return typeof $_$_ === 'function' ? this.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
@@ -594,8 +588,8 @@ $.copyOwn = function (to, from) {
 
 	/* event dispatcher */
 	$.event = function (e, s, x, r, t) {
-		if ((s = this.$dom) && (x = s[(e = e || event).type])) {
-			t = this.$this || this;
+		if ((s = this.$ON) && (x = s[(e = e || event).type])) {
+			t = this.$THIS || this;
 			$fox || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop);
 			r = true; do
 				r &= !s[x + 1].call(t, e);

@@ -9,7 +9,7 @@ import objot.codec.Get;
 
 public class Ok
 {
-	public static final Ok OK = new Ok("OK");
+	public static final Ok OK = new Ok("");
 
 	@Get
 	public final String hint;

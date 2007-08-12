@@ -142,13 +142,13 @@ $.opacity = $fox ? function (d, v) {
  * @param h return value of $Do
  * @return the box, inner des() includes http stop */
 $Http = function (box, h) {
-	var i = $this($s('c', 'HTTP-icon', 'title', h.$hint + '... Stop?', 'dblclick', h), h);
+	var i = $s('c', 'HTTP-icon', 'title', h.$hint + '... Stop?', 'dblclick', h, 'this', h);
 	i.des = $Http.des, h.$this0 = i, h.$done0 = $Http.done;
 	return box.des(0).cla(0, 'ERR').cla('HTTP').add(i);
 }
 	$Http.des = function () {
 		if (arguments.length == 0)
-			this.$this();
+			this.$THIS();
 		return $dom.des.apply(this, arguments);
 	}
 	$Http.done = function () {
