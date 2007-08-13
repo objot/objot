@@ -20,7 +20,7 @@ public abstract class IdAutoBean<T extends IdAutoBean<T>>
 
 	@Get
 	@javax.persistence.Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY /* start from 1 */)
+	@GeneratedValue(strategy = GenerationType.AUTO /* start from 1 */)
 	public int getId()
 	{
 		return id;
