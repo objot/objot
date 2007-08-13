@@ -17,15 +17,15 @@
 	<tr><td>waitForTextPresent		<td>Ok					<td>
 	<tr><td>open					<td>/objotweb/demo/		<td>
 	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[1]	<td>b
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>b
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>b
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
 	<tr><td>refresh						<td>				<td>
 	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[1]	<td>a
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>a
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForText	<td>css=#Me > div.name				<td>a
 
 	<tr><th>post_meToMe
@@ -39,8 +39,8 @@
 	<tr><td>type		<td>css=#Me input					<td>b
 	<tr><td>click		<td>css=#Me .do a[title="Chat"]		<td>
 	<tr><td>waitForText	<td>css=#Chatss .tabAct				<td>b
-	<tr><td>type		<td>css=#Chatss .post[style=""]		<td>pb
-	<tr><td>click		<td>css=#Chatss button[style=""]	<td>
+	<tr><td>type		<td>css=#Chatss .post:nth-child(5)	<td>pb
+	<tr><td>click		<td>css=#Chatss button:last-child	<td>
 	<tr><td>waitForElementPresent	<td>css=#Chatss .ERR	<td>
 
 	<tr><th>post_fromFriend
@@ -49,9 +49,9 @@
 	<tr><td>waitForText	<td>css=#Me a.name:nth-child(3)		<td>b
 	<tr><td>refresh						<td>				<td>
 	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[1]	<td>b
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>b
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>b
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForText	<td>css=#Me > div.name				<td>b
 	<tr><td>type		<td>css=#Me input					<td>a
 	<tr><td>click		<td>css=#Me .do a[title="Chat"]		<td>
@@ -63,9 +63,9 @@
 	<tr><th>read
 	<tr><td>refresh						<td>				<td>
 	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[1]	<td>a
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>a
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForText	<td>css=#Chatss .tabAct				<td>a
 	<tr><td>click		<td>css=#Chatss .tabAct				<td>
 	<tr><td>waitForText	<td>css=#Chatss div[class="text out"]	<td>pa
