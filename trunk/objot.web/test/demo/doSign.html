@@ -21,20 +21,20 @@
 	<tr><th>inUp-up
 	<tr><td>open					<td>/objotweb/demo/		<td>
 	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[1]	<td>a
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>a
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
 
 	<tr><th>inUp-in
 	<tr><td>open					<td>/objotweb/demo/		<td>
 	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[1]	<td>a
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>b
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForElementPresent	<td>css=#SignIn .ERR	<td>
-	<tr><td>type		<td>xpath=(id('SignIn')//input)[2]	<td>a
-	<tr><td>click		<td>xpath=id('SignIn')//button		<td>
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
 	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
 
 	<tr><th>inUp-out
