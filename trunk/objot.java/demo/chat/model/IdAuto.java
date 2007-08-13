@@ -17,7 +17,7 @@ public abstract class IdAuto<T extends IdAuto<T>>
 {
 	@GetSet
 	@javax.persistence.Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY /* start from 1 */)
+	@GeneratedValue(strategy = GenerationType.AUTO /* start from 1 */)
 	public int id;
 
 	/** {@inheritDoc} */
