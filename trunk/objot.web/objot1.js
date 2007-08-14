@@ -47,13 +47,12 @@ $class = function (SO, ctorName, sup) {
 		$.cs[ctor.$name] = ctor;
 	return ctor;
 }
-/** define the encoding rules. former rules are overrided by later rules.
+/** add encoding rules to the class. former rules are overrided by later rules.
  * (@param forClass key. @param get what to encode, all if null)... */
 $class.get = function (clazz, forClass, gets) {
-	if (arguments.length > 1)
-		clazz.$get = [], clazz.$gets = [];
+	clazz.$gets || (clazz.$gets = []);
 	for (var x = 1; x < arguments.length; ) {
-		clazz.$get.push($.f(arguments[x++]));
+		clazz.$gets.push($.f(arguments[x++]));
 		if ((gets = arguments[x++]) === null)
 			clazz.$gets.push(null);
 		else if (gets instanceof Array) {
@@ -127,10 +126,10 @@ $get = function (o, forClass) {
 		s[x++] = t === 'Object' ? '' : t;
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 		P: {
-			G: if (get = o.constructor.$get) {
-				for (var c = s.clazz, g = get.length - 1; g >= 0; g--)
+			G: if (get = o.constructor.$gets) {
+				for (var c = s.clazz, g = get.length - 2; g >= 0; g -= 2)
 					if (c === get[g] || c.prototype instanceof get[g]) {
-						if (get = o.constructor.$gets[g]) {
+						if (get = get[g + 1]) {
 
 		for (var p, n = 0; n < get.length; n++)
 			if ((p = get[n]) in o && (v = o[p], t = typeof v) !== 'function')
@@ -256,9 +255,9 @@ $http = function (url, timeout, request, done, data) {
 				done(mode ? 1 : -1, mode ? 'timeout' : 'stop', data), done = data = null;
 		}
 	}
-	h.onreadystatechange = $ie6/*7?*/ || $http.doneDelay > 0 ? function () {
+	h.onreadystatechange = $fox && $http.doneDelay <= 0 ? on : function () {
 		setTimeout(on, $http.doneDelay + 1);
-	} : on;
+	};
 	timeout = timeout > 0 && setTimeout(function () {
 		stop(0, 1);
 	}, timeout);
@@ -292,27 +291,27 @@ $dom = function (domOrName, prop, value) {
 $doms = function (domOrName, props, from) {
 	var m = typeof domOrName == 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	m !== window || $throw('apply $dom or $doms to window forbidden');
-	!m.constructor ? $.copy(m, $dom) // ie6(7?)
-		: m.constructor.$ON == null && delete $.copy(m.constructor.prototype, $dom).prototype;
+	$fox ? m.constructor.$on || delete $.copy(m.constructor.prototype, $dom).prototype
+		: $.copy(m, $dom);
 	for (var v, p, x = from || 0; x < props.length; x++)
 		if ((p = props[x]) == null)
 			$throw('arguments[' + x + '] must not be null');
 		else if (typeof p == 'string') {
 			v = props[++x], v === undefined && (v = null);
-			p == 'this' ? m.$THIS = v : typeof v == 'function' ? m.attach(p, v) :
+			p == 'this' ? m.$this = v : typeof v == 'function' ? m.attach(p, v) :
 			p == 's' ? m.style.cssText = v : p == 'c' ? m.className = v : m[p] = v;
 		} else for (var pp in p) {
 			v = p[pp], v === undefined && (v = null);
-			pp == 'this' ? m.$THIS = v : typeof v == 'function' ? m.attach(pp, v) :
+			pp == 'this' ? m.$this = v : typeof v == 'function' ? m.attach(pp, v) :
 			pp == 's' ? m.style.cssText = v : pp == 'c' ? m.className = v : m[pp] = v;
 		}
 	return m;
 }
 /** @param o as "this" in event handler of the dom object */
 $this = function (dom, o) {
-	return dom.$THIS = o, dom;
+	return dom.$this = o, dom;
 }
-	$fox && ($dom.$ON = false); // for dom node's constructor, be false for event attach
+	$fox && ($dom.$on = false); // for dom node's constructor, be false for event attach
 
 with ($)
 {
@@ -400,7 +399,7 @@ $dom.rem = function (index, len) {
  * @return this */
 $dom.des = function (index, len) {
 	if (arguments.length == 0)
-		this.$ON && (this.$ON = null), this.$THIS && (this.$THIS = null),
+		this.$on && (this.$on = null), this.$this && (this.$this = null),
 		this.parentNode && this.parentNode.removeChild(this),
 		index = 0;
 	if (index === true)
@@ -488,7 +487,7 @@ $dom.show = function (v) {
 $dom.attach = function (type, handler, oldHandler) {
 	if (oldHandler)
 		detach(type, oldHandler);
-	var x, s = this.$ON || (this.$ON = [1, 0, 0]); // [free, next, handler, ...]
+	var x, s = this.$on || (this.$on = [1, 0, 0]); // [free, next, handler, ...]
 	if (x = s[type])
 		do if (s[x + 1] === handler)
 			return this;
@@ -506,7 +505,7 @@ $dom.attach = function (type, handler, oldHandler) {
 }
 /* detach event handler. @return this */
 $dom.detach = function (type, handler) {
-	var s = this.$ON;
+	var s = this.$on;
 	if (s)
 		for (var x = type, y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
@@ -523,7 +522,7 @@ $.throwStack = function (file, line) {
 		: $throw.err ? $throw.err.Stack() : '';
 	s = s.substr(s.indexOf('\n') + 1);
 	return arguments.length == 0 || $throw.err ? s
-		: '@' + file + ':' + ($ie6/*7?*/ ? line - 1 : line) + '\n' + s;
+		: '@' + file + ':' + ($fox ? line : line - 1) + '\n' + s;
 }
 	Error.prototype.Stack = function (s) {
 		if (!(s = this.stack))
@@ -588,8 +587,8 @@ $.copyOwn = function (to, from) {
 
 	/* event dispatcher */
 	$.event = function (e, s, x, r, t) {
-		if ((s = this.$ON) && (x = s[(e = e || event).type])) {
-			t = this.$THIS || this;
+		if ((s = this.$on) && (x = s[(e = e || event).type])) {
+			t = this.$this || this;
 			$fox || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop);
 			r = true; do
 				r &= !s[x + 1].call(t, e);

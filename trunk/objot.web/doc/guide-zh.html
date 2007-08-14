@@ -160,7 +160,8 @@ $get(u1, DoUser.all); // 编码u1的全部属性，以及整个SO图
 排除某些引用属性，就可以排除这些引用构成的SO图。
 
 <p>修改规则，设置某些临时引用，使得某些SO的某些引用被编码：
-<pre>$class.get(User, Object, ['name'], DoUser, ['name', 'myFriends'], DoUser.all, null);
+<pre>$class.get(User, Object, ['name']);
+$class.get(User, DoUser, ['name', 'myFriends'], DoUser.all, null);
 u1.myFriends = u1.friends; // u1的myFriends属性与friends属性相同，但其他User没有myFriends属性
 $get(u1, DoUser);
 delete u1.myFriends; // 清除临时属性
