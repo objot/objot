@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
+-->
+<html>
+<head>
+<meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
+<title>Chat - Objot demo - Test</title>
+</head>
+
+<body>
+<table border=1>
+	<tr><th>doSign
+	<tr><td>setTimeout			<td>5000				<td>
+	<tr><td>open				<td>/objot/service/test	<td>
+	<tr><td>waitForTextPresent	<td>Ok					<td>
+
+	<tr><th>inUp-up
+	<tr><td>open					<td>/objotweb/demo/		<td>
+	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
+
+	<tr><th>inUp-in
+	<tr><td>open					<td>/objotweb/demo/		<td>
+	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForElementPresent	<td>css=#SignIn .ERR	<td>
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
+
+	<tr><th>inUp-out
+	<tr><td>click					<td>css=#SignOut a	<td>
+	<tr><td>waitForElementPresent	<td>id=SignIn		<td>
+</table>
+</body>
+</html>

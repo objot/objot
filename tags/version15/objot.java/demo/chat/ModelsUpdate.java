@@ -1,0 +1,41 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
+package chat;
+
+import org.hibernate.tool.hbm2ddl.DatabaseMetadata;
+
+
+public class ModelsUpdate
+	extends Models
+{
+
+	/** @param args whether to execute, false by default */
+	public static void main(String... args) throws Exception
+	{
+		new ModelsUpdate(args.length > 0 && Boolean.valueOf(args[0]));
+	}
+
+	public ModelsUpdate(boolean execute) throws Exception
+	{
+		try
+		{
+			start(execute, false);
+			String[] ss = conf.generateSchemaUpdateScript(dialect, //
+				new DatabaseMetadata(conn, dialect));
+			System.out.println();
+			for (String s: ss)
+				sql(s, true);
+			hib.getTransaction().commit();
+			Thread.sleep(200);
+			LOG.info("\n================ end ================"
+				+ "\nSomething may be ignored such as unique indices, column default values"
+				+ "\nCheck them manually\n");
+		}
+		finally
+		{
+			close();
+		}
+	}
+}
