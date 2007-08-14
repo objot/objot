@@ -25,7 +25,7 @@
 <script>
 
 window.onerror = function(m,f,l){
-	return $fox ? alert(m, $.throwStack(f, l)) : alert(m, f, l), true;
+	return alert(m + '\n' + $.throwStack(f, l)), true;
 }
 
 window.div = $id('div');
@@ -62,12 +62,12 @@ function B() {
 function C() {
 }
 
-$class('A');
-$class('B', A);
+$class(false, 'A');
+$class(false, 'B', A);
 A.prototype.aa = 'aa';
 $class.get(B, demoG, ['a1'], Object, null);
 
-$class('C', B);
+$class(false, 'C', B);
 C.prototype.c = 'c';
 x = new A();
 y = new B();

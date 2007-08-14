@@ -11,7 +11,6 @@ onerror = function(m, f, l) {
 
 $Do.Url = '/objot/service/';
 $Do.Timeout = 5000;
-$http.doneDelay = 300;
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -78,7 +77,9 @@ DoUser.me = function (This, done) {
 	return $Do('DoUser-me', 'Loading my info', '', This, done, null, this.doneMe);
 }
 	DoUser.doneMe = function (ok, err) {
-		ok && (_me = $.is(ok, User));
+		ok && (_me = $.is(ok, User), _me.friends.sort(function (a, b) {
+			return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; 
+		}));
 	}
 
 DoUser.update = function (friends, This, done) {
@@ -116,8 +117,8 @@ DoChat.post = function (In, text, This, done) {
 $class(false, 'DoSign');
 $class(false, 'DoUser');
 
-$class.get(User, Object, ['id'], DoSign, ['name', 'password'],
-	DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
+$class.get(User, Object, ['id'], DoSign, ['name', 'password']);
+$class.get(User, DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
 $class.get(Chat, DoChat, null);
 
 
