@@ -46,7 +46,7 @@ public class TestDoChat
 		signIn();
 		Chat c = new Chat();
 		c.in = u1;
-		c.text = "post1";
+		c.text = clob("post1");
 		c.datime = DATE0;
 		long time = System.currentTimeMillis();
 		doChat.post(c);
@@ -61,7 +61,7 @@ public class TestDoChat
 		signIn();
 		Chat c = new Chat();
 		c.in = u2;
-		c.text = "post1";
+		c.text = clob("post1");
 		c.datime = DATE0;
 		doChat.post(c);
 	}
@@ -78,7 +78,7 @@ public class TestDoChat
 		doChat.doUser.update(u1);
 		Chat c = new Chat();
 		c.in = u2;
-		c.text = "post1";
+		c.text = clob("post1");
 		c.datime = DATE0;
 		doChat.post(c);
 	}
@@ -89,7 +89,7 @@ public class TestDoChat
 		signIn();
 		Chat c = new Chat();
 		c.in = u1;
-		c.text = "post1";
+		c.text = clob("post1");
 		c.datime = DATE0;
 		doChat.post(c);
 		Chat cc = new Chat();
@@ -100,7 +100,7 @@ public class TestDoChat
 		assertEquals(c.in, cc.in);
 		assertEquals(c.out, cc.out);
 		assertEquals(c.datime, cc.datime);
-		assertEquals(c.text, cc.text);
+		assertEquals(string(c.text), string(cc.text));
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class TestDoChat
 		signIn();
 		Chat c = new Chat();
 		c.in = u1;
-		c.text = "post1";
+		c.text = clob("post1");
 		c.datime = DATE0;
 		doChat.post(c);
 		Chat cc = new Chat();
@@ -133,12 +133,12 @@ public class TestDoChat
 
 		Chat c = new Chat();
 		c.in = u2;
-		c.text = "post1";
+		c.text = clob("post1");
 		c.datime = DATE0;
 		doChat.post(c);
 		doChat.doSign.inUp(u2);
 		c.in = u1;
-		c.text = "post2";
+		c.text = clob("post1");
 		doChat.post(c);
 
 		Chat cc = new Chat();
