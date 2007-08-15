@@ -4,6 +4,7 @@
 //
 package chat.model;
 
+import java.sql.Clob;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -19,10 +20,9 @@ import objot.codec.Name;
 import objot.codec.Set;
 
 import org.hibernate.annotations.Proxy;
-import org.hibernate.validator.Length;
-import org.hibernate.validator.NotEmpty;
 import org.hibernate.validator.NotNull;
 
+import chat.BeText;
 import chat.service.DoChat;
 
 
@@ -50,18 +50,17 @@ public class Chat
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date datime;
 
-	@NotEmpty
-	@Length(max = 1024)
-	public String text;
+	@BeText(max = 1024, simple = false)
+	public Clob text;
 
 	@Get
-	public String getText()
+	public Clob getText()
 	{
 		return text;
 	}
 
 	@Set
-	public void setText(String _)
+	public void setText(Clob _)
 	{
 		text = _;
 	}

@@ -21,28 +21,28 @@ import org.hibernate.validator.Validator;
 import org.hibernate.validator.ValidatorClass;
 
 
-@ValidatorClass(BeSimple.V.class)
+@ValidatorClass(BeText.V.class)
 @Retention(RetentionPolicy.RUNTIME)
 @Target( { ElementType.METHOD, ElementType.FIELD })
 @Documented
-public @interface BeSimple
+public @interface BeText
 {
 	int min() default 1;
 
 	int max() default Integer.MAX_VALUE;
 
+	boolean simple() default true;
+
 	String message() default "too short or too long or illegal format";
 
 	public static class V
-		implements Validator<BeSimple>, PropertyConstraint
+		implements Validator<BeText>, PropertyConstraint
 	{
-		int min;
-		int max;
+		BeText anno;
 
-		public void initialize(BeSimple _)
+		public void initialize(BeText a)
 		{
-			min = _.min();
-			max = _.max();
+			anno = a;
 		}
 
 		public boolean isValid(Object value)
@@ -62,9 +62,9 @@ public @interface BeSimple
 				}
 			else
 				return false; // include null
-			if (v.length() < min || v.length() > max)
+			if (v.length() < anno.min() || v.length() > anno.max())
 				return false;
-			if (min > 0)
+			if (anno.simple() && v.length() > 0)
 			{
 				char c0 = v.charAt(0), c9 = v.charAt(v.length() - 1);
 				if (c0 == ' ' || c0 == '\u00a0' || c9 == ' ' || c9 == '\u00a0')
@@ -82,9 +82,9 @@ public @interface BeSimple
 				&& ! (p.getPersistentClass() instanceof Collection))
 				for (Iterator<Column> cs = p.getColumnIterator(); cs.hasNext();)
 					cs.next().setNullable(false);
-			if (max < Integer.MAX_VALUE)
+			if (anno.max() < Integer.MAX_VALUE)
 				for (Iterator<Column> cs = p.getColumnIterator(); cs.hasNext();)
-					cs.next().setLength(max);
+					cs.next().setLength(anno.max());
 		}
 	}
 }

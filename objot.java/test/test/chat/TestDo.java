@@ -1,5 +1,6 @@
 package test.chat;
 
+import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -7,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import javax.sql.rowset.serial.SerialClob;
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -65,6 +67,16 @@ public class TestDo
 	public <T>List<T> copy(List<T> s)
 	{
 		return new ArrayList<T>(s);
+	}
+
+	public Clob clob(String s) throws Exception
+	{
+		return new SerialClob(s.toCharArray());
+	}
+
+	public String string(Clob s) throws Exception
+	{
+		return s.getSubString(1, (int)Math.min(s.length(), Integer.MAX_VALUE));
 	}
 
 	public static void asser(boolean x)

@@ -17,7 +17,7 @@ import objot.codec.Set;
 
 import org.hibernate.annotations.Proxy;
 
-import chat.BeSimple;
+import chat.BeText;
 import chat.service.DoChat;
 import chat.service.DoSign;
 import chat.service.DoUser;
@@ -29,12 +29,12 @@ import chat.service.DoUser;
 public class User
 	extends IdAuto<User>
 {
-	@BeSimple(max = 20)
+	@BeText(max = 20)
 	@Get( { DoUser.class, DoChat.class })
 	@Set( { DoSign.class, DoUser.class })
 	public String name;
 
-	@BeSimple(max = 20)
+	@BeText(max = 20)
 	@Set(DoSign.class)
 	public String password;
 
