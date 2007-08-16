@@ -62,6 +62,8 @@ public class ModelsCreate
 			}
 			hib.getTransaction().commit();
 			Thread.sleep(200);
+			if (! execute)
+				LOG.warn("\n======== no SQL statement executed on database ========\n");
 			LOG.info("\n================ end ================\n");
 		}
 		finally
@@ -70,7 +72,7 @@ public class ModelsCreate
 		}
 	}
 
-	/** @return object with specified id, may be detached */
+	/** @return persisted object with specified id, may be detached */
 	<T extends Id<T>>T persist(T o, int id) throws Exception
 	{
 		if (o instanceof IdAuto || o instanceof IdAutoBean)
