@@ -14,6 +14,8 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.cfg.NamingStrategy;
@@ -32,9 +34,36 @@ public class Models
 	/** @param test whether use the testing database */
 	public static AnnotationConfiguration build(boolean test) throws Exception
 	{
-		AnnotationConfiguration conf = new AnnotationConfiguration();
-		if (test)
-			conf.setProperty(Environment.URL, conf.getProperty(Environment.URL + ".test"));
+		AnnotationConfiguration conf = new AnnotationConfiguration()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public SessionFactory buildSessionFactory() throws HibernateException
+			{
+				if (! "org.hsqldb.jdbcDriver".equals(getProperty(Environment.DRIVER)))
+					return super.buildSessionFactory();
+				// fix the issue of hsqldb write delay stupid default value
+				SessionFactory fac = super.buildSessionFactory();
+				try
+				{
+					SessionImpl hib = (SessionImpl)fac.openSession();
+					hib.beginTransaction();
+					Statement stat = hib.getJDBCContext().borrowConnection()
+						.createStatement();
+					stat.executeUpdate("SET WRITE_DELAY FALSE");
+					hib.getTransaction().commit();
+					stat.close();
+					hib.close();
+					LOG.info("SET WRITE_DELAY FALSE");
+				}
+				catch (Exception e)
+				{
+					throw new Error(e);
+				}
+				return fac;
+			}
+		};
 
 		conf.setNamingStrategy(new NamingStrategy()
 		{
@@ -97,6 +126,9 @@ public class Models
 
 		for (Class<?> c: getPackageClasses(Id.class))
 			conf.addAnnotatedClass(c);
+
+		if (test)
+			conf.setProperty(Environment.URL, conf.getProperty(Environment.URL + ".test"));
 		return conf;
 	}
 

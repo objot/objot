@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-annotations.jar" sourcepath="/work/app/dev/hibernate-annotations-3.3.0.GA.zip"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-validator.jar" sourcepath="/work/app/dev/hibernate-validator-3.0.0.GA.zip"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/hsqldb.jar" sourcepath="/work/app/dev/hsqldb_1_8_0_7.zip"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/javassist.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/jta.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/servlet.jar"/>
