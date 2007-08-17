@@ -114,9 +114,6 @@ DoChat.post = function (In, text, This, done) {
 
 //********************************************************************************************//
 
-$class(false, 'DoSign');
-$class(false, 'DoUser');
-
 $class.get(User, Object, ['id'], DoSign, ['name', 'password']);
 $class.get(User, DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
 $class.get(Chat, DoChat, null);
