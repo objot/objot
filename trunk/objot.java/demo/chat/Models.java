@@ -106,7 +106,8 @@ public class Models
 
 			public String logicalColumnName(String column, String property)
 			{
-				return column != null ? column : StringHelper.unqualify(property);
+				return StringHelper.isEmpty(column) ? StringHelper.unqualify(property)
+					: column;
 			}
 
 			public String logicalCollectionTableName(String table, String ownerTable,
@@ -120,7 +121,8 @@ public class Models
 			public String logicalCollectionColumnName(String column, String property,
 				String referencedColumn)
 			{
-				return column != null ? column : property + "_" + referencedColumn;
+				return StringHelper.isEmpty(column) ? property + "_" + referencedColumn
+					: column;
 			}
 		});
 
