@@ -92,16 +92,16 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 		h.$this2 = this2, h.$done2 = done2, h.$this1 = this1, h.$done1 = done1;
 	return h;
 }
-	$Do.done = function (code, res, http) {
-		http.$this0 !== undefined && http.$done0.call(http.$this0, code, res, http);
+	$Do.done = function (code, res, h) {
+		h.$this0 !== undefined && h.$done0.call(h.$this0);
 		var ok = false, err = false;
 		if (code == 0)
 			(res = $set(res)) instanceof Err ? err = res : ok = res;
 		else if (code > 0)
 			err = new Err('HTTP Error ' + code + ' ' + res);
-		http.$this1 !== undefined && http.$done1.call(http.$this1, ok, err, http);
-		http.$this2 !== undefined && http.$done2.call(http.$this2, ok, err, http);
-		http.$this3 !== undefined && http.$done3.call(http.$this3, ok, err, http);
+		h.$this1 !== undefined && h.$done1.call(h.$this1, ok, err, h);
+		h.$this2 !== undefined && h.$done2.call(h.$this2, ok, err, h);
+		h.$this3 !== undefined && h.$done3.call(h.$this3, ok, err, h);
 	}
 
 /** url prefix */
@@ -142,17 +142,14 @@ $.opacity = $fox ? function (d, v) {
  * @param h return value of $Do
  * @return the box, inner des() includes http stop */
 $Http = function (box, h) {
-	var i = $s('c', 'HTTP-icon', 'title', h.$hint + '... Stop?', 'dblclick', h, 'this', h);
-	i.des = $Http.des, h.$this0 = i, h.$done0 = $Http.done;
+	var i = $s('c', 'HTTP-icon', 'title', h.$hint + '... Stop?', 'dblclick', h);
+	i.$http = h, i.des = h.$done0 = $Http.des, h.$this0 = i;
 	return box.des(0).cla(0, 'ERR').cla('HTTP').add(i);
 }
 	$Http.des = function () {
 		if (arguments.length == 0)
-			this.$this();
+			this.$http();
 		return $dom.des.apply(this, arguments);
-	}
-	$Http.done = function () {
-		this.des();
 	}
 
 /** make a box as error widget.

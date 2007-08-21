@@ -371,16 +371,24 @@ d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有�
 </pre>
 无参数时att(), tx(), show()返回获取的值，有参数时，以及其他函数，都返回节点自身。
 
-<p>给节点设置的事件函数，其this对象默认是节点自身，也可以定义为其他对象：
-<pre>$this(d, new Date());
-d = $d('this', new Date());
-</pre>
-这样节点的事件函数的this对象都是一个时间对象。事件函数的第一个参数是一个Event对象：
+<p>给节点设置的事件函数，其this对象默认是节点自身，第一个函数参数默认是Event对象：
 <pre>function onClick(e) {
-	$.is(this, Date); // this是Date对象
+	alert(this); // this是节点自身
 	alert(e.target); // 产生事件的直接节点，可能不是设置事件函数的节点（bubble机制）
 	e.stop(); // 停止bubble
 }
+</pre>
+可以将this、参数指定为其他对象、数组：
+<pre>$d('click', onClick, new Date(), [ 'hello' ]);
+function onClick(o) {
+	$.is(this, Date); // this是Date对象
+	$.s(o); // o是字符串
+}
+</pre>
+如果要使用默认的this和参数，则要指定与false对应的值，例如：
+<pre>
+$d('click', onClick, 0, null, 'dblclick', onClick2, false, '');
+$d('click', onClick); // 相当于 $d('click', onClick, undefined, undefined);
 </pre>
 
 <!--****************************************************************************************-->
