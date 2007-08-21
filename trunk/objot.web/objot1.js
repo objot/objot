@@ -277,39 +277,27 @@ $id = function (id) {
 	return $D.getElementById(id);
 }
 
-/** create a dom element and set properties. property 'c' for css class, 's' for css style,
- * 'this' for "this" in event handler (same as $this).
- * function value (except 'this' property) for event handler.
+/** create a dom element and set properties. property 'c' for css class, 's' for css style
+ * function value followed by "this" and "arguments" is for event handler.
  * @param domOrName dom object or tag name.
  * ((@param prop. @param value) || @param prop object as map) ... */
 $dom = function (domOrName, prop, value) {
 	return $doms(domOrName, arguments, 1);
 }
 /** similar to $dom.
- * @param props array of prop and value or map.
+ * @param props array of prop and value.
  * @param from the index props start from, 0 if missing */
 $doms = function (domOrName, props, from) {
 	var m = typeof domOrName == 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	m !== window || $throw('apply $dom or $doms to window forbidden');
 	$fox ? m.constructor.$on || delete $.copy(m.constructor.prototype, $dom).prototype
 		: $.copy(m, $dom);
-	for (var v, p, x = from || 0; x < props.length; x++)
-		if ((p = props[x]) == null)
-			$throw('arguments[' + x + '] must not be null');
-		else if (typeof p == 'string') {
-			v = props[++x], v === undefined && (v = null);
-			p == 'this' ? m.$this = v : typeof v == 'function' ? m.attach(p, v) :
-			p == 's' ? m.style.cssText = v : p == 'c' ? m.className = v : m[p] = v;
-		} else for (var pp in p) {
-			v = p[pp], v === undefined && (v = null);
-			pp == 'this' ? m.$this = v : typeof v == 'function' ? m.attach(pp, v) :
-			pp == 's' ? m.style.cssText = v : pp == 'c' ? m.className = v : m[pp] = v;
-		}
+	for (var v, p, x = from || 0; x < props.length; x++) {
+		p = $.s(props[x]), v = props[++x], v === undefined && (v = null);
+		typeof v == 'function' ? m.attach(p, v, props[++x], props[++x]) :
+		p == 's' ? m.style.cssText = v : p == 'c' ? m.className = v : m[p] = v;
+	}
 	return m;
-}
-/** @param o as "this" in event handler of the dom object */
-$this = function (dom, o) {
-	return dom.$this = o, dom;
 }
 	$fox && ($dom.$on = false); // for dom node's constructor, be false for event attach
 
@@ -478,16 +466,16 @@ $dom.show = function (v) {
 	return this;
 }
 
-/** attach event handler, if (oldHandler) old is detached and handler is attached.
- * handler ignored if already attached.
- * in event handler, "this" is this element or the object specified by $this if any,
- * and first arugment is event object which target is the source dom element
- *   and which stop() is for cancel bubble.
+/** attach event handler.
+ * @param handler ignored if already attached
+ * @param This the "this" in handler, false for this dom element
+ * @param args the arguments for handler, false for the event object which
+ *   "target" is source dom element, "which" is key code, "stop()" to cancel bubble
+ * @param old replaced by handler
  * @return this */
-$dom.attach = function (type, handler, oldHandler) {
-	if (oldHandler)
-		detach(type, oldHandler);
-	var x, s = this.$on || (this.$on = [1, 0, 0]); // [free, next, handler, ...]
+$dom.attach = function (type, handler, This, args, old) {
+	old && detach(type, old);
+	var x, s = this.$on || (this.$on = [1, 0,0,0,0]); // [free,next,handler,This,args...]
 	if (x = s[type])
 		do if (s[x + 1] === handler)
 			return this;
@@ -500,8 +488,8 @@ $dom.attach = function (type, handler, oldHandler) {
 //		this.attachEvent('on' + type, $.event);
 	else
 		this['on' + type] = $.event;
-	s[x || type] = (x = s[0]), s[0] = s[x] || x + 2, s[x] = 0, s[x + 1] = handler;
-	return this;
+	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4,
+		s[x++] = 0, s[x++] = handler, s[x++] = This || this, s[x] = args, this;
 }
 /* detach event handler. @return this */
 $dom.detach = function (type, handler) {
@@ -509,7 +497,8 @@ $dom.detach = function (type, handler) {
 	if (s)
 		for (var x = type, y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
-				return s[x] = s[y], s[y] = s[0], s[0] = y, s[y + 1] = null, this;
+				return s[x] = s[y], s[y] = s[0], s[0] = y,
+					s[++y] = s[++y] = s[++y] = null, this;
 	return this;
 }
 
@@ -586,12 +575,12 @@ $.copyOwn = function (to, from) {
 //********************************************************************************************//
 
 	/* event dispatcher */
-	$.event = function (e, s, x, r, t) {
+	$.event = function (e, s, x, r, ee) {
 		if ((s = this.$on) && (x = s[(e = e || event).type])) {
-			t = this.$this || this;
-			$fox || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop);
 			r = true; do
-				r &= !s[x + 1].call(t, e);
+				r &= s[x + 3] ? !s[x + 1].apply(s[x + 2], s[x + 3]) :
+					!s[x + 1].call(s[x + 2], ee || (ee = e, $fox ||
+					(e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop)));
 			while (x = s[x]);
 			return r;
 		}

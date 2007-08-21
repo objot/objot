@@ -126,9 +126,9 @@ _SignIn = function (box, thisOk, onOk) {
 	this.box = box.add(this.err = $p(),
 		$p().add($l().tx('User name'), this.name = $ln()),
 		$p().add($l().tx('Password'),
-			this.pass = $inp('type', 'password', 'keypress', this.doKey, 'this', this)),
+			this.pass = $inp('type', 'password', 'keypress', this.doKey, this)),
 		$p('s', 'text-align:center').add(
-			this.submit = $bn('click', this.doSign, 'this', this).tx('Signin / Signup'),
+			this.submit = $bn('click', this.doSign, this).tx('Signin / Signup'),
 			this.http = $s())
 	);
 	this.name.focus();
@@ -160,13 +160,13 @@ _Me = function (box) {
 	this.box = box.add(
 		this.name = $d('c', 'name'),
 		this.reload = $d('c', 'do').add(
-			$a0('click', this.doReload, 'this', this).tx('Reload'),
+			$a0('click', this.doReload, this).tx('Reload'),
 			this.http = $s()),
 		this.friends = $d('c', 'friends'),
 		this.add = $ln('c', 'name'),
 		$s('c', 'do').add(
-			$a0('title', 'Chat', 'click', this.doAddChat, 'this', this).tx('..'), $tx('  '),
-			$a0('title', 'Add', 'click', this.doAdd, 'this', this).tx('+'))
+			$a0('title', 'Chat', 'click', this.doAddChat, this).tx('..'), $tx('  '),
+			$a0('title', 'Add', 'click', this.doAdd, this).tx('+'))
 	);
 	this.doReload();
 	var This = this;
@@ -248,9 +248,9 @@ _Me.Friend = function (me, friend) {
 	this.Friend = friend;
 	me.friends.add(
 		this.left = $a0('c', 'name', 'title', 'Chat',
-			'click', this.doChat, 'this', this).tx(friend.name),
+			'click', me.onChat, me.thisChat, [ friend ]).tx(friend.name),
 		this.right = $a0('c', 'do', 'title', 'Remove',
-			'click', this.doRem, 'this', this).tx('--'));
+			'click', this.doRem, this).tx('--'));
 }
 
 _Me.Friend.prototype = {
@@ -262,10 +262,6 @@ _Me.Friend.prototype = {
 	doneRem: function (ok, err) {
 		ok && (this.left.des(), this.right.des());
 		err && $Err(this.Me.http, err);
-	},
-	
-	doChat: function () {
-		this.Me.onChat && this.Me.onChat.call(this.Me.thisChat, this.Friend);
 	}
 }
 
@@ -277,7 +273,7 @@ _Chatss = function (box) {
 	this.box = box.add(
 		this.tabs = $d('c', 'tabs'),
 		this.pull = $d('c', 'do').add(
-			$a0('title', 'Any news?', 'click', this.doPull, 'this', this).tx('Pull'),
+			$a0('title', 'Any news?', 'click', this.doPull, this).tx('Pull'),
 			this.http = $s()),
 		this.chatss = $d('c', 'chatss')
 	);
@@ -305,7 +301,7 @@ _Chatss.prototype = {
 		}
 		err && $Err(this.http, err);
 	},
-	
+
 	doChat: function (oppoUser, keepAct) {
 		var c = this.Chatss.indexOf(oppoUser.id, 0, 'OppoId');
 		if (c >= 0)
@@ -326,11 +322,11 @@ _Chats = function (chatss, oppoUser) {
 	this.Oppo = oppoUser;
 	this.OutDatime = DatimeMin;
 	chatss.tabs.add(
-		this.tab = $a0('c', 'tab', 'click', this.doAct, 'this', this).tx(oppoUser.name));
+		this.tab = $a0('c', 'tab', 'click', this.doAct, this).tx(oppoUser.name));
 	chatss.chatss.add(
 		this.chats = $d('c', 'chats'),
 		this.post = $lns('c', 'post'),
-		this.submit = $bn('c', 'do', 'click', this.doPost, 'this', this).tx('Post'));
+		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'));
 	this.doInact();
 }
 
@@ -364,7 +360,7 @@ _Chats.prototype = {
 		if (this.Chatss.Active != this)
 			this.tab.cla('tabNew');
 	},
-	
+
 	doPost: function () {
 		this.Post = this.post.value;
 		$Http(this.Chatss.http, DoChat.post(this.Oppo, this.Post, this, this.donePost));
