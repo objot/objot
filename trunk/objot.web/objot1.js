@@ -376,7 +376,7 @@ $dom.rem = function (index, len) {
 		var s = this.childNodes;
 		index < 0 && (index = Math.max(s.length + index, 0));
 		if (index < s.length)
-			for (var x = index + (len > 0 ? len : s.length) - 1; x >= index; x--) 
+			for (var x = len > 0 ? Math.min(index + len, s.length) : s.length; --x >= index;) 
 				this.removeChild(s[x]);
 	} else
 		for (var x = 0; x < arguments.length; x++)
@@ -397,7 +397,7 @@ $dom.des = function (index, len) {
 		var s = this.childNodes;
 		index < 0 && (index = Math.max(s.length + index, 0));
 		if (index < s.length)
-			for (var x = index + (len > 0 ? len : s.length) - 1; x >= index; x--) 
+			for (var x = len > 0 ? Math.min(index + len, s.length) : s.length; --x >= index;) 
 				s[x].des ? s[x].des() : $dom.des.call(s[x]);
 	} else
 		for (var x = 0; x < arguments.length; x++)
