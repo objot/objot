@@ -39,8 +39,7 @@ $class = function (SO, ctorName, sup) {
 		ctor.prototype.constructor = ctor;
 	}
 	ctor.$name = ctorName;
-	ctor.$ctor = function () {};
-	ctor.$ctor.prototype = ctor.prototype;
+	$.ctor(ctor);
 	if (ctor.prototype.constructor !== ctor)
 		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
 	if (SO)
@@ -278,7 +277,7 @@ $id = function (id) {
 }
 
 /** create a dom element and set properties. property 'c' for css class, 's' for css style
- * function value followed by "this" and "arguments" is for event handler.
+ * function value followed by "this" and "arguments" is for event handler (see $dom.attach).
  * @param domOrName dom object or tag name.
  * ((@param prop. @param value) || @param prop object as map) ... */
 $dom = function (domOrName, prop, value) {
@@ -467,8 +466,8 @@ $dom.show = function (v) {
 }
 
 /** attach event handler.
- * @param handler ignored if already attached
- * @param This the "this" in handler, false for this dom element
+ * @param handler ignored if already attached, return true to cancel default action
+ * @param This the "this" in handler, false for this dom element, === true for (new handler)
  * @param args the arguments for handler, false for the event object which
  *   "target" is source dom element, "which" is key code, "stop()" to cancel bubble
  * @param old replaced by handler
@@ -488,8 +487,8 @@ $dom.attach = function (type, handler, This, args, old) {
 //		this.attachEvent('on' + type, $.event);
 	else
 		this['on' + type] = $.event;
-	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4,
-		s[x++] = 0, s[x++] = handler, s[x++] = This || this, s[x] = args, this;
+	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4, s[x] = 0, s[++x] = handler,
+		s[++x] = This === true ? ($.ctor(handler), 0) : This || this, s[++x] = args, this;
 }
 /* detach event handler. @return this */
 $dom.detach = function (type, handler) {
@@ -546,6 +545,11 @@ $.is = function (x, clazz, name) {
 		+ (clazz.$name || clazz.name || name || $S(clazz)));
 }
 
+/** @return c which $ctor = an empty constructor */
+$.ctor = function (c) {
+	c.$ctor || ((c.$ctor = function () {}).prototype = c.prototype);
+	return c;
+}
 /** @return class (constructor) from class cache, or if $_$_ is true, eval() */
 $.c = function ($_$, $_$_) {
 	if ($_$ in this.cs)
@@ -574,17 +578,17 @@ $.copyOwn = function (to, from) {
 
 //********************************************************************************************//
 
-	/* event dispatcher */
-	$.event = function (e, s, x, r, ee) {
-		if ((s = this.$on) && (x = s[(e = e || event).type])) {
-			r = true; do
-				r &= s[x + 3] ? !s[x + 1].apply(s[x + 2], s[x + 3]) :
-					!s[x + 1].call(s[x + 2], ee || (ee = e, $fox ||
-					(e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop)));
-			while (x = s[x]);
-			return r;
-		}
+/* event dispatcher */
+$.event = function (e, s, x, r, ee) {
+	if ((s = this.$on) && (x = s[(e = e || event).type])) {
+		r = true; do r &= s[x + 3]
+			? !s[x + 1].apply(s[x + 2] || new s[x + 1].$ctor, s[x + 3])
+			: !s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, ee || (ee = e, $fox ||
+				(e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop)));
+		while (x = s[x]);
+		return r;
 	}
+}
 	$.eventStop = function () {
 		this.cancelBubble = true;
 	}
