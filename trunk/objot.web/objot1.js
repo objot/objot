@@ -487,13 +487,13 @@ $dom.attach = function (type, handler, This, args, old) {
 //		this.attachEvent('on' + type, $.event);
 	else
 		this['on' + type] = $.event;
-	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4, s[x] = 0, s[++x] = handler,
+	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4, s[x] = 0, s[++x] = $.f(handler),
 		s[++x] = This === true ? ($.ctor(handler), 0) : This || this, s[++x] = args, this;
 }
 /* detach event handler. @return this */
 $dom.detach = function (type, handler) {
 	var s = this.$on;
-	if (s)
+	if ($.f(handler), s)
 		for (var x = type, y; y = s[x]; x = y)
 			if (s[y + 1] === handler)
 				return s[x] = s[y], s[y] = s[0], s[0] = y,
