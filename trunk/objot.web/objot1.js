@@ -111,8 +111,8 @@ $get = function (o, forClass) {
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 		for (var i = 0, v, t; i < o.length; i++)
 			if (v = o[i], (t = typeof v) !== 'function')
-				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
-					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
+				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
+					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
@@ -133,8 +133,8 @@ $get = function (o, forClass) {
 		for (var p, n = 0; n < get.length; n++)
 			if ((p = get[n]) in o && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
-				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
-					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
+				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
+					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
@@ -149,8 +149,8 @@ $get = function (o, forClass) {
 		for (var p in o)
 			if (o.hasOwnProperty(p) && p.length && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
-				s[x++] = v === null || v === undefined ? '.' : t === 'number' ? String(v)
-					: v === false ? '<' : v === true ? '>' : t === 'string' ? (s[x++] = v, '')
+				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
+					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
