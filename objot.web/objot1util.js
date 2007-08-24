@@ -61,6 +61,31 @@ Array.prototype.remove = function (from, len) {
 }
 
 
+/** @param emptyName true: any query parameter without = is value, false: is name
+ * @return value, or null if no such name */
+location.param = function (name, emptyName) {
+	var s = location.search.substr(1).split('&');
+	for (var i = 0; i < s.length; i++) {
+		var j = s[i].indexOf('=');
+		j < 0 && !emptyName && (j = s[i].length);
+		if (name == s[i].substr(0, j))
+			return unescape(s[i].substr(j + 1));
+	}
+	return null;
+}
+/** @param emptyName true: any query parameter without = is value, false: is name */
+location.params = function (emptyName) {
+	var s = location.search.substr(1).split('&');
+	var p = {};
+	for (var i = 0; i < s.length; i++) {
+		var j = s[i].indexOf('=');
+		j < 0 && !emptyName && (j = s[i].length);
+		p[s[i].substr(0, j)] = unescape(s[i].substr(j + 1));
+	}
+	return p;
+}
+
+
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
