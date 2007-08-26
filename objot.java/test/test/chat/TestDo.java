@@ -88,8 +88,8 @@ public class TestDo
 	{
 		if (expect instanceof Id && o instanceof Id)
 		{
-			expect = ((Id)expect).id();
-			o = ((Id)o).id();
+			expect = ((Id<?>)expect).id();
+			o = ((Id<?>)o).id();
 		}
 		Assert.assertEquals(expect, o);
 	}
