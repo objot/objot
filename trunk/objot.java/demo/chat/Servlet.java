@@ -5,7 +5,6 @@
 package chat;
 
 import java.util.Locale;
-import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -109,9 +108,9 @@ public final class Servlet
 			if (cla == null) // test
 			{
 				dataFactory.evictQueries();
-				for (Cache c: ((Map<?, Cache>)((SessionFactoryImpl)dataFactory)
-					.getAllSecondLevelCacheRegions()).values())
-					c.clear();
+				for (Object c: ((SessionFactoryImpl)dataFactory)
+					.getAllSecondLevelCacheRegions().values())
+					((Cache)c).clear();
 				new ModelsCreate(true, 1, true);
 				return codec.get(Ok.OK, Object.class);
 			}
