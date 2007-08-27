@@ -73,11 +73,12 @@ public class ModelsCreate
 	}
 
 	/** @return persisted object with specified id, may be detached */
-	<T extends Id<T>>T persist(T o, int id) throws Exception
+	<T extends Id<T>>T save(T o, int id) throws Exception
 	{
 		if (o instanceof IdAuto || o instanceof IdAutoBean)
 		{
-			data.persist(o);
+			data.save(o.id(0));
+			data.flush();
 			String q = "update " + data.getEntityName(o) + " set id=" + id + " where id=?";
 			// no evict or update query would cause HibernateException
 			data.evict(o);
@@ -86,7 +87,11 @@ public class ModelsCreate
 			o.id(id);
 		}
 		else
+		{
 			data.persist(o.id(id));
+			data.flush();
+			data.evict(o);
+		}
 		return o;
 	}
 
@@ -95,6 +100,6 @@ public class ModelsCreate
 		User foo = new User();
 		foo.name = "admin";
 		foo.password = "admin";
-		persist(foo, 11);
+		save(foo, 11);
 	}
 }

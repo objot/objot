@@ -20,7 +20,7 @@ public class DoSign
 	@Sign.Any
 	public User inUp(User u_) throws Exception
 	{
-		validator(u_);
+		validate(u_);
 		User u = data.find1(User.class, "name", u_.name);
 		// sign up
 		if (u == null)

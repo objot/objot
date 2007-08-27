@@ -67,7 +67,7 @@ public abstract class Do
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T>T validator(T o) throws Exception
+	public static <T>T validate(T o) throws Exception
 	{
 		ClassValidator<T> v = (ClassValidator<T>)VS.get(o.getClass());
 		if (v == null)

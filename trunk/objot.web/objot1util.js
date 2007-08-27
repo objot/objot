@@ -59,6 +59,13 @@ Array.prototype.each = function (Do, This) {
 Array.prototype.remove = function (from, len) {
 	return this.splice(from, len), this;
 }
+/** construct a new array by each element's property of this array */
+Array.prototype.byProp = function (propName) {
+	var s = new Array(this.length);
+	for (var i = 0; i < s.length; i++)
+		s[i] = this[i][propName];
+	return s;
+}
 
 
 /** @param emptyName true: any query parameter without = is value, false: is name

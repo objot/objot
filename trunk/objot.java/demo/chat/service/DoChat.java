@@ -54,7 +54,7 @@ public class DoChat
 	public Chat post(Chat c) throws Exception
 	{
 		c.out = new User().id(sess.me);
-		validator(c);
+		validate(c);
 
 		// List/Set.contains causes fetch rows
 		// // if (! c.in.friends.contains($.load(c.out)))
