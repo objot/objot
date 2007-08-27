@@ -271,9 +271,7 @@ final class Setting
 		Class<?> cla;
 		int i = 0;
 		if (listClass != null)
-		{
 			cla = listClass;
-		}
 		else if (arrayClass == boolean.class)
 		{
 			for (char c; (c = chr()) != ']'; bxy())
