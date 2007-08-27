@@ -196,6 +196,7 @@ public class Models
 		conf.setProperty(Environment.HBM2DDL_AUTO, "false");
 		conf.setProperty(Environment.USE_SECOND_LEVEL_CACHE, "false");
 		conf.setProperty(Environment.USE_QUERY_CACHE, "false");
+		conf.setProperty(Environment.SHOW_SQL, "false");
 		conf.setProperty(Environment.FORMAT_SQL, "false");
 		hib = (SessionImpl)conf.buildSessionFactory().openSession();
 		dialect = hib.getFactory().getDialect();
