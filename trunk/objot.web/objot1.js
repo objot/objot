@@ -328,8 +328,8 @@ $inp = _('input');
 $sel = _('select');
 $opt = _('option');
 $lns = _('textarea');
-$._ = function (t) { return function () {
-	return $doms('input', arguments).att('type', t);
+$._ = function (t, m) { return function () {
+	return m = $doms('input', arguments), m.type = t, m;
 }}
 $ln = _('text');
 $chk = _('check');
@@ -581,13 +581,13 @@ $.copyOwn = function (to, from) {
 /* event dispatcher */
 $.event = function (e, s, x, r, ee) {
 	if ((s = this.$on) && (x = s[(e = e || event).type])) {
-		r = true; do r &= s[x + 3]
-			? !s[x + 1].apply(s[x + 2] || new s[x + 1].$ctor, s[x + 3])
-			: !s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, ee ||
+		do r = r || s[x + 3]
+			? s[x + 1].apply(s[x + 2] || new s[x + 1].$ctor, s[x + 3])
+			: s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, ee ||
 			($fox || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop),
 				ee = e));
 		while (x = s[x]);
-		return r;
+		return !r;
 	}
 }
 	$.eventStop = function () {
