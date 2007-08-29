@@ -473,7 +473,7 @@ $dom.show = function (v) {
  * @param old replaced by handler
  * @return this */
 $dom.attach = function (type, handler, This, args, old) {
-	old && detach(type, old);
+	old && this.detach(type, old);
 	var x, s = this.$on || (this.$on = [1, 0,0,0,0]); // [free,next,handler,This,args...]
 	if (x = s[type])
 		do if (s[x + 1] === handler)
