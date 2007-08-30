@@ -28,8 +28,9 @@ $throw = function (x) {
 
 //********************************************************************************************//
 
-/** make class. @param SO whether could $get and $set. @param sup superclass or null */
-$class = function (SO, ctorName, sup) {
+/** make class. @param SO whether could $get and $set. @param sup superclass or null.
+ * @param protos be copied into prototype */
+$class = function (SO, ctorName, sup, protos) {
 	$.s(ctorName);
 	var ctor = $.c(ctorName, true);
 	ctor.$name && $throw('duplicate class ' + ctor.$name);
@@ -42,6 +43,7 @@ $class = function (SO, ctorName, sup) {
 	$.ctor(ctor);
 	if (ctor.prototype.constructor !== ctor)
 		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
+	protos && $.copyOwn(ctor.prototype, protos);
 	if (SO)
 		$.cs[ctor.$name] = ctor;
 	return ctor;
