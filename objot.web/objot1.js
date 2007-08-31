@@ -340,7 +340,7 @@ delete _;
 }
 /** <a href=javascript://>... */
 $a0 = function () {
-	return $doms('a', arguments).att('href', 'javascript://');
+	return $doms('a', arguments).att('href', 'javascript:///');
 }
 
 /** create a text node, single line, multi whitespace reserved. */
@@ -408,7 +408,7 @@ $dom.des = function (index, len) {
 
 /** add css class, or remove css class if first argument === 0. @return this */
 $dom.cla = function (clazz) {
-	if (arguments.length == 9 || clazz === 0 && this.className.length == 0)
+	if (arguments.length == 0 || clazz === 0 && this.className.length == 0)
 		return this;
 	var cs = this.className.split(' '), c;
 	X:for (var x = clazz === 0 ? 1 : 0; x < arguments.length; x++)
