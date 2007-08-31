@@ -187,21 +187,20 @@ $Http = function (box, h) {
 /** make a box as error widget.
  * @param err Err, Errs or string.
  * @param show the widget contains err text if true,
-               or a function called at double click (alert err text if null or missing).
+               or a function called at double click (show err text if null or missing).
  * @return the box */
-$Err = function (box, err, show) {
+$Err = function (box, err, show, noStack) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
-	$fox && (err = err + '\n' + $.throwStack());
+	noStack || $fox && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
 	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-icon'));
-	show === true || box.firstChild.att('title', err).attach('dblclick', show);
+	show === true || box.firstChild.att('title', err).attach('dblclick', $.f(show));
 	return box.cla(0, 'HTTP').cla('ERR');
 }
-	$Err.doHint = function () {
-		alert(this.title); // popup box better
-		this.des();
-	}
-$Err.onHint = $Err.doHint;
+$Err.onHint = function () {
+	alert(this.title); // popup better
+	this.des();
+}
 
 /** overlay the document body with a layer containing an inner box.
  * @return the popup layer */
