@@ -173,14 +173,14 @@ public class TestDo
 				public int compare(Id<?> a, Id<?> b)
 				{
 					if (a == null)
-						return b == null ? 0 : - 1;
+						return b == null ? 0 : -1;
 					// no a.id - b.id to avoid arithmetic overflow
-					int c = b == null ? 1 : a.id() < b.id() ? - 1 : a.id() > b.id() ? 1 : 0;
+					int c = b == null ? 1 : a.id() < b.id() ? -1 : a.id() > b.id() ? 1 : 0;
 					if (c == 0)
 					{
 						int aa = System.identityHashCode(a);
 						int bb = System.identityHashCode(b);
-						c = aa < bb ? - 1 : aa > bb ? 1 : 0;
+						c = aa < bb ? -1 : aa > bb ? 1 : 0;
 					}
 					return c;
 				}
@@ -193,9 +193,9 @@ public class TestDo
 					if (a == b)
 						fail("set unexpected same element: " + a);
 					if (a == null)
-						return - 1;
+						return -1;
 					// no a.id - b.id to avoid arithmetic overflow
-					int c = b == null ? 1 : a.id() < b.id() ? - 1 : a.id() > b.id() ? 1 : 0;
+					int c = b == null ? 1 : a.id() < b.id() ? -1 : a.id() > b.id() ? 1 : 0;
 					if (c == 0)
 						fail("set unexpected same element id: " + a.id());
 					return c;

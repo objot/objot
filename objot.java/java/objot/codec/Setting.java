@@ -43,7 +43,7 @@ final class Setting
 	Object go(Class<?> clazz) throws Exception
 	{
 		bx = 0;
-		by = - 1;
+		by = -1;
 		bxy();
 		refs = new Object[28];
 		Object o;
@@ -56,7 +56,7 @@ final class Setting
 				o = list(null, Object.class, null);
 			else
 				o = list(Object.class, null, null);
-			if (! clazz.isAssignableFrom(o.getClass()))
+			if ( !clazz.isAssignableFrom(o.getClass()))
 				throw new RuntimeException(o.getClass().getCanonicalName()
 					+ " forbidden for " + clazz.getCanonicalName());
 		}
@@ -195,9 +195,9 @@ final class Setting
 			else
 				throw new NumberFormatException("illegal integer ".concat(str()));
 		if (bs[bx] != '-')
-			if ((v = - v) < 0)
+			if ((v = -v) < 0)
 				throw new NumberFormatException("long integer out of range ".concat(str()));
-		intOrLongOrNot = (v >> 31) == 0 || (v >> 31) == - 1 ? 1 : - 1;
+		intOrLongOrNot = (v >> 31) == 0 || (v >> 31) == -1 ? 1 : -1;
 		if (L > 0 && intOrLongOrNot < 0)
 			throw new NumberFormatException("integer out of range ".concat(str()));
 		return v;
@@ -259,7 +259,7 @@ final class Setting
 			l = ll = new long[len];
 		else
 			l = lo = (Object[])Array.newInstance(arrayClass, len);
-		int ref = - 1;
+		int ref = -1;
 		if (chr() == '=')
 		{
 			bxy();
@@ -301,7 +301,7 @@ final class Setting
 					throw new RuntimeException("long integer expected for int[] but " + c
 						+ " at " + bx);
 				else
-					ll[i++] = Int(- 1);
+					ll[i++] = Int( -1);
 			return l;
 		}
 		else
@@ -319,7 +319,7 @@ final class Setting
 			else if (c == '+')
 				set(lo, i++, ref(), cla);
 			else if (c == '*')
-				set(lo, i++, new Date(Int(- 1)), cla);
+				set(lo, i++, new Date(Int( -1)), cla);
 			else if (c == '.')
 				lo[i++] = null;
 			else if (c == '<')
@@ -327,7 +327,7 @@ final class Setting
 			else if (c == '>')
 				set(lo, i++, true, cla);
 			else if (cla == Long.class)
-				lo[i++] = Int(- 1);
+				lo[i++] = Int( -1);
 			else if (cla == Double.class)
 				lo[i++] = number();
 			else if (cla == Float.class)
@@ -355,7 +355,7 @@ final class Setting
 
 	private void set(Object[] l, int i, Object o, Class<?> cla)
 	{
-		if (! cla.isAssignableFrom(o.getClass()))
+		if ( !cla.isAssignableFrom(o.getClass()))
 			throw new RuntimeException(o.getClass().getCanonicalName() + " forbidden for "
 				+ cla.getCanonicalName());
 		l[i] = o;
@@ -367,10 +367,10 @@ final class Setting
 		String cName = str();
 		Class<?> cla = cName.length() > 0 ? objot.classByName(cName) : HashMap.class;
 		bxy();
-		if (! cla0.isAssignableFrom(cla))
+		if ( !cla0.isAssignableFrom(cla))
 			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
 				+ cla0.getCanonicalName());
-		int ref = - 1;
+		int ref = -1;
 		if (chr() == '=')
 		{
 			bxy();
@@ -392,7 +392,7 @@ final class Setting
 				if (p == null)
 					throw new RuntimeException(cla.getCanonicalName() + "." + n
 						+ " not found or not setable");
-				if (! p.allow(forClass))
+				if ( !p.allow(forClass))
 					throw new RuntimeException("setting " + cla.getCanonicalName() + "." + n
 						+ " forbidden for " + forClass.getCanonicalName());
 			}
@@ -425,7 +425,7 @@ final class Setting
 			else if (c == '+')
 				v = ref();
 			else if (c == '*')
-				v = new Date(Int(- 1));
+				v = new Date(Int( -1));
 			else if (c == '.')
 				v = null;
 			else if (c == '<')
@@ -439,7 +439,7 @@ final class Setting
 			}
 			else if (p.cla == long.class)
 			{
-				p.set(o, Int(- 1));
+				p.set(o, Int( -1));
 				continue;
 			}
 			else if (p.cla == double.class)
@@ -453,7 +453,7 @@ final class Setting
 				continue;
 			}
 			else if (p.cla == Long.class)
-				v = Int(- 1);
+				v = Int( -1);
 			else if (p.cla == Double.class)
 				v = number();
 			else if (p.cla == Float.class)

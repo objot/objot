@@ -102,7 +102,7 @@ abstract class Property
 		for (int x = clas.length - 1; x >= 0; x--)
 			if (clas[x].isAssignableFrom(c))
 				return allows[x];
-		return clas.length == 0 || ! allows[0];
+		return clas.length == 0 || !allows[0];
 	}
 
 	/** @throws InvocationTargetException or Exception */

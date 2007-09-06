@@ -31,7 +31,7 @@ public class DoSign
 			data.save(u);
 		}
 		// sign in
-		else if (! u.password.equals(u_.password))
+		else if ( !u.password.equals(u_.password))
 			throw err("user name or password incorrect");
 		sess.me = u.id;
 		return u;

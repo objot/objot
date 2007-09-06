@@ -41,7 +41,7 @@ public class Models
 			@Override
 			public SessionFactory buildSessionFactory() throws HibernateException
 			{
-				if (! "org.hsqldb.jdbcDriver".equals(getProperty(Environment.DRIVER)))
+				if ( !"org.hsqldb.jdbcDriver".equals(getProperty(Environment.DRIVER)))
 					return super.buildSessionFactory();
 				// fix the issue of hsqldb write delay stupid default value
 				SessionFactory fac = super.buildSessionFactory();
@@ -153,7 +153,7 @@ public class Models
 		if (url.getProtocol().equals("file"))
 		{
 			File path = new File(url.getPath());
-			if (! path.isDirectory())
+			if ( !path.isDirectory())
 				throw new Exception(path + " must be directory");
 			// iterate on all classes in the package
 			for (String _: path.list())
@@ -164,7 +164,7 @@ public class Models
 		{
 			JarURLConnection conn = (JarURLConnection)url.openConnection();
 			JarEntry path = conn.getJarEntry();
-			if (! path.isDirectory())
+			if ( !path.isDirectory())
 				throw new Exception(path + "must be directory");
 			String name;
 			// iterate on all classes in the package

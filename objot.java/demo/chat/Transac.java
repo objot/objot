@@ -73,7 +73,7 @@ public @interface Transac
 		public Aspect(boolean readonly, boolean commit, boolean serial, boolean subRequest,
 			SessionFactory d)
 		{
-			read = readonly && ! subRequest;
+			read = readonly && !subRequest;
 			isolation = serial ? Connection.TRANSACTION_SERIALIZABLE //
 				: commit ? Connection.TRANSACTION_READ_COMMITTED
 					: Connection.TRANSACTION_REPEATABLE_READ;
@@ -102,7 +102,7 @@ public @interface Transac
 						LOG.debug("---------------- "
 							+ meth.getMethod().getDeclaringClass().getName() + "-"
 							+ meth.getMethod().getName() + " ----------------");
-				if (! hib.getTransaction().isActive())
+				if ( !hib.getTransaction().isActive())
 				{
 					hib.getJDBCContext().borrowConnection().setReadOnly(read);
 					if (isolation > 0)
@@ -110,7 +110,7 @@ public @interface Transac
 							isolation);
 					hib.beginTransaction();
 				}
-				else if (! read && hib.getJDBCContext().borrowConnection().isReadOnly())
+				else if ( !read && hib.getJDBCContext().borrowConnection().isReadOnly())
 					throw new Exception("transaction of " + meth + " must be writable");
 				else if (isolation > hib.getJDBCContext().borrowConnection()
 					.getTransactionIsolation())
