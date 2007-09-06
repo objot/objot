@@ -29,7 +29,7 @@ public class ModelsUpdate
 				sql(s, true);
 			hib.getTransaction().commit();
 			Thread.sleep(200);
-			if (! execute)
+			if ( !execute)
 				LOG.warn("\n======== no SQL statement executed on database ========\n");
 			LOG.info("\n================ end ================"
 				+ "\nSomething may be ignored such as unique indices, column default values"

@@ -42,7 +42,7 @@ public final class Servlet
 		Locale.setDefault(Locale.ENGLISH);
 
 		ServletLog.logger = context;
-		if (! (LogFactory.getLog(Servlet.class) instanceof ServletLog))
+		if ( !(LogFactory.getLog(Servlet.class) instanceof ServletLog))
 		{
 			String s = "\n\n**************** WARNING ****************\n"
 				+ " org.apache.commons.logging.Log = " + ServletLog.class.getName()
@@ -56,7 +56,7 @@ public final class Servlet
 		dataTest |= test != null && Boolean.parseBoolean(test);
 		context.log("\n================ for test ================\n");
 		if (dataTest)
-			new ModelsCreate(true, - 1, true);
+			new ModelsCreate(true, -1, true);
 
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 		container = Services.build(dataFactory, false);

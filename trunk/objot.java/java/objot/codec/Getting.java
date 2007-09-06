@@ -56,12 +56,12 @@ final class Getting
 	{
 		if (o instanceof String && ((String)o).indexOf(S) >= 0)
 			throw new RuntimeException("String must not contain \20 \\20");
-		if (o == null || ref(o, - 1) < 0 /* multi references */)
+		if (o == null || ref(o, -1) < 0 /* multi references */)
 			return;
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 			{
-				if (pv.getValue() != null && ! pv.getValue().getClass().isPrimitive())
+				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
 					refs(pv.getValue());
 			}
 		else if (o instanceof List)
@@ -70,15 +70,15 @@ final class Getting
 		else if (o instanceof Set)
 			for (Object v: (Set<?>)o)
 				refs(v);
-		else if (! o.getClass().isArray()) // other
+		else if ( !o.getClass().isArray()) // other
 			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
 			{
 				Class<?> c = pv.getValue().cla;
-				if (! c.isPrimitive() && ! Number.class.isAssignableFrom(c)
+				if ( !c.isPrimitive() && !Number.class.isAssignableFrom(c)
 					&& c != Boolean.class && pv.getValue().allow(forClass))
 					refs(pv.getValue().get(o));
 			}
-		else if (! o.getClass().getComponentType().isPrimitive()) // array
+		else if ( !o.getClass().getComponentType().isPrimitive()) // array
 			for (Object v: (Object[])o)
 				refs(v);
 	}
@@ -99,7 +99,7 @@ final class Getting
 				if (r == 0)
 					return refs[h][x];
 				else if (r < 0)
-					return refs[h][x] = - 1;
+					return refs[h][x] = -1;
 				else
 					return refs[h][x] >= 0 ? refs[h][x] : (refs[h][x] = ++refn);
 		if (r < 0)

@@ -62,7 +62,7 @@ public class ModelsCreate
 			}
 			hib.getTransaction().commit();
 			Thread.sleep(200);
-			if (! execute)
+			if ( !execute)
 				LOG.warn("\n======== no SQL statement executed on database ========\n");
 			LOG.info("\n================ end ================\n");
 		}

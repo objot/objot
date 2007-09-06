@@ -46,7 +46,7 @@ public class Codec
 	/** check long value, not too large for Javascript */
 	protected long getLong(long l) throws Exception
 	{
-		if (l < - 4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
+		if (l < -4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
 			throw new RuntimeException("getting integer out of range " + l);
 		return l;
 	}

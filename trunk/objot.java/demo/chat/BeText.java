@@ -78,8 +78,8 @@ public @interface BeText
 		@SuppressWarnings("unchecked")
 		public void apply(Property p)
 		{
-			if (! (p.getPersistentClass() instanceof SingleTableSubclass)
-				&& ! (p.getPersistentClass() instanceof Collection))
+			if ( !(p.getPersistentClass() instanceof SingleTableSubclass)
+				&& !(p.getPersistentClass() instanceof Collection))
 				for (Iterator<Column> cs = p.getColumnIterator(); cs.hasNext();)
 					cs.next().setNullable(false);
 			if (anno.max() < Integer.MAX_VALUE)

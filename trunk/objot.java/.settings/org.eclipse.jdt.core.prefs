@@ -1,4 +1,4 @@
-#Mon Aug 27 21:04:06 GMT+08:00 2007
+#Thu Sep 06 07:30:50 GMT 2007
 eclipse.preferences.version=1
 instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
 org.eclipse.jdt.core.builder.cleanOutputFolder=clean
@@ -240,7 +240,7 @@ org.eclipse.jdt.core.formatter.insert_space_after_prefix_operator=do not insert
 org.eclipse.jdt.core.formatter.insert_space_after_question_in_conditional=insert
 org.eclipse.jdt.core.formatter.insert_space_after_question_in_wildcard=do not insert
 org.eclipse.jdt.core.formatter.insert_space_after_semicolon_in_for=insert
-org.eclipse.jdt.core.formatter.insert_space_after_unary_operator=insert
+org.eclipse.jdt.core.formatter.insert_space_after_unary_operator=do not insert
 org.eclipse.jdt.core.formatter.insert_space_before_and_in_type_parameter=insert
 org.eclipse.jdt.core.formatter.insert_space_before_assignment_operator=insert
 org.eclipse.jdt.core.formatter.insert_space_before_at_in_annotation_type_declaration=do not insert
@@ -327,7 +327,7 @@ org.eclipse.jdt.core.formatter.insert_space_before_question_in_conditional=inser
 org.eclipse.jdt.core.formatter.insert_space_before_question_in_wildcard=do not insert
 org.eclipse.jdt.core.formatter.insert_space_before_semicolon=do not insert
 org.eclipse.jdt.core.formatter.insert_space_before_semicolon_in_for=do not insert
-org.eclipse.jdt.core.formatter.insert_space_before_unary_operator=do not insert
+org.eclipse.jdt.core.formatter.insert_space_before_unary_operator=insert
 org.eclipse.jdt.core.formatter.insert_space_between_brackets_in_array_type_reference=do not insert
 org.eclipse.jdt.core.formatter.insert_space_between_empty_braces_in_array_initializer=do not insert
 org.eclipse.jdt.core.formatter.insert_space_between_empty_brackets_in_array_allocation_expression=do not insert
