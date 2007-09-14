@@ -1,3 +1,4 @@
+package test.codec;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import objot.codec.Codec;
 
 public class Test1
 {
-	public static final void main(String[] args) throws Exception
+	public static void main(String[] args) throws Exception
 	{
 		A x = new A();
 		x.a2 = "x";
@@ -51,7 +52,6 @@ public class Test1
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
 		z[0] = z;
 
-		//
 		Codec objot = new Codec();
 		CharSequence s = objot.get(z, Object.class);
 		Object o = objot.set(s.toString().toCharArray(), Object.class, Object.class);
