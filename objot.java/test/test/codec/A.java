@@ -1,3 +1,4 @@
+package test.codec;
 import java.util.Date;
 
 import objot.codec.Get;
