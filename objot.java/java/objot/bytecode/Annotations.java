@@ -17,7 +17,7 @@ public class Annotations
 
 	public Annotations(Constants c, byte[] bs, int beginBi_, boolean hided_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		cons = c;
 		hided = hided_;
 		annoN = read0u2(beginBi + 6);

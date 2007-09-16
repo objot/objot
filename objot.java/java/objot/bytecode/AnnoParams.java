@@ -20,7 +20,7 @@ public class AnnoParams
 
 	public AnnoParams(Constants c, byte[] bs, int beginBi_, boolean hided_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		cons = c;
 		hided = hided_;
 		paramN = read0u1(beginBi + 6);

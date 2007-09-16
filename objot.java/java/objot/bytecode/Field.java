@@ -41,7 +41,7 @@ public class Field
 
 	public Field(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		cons = c;
 		setModifier(read0u2(beginBi));
 		nameCi = read0u2(beginBi + 2);

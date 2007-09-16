@@ -13,9 +13,9 @@ public class Procedures
 	protected int procN;
 	protected Procedure[] procs;
 
-	public Procedures(Constants c, byte[] bs, int beginBi_, boolean forExtension_)
+	public Procedures(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, forExtension_);
+		super(bs, beginBi_);
 		cons = c;
 		procN = read0u2(beginBi);
 		int bi = beginBi + 2;
@@ -39,7 +39,7 @@ public class Procedures
 	{
 		if (procs != null)
 			return;
-		procs = new Procedure[allocN(procN, 31)];
+		procs = new Procedure[allocN(procN)];
 		int bi = beginBi + 2;
 		for (int i = 0; i < procN; i++)
 		{

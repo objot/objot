@@ -13,9 +13,9 @@ public class CodeLines
 	protected int[] beginAds;
 	protected int[] lines;
 
-	public CodeLines(byte[] bs, int beginBi_, boolean forExtension_)
+	public CodeLines(byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, forExtension_);
+		super(bs, beginBi_);
 		lineN = read0u2(beginBi + 6);
 		end1Bi = beginBi + 8 + (lineN << 2);
 		if (end1Bi - beginBi - 6 != read0u4(beginBi + 2))

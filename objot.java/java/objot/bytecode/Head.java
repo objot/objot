@@ -19,7 +19,7 @@ public class Head
 
 	public Head(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		cons = c;
 		setModifier(read0u2(beginBi));
 		classCi = read0u2(beginBi + 2);
@@ -57,7 +57,7 @@ public class Head
 	{
 		if (interfaceCis != null)
 			return;
-		interfaceCis = new int[allocN(interfaceN, 15)];
+		interfaceCis = new int[allocN(interfaceN)];
 		for (int i = 0; i < interfaceN; i++)
 			interfaceCis[i] = read0u2(beginBi + 8 + (i << 1));
 	}

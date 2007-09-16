@@ -11,14 +11,11 @@ import objot.util.Math2;
 public abstract class Element
 	extends Bytes
 {
-	public final boolean forExtension;
-
-	protected Element(byte[] bs, int begin, boolean forExtension_)
+	protected Element(byte[] bs, int begin)
 	{
 		super(bs);
 		bytes = bs;
 		beginBi = begin;
-		forExtension = forExtension_;
 	}
 
 	public Annotations getAnnos()
@@ -31,15 +28,9 @@ public abstract class Element
 		return null;
 	}
 
-	/** @return {@link #allocN(int, int)} with n and 7 */
 	protected int allocN(int n)
 	{
-		return allocN(n, 7);
-	}
-
-	protected int allocN(int n, int extMin)
-	{
-		return forExtension ? Math.max((int)(n * 1.5f), extMin) : n;
+		return Math.max((int)(n * 1.2f), 11);
 	}
 
 	/**
