@@ -22,7 +22,7 @@ public class CodeCatchs
 
 	public CodeCatchs(byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		catchN = read0u2(beginBi);
 		end1Bi = beginBi + 2 + (catchN << 3);
 	}

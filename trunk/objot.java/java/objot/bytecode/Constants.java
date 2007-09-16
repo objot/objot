@@ -32,7 +32,7 @@ public class Constants
 
 	public Constants(byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		conN0 = conN = read0u2(beginBi);
 		if (conN <= 0)
 			throw new ClassFormatError("invalid constants amount");
@@ -88,7 +88,7 @@ public class Constants
 	{
 		if (bis != null)
 			return;
-		bis = new int[allocN(conN + 1, 150)];
+		bis = new int[allocN(Math.max(conN + 1, 100))];
 		bis[0] = Integer.MIN_VALUE;
 		bis[1] = beginBi + 2;
 		for (int ci = 2; ci < conN; ci++)

@@ -29,9 +29,9 @@ public class Code
 	protected int varSignsBi;
 	protected CodeVars varSigns;
 
-	public Code(Constants c, byte[] bs, int beginBi_, boolean forExtension_)
+	public Code(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, forExtension_);
+		super(bs, beginBi_);
 		cons = c;
 		attrNameCi = read0u2(beginBi);
 		stackN = read0u2(beginBi + 6);
@@ -152,21 +152,21 @@ public class Code
 	public CodeLines getLines()
 	{
 		if (lines == null && linesBi > 0)
-			lines = new CodeLines(bytes, linesBi, forExtension);
+			lines = new CodeLines(bytes, linesBi);
 		return lines;
 	}
 
 	public CodeVars getVars()
 	{
 		if (vars == null && varsBi > 0)
-			vars = new CodeVars(bytes, varsBi, false, forExtension);
+			vars = new CodeVars(bytes, varsBi, false);
 		return vars;
 	}
 
 	public CodeVars getVarSigns()
 	{
 		if (varSigns == null && varSignsBi > 0)
-			varSigns = new CodeVars(bytes, varSignsBi, true, forExtension);
+			varSigns = new CodeVars(bytes, varSignsBi, true);
 		return varSigns;
 	}
 

@@ -12,9 +12,9 @@ public class Exceptions
 	protected int exceptionN;
 	protected int[] exceptionCis;
 
-	public Exceptions(byte[] bs, int beginBi_, boolean forExtension_)
+	public Exceptions(byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, forExtension_);
+		super(bs, beginBi_);
 		exceptionN = read0u2(beginBi + 6);
 		end1Bi = beginBi + 8 + (exceptionN << 1);
 		if (end1Bi - beginBi - 6 != read0u4(beginBi + 2))

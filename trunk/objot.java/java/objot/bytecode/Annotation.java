@@ -57,7 +57,7 @@ public class Annotation
 
 	public Annotation(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, false);
+		super(bs, beginBi_);
 		cons = c;
 		descCi = read0u2(beginBi);
 		propN = read0u2(beginBi + 2);

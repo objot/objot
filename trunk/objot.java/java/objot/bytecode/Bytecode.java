@@ -74,7 +74,7 @@ public class Bytecode
 
 	public Bytecode(byte[] bs, int beginBi_, int end1Bi_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		if (read0s4(beginBi) != 0xcafebabe)
 			throw new ClassFormatError("invalid magic number");
 		if ((read0u2(beginBi + 4) | read0u2(beginBi + 6) << 16) > 50 << 16)
@@ -89,14 +89,14 @@ public class Bytecode
 	public Fields getFields()
 	{
 		if (fields == null)
-			fields = new Fields(cons, bytes, head.end1Bi, forExtension);
+			fields = new Fields(cons, bytes, head.end1Bi);
 		return fields;
 	}
 
 	public Procedures getProcs()
 	{
 		if (procs == null)
-			procs = new Procedures(cons, bytes, getFields().end1Bi, forExtension);
+			procs = new Procedures(cons, bytes, getFields().end1Bi);
 		return procs;
 	}
 

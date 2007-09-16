@@ -17,9 +17,9 @@ public class CodeVars
 	protected int[] descCis;
 	protected int[] locals;
 
-	public CodeVars(byte[] bs, int beginBi_, boolean signature_, boolean forExtension_)
+	public CodeVars(byte[] bs, int beginBi_, boolean signature_)
 	{
-		super(bs, beginBi_, forExtension_);
+		super(bs, beginBi_);
 		signature = signature_;
 		varN = read0u2(beginBi + 6);
 		end1Bi = beginBi + 8 + varN * 10;

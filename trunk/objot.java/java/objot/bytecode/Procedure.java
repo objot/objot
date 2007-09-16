@@ -80,7 +80,7 @@ public class Procedure
 
 	public Procedure(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, true);
+		super(bs, beginBi_);
 		cons = c;
 		modifier = read0u2(beginBi);
 		setNameCi(read0u2(beginBi + 2));
@@ -216,14 +216,14 @@ public class Procedure
 	public Exceptions getExceptions()
 	{
 		if (exceptions == null && exceptionsBi > 0)
-			exceptions = new Exceptions(bytes, exceptionsBi, forExtension);
+			exceptions = new Exceptions(bytes, exceptionsBi);
 		return exceptions;
 	}
 
 	public Code getCode()
 	{
 		if (code == null && codeBi > 0)
-			code = new Code(cons, bytes, codeBi, forExtension);
+			code = new Code(cons, bytes, codeBi);
 		return code;
 	}
 

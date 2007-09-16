@@ -13,9 +13,9 @@ public class Fields
 	protected int fieldN;
 	protected Field[] fields;
 
-	public Fields(Constants c, byte[] bs, int beginBi_, boolean forExtension_)
+	public Fields(Constants c, byte[] bs, int beginBi_)
 	{
-		super(bs, beginBi_, forExtension_);
+		super(bs, beginBi_);
 		cons = c;
 		fieldN = read0u2(beginBi);
 		int bi = beginBi + 2;
@@ -39,7 +39,7 @@ public class Fields
 	{
 		if (fields != null)
 			return;
-		fields = new Field[allocN(fieldN, 31)];
+		fields = new Field[allocN(fieldN)];
 		int bi = beginBi + 2;
 		for (int i = 0; i < fieldN; i++)
 		{
