@@ -8,7 +8,7 @@ import objot.util.InvalidValueException;
 public class Annotation
 	extends Element
 {
-	protected Constants cons;
+	public final Constants cons;
 	protected int descCi;
 	protected int propN;
 	protected int[] propBis;
@@ -64,11 +64,6 @@ public class Annotation
 		end1Bi = beginBi + readByteN(bytes, beginBi);
 	}
 
-	public Constants getCons()
-	{
-		return cons;
-	}
-
 	public int getDescCi()
 	{
 		return descCi;
@@ -120,7 +115,7 @@ public class Annotation
 		out.print(indent1st);
 		out.print(" descCi ");
 		out.print(getDescCi());
-		getCons().printUtfChars(out, getDescCi(), verbose);
+		cons.printUtfChars(out, getDescCi(), verbose);
 		out.println();
 		for (int i = 0; i < getPropN(); i++)
 		{
@@ -128,20 +123,20 @@ public class Annotation
 			out.print(i);
 			out.print(". nameCi ");
 			out.print(getPropNameCi(i));
-			getCons().printUtfChars(out, getPropNameCi(i), verbose);
+			cons.printUtfChars(out, getPropNameCi(i), verbose);
 			out.print(" valueBi ");
 			out.println(getPropValueBi(i));
 		}
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		return byteN();
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		System.arraycopy(bytes, beginBi, bs, begin, byteN());
 		return begin + byteN();

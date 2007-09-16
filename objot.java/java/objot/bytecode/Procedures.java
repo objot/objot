@@ -9,7 +9,7 @@ import objot.util.InvalidValueException;
 public class Procedures
 	extends Element
 {
-	protected Constants cons;
+	public final Constants cons;
 	protected int procN;
 	protected Procedure[] procs;
 
@@ -22,11 +22,6 @@ public class Procedures
 		for (int i = 0; i < procN; i++)
 			bi = Procedure.readEnd1Bi(bytes, bi);
 		end1Bi = bi;
-	}
-
-	public Constants getCons()
-	{
-		return cons;
 	}
 
 	public int getProcN()
@@ -97,18 +92,18 @@ public class Procedures
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		if (procs == null)
 			return byteN();
 		int n = 2;
 		for (int i = 0; i < procN; i++)
-			n += procs[i].normalizeByteN();
+			n += procs[i].generateByteN();
 		return n;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		if (procs == null)
 		{
@@ -118,7 +113,7 @@ public class Procedures
 		writeU2(bs, begin, procN);
 		begin += 2;
 		for (int i = 0; i < procN; i++)
-			begin = procs[i].normalizeTo(bs, begin);
+			begin = procs[i].generateTo(bs, begin);
 		return begin;
 	}
 }

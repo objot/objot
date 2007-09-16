@@ -146,19 +146,19 @@ public class CodeCatchs
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		return 2 + (catchN << 3);
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, catchN);
 		if (beginAds == null)
 		{
 			System.arraycopy(bytes, beginBi + 2, bs, begin + 2, catchN << 3);
-			return begin + normalizeByteN();
+			return begin + generateByteN();
 		}
 		begin += 2;
 		for (int i = 0; i < catchN; i++, begin += 8)

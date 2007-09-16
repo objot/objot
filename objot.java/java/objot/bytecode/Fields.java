@@ -92,18 +92,18 @@ public class Fields
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		if (fields == null)
 			return byteN();
 		int n = 2;
 		for (int i = 0; i < fieldN; i++)
-			n += fields[i].normalizeByteN();
+			n += fields[i].generateByteN();
 		return n;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		if (fields == null)
 		{
@@ -113,7 +113,7 @@ public class Fields
 		writeU2(bs, begin, fieldN);
 		begin += 2;
 		for (int i = 0; i < fieldN; i++)
-			begin = fields[i].normalizeTo(bs, begin);
+			begin = fields[i].generateTo(bs, begin);
 		return begin;
 	}
 }

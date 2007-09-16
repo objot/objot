@@ -100,15 +100,17 @@ public abstract class Element
 		return new String(i);
 	}
 
-	/** @return the amount of bytes after normalization. */
-	public abstract int normalizeByteN();
+	/** @return the number of bytes generated. */
+	public abstract int generateByteN();
 
 	/**
-	 * Write normalized element(s) to the byte, from the begin index.
+	 * generate element(s) to the byte array, from the begin index.
 	 * 
-	 * @return the index of <code>bs</code> after normalization.
+	 * @return the end1 index of byte array after generating.
 	 */
-	public abstract int normalizeTo(byte[] bs, int begin);
+	public abstract int generateTo(byte[] bs, int begin);
+
+	// ********************************************************************************
 
 	public static byte[] chars2Utf(String s)
 	{

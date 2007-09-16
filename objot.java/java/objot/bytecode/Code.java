@@ -249,23 +249,23 @@ public class Code
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		int n = byteN();
 		n += addrN - addrN0;
 		if (catchs != null)
-			n += catchs.normalizeByteN() - catchs.byteN();
+			n += catchs.generateByteN() - catchs.byteN();
 		if (lines != null)
-			n += lines.normalizeByteN() - lines.byteN();
+			n += lines.generateByteN() - lines.byteN();
 		if (vars != null)
-			n += vars.normalizeByteN() - vars.byteN();
+			n += vars.generateByteN() - vars.byteN();
 		if (varSigns != null)
-			n += varSigns.normalizeByteN() - varSigns.byteN();
+			n += varSigns.generateByteN() - varSigns.byteN();
 		return n;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		if (attrNameCi <= 0)
 			throw new RuntimeException("attribute name constant index must be set");
@@ -286,7 +286,7 @@ public class Code
 			bbi += catchBn;
 		}
 		else
-			bbi = catchs.normalizeTo(bs, bbi);
+			bbi = catchs.generateTo(bs, bbi);
 
 		writeU2(bs, bbi, attrN);
 		bi = attrBi;
@@ -295,11 +295,11 @@ public class Code
 		{
 			int bn = 6 + read0u4(bi + 2);
 			if (bi == linesBi && lines != null)
-				bbi = lines.normalizeTo(bs, bbi);
+				bbi = lines.generateTo(bs, bbi);
 			else if (bi == varsBi && vars != null)
-				bbi = vars.normalizeTo(bs, bbi);
+				bbi = vars.generateTo(bs, bbi);
 			else if (bi == varSignsBi && varSigns != null)
-				bbi = varSigns.normalizeTo(bs, bbi);
+				bbi = varSigns.generateTo(bs, bbi);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, bbi, bn);

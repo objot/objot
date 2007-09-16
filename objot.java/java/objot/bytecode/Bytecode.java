@@ -184,38 +184,38 @@ public class Bytecode
 
 	public byte[] normalize()
 	{
-		byte[] bs = new byte[normalizeByteN()];
-		normalizeTo(bs, 0);
+		byte[] bs = new byte[generateByteN()];
+		generateTo(bs, 0);
 		return bs;
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		int n = byteN();
-		n += cons.normalizeByteN() - cons.byteN();
+		n += cons.generateByteN() - cons.byteN();
 		if (head != null)
-			n += head.normalizeByteN() - head.byteN();
+			n += head.generateByteN() - head.byteN();
 		if (fields != null)
-			n += fields.normalizeByteN() - fields.byteN();
+			n += fields.generateByteN() - fields.byteN();
 		if (procs != null)
-			n += procs.normalizeByteN() - procs.byteN();
+			n += procs.generateByteN() - procs.byteN();
 		if (annos != null)
-			n += annos.normalizeByteN() - annos.byteN();
+			n += annos.generateByteN() - annos.byteN();
 		if (annoHides != null)
-			n += annoHides.normalizeByteN() - annoHides.byteN();
+			n += annoHides.generateByteN() - annoHides.byteN();
 		return n;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		System.arraycopy(bytes, 0, bs, begin, 8);
 		int bi = cons.end1Bi;
-		begin = cons.normalizeTo(bs, begin + 8);
+		begin = cons.generateTo(bs, begin + 8);
 
 		bi = head.end1Bi;
-		begin = head.normalizeTo(bs, begin);
+		begin = head.generateTo(bs, begin);
 
 		if (fields == null)
 		{
@@ -223,7 +223,7 @@ public class Bytecode
 			return begin + end1Bi - bi;
 		}
 		bi = fields.end1Bi;
-		begin = fields.normalizeTo(bs, begin);
+		begin = fields.generateTo(bs, begin);
 
 		if (procs == null)
 		{
@@ -231,7 +231,7 @@ public class Bytecode
 			return begin + end1Bi - bi;
 		}
 		bi = procs.end1Bi;
-		begin = procs.normalizeTo(bs, begin);
+		begin = procs.generateTo(bs, begin);
 
 		if (attrBi <= 0)
 		{
@@ -245,9 +245,9 @@ public class Bytecode
 		{
 			int bn = 6 + read0u4(bi + 2);
 			if (bi == annosBi && annos != null)
-				begin = annos.normalizeTo(bs, begin);
+				begin = annos.generateTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
-				begin = annoHides.normalizeTo(bs, begin);
+				begin = annoHides.generateTo(bs, begin);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);
