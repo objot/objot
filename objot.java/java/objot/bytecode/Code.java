@@ -171,17 +171,17 @@ public class Code
 	}
 
 	@Override
-	protected void printContents(PrintStream out, String indent1st, String indent,
-		int verbose, boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
+		boolean hash)
 	{
 		out.println();
 		cons.printIdentityLn(out, indent, hash);
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("stackN ");
 		out.print(getStackN());
 		out.print(" localN ");
 		out.println(getLocalN());
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("addrN ");
 		out.print(getAddrN());
 		if (hash)
@@ -191,18 +191,15 @@ public class Code
 		}
 		out.println();
 		if (verbose >= 2)
-		{
-			String in = moreIndent(moreIndent(indent));
 			for (int i = 0; i < getAddrN(); i += readInsAddrN(i))
 			{
-				out.print(indent);
+				printIndent(out, indent);
 				out.print(i);
 				out.print(". ");
-				Opcode.println(this, i, out, "", in, verbose);
+				Opcode.println(this, i, out, 0, indent + 2, verbose);
 			}
-		}
 		getCatchs().printTo(out, indent, indent, verbose, hash);
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("attrN ");
 		out.println(getAttrN());
 		if (getLines() != null)
@@ -211,9 +208,9 @@ public class Code
 			getVars().printTo(out, indent, indent, verbose, hash);
 		if (getVarSigns() != null)
 		{
-			out.print(indent);
+			printIndent(out, indent);
 			out.print("varSigns ");
-			getVarSigns().printTo(out, "", indent, verbose, hash);
+			getVarSigns().printTo(out, 0, indent, verbose, hash);
 		}
 	}
 

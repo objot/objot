@@ -123,17 +123,17 @@ public class Field
 	}
 
 	@Override
-	protected void printContents(PrintStream out, String indent1st, String indent,
-		int verbose, boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
+		boolean hash)
 	{
 		out.println();
 		cons.printIdentityLn(out, indent, hash);
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));
 		out.print(' ');
 		out.println(Mod2.toString(modifier));
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("nameCi ");
 		out.print(getNameCi());
 		cons.printUtfChars(out, getNameCi(), verbose);
@@ -141,10 +141,10 @@ public class Field
 		out.print(getDescCi());
 		cons.printUtfChars(out, getDescCi(), verbose);
 		out.println();
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("attrN ");
 		out.println(getAttrN());
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
 		cons.printUtfChars(out, getSignatureCi(), verbose);
