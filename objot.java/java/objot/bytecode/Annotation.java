@@ -115,7 +115,7 @@ public class Annotation
 		printIndent(out, indent1st);
 		out.print(" descCi ");
 		out.print(getDescCi());
-		cons.printUtfChars(out, getDescCi(), verbose);
+		cons.printUtf(out, getDescCi(), verbose);
 		out.println();
 		for (int i = 0; i < getPropN(); i++)
 		{
@@ -123,7 +123,7 @@ public class Annotation
 			out.print(i);
 			out.print(". nameCi ");
 			out.print(getPropNameCi(i));
-			cons.printUtfChars(out, getPropNameCi(i), verbose);
+			cons.printUtf(out, getPropNameCi(i), verbose);
 			out.print(" valueBi ");
 			out.println(getPropValueBi(i));
 		}

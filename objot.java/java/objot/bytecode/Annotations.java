@@ -67,7 +67,7 @@ public class Annotations
 		if (as != null)
 			for (int i = as.getAnnoN() - 1; i >= 0; i--)
 				if (as.cons
-					.equalsUtf(as.getAnno(i).getDescCi(), utf(Class2.descriptor(anno))))
+					.equalsUtf(as.getAnno(i).getDescCi(), utf(Class2.descript(anno))))
 					return i;
 		return -1;
 	}
@@ -93,7 +93,7 @@ public class Annotations
 			for (int i = as.getAnnoN() - 1; i >= 0; i--)
 			{
 				int desc = as.getAnno(i).getDescCi();
-				Class<?> ca = cl.loadClass(as.cons.classDesc2InternalChars(desc));
+				Class<?> ca = cl.loadClass(as.cons.classDesc2NameUnicode(desc));
 				if (ca.isAnnotationPresent(anno))
 					return i;
 			}

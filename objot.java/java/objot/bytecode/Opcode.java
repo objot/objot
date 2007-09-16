@@ -635,8 +635,8 @@ public final class Opcode
 	public static void println(Code c, int ad, PrintStream out, int indent1st, int indent,
 		int verbose)
 	{
-		println(c.insBytes(), ad + c.getAddrBi(), c.getAddrBi(), c.cons, //
-			out, indent1st, indent, verbose);
+		println(c.insBytes(), ad + c.getAddrBi(), c.getAddrBi(), c.cons, out, indent1st,
+			indent, verbose);
 	}
 
 	public static void println(byte[] bs, int bi, int addrBi, Constants cons,
@@ -864,11 +864,6 @@ public final class Opcode
 		}
 		}
 		out.println();
-	}
-
-	public static int readInsAddrN(Element e, int bi, int addrBi)
-	{
-		return readInsAddrN(e.bytes, bi, addrBi);
 	}
 
 	public static int readInsAddrN(Code c, int ad)
@@ -1240,11 +1235,6 @@ public final class Opcode
 		throw new ClassFormatError("invalid type char " + typeChar);
 	}
 
-	public static byte getNormalLocalOp(Element e, int bi)
-	{
-		return getNormalLocalOp(e.bytes, bi);
-	}
-
 	public static byte getNormalLocalOp(Code c, int ad)
 	{
 		return getNormalLocalOp(c.insBytes(), ad + c.getAddrBi());
@@ -1319,11 +1309,6 @@ public final class Opcode
 		default:
 			return bs[bi];
 		}
-	}
-
-	public static int getLocalI(Element e, int bi)
-	{
-		return getLocalI(e.bytes, bi);
 	}
 
 	public static int getLocalI(Code c, int ad)

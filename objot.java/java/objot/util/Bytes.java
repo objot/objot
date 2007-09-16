@@ -32,23 +32,26 @@ public class Bytes
 		return end1Bi - beginBi;
 	}
 
-	public void copyTo(int bi, byte[] dest, int destBi, int bn)
+	public int copyTo(int bi, byte[] dest, int destBi, int bn)
 	{
 		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);
 		System.arraycopy(bytes, bi + beginBi, dest, destBi, bn);
+		return destBi + bn;
 	}
 
-	public void copyTo(int bi, Bytes dest, int destBi, int bn)
+	public int copyTo(int bi, Bytes dest, int destBi, int bn)
 	{
 		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);
 		Math2.checkRange(destBi, destBi + bn, dest.end1Bi - dest.beginBi);
 		System.arraycopy(bytes, bi + beginBi, dest.bytes, destBi + dest.beginBi, bn);
+		return destBi + bn;
 	}
 
-	public void copyFrom(int bi, byte[] src, int srcBi, int bn)
+	public int copyFrom(int bi, byte[] src, int srcBi, int bn)
 	{
 		Math2.checkRange(bi + bn, end1Bi - beginBi);
 		System.arraycopy(src, srcBi, bytes, bi + beginBi, bn);
+		return bi + bn;
 	}
 
 	public final boolean equals(byte[] bs)

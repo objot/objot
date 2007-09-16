@@ -12,9 +12,9 @@ public class Procedure
 	/** No signature and attribute except exceptions and code. */
 	public static final Procedure EMPTY;
 
-	public static final Bytes CTOR_NAMEUTF = new Bytes(Element.chars2Utf("<init>"));
-	public static final Bytes CINIT_NAMEUTF = new Bytes(Element.chars2Utf("<cinit>"));
-	public static final Bytes VOID_DESC = new Bytes(Element.chars2Utf("()V"));
+	public static final Bytes CTOR_NAMEUTF = Element.utf("<init>");
+	public static final Bytes CINIT_NAMEUTF = Element.utf("<cinit>");
+	public static final Bytes VOID_DESC = Element.utf("()V");
 
 	static
 	{
@@ -50,8 +50,8 @@ public class Procedure
 	protected int modifier;
 	protected int nameCi;
 	protected int descCi;
-	protected int argN;
-	protected int argLocalN;
+	protected int paramN;
+	protected int paramLocalN;
 	protected char returnType;
 	protected int attrN;
 	protected int attrBi;
@@ -85,8 +85,7 @@ public class Procedure
 		modifier = read0u2(beginBi);
 		setNameCi(read0u2(beginBi + 2));
 		descCi = read0u2(beginBi + 4);
-		argN = -1;
-		argLocalN = -1;
+		paramN = -1;
 		attrN = read0u2(beginBi + 6);
 		attrBi = beginBi + 8;
 		int bi = attrBi;
@@ -102,9 +101,9 @@ public class Procedure
 				annosBi = bi;
 			else if (annoHidesBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
 				annoHidesBi = bi;
-			else if (annoParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOS_ARG))
+			else if (annoParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNO_PARAMS))
 				annoParamsBi = bi;
-			else if (annoHideParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES_ARG))
+			else if (annoHideParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDE_PARAMS))
 				annoHideParamsBi = bi;
 			else if (exceptionsBi <= 0 && cons.equalsUtf(name, Bytecode.EXCEPTIONS))
 				exceptionsBi = bi;
@@ -137,26 +136,27 @@ public class Procedure
 		return descCi;
 	}
 
-	public int getArgN()
+	public int getParamN()
 	{
-		if (argN < 0)
-			argN = getArgN(cons.bytes, cons.readUtfBegin(descCi), cons.readUtfEnd1(descCi));
-		return argN;
+		if (paramN < 0)
+		{
+			Bytes desc = cons.readUtf(descCi);
+			paramN = getParamN(desc);
+			paramLocalN = getParamLocalN(desc);
+			returnType = getReturnTypeChar(desc);
+		}
+		return paramN;
 	}
 
-	public int getArgLocalN()
+	public int getParamLocalN()
 	{
-		if (argLocalN < 0)
-			argLocalN = getArgLocalN(cons.bytes, cons.readUtfBegin(descCi), cons
-				.readUtfEnd1(descCi));
-		return argLocalN;
+		getParamN();
+		return paramLocalN;
 	}
 
 	public char getReturnTypeChar()
 	{
-		if (returnType == 0)
-			returnType = getReturnTypeChar(cons.bytes, cons.readUtfBegin(descCi), cons
-				.readUtfEnd1(descCi));
+		getParamN();
 		return returnType;
 	}
 
@@ -196,8 +196,8 @@ public class Procedure
 		if (annoParams == null && annoParamsBi > 0)
 		{
 			annoParams = new AnnoParams(cons, bytes, annoParamsBi, false);
-			if (annoParams.getParamN() != getArgN())
-				throw new ClassFormatError("inconsistant argumentN in argument-annotations");
+			if (annoParams.getParamN() != getParamN())
+				throw new ClassFormatError("inconsistant parameterN in parameter-annotations");
 		}
 		return annoParams;
 	}
@@ -207,8 +207,8 @@ public class Procedure
 		if (annoHideParams == null && annoHideParamsBi > 0)
 		{
 			annoHideParams = new AnnoParams(cons, bytes, annoHideParamsBi, true);
-			if (annoHideParams.getParamN() != getArgN())
-				throw new ClassFormatError("inconsistant argumentN in argument-annotations");
+			if (annoHideParams.getParamN() != getParamN())
+				throw new ClassFormatError("inconsistant parameterN in parameter-annotations");
 		}
 		return annoHideParams;
 	}
@@ -241,10 +241,10 @@ public class Procedure
 		printIndent(out, indent);
 		out.print("nameCi ");
 		out.print(getNameCi());
-		cons.printUtfChars(out, getNameCi(), verbose);
+		cons.printUtf(out, getNameCi(), verbose);
 		out.print(" descCi ");
 		out.print(getDescCi());
-		cons.printUtfChars(out, getDescCi(), verbose);
+		cons.printUtf(out, getDescCi(), verbose);
 		out.println();
 		printIndent(out, indent);
 		out.print("attrN ");
@@ -252,7 +252,7 @@ public class Procedure
 		printIndent(out, indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
-		cons.printUtfChars(out, getSignatureCi(), verbose);
+		cons.printUtf(out, getSignatureCi(), verbose);
 		out.println();
 		if (getAnnos() != null)
 			getAnnos().printTo(out, indent, indent, verbose, hash);
@@ -269,7 +269,7 @@ public class Procedure
 	}
 
 	/** @return the annotation found, null for not found. */
-	public Annotation searchAnnoArg(Class<? extends java.lang.annotation.Annotation> anno)
+	public Annotation searchAnnoParam(Class<? extends java.lang.annotation.Annotation> anno)
 	{
 		long i = AnnoParams.searchAnno(getAnnoParams(), anno);
 		if (i >= 0)
@@ -281,7 +281,7 @@ public class Procedure
 	}
 
 	/** @return the annotated annotation found, null for not found. */
-	public Annotation searchAnnoAnnoArg(ClassLoader cl,
+	public Annotation searchAnnoAnnoParam(ClassLoader cl,
 		Class<? extends java.lang.annotation.Annotation> anno) throws ClassNotFoundException
 	{
 		long i = AnnoParams.searchAnnoAnno(cl, getAnnoParams(), anno);
@@ -293,47 +293,37 @@ public class Procedure
 		return null;
 	}
 
-	public static int getArgN(byte[] descUtf, int begin, int end1)
+	public static int getParamN(Bytes descUtf)
 	{
-		if (descUtf[begin] != '(')
-			throw new ClassFormatError("invalid procedure descriptor "
-				+ Element.utf2chars(descUtf, begin, end1));
-		begin++;
-		for (int n = 0; begin < end1; n++, begin += typeDescByteN(descUtf, begin, end1))
-			if (descUtf[begin] == ')')
+		if (descUtf.readS1(0) != '(')
+			throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+		for (int i = descUtf.beginBi + 1, n = 0; i < descUtf.end1Bi; //
+		i += typeDescByteN(descUtf, i - descUtf.beginBi), n++)
+			if (descUtf.bytes[i] == ')')
 				return n;
-		throw new ClassFormatError("invalid procedure descriptor "
-			+ Element.utf2chars(descUtf, begin, end1));
+		throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
 	}
 
-	public static int getArgLocalN(byte[] descUtf, int begin, int end1)
+	public static int getParamLocalN(Bytes descUtf)
 	{
-		if (descUtf[begin] != '(')
-			throw new ClassFormatError("invalid procedure descriptor "
-				+ Element.utf2chars(descUtf, begin, end1));
-		begin++;
-		for (int n = 0; begin < end1; begin += typeDescByteN(descUtf, begin, end1))
+		if (descUtf.readS1(0) != '(')
+			throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+		for (int i = descUtf.beginBi + 1, n = 0; i < descUtf.end1Bi; //
+		i += typeDescByteN(descUtf, i - descUtf.beginBi), n++)
 		{
-			if (descUtf[begin] == ')')
+			if (descUtf.bytes[i] == ')')
 				return n;
-			n += Opcode.getLocalStackN((char)descUtf[begin]);
+			n += Opcode.getLocalStackN((char)descUtf.bytes[i]);
 		}
-		throw new ClassFormatError("invalid procedure descriptor "
-			+ Element.utf2chars(descUtf, begin, end1));
+		throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
 	}
 
 	/** @return char of return type */
-	public static char getReturnTypeChar(byte[] descUtf)
+	public static char getReturnTypeChar(Bytes descUtf)
 	{
-		return getReturnTypeChar(descUtf, 0, descUtf.length);
-	}
-
-	/** @return char of return type */
-	public static char getReturnTypeChar(byte[] descUtf, int begin, int end1)
-	{
-		for (int bi = end1 - 1; bi >= begin; bi--)
-			if (descUtf[bi] == ')')
-				switch (descUtf[bi + 1])
+		for (int i = descUtf.end1Bi - 1; i >= descUtf.beginBi; i--)
+			if (descUtf.bytes[i] == ')')
+				switch (descUtf.bytes[i + 1])
 				{
 				case 'L':
 				case '[':
@@ -346,13 +336,12 @@ public class Procedure
 				case 'J':
 				case 'F':
 				case 'D':
-					return (char)descUtf[bi + 1];
+					return (char)descUtf.bytes[i + 1];
 				default:
-					throw new ClassFormatError("invalid procedure return type "
-						+ (char)descUtf[bi + 1]);
+					throw new ClassFormatError("invalid return type "
+						+ (char)descUtf.bytes[i + 1]);
 				}
-		throw new ClassFormatError("invalid procedure descriptor "
-			+ Element.utf2chars(descUtf, begin, end1));
+		throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
 	}
 
 	public void setModifier(int v)
@@ -371,9 +360,7 @@ public class Procedure
 	public void setDescCi(int v)
 	{
 		descCi = v;
-		argN = -1;
-		argLocalN = -1;
-		returnType = 0;
+		paramN = -1;
 	}
 
 	public void setSignatureCi(int v)

@@ -20,8 +20,8 @@ import objot.util.Math2;
 public class Instruction
 	extends Bytes
 {
-	private static final byte[] VALUEOF_NAME = Element.chars2Utf("valueOf");
-	private static final byte[] TYPE_NAME = Element.chars2Utf("TYPE");
+	private static final Bytes VALUEOF_NAME = Element.utf("valueOf");
+	private static final Bytes TYPE_NAME = Element.utf("TYPE");
 
 	public int addr;
 
@@ -36,33 +36,24 @@ public class Instruction
 		ensureByteN(ensureAddrN);
 	}
 
-	public final void copyFrom(byte[] code, int bi, int bn)
+	public final void copyFrom(byte[] ins, int ad, int adN)
 	{
-		reserveN(bn);
-		if (bn == 1)
-			write0s1(addr, code[bi]);
-		else
-			System.arraycopy(code, bi, bytes, addr, bn);
-		addr += bn;
+		reserveN(adN);
+		System.arraycopy(ins, ad, bytes, addr, adN);
+		addr += adN;
 	}
 
-	public final void copyFrom(Bytes code, int bi, int bn)
+	public final void copyFrom(Bytes ins, int ad, int adN)
 	{
-		reserveN(bn);
-		if (bn == 1)
-			write0s1(addr, code.read0s1(bi));
-		else
-			code.copyTo(bi, bytes, addr, bn);
-		addr += bn;
+		reserveN(adN);
+		ins.copyTo(ad, bytes, addr, adN);
+		addr += adN;
 	}
 
 	public final void copyFrom(Code code, int ad, int adN)
 	{
 		reserveN(adN);
-		if (adN == 1)
-			write0s1(addr, code.readInsS1(ad));
-		else
-			code.copyInsTo(ad, bytes, addr, adN);
+		code.copyInsTo(ad, bytes, addr, adN);
 		addr += adN;
 	}
 
@@ -331,42 +322,37 @@ public class Instruction
 	public final void insLoad(Constants cons, Class<?> c)
 	{
 		if (c.isPrimitive())
-			insU2(GETSTATIC, cons.putField( //
-				cons.putClass(cons.putUtf(Element.utf(Class2.internalName(Class2
-					.box(c, false))))), //
+			insU2(GETSTATIC, cons.putField(cons.putClass(Class2.box(c, false)), //
 				cons.putNameDesc(cons.putUtf(TYPE_NAME), //
-					cons.putUtf(Element.utf(Class2.descriptor(Class.class))))));
+					cons.putUnicode(Class2.descript(Class.class)))));
 		else
-			insU2(LDCW, cons.putClass(cons.putUtf(Element.utf(Class2.internalName(c)))));
+			insU2(LDCW, cons.putClass(c));
 	}
 
 	/** Stack: primitive value(s) or object --> object */
-	public final void insBoxing(Constants cons, Class<?> c)
+	public final void insBox(Constants cons, Class<?> c)
 	{
 		if ( !c.isPrimitive())
 			return;
 		Class<?> b = Class2.box(c, false);
-		insU2(INVOKESTATIC, cons.putCproc( //
-			cons.putClass(cons.putUtf(Element.utf(Class2.internalName(b)))), //
+		insU2(INVOKESTATIC, cons.putCproc(cons.putClass(b), //
 			cons.putNameDesc(cons.putUtf(VALUEOF_NAME), //
-				cons.putUtf(Element.chars2Utf('(' + Class2.descriptor(c) + ')'
-					+ Class2.descriptor(b))))));
+				cons.putUnicode('(' + Class2.descript(c) + ')' + Class2.descript(b)))));
 	}
 
 	/** Stack: object --> primitive value(s) or narrowed object */
-	public final void insUnboxingNarrow(Constants cons, Class<?> c)
+	public final void insUnboxNarrow(Constants cons, Class<?> c)
 	{
 		if (c.isPrimitive())
 		{
 			Class<?> b = Class2.box(c, false);
-			Bytes bUtf = Element.utf(Class2.internalName(b));
-			insU2(CHECKCAST, cons.putClass(cons.putUtf(bUtf)));
-			insU2(INVOKEVIRTUAL, cons.putCproc( //
-				cons.putClass(cons.putUtf(bUtf)), //
-				cons.putNameDesc(cons.putUtf(Element.chars2Utf(c.getName() + "Value")), //
-					cons.putUtf(Element.chars2Utf("()" + Class2.descriptor(c))))));
+			int cla = cons.putClass(b);
+			insU2(CHECKCAST, cla);
+			insU2(INVOKEVIRTUAL, cons.putCproc(cla, //
+				cons.putNameDesc(cons.putUnicode(c.getName() + "Value"), //
+					cons.putUnicode("()" + Class2.descript(c)))));
 		}
 		else if (c != Object.class)
-			insU2(CHECKCAST, cons.putClass(cons.putUtf(Element.utf(Class2.internalName(c)))));
+			insU2(CHECKCAST, cons.putClass(c));
 	}
 }
