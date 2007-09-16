@@ -3,6 +3,7 @@ package objot.bytecode;
 import java.io.PrintStream;
 
 import objot.util.Bytes;
+import objot.util.Mod2;
 
 
 public class Procedure
@@ -45,10 +46,8 @@ public class Procedure
 		EMPTY = new Procedure(cons, bs.bytes, bs.beginBi);
 	}
 
-	protected Constants cons;
+	public final Constants cons;
 	protected int modifier;
-	protected Visible visible;
-	protected ProcKind kind;
 	protected int nameCi;
 	protected int descCi;
 	protected int argN;
@@ -62,10 +61,10 @@ public class Procedure
 	protected Annotations annos;
 	protected int annoHidesBi;
 	protected Annotations annoHides;
-	protected int annoArgsBi;
+	protected int annoParamsBi;
 	protected AnnoParams annoParams;
-	protected int annoHideArgsBi;
-	protected AnnoParams annoHideArgs;
+	protected int annoHideParamsBi;
+	protected AnnoParams annoHideParams;
 	protected int exceptionsBi;
 	protected Exceptions exceptions;
 	protected int codeBi;
@@ -84,8 +83,7 @@ public class Procedure
 		super(bs, beginBi_, true);
 		cons = c;
 		modifier = read0u2(beginBi);
-		visible = Visible.get(modifier);
-		nameCi = read0u2(beginBi + 2);
+		setNameCi(read0u2(beginBi + 2));
 		descCi = read0u2(beginBi + 4);
 		argN = -1;
 		argLocalN = -1;
@@ -104,10 +102,10 @@ public class Procedure
 				annosBi = bi;
 			else if (annoHidesBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
 				annoHidesBi = bi;
-			else if (annoArgsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOS_ARG))
-				annoArgsBi = bi;
-			else if (annoHideArgsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES_ARG))
-				annoHideArgsBi = bi;
+			else if (annoParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOS_ARG))
+				annoParamsBi = bi;
+			else if (annoHideParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES_ARG))
+				annoHideParamsBi = bi;
 			else if (exceptionsBi <= 0 && cons.equalsUtf(name, Bytecode.EXCEPTIONS))
 				exceptionsBi = bi;
 			else if (codeBi <= 0 && cons.equalsUtf(name, Bytecode.CODE))
@@ -117,33 +115,16 @@ public class Procedure
 		end1Bi = bi;
 	}
 
-	public Constants getCons()
-	{
-		return cons;
-	}
-
 	public int getModifier()
 	{
 		return modifier;
 	}
 
-	public Visible getVisible()
-	{
-		return visible;
-	}
-
-	public ProcKind getKind()
-	{
-		if (kind == null)
-			kind = ProcKind.get(modifier, nameCi > 0 ? (char)cons.read0s1(cons
-				.readUtfBegin(nameCi)) : ' ');
-		return kind;
-	}
-
 	/** @return whether a sythetic or bridge procedure except ctor and cinit. */
 	public boolean isSpecial()
 	{
-		return (modifier & 0x1040) != 0 && !getKind().isMatching(ProcKind.INITIAL);
+		return (modifier & (Mod2.SYNTHETIC | Mod2.BRIDGE)) != 0
+			&& (modifier & Mod2.P.INITER) == 0;
 	}
 
 	public int getNameCi()
@@ -212,24 +193,24 @@ public class Procedure
 
 	public AnnoParams getAnnoParams()
 	{
-		if (annoParams == null && annoArgsBi > 0)
+		if (annoParams == null && annoParamsBi > 0)
 		{
-			annoParams = new AnnoParams(cons, bytes, annoArgsBi, false);
+			annoParams = new AnnoParams(cons, bytes, annoParamsBi, false);
 			if (annoParams.getParamN() != getArgN())
 				throw new ClassFormatError("inconsistant argumentN in argument-annotations");
 		}
 		return annoParams;
 	}
 
-	public AnnoParams getAnnoHideArgs()
+	public AnnoParams getAnnoHideParams()
 	{
-		if (annoHideArgs == null && annoHideArgsBi > 0)
+		if (annoHideParams == null && annoHideParamsBi > 0)
 		{
-			annoHideArgs = new AnnoParams(cons, bytes, annoHideArgsBi, true);
-			if (annoHideArgs.getParamN() != getArgN())
+			annoHideParams = new AnnoParams(cons, bytes, annoHideParamsBi, true);
+			if (annoHideParams.getParamN() != getArgN())
 				throw new ClassFormatError("inconsistant argumentN in argument-annotations");
 		}
-		return annoHideArgs;
+		return annoHideParams;
 	}
 
 	public Exceptions getExceptions()
@@ -251,21 +232,19 @@ public class Procedure
 		int verbose, boolean hash)
 	{
 		out.println();
-		getCons().printIdentityLn(out, indent, hash);
+		cons.printIdentityLn(out, indent, hash);
 		out.print(indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));
-		out.print(" visible ");
-		out.print(getVisible());
-		out.print(" kind ");
-		out.println(getKind());
+		out.print(' ');
+		out.println(Mod2.toString(modifier));
 		out.print(indent);
 		out.print("nameCi ");
 		out.print(getNameCi());
-		getCons().printUtfChars(out, getNameCi(), verbose);
+		cons.printUtfChars(out, getNameCi(), verbose);
 		out.print(" descCi ");
 		out.print(getDescCi());
-		getCons().printUtfChars(out, getDescCi(), verbose);
+		cons.printUtfChars(out, getDescCi(), verbose);
 		out.println();
 		out.print(indent);
 		out.print("attrN ");
@@ -273,7 +252,7 @@ public class Procedure
 		out.print(indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
-		getCons().printUtfChars(out, getSignatureCi(), verbose);
+		cons.printUtfChars(out, getSignatureCi(), verbose);
 		out.println();
 		if (getAnnos() != null)
 			getAnnos().printTo(out, indent, indent, verbose, hash);
@@ -281,8 +260,8 @@ public class Procedure
 			getAnnoHides().printTo(out, indent, indent, verbose, hash);
 		if (getAnnoParams() != null)
 			getAnnoParams().printTo(out, indent, indent, verbose, hash);
-		if (getAnnoHideArgs() != null)
-			getAnnoHideArgs().printTo(out, indent, indent, verbose, hash);
+		if (getAnnoHideParams() != null)
+			getAnnoHideParams().printTo(out, indent, indent, verbose, hash);
 		if (getExceptions() != null)
 			getExceptions().printTo(out, indent, indent, verbose, hash);
 		if (getCode() != null)
@@ -292,12 +271,12 @@ public class Procedure
 	/** @return the annotation found, null for not found. */
 	public Annotation searchAnnoArg(Class<? extends java.lang.annotation.Annotation> anno)
 	{
-		long i = AnnoParams.searchAnno(cons, getAnnoParams(), anno);
+		long i = AnnoParams.searchAnno(getAnnoParams(), anno);
 		if (i >= 0)
 			return getAnnoParams().getAnno((int)(i >>> 32), (int)i);
-		i = AnnoParams.searchAnno(cons, getAnnoHideArgs(), anno);
+		i = AnnoParams.searchAnno(getAnnoHideParams(), anno);
 		if (i >= 0)
-			return getAnnoHideArgs().getAnno((int)(i >>> 32), (int)i);
+			return getAnnoHideParams().getAnno((int)(i >>> 32), (int)i);
 		return null;
 	}
 
@@ -305,12 +284,12 @@ public class Procedure
 	public Annotation searchAnnoAnnoArg(ClassLoader cl,
 		Class<? extends java.lang.annotation.Annotation> anno) throws ClassNotFoundException
 	{
-		long i = AnnoParams.searchAnnoAnno(cl, cons, getAnnoParams(), anno);
+		long i = AnnoParams.searchAnnoAnno(cl, getAnnoParams(), anno);
 		if (i >= 0)
 			return getAnnoParams().getAnno((int)(i >>> 32), (int)i);
-		i = AnnoParams.searchAnnoAnno(cl, cons, getAnnoHideArgs(), anno);
+		i = AnnoParams.searchAnnoAnno(cl, getAnnoHideParams(), anno);
 		if (i >= 0)
-			return getAnnoHideArgs().getAnno((int)(i >>> 32), (int)i);
+			return getAnnoHideParams().getAnno((int)(i >>> 32), (int)i);
 		return null;
 	}
 
@@ -379,14 +358,14 @@ public class Procedure
 	public void setModifier(int v)
 	{
 		modifier = v;
-		visible = Visible.get(modifier);
-		kind = null;
+		setNameCi(nameCi);
 	}
 
+	/** may change {@link #modifier} */
 	public void setNameCi(int v)
 	{
 		nameCi = v;
-		kind = null;
+		modifier = Mod2.get(modifier, cons.read0s1(cons.readUtfBegin(nameCi)));
 	}
 
 	public void setDescCi(int v)
@@ -405,28 +384,28 @@ public class Procedure
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		int n = byteN();
 		if (annos != null)
-			n += annos.normalizeByteN() - annos.byteN();
+			n += annos.generateByteN() - annos.byteN();
 		if (annoHides != null)
-			n += annoHides.normalizeByteN() - annoHides.byteN();
+			n += annoHides.generateByteN() - annoHides.byteN();
 		if (annoParams != null)
-			n += annoParams.normalizeByteN() - annoParams.byteN();
-		if (annoHideArgs != null)
-			n += annoHideArgs.normalizeByteN() - annoHideArgs.byteN();
+			n += annoParams.generateByteN() - annoParams.byteN();
+		if (annoHideParams != null)
+			n += annoHideParams.generateByteN() - annoHideParams.byteN();
 		if (exceptions != null)
-			n += exceptions.normalizeByteN() - exceptions.byteN();
+			n += exceptions.generateByteN() - exceptions.byteN();
 		if (code != null)
-			n += code.normalizeByteN() - code.byteN();
+			n += code.generateByteN() - code.byteN();
 		return n;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
-		writeU2(bs, begin, modifier);
+		writeU2(bs, begin, modifier & 0xFFFF);
 		writeU2(bs, begin + 2, nameCi);
 		writeU2(bs, begin + 4, descCi);
 		writeU2(bs, begin + 6, attrN);
@@ -442,17 +421,17 @@ public class Procedure
 				begin += 8;
 			}
 			else if (bi == annosBi && annos != null)
-				begin = annos.normalizeTo(bs, begin);
+				begin = annos.generateTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
-				begin = annoHides.normalizeTo(bs, begin);
-			else if (bi == annoArgsBi && annoParams != null)
-				begin = annoParams.normalizeTo(bs, begin);
-			else if (bi == annoHideArgsBi && annoHideArgs != null)
-				begin = annoHideArgs.normalizeTo(bs, begin);
+				begin = annoHides.generateTo(bs, begin);
+			else if (bi == annoParamsBi && annoParams != null)
+				begin = annoParams.generateTo(bs, begin);
+			else if (bi == annoHideParamsBi && annoHideParams != null)
+				begin = annoHideParams.generateTo(bs, begin);
 			else if (bi == exceptionsBi && exceptions != null)
-				begin = exceptions.normalizeTo(bs, begin);
+				begin = exceptions.generateTo(bs, begin);
 			else if (bi == codeBi && code != null)
-				begin = code.normalizeTo(bs, begin);
+				begin = code.generateTo(bs, begin);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);

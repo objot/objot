@@ -61,38 +61,39 @@ public class Annotations
 	}
 
 	/** @return the index of annotation found, negative for not found. */
-	public static int searchAnno(Constants cs, Annotations as,
+	public static int searchAnno(Annotations as,
 		Class<? extends java.lang.annotation.Annotation> anno)
 	{
 		if (as != null)
 			for (int i = as.getAnnoN() - 1; i >= 0; i--)
-				if (cs.equalsUtf(as.getAnno(i).getDescCi(), utf(Class2.descriptor(anno))))
+				if (as.cons
+					.equalsUtf(as.getAnno(i).getDescCi(), utf(Class2.descriptor(anno))))
 					return i;
 		return -1;
 	}
 
 	/** @return the annotation found, null for not found. */
-	public static Annotation searchAnno(Constants cs, Element a,
+	public static Annotation searchAnno(Element a,
 		Class<? extends java.lang.annotation.Annotation> anno)
 	{
-		int i = searchAnno(cs, a.getAnnos(), anno);
+		int i = searchAnno(a.getAnnos(), anno);
 		if (i >= 0)
 			return a.getAnnos().getAnno(i);
-		i = searchAnno(cs, a.getAnnoHides(), anno);
+		i = searchAnno(a.getAnnoHides(), anno);
 		if (i >= 0)
 			return a.getAnnoHides().getAnno(i);
 		return null;
 	}
 
 	/** @return the index of annotated annotation found, negative for not found. */
-	public static int searchAnnoAnno(ClassLoader cl, Constants cs, Annotations as,
+	public static int searchAnnoAnno(ClassLoader cl, Annotations as,
 		Class<? extends java.lang.annotation.Annotation> anno) throws ClassNotFoundException
 	{
 		if (as != null)
 			for (int i = as.getAnnoN() - 1; i >= 0; i--)
 			{
 				int desc = as.getAnno(i).getDescCi();
-				Class<?> ca = cl.loadClass(cs.classDesc2InternalChars(desc));
+				Class<?> ca = cl.loadClass(as.cons.classDesc2InternalChars(desc));
 				if (ca.isAnnotationPresent(anno))
 					return i;
 			}
@@ -100,13 +101,13 @@ public class Annotations
 	}
 
 	/** @return the annotated annotation found, null for not found. */
-	public static Annotation searchAnnoAnno(ClassLoader cl, Constants cs, Element a,
+	public static Annotation searchAnnoAnno(ClassLoader cl, Element a,
 		Class<? extends java.lang.annotation.Annotation> anno) throws ClassNotFoundException
 	{
-		int i = searchAnnoAnno(cl, cs, a.getAnnos(), anno);
+		int i = searchAnnoAnno(cl, a.getAnnos(), anno);
 		if (i >= 0)
 			return a.getAnnos().getAnno(i);
-		i = searchAnnoAnno(cl, cs, a.getAnnoHides(), anno);
+		i = searchAnnoAnno(cl, a.getAnnoHides(), anno);
 		if (i >= 0)
 			return a.getAnnoHides().getAnno(i);
 		return null;
@@ -148,7 +149,7 @@ public class Annotations
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		if (annos == null)
 			return byteN();
@@ -159,7 +160,7 @@ public class Annotations
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		if (annos == null)
 		{

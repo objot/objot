@@ -95,21 +95,21 @@ public class Exceptions
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		return 8 + (exceptionN << 1);
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, read0u2(beginBi));
-		writeU4(bs, begin + 2, normalizeByteN() - 6);
+		writeU4(bs, begin + 2, generateByteN() - 6);
 		writeU2(bs, begin + 6, exceptionN);
 		if (exceptionCis == null)
 		{
 			System.arraycopy(bytes, beginBi + 8, bs, begin + 8, exceptionN << 1);
-			return begin + normalizeByteN();
+			return begin + generateByteN();
 		}
 		begin += 8;
 		for (int i = 0; i < exceptionN; i++, begin += 2)

@@ -4,6 +4,7 @@ import java.io.PrintStream;
 
 import objot.util.Array2;
 import objot.util.InvalidValueException;
+import objot.util.Mod2;
 
 
 public class Head
@@ -11,7 +12,6 @@ public class Head
 {
 	public final Constants cons;
 	protected int modifier;
-	protected Visible visible;
 	protected int classCi;
 	protected int superCi;
 	protected int interfaceN;
@@ -21,8 +21,7 @@ public class Head
 	{
 		super(bs, beginBi_, true);
 		cons = c;
-		modifier = read0u2(beginBi);
-		visible = Visible.get(modifier);
+		setModifier(read0u2(beginBi));
 		classCi = read0u2(beginBi + 2);
 		superCi = read0u2(beginBi + 4);
 		interfaceN = read0u2(beginBi + 6);
@@ -37,11 +36,6 @@ public class Head
 	public int getModifier()
 	{
 		return modifier;
-	}
-
-	public Visible getVisible()
-	{
-		return visible;
 	}
 
 	public int getClassCi()
@@ -89,8 +83,8 @@ public class Head
 		out.print(indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));
-		out.print(" visible ");
-		out.println(getVisible());
+		out.print(' ');
+		out.println(Mod2.toString(modifier));
 		out.print(indent);
 		out.print("classCi ");
 		out.print(getClassCi());
@@ -112,8 +106,7 @@ public class Head
 
 	public void setModifier(int v)
 	{
-		modifier = v;
-		visible = Visible.get(modifier);
+		modifier = Mod2.get(v, 0);
 	}
 
 	public void setClassCi(int v)
@@ -159,22 +152,22 @@ public class Head
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		return 8 + (interfaceN << 1);
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
-		writeU2(bs, begin, modifier);
+		writeU2(bs, begin, modifier & 0xFFFF);
 		writeU2(bs, begin + 2, classCi);
 		writeU2(bs, begin + 4, superCi);
 		writeU2(bs, begin + 6, interfaceN);
 		if (interfaceCis == null)
 		{
 			System.arraycopy(bytes, beginBi + 8, bs, begin + 8, interfaceN << 1);
-			return begin + normalizeByteN();
+			return begin + generateByteN();
 		}
 		begin += 8;
 		for (int i = 0; i < interfaceN; i++, begin += 2)

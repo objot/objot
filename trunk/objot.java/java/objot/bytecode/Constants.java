@@ -1336,15 +1336,15 @@ public class Constants
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		return bis == null ? byteN() : bis[conN] - beginBi;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
-		int n = normalizeByteN();
+		int n = generateByteN();
 		System.arraycopy(bytes, beginBi, bs, begin, n);
 		writeU2(bs, begin, conN);
 		return begin + n;

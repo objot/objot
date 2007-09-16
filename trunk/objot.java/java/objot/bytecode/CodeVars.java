@@ -174,21 +174,21 @@ public class CodeVars
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		return 8 + varN * 10;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, read0u2(beginBi));
-		writeS4(bs, begin + 2, normalizeByteN() - 6);
+		writeS4(bs, begin + 2, generateByteN() - 6);
 		writeU2(bs, begin + 6, varN);
 		if (beginAds == null)
 		{
 			System.arraycopy(bytes, beginBi + 8, bs, begin + 8, varN * 10);
-			return begin + normalizeByteN();
+			return begin + generateByteN();
 		}
 		begin += 8;
 		for (int i = 0; i < varN; i++, begin += 10)

@@ -2,6 +2,8 @@ package objot.bytecode;
 
 import java.io.PrintStream;
 
+import objot.util.Mod2;
+
 
 public class Field
 	extends Element
@@ -14,9 +16,8 @@ public class Field
 			0, 0, // attrN
 		}, 0);
 
-	protected Constants cons;
+	public final Constants cons;
 	protected int modifier;
-	protected Visible visible;
 	protected int nameCi;
 	protected int descCi;
 	protected int attrN;
@@ -42,8 +43,7 @@ public class Field
 	{
 		super(bs, beginBi_, true);
 		cons = c;
-		modifier = read0u2(beginBi);
-		visible = Visible.get(modifier);
+		setModifier(read0u2(beginBi));
 		nameCi = read0u2(beginBi + 2);
 		descCi = read0u2(beginBi + 4);
 		attrN = read0u2(beginBi + 6);
@@ -71,19 +71,9 @@ public class Field
 		end1Bi = bi;
 	}
 
-	public Constants getCons()
-	{
-		return cons;
-	}
-
 	public int getModifier()
 	{
 		return modifier;
-	}
-
-	public Visible getVisible()
-	{
-		return visible;
 	}
 
 	public int getNameCi()
@@ -137,19 +127,19 @@ public class Field
 		int verbose, boolean hash)
 	{
 		out.println();
-		getCons().printIdentityLn(out, indent, hash);
+		cons.printIdentityLn(out, indent, hash);
 		out.print(indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));
-		out.print(" visible ");
-		out.println(getVisible());
+		out.print(' ');
+		out.println(Mod2.toString(modifier));
 		out.print(indent);
 		out.print("nameCi ");
 		out.print(getNameCi());
-		getCons().printUtfChars(out, getNameCi(), verbose);
+		cons.printUtfChars(out, getNameCi(), verbose);
 		out.print(" descCi ");
 		out.print(getDescCi());
-		getCons().printUtfChars(out, getDescCi(), verbose);
+		cons.printUtfChars(out, getDescCi(), verbose);
 		out.println();
 		out.print(indent);
 		out.print("attrN ");
@@ -157,11 +147,11 @@ public class Field
 		out.print(indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
-		getCons().printUtfChars(out, getSignatureCi(), verbose);
+		cons.printUtfChars(out, getSignatureCi(), verbose);
 		out.print(" constantCi ");
 		out.print(getConstantCi());
 		if (getConstantCi() != 0 && verbose > 0)
-			getCons().printConColon(getConstantCi(), out);
+			cons.printConColon(getConstantCi(), out);
 		out.println();
 		if (getAnnos() != null)
 			getAnnos().printTo(out, indent, indent, verbose, hash);
@@ -171,8 +161,7 @@ public class Field
 
 	public void setModifier(int v)
 	{
-		modifier = v;
-		visible = Visible.get(modifier);
+		modifier = Mod2.get(v, 0);
 	}
 
 	public void setNameCi(int v)
@@ -200,20 +189,20 @@ public class Field
 	}
 
 	@Override
-	public int normalizeByteN()
+	public int generateByteN()
 	{
 		int n = byteN();
 		if (annos != null)
-			n += annos.normalizeByteN() - annos.byteN();
+			n += annos.generateByteN() - annos.byteN();
 		if (annoHides != null)
-			n += annoHides.normalizeByteN() - annoHides.byteN();
+			n += annoHides.generateByteN() - annoHides.byteN();
 		return n;
 	}
 
 	@Override
-	public int normalizeTo(byte[] bs, int begin)
+	public int generateTo(byte[] bs, int begin)
 	{
-		writeU2(bs, begin, modifier);
+		writeU2(bs, begin, modifier & 0xFFFF);
 		writeU2(bs, begin + 2, nameCi);
 		writeU2(bs, begin + 4, descCi);
 		writeU2(bs, begin + 6, attrN);
@@ -235,9 +224,9 @@ public class Field
 				begin += 8;
 			}
 			else if (bi == annosBi && annos != null)
-				begin = annos.normalizeTo(bs, begin);
+				begin = annos.generateTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
-				begin = annoHides.normalizeTo(bs, begin);
+				begin = annoHides.generateTo(bs, begin);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);
