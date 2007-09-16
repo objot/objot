@@ -117,7 +117,7 @@ public class Annotation
 		out.print(getDescCi());
 		cons.printUtf(out, getDescCi(), verbose);
 		out.println();
-		for (int i = 0; i < getPropN(); i++)
+		for (int i = 0; i < propN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -130,15 +130,15 @@ public class Annotation
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
-		return byteN();
+		return byteN0();
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
-		System.arraycopy(bytes, beginBi, bs, begin, byteN());
-		return begin + byteN();
+		System.arraycopy(bytes, beginBi, bs, begin, byteN0());
+		return begin + byteN0();
 	}
 }

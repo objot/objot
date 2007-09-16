@@ -93,7 +93,7 @@ public class Head
 		out.print(getSuperCi());
 		getCons().printClass(out, getSuperCi(), verbose);
 		out.println();
-		for (int i = 0; i < getInterfaceN(); i++)
+		for (int i = 0; i < interfaceN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -152,13 +152,13 @@ public class Head
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		return 8 + (interfaceN << 1);
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, modifier & 0xFFFF);
 		writeU2(bs, begin + 2, classCi);
@@ -167,7 +167,7 @@ public class Head
 		if (interfaceCis == null)
 		{
 			System.arraycopy(bytes, beginBi + 8, bs, begin + 8, interfaceN << 1);
-			return begin + generateByteN();
+			return begin + normalizeByteN();
 		}
 		begin += 8;
 		for (int i = 0; i < interfaceN; i++, begin += 2)

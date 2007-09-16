@@ -8,14 +8,28 @@ import objot.util.Class2;
 import objot.util.Math2;
 
 
+/**
+ * {@link #end1Bi} and {@link #byteN()} except {@link #beginBi} may reflect some of this
+ * element's changes
+ */
 public abstract class Element
 	extends Bytes
 {
 	protected Element(byte[] bs, int begin)
 	{
 		super(bs);
-		bytes = bs;
 		beginBi = begin;
+	}
+
+	/** original {@link #byteN()}, not reflect changes */
+	public int byteN0()
+	{
+		return byteN();
+	}
+
+	protected int allocN(int n)
+	{
+		return Math.max((int)(n * 1.3f), 11);
 	}
 
 	public Annotations getAnnos()
@@ -26,11 +40,6 @@ public abstract class Element
 	public Annotations getAnnoHides()
 	{
 		return null;
-	}
-
-	protected int allocN(int n)
-	{
-		return Math.max((int)(n * 1.2f), 11);
 	}
 
 	/**
@@ -64,13 +73,23 @@ public abstract class Element
 			out.print('@');
 			out.print(Integer.toHexString(System.identityHashCode(this)));
 		}
-		out.print(" original-bytes[");
+		out.print(" [");
 		out.print(beginBi);
+		if (byteN0() != byteN())
+		{
+			out.print(',');
+			out.print(beginBi + byteN0());
+		}
 		out.print(',');
 		out.print(end1Bi);
-		out.print(")[0x");
+		out.print(")0x[");
 		out.print(Integer.toHexString(beginBi));
-		out.print(",0x");
+		if (byteN0() != byteN())
+		{
+			out.print(',');
+			out.print(Integer.toHexString(beginBi + byteN0()));
+		}
+		out.print(',');
 		out.print(Integer.toHexString(end1Bi));
 		out.print(')');
 	}
@@ -82,14 +101,14 @@ public abstract class Element
 	}
 
 	/** @return the number of bytes generated. */
-	public abstract int generateByteN();
+	public abstract int normalizeByteN();
 
 	/**
 	 * generate element(s) to the byte array, from the begin index.
 	 * 
 	 * @return the end1 index of byte array after generating.
 	 */
-	public abstract int generateTo(byte[] bs, int begin);
+	public abstract int normalizeTo(byte[] bs, int begin);
 
 	// ********************************************************************************
 

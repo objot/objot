@@ -67,7 +67,7 @@ public class CodeLines
 		boolean hash)
 	{
 		out.println();
-		for (int i = 0; i < getLineN(); i++)
+		for (int i = 0; i < lineN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -112,21 +112,21 @@ public class CodeLines
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		return 8 + (lineN << 2);
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, read0u2(beginBi));
-		writeS4(bs, begin + 2, generateByteN() - 6);
+		writeS4(bs, begin + 2, normalizeByteN() - 6);
 		writeU2(bs, begin + 6, lineN);
 		if (beginAds == null)
 		{
 			System.arraycopy(bytes, beginBi + 8, bs, begin + 8, lineN << 2);
-			return begin + generateByteN();
+			return begin + normalizeByteN();
 		}
 		begin += 8;
 		for (int i = 0; i < lineN; i++, begin += 4)

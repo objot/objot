@@ -178,12 +178,12 @@ public class Code
 		cons.printIdentityLn(out, indent, hash);
 		printIndent(out, indent);
 		out.print("stackN ");
-		out.print(getStackN());
+		out.print(stackN);
 		out.print(" localN ");
-		out.println(getLocalN());
+		out.println(localN);
 		printIndent(out, indent);
 		out.print("addrN ");
-		out.print(getAddrN());
+		out.print(addrN);
 		if (hash)
 		{
 			out.print(' ');
@@ -191,7 +191,7 @@ public class Code
 		}
 		out.println();
 		if (verbose >= 2)
-			for (int i = 0; i < getAddrN(); i += readInsAddrN(i))
+			for (int i = 0; i < addrN; i += readInsAddrN(i))
 			{
 				printIndent(out, indent);
 				out.print(i);
@@ -201,7 +201,7 @@ public class Code
 		getCatchs().printTo(out, indent, indent, verbose, hash);
 		printIndent(out, indent);
 		out.print("attrN ");
-		out.println(getAttrN());
+		out.println(attrN);
 		if (getLines() != null)
 			getLines().printTo(out, indent, indent, verbose, hash);
 		if (getVars() != null)
@@ -246,23 +246,22 @@ public class Code
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
-		int n = byteN();
-		n += addrN - addrN0;
+		int n = byteN0() + addrN - addrN0;
 		if (catchs != null)
-			n += catchs.generateByteN() - catchs.byteN();
+			n += catchs.normalizeByteN() - catchs.byteN0();
 		if (lines != null)
-			n += lines.generateByteN() - lines.byteN();
+			n += lines.normalizeByteN() - lines.byteN0();
 		if (vars != null)
-			n += vars.generateByteN() - vars.byteN();
+			n += vars.normalizeByteN() - vars.byteN0();
 		if (varSigns != null)
-			n += varSigns.generateByteN() - varSigns.byteN();
+			n += varSigns.normalizeByteN() - varSigns.byteN0();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		if (attrNameCi <= 0)
 			throw new RuntimeException("attribute name constant index must be set");
@@ -283,7 +282,7 @@ public class Code
 			bbi += catchBn;
 		}
 		else
-			bbi = catchs.generateTo(bs, bbi);
+			bbi = catchs.normalizeTo(bs, bbi);
 
 		writeU2(bs, bbi, attrN);
 		bi = attrBi;
@@ -292,11 +291,11 @@ public class Code
 		{
 			int bn = 6 + read0u4(bi + 2);
 			if (bi == linesBi && lines != null)
-				bbi = lines.generateTo(bs, bbi);
+				bbi = lines.normalizeTo(bs, bbi);
 			else if (bi == varsBi && vars != null)
-				bbi = vars.generateTo(bs, bbi);
+				bbi = vars.normalizeTo(bs, bbi);
 			else if (bi == varSignsBi && varSigns != null)
-				bbi = varSigns.generateTo(bs, bbi);
+				bbi = varSigns.normalizeTo(bs, bbi);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, bbi, bn);

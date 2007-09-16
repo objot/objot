@@ -59,8 +59,14 @@ public class Procedures
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
 		boolean hash)
 	{
+		if (verbose > 0)
+		{
+			printIndent(out, indent1st);
+			out.print(" procN ");
+			out.print(procN);
+		}
 		out.println();
-		for (int i = 0; i < getProcN(); i++)
+		for (int i = 0; i < procN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -92,28 +98,28 @@ public class Procedures
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		if (procs == null)
-			return byteN();
+			return byteN0();
 		int n = 2;
 		for (int i = 0; i < procN; i++)
-			n += procs[i].generateByteN();
+			n += procs[i].normalizeByteN();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		if (procs == null)
 		{
-			System.arraycopy(bytes, beginBi, bs, begin, byteN());
-			return begin + byteN();
+			System.arraycopy(bytes, beginBi, bs, begin, byteN0());
+			return begin + byteN0();
 		}
 		writeU2(bs, begin, procN);
 		begin += 2;
 		for (int i = 0; i < procN; i++)
-			begin = procs[i].generateTo(bs, begin);
+			begin = procs[i].normalizeTo(bs, begin);
 		return begin;
 	}
 }
