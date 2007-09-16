@@ -94,12 +94,12 @@ public class Class2
 		return dot > 0 ? className.substring(0, dot) : "";
 	}
 
-	public static String internalName(Class<?> c)
+	public static String pathName(Class<?> c)
 	{
-		return internalName(c.getName());
+		return pathName(c.getName());
 	}
 
-	public static String internalName(String className)
+	public static String pathName(String className)
 	{
 		return className.replace('.', '/');
 	}
@@ -111,15 +111,15 @@ public class Class2
 
 	public static String resourceName(String className)
 	{
-		return internalName(className).concat(".class");
+		return pathName(className).concat(".class");
 	}
 
-	public static String descriptor(Class<?> c)
+	public static String descript(Class<?> c)
 	{
-		return descriptor(c.getName());
+		return descript(c.getName());
 	}
 
-	public static String descriptor(String className)
+	public static String descript(String className)
 	{
 		if (className.equals("int"))
 			return "I";
@@ -140,7 +140,7 @@ public class Class2
 		if (className.equals("void"))
 			return "V";
 		if (className.charAt(0) == '[')
-			return internalName(className);
-		return 'L' + internalName(className) + ';';
+			return pathName(className);
+		return 'L' + pathName(className) + ';';
 	}
 }

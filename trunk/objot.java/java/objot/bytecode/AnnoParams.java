@@ -88,8 +88,8 @@ public class AnnoParams
 	}
 
 	/**
-	 * @return the index(<code>arg << 32L | anno & 0xFFFFFFFFL</code>) of annotation
-	 *         found, negative for not found.
+	 * @return the index(<code>param << 32L | anno & 0xFFFFFFFFL</code>) of
+	 *         annotation found, negative for not found.
 	 */
 	public static long searchAnno(AnnoParams as,
 		Class<? extends java.lang.annotation.Annotation> anno)
@@ -98,13 +98,13 @@ public class AnnoParams
 			for (int g = as.getParamN() - 1; g >= 0; g--)
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
 					if (as.cons.equalsUtf(as.getAnno(g, a).getDescCi(), utf(Class2
-						.descriptor(anno))))
+						.descript(anno))))
 						return g << 32L | a & 0xFFFFFFFFL;
 		return -1;
 	}
 
 	/**
-	 * @return the index(<code>arg << 32L | anno & 0xFFFFFFFFL</code>) of annotated
+	 * @return the index(<code>param << 32L | anno & 0xFFFFFFFFL</code>) of annotated
 	 *         annotation found, negative for not found.
 	 */
 	public static long searchAnnoAnno(ClassLoader cl, AnnoParams as,
@@ -115,7 +115,7 @@ public class AnnoParams
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
 				{
 					int desc = as.getAnno(g, a).getDescCi();
-					Class<?> ca = cl.loadClass(as.cons.classDesc2InternalChars(desc).replace(
+					Class<?> ca = cl.loadClass(as.cons.classDesc2NameUnicode(desc).replace(
 						'/', '.'));
 					if (ca.isAnnotationPresent(anno))
 						return g << 32L | a & 0xFFFFFFFFL;

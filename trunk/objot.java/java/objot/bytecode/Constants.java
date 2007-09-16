@@ -4,8 +4,8 @@ import java.io.PrintStream;
 
 import objot.util.Array2;
 import objot.util.Bytes;
+import objot.util.Class2;
 import objot.util.InvalidValueException;
-import objot.util.Math2;
 
 
 /** All UTFs in this class are no-null-character UTF. All names of class are internal form. */
@@ -119,21 +119,7 @@ public class Constants
 		return read0s1(bis[ci]);
 	}
 
-	public byte[] readUtf(int ci)
-	{
-		if (readTag(ci) != TAG_UTF)
-			throw new ClassCastException();
-		byte[] bs = new byte[read0u2(bis[ci] + 1)];
-		System.arraycopy(bytes, bis[ci] + 3, bs, 0, bs.length);
-		return bs;
-	}
-
-	public String readUtfChars(int ci)
-	{
-		return utf2chars(bytes, readUtfBegin(ci), readUtfEnd1(ci));
-	}
-
-	public Bytes readUtfBytes(int ci)
+	public Bytes readUtf(int ci)
 	{
 		if (readTag(ci) != TAG_UTF)
 			throw new ClassCastException();
@@ -143,6 +129,16 @@ public class Constants
 	public void readUtfTo(int ci, byte[] bs, int bi)
 	{
 		System.arraycopy(bytes, readUtfBegin(ci), bs, bi, readUtfByteN(ci));
+	}
+
+	public void readUtfTo(int ci, Bytes bs, int bi)
+	{
+		bs.copyFrom(bi, bytes, readUtfBegin(ci), readUtfByteN(ci));
+	}
+
+	public String readUnicode(int ci)
+	{
+		return unicode(this, readUtfBegin(ci) - beginBi, readUtfEnd1(ci) - beginBi);
 	}
 
 	public int readUtfByteN(int ci)
@@ -289,59 +285,16 @@ public class Constants
 		return read0u2(bis[ci] + 3);
 	}
 
-	public boolean equalsUtf(int ci, byte[] utf)
-	{
-		if (readTag(ci) != TAG_UTF || read0u2(bis[ci] + 1) != utf.length)
-			return false;
-		int bi = bis[ci] + 3 + utf.length - 1;
-		for (int i = utf.length - 1; i >= 0; i--, bi--)
-			if (read0s1(bi) != utf[i])
-				return false;
-		return true;
-	}
-
-	public boolean equalsUtf(int ci, byte[] utf, int begin, int end1)
-	{
-		if (readTag(ci) != TAG_UTF || read0u2(bis[ci] + 1) != end1 - begin)
-			return false;
-		int bi = bis[ci] + 3 + end1 - begin - 1;
-		for (int i = end1 - 1; i >= begin; i--, bi--)
-			if (read0s1(bi) != utf[i])
-				return false;
-		return true;
-	}
-
 	public boolean equalsUtf(int ci, Bytes utf)
 	{
-		if (readTag(ci) != TAG_UTF || read0u2(bis[ci] + 1) != utf.byteN())
-			return false;
-		int bi = bis[ci] + 3 + utf.byteN() - 1;
-		for (int i = utf.byteN() - 1; i >= 0; i--, bi--)
-			if (read0s1(bi) != utf.read0s1(i))
-				return false;
-		return true;
-	}
-
-	public boolean startsWithUtf(int ci, byte[] utf)
-	{
-		if (readTag(ci) != TAG_UTF || read0u2(bis[ci] + 1) < utf.length)
-			return false;
-		int bi = bis[ci] + 3 + utf.length - 1;
-		for (int i = utf.length - 1; i >= 0; i--, bi--)
-			if (read0s1(bi) != utf[i])
-				return false;
-		return true;
+		return readTag(ci) == TAG_UTF
+			&& utf.equals(bytes, bis[ci] + 3, bis[ci] + 3 + read0u2(bis[ci] + 1));
 	}
 
 	public boolean startsWithUtf(int ci, Bytes utf)
 	{
-		if (readTag(ci) != TAG_UTF || read0u2(bis[ci] + 1) < utf.byteN())
-			return false;
-		int bi = bis[ci] + 3 + utf.byteN() - 1;
-		for (int i = utf.byteN() - 1; i >= 0; i--, bi--)
-			if (read0s1(bi) != utf.read0s1(i))
-				return false;
-		return true;
+		return readTag(ci) == TAG_UTF && read0u2(bis[ci] + 1) >= utf.byteN()
+			&& utf.equals(bytes, bis[ci] + 3, bis[ci] + 3 + utf.byteN());
 	}
 
 	public boolean equalsInt(int ci, int v)
@@ -369,11 +322,6 @@ public class Constants
 		return readTag(ci) == tag && read0u2(bis[ci] + 1) == refCi;
 	}
 
-	protected boolean equalsRefUtf(byte tag, int ci, byte[] utf)
-	{
-		return readTag(ci) == tag && equalsUtf(read0u2(bis[ci] + 1), utf);
-	}
-
 	protected boolean equalsRefUtf(byte tag, int ci, Bytes utf)
 	{
 		return readTag(ci) == tag && equalsUtf(read0u2(bis[ci] + 1), utf);
@@ -384,11 +332,6 @@ public class Constants
 		return equalsRef(TAG_CLASS, ci, nameCi);
 	}
 
-	public boolean equalsClass(int ci, byte[] name)
-	{
-		return equalsRefUtf(TAG_CLASS, ci, name);
-	}
-
 	public boolean equalsClass(int ci, Bytes name)
 	{
 		return equalsRefUtf(TAG_CLASS, ci, name);
@@ -397,11 +340,6 @@ public class Constants
 	public boolean equalsString(int ci, int strCi)
 	{
 		return equalsRef(TAG_STRING, ci, strCi);
-	}
-
-	public boolean equalsString(int ci, byte[] str)
-	{
-		return equalsRefUtf(TAG_STRING, ci, str);
 	}
 
 	public boolean equalsString(int ci, Bytes str)
@@ -422,13 +360,6 @@ public class Constants
 			&& equalsNameDesc(read0u2(bis[ci] + 3), nameCi, descCi);
 	}
 
-	protected boolean equalsClassNameDesc(byte tag, int ci, byte[] className, byte[] name,
-		byte[] desc)
-	{
-		return readTag(ci) == tag && equalsClass(read0u2(bis[ci] + 1), className)
-			&& equalsNameDesc(read0u2(bis[ci] + 3), name, desc);
-	}
-
 	protected boolean equalsClassNameDesc(byte tag, int ci, Bytes className, Bytes name,
 		Bytes desc)
 	{
@@ -446,11 +377,6 @@ public class Constants
 		return equalsClassNameDesc(TAG_FIELD, ci, classNameCi, nameCi, descCi);
 	}
 
-	public boolean equalsField(int ci, byte[] className, byte[] name, byte[] desc)
-	{
-		return equalsClassNameDesc(TAG_FIELD, ci, className, name, desc);
-	}
-
 	public boolean equalsField(int ci, Bytes className, Bytes name, Bytes desc)
 	{
 		return equalsClassNameDesc(TAG_FIELD, ci, className, name, desc);
@@ -464,11 +390,6 @@ public class Constants
 	public boolean equalsCproc(int ci, int classNameCi, int nameCi, int descCi)
 	{
 		return equalsClassNameDesc(TAG_CPROC, ci, classNameCi, nameCi, descCi);
-	}
-
-	public boolean equalsCproc(int ci, byte[] className, byte[] name, byte[] desc)
-	{
-		return equalsClassNameDesc(TAG_CPROC, ci, className, name, desc);
 	}
 
 	public boolean equalsCproc(int ci, Bytes className, Bytes name, Bytes desc)
@@ -486,11 +407,6 @@ public class Constants
 		return equalsClassNameDesc(TAG_IPROC, ci, classNameCi, nameCi, descCi);
 	}
 
-	public boolean equalsIproc(int ci, byte[] className, byte[] name, byte[] desc)
-	{
-		return equalsClassNameDesc(TAG_IPROC, ci, className, name, desc);
-	}
-
 	public boolean equalsIproc(int ci, Bytes className, Bytes name, Bytes desc)
 	{
 		return equalsClassNameDesc(TAG_IPROC, ci, className, name, desc);
@@ -501,34 +417,10 @@ public class Constants
 		return equalsRef2(TAG_NAMEDESC, ci, nameCi, descCi);
 	}
 
-	public boolean equalsNameDesc(int ci, byte[] name, byte[] desc)
-	{
-		return readTag(ci) == TAG_NAMEDESC && equalsUtf(read0u2(bis[ci] + 1), name)
-			&& equalsUtf(read0u2(bis[ci] + 3), desc);
-	}
-
 	public boolean equalsNameDesc(int ci, Bytes name, Bytes desc)
 	{
 		return readTag(ci) == TAG_NAMEDESC && equalsUtf(read0u2(bis[ci] + 1), name)
 			&& equalsUtf(read0u2(bis[ci] + 3), desc);
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	public int searchUtf(byte[] utf)
-	{
-		for (int ci = 1; ci < conN; ci++)
-			if (equalsUtf(ci, utf))
-				return ci;
-		return -1;
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	public int searchUtf(byte[] utf, int begin, int end1)
-	{
-		for (int ci = 1; ci < conN; ci++)
-			if (equalsUtf(ci, utf, begin, end1))
-				return ci;
-		return -1;
 	}
 
 	/** @return the constant index, negative if nothing found. */
@@ -541,25 +433,7 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	public int searchUtfFromLast(byte[] utf)
-	{
-		for (int ci = conN - 1; ci >= 1; ci--)
-			if (equalsUtf(ci, utf))
-				return ci;
-		return -1;
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	public int searchUtfFromLast(byte[] utf, int begin, int end1)
-	{
-		for (int ci = conN - 1; ci >= 1; ci--)
-			if (equalsUtf(ci, utf, begin, end1))
-				return ci;
-		return -1;
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	public int searchUtfFromLast(Bytes utf)
+	public int searchUtfLast(Bytes utf)
 	{
 		for (int ci = conN - 1; ci >= 1; ci--)
 			if (equalsUtf(ci, utf))
@@ -581,7 +455,7 @@ public class Constants
 	{
 		for (int ci = 1; ci < conN; ci++)
 			// searching the index next to a long has no effect
-			// kick the stupid specification ass!
+			// stupid specification
 			if (equalsLong(ci, v))
 				return ci;
 		return -1;
@@ -601,7 +475,7 @@ public class Constants
 	{
 		for (int ci = 1; ci < conN; ci++)
 			// searching the index next to a double has no effect
-			// kick the stupid specification ass!
+			// stupid specification
 			if (equalsDouble(ci, v))
 				return ci;
 		return -1;
@@ -612,15 +486,6 @@ public class Constants
 	{
 		for (int ci = 1; ci < conN; ci++)
 			if (equalsRef(tag, ci, refCi))
-				return ci;
-		return -1;
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	protected int searchRefUtf(byte tag, byte[] utf)
-	{
-		for (int ci = 1; ci < conN; ci++)
-			if (equalsRefUtf(tag, ci, utf))
 				return ci;
 		return -1;
 	}
@@ -641,12 +506,6 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	public int searchClass(byte[] name)
-	{
-		return searchRefUtf(TAG_CLASS, name);
-	}
-
-	/** @return the constant index, negative if nothing found. */
 	public int searchClass(Bytes name)
 	{
 		return searchRefUtf(TAG_CLASS, name);
@@ -656,12 +515,6 @@ public class Constants
 	public int searchString(int strCi)
 	{
 		return searchRef(TAG_STRING, strCi);
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	public int searchString(byte[] str)
-	{
-		return searchRefUtf(TAG_STRING, str);
 	}
 
 	/** @return the constant index, negative if nothing found. */
@@ -689,15 +542,6 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	protected int searchClassNameDesc(byte tag, byte[] className, byte[] name, byte[] desc)
-	{
-		for (int ci = 1; ci < conN; ci++)
-			if (equalsClassNameDesc(tag, ci, className, name, desc))
-				return ci;
-		return -1;
-	}
-
-	/** @return the constant index, negative if nothing found. */
 	protected int searchClassNameDesc(byte tag, Bytes className, Bytes name, Bytes desc)
 	{
 		for (int ci = 1; ci < conN; ci++)
@@ -719,12 +563,6 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	public int searchField(byte[] className, byte[] name, byte[] desc)
-	{
-		return searchClassNameDesc(TAG_FIELD, className, name, desc);
-	}
-
-	/** @return the constant index, negative if nothing found. */
 	public int searchField(Bytes className, Bytes name, Bytes desc)
 	{
 		return searchClassNameDesc(TAG_FIELD, className, name, desc);
@@ -740,12 +578,6 @@ public class Constants
 	public int searchCproc(int classNameCi, int nameCi, int descCi)
 	{
 		return searchClassNameDesc(TAG_CPROC, classNameCi, nameCi, descCi);
-	}
-
-	/** @return the constant index, negative if nothing found. */
-	public int searchCproc(byte[] className, byte[] name, byte[] desc)
-	{
-		return searchClassNameDesc(TAG_CPROC, className, name, desc);
 	}
 
 	/** @return the constant index, negative if nothing found. */
@@ -767,12 +599,6 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	public int searchIproc(byte[] className, byte[] name, byte[] desc)
-	{
-		return searchClassNameDesc(TAG_IPROC, className, name, desc);
-	}
-
-	/** @return the constant index, negative if nothing found. */
 	public int searchIproc(Bytes className, Bytes name, Bytes desc)
 	{
 		return searchClassNameDesc(TAG_IPROC, className, name, desc);
@@ -785,15 +611,6 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	public int searchNameDesc(byte[] name, byte[] desc)
-	{
-		for (int ci = 1; ci < conN; ci++)
-			if (equalsNameDesc(ci, name, desc))
-				return ci;
-		return -1;
-	}
-
-	/** @return the constant index, negative if nothing found. */
 	public int searchNameDesc(Bytes name, Bytes desc)
 	{
 		for (int ci = 1; ci < conN; ci++)
@@ -802,14 +619,18 @@ public class Constants
 		return -1;
 	}
 
-	public byte[] classDesc2Internal(int utfCi)
+	/** @see Class2#pathName(Class) */
+	public Bytes classDesc2Name(int utfCi)
 	{
-		return classDesc2Internal(bytes, readUtfBegin(utfCi), readUtfEnd1(utfCi));
+		return classDesc2Name(this, readUtfBegin(utfCi) - beginBi, readUtfEnd1(utfCi)
+			- beginBi);
 	}
 
-	public String classDesc2InternalChars(int utfCi)
+	/** @see Class2#pathName(Class) */
+	public String classDesc2NameUnicode(int utfCi)
 	{
-		return classDesc2InternalChars(bytes, readUtfBegin(utfCi), readUtfEnd1(utfCi));
+		return classDesc2NameUnicode(this, readUtfBegin(utfCi) - beginBi, readUtfEnd1(utfCi)
+			- beginBi);
 	}
 
 	@Override
@@ -834,7 +655,7 @@ public class Constants
 		{
 		case TAG_UTF:
 			out.print("utf ");
-			out.print(readUtfChars(ci));
+			out.print(readUnicode(ci));
 			break;
 		case TAG_INT:
 			out.print("int ");
@@ -854,40 +675,40 @@ public class Constants
 			break;
 		case TAG_CLASS:
 			out.print("class ");
-			out.print(readUtfChars(readClass(ci)));
+			out.print(readUnicode(readClass(ci)));
 			break;
 		case TAG_STRING:
 			out.print("str ");
-			out.print(readUtfChars(readString(ci)));
+			out.print(readUnicode(readString(ci)));
 			break;
 		case TAG_FIELD:
 			out.print("field ");
-			out.print(readUtfChars(readFieldClass(ci)));
+			out.print(readUnicode(readFieldClass(ci)));
 			out.print('.');
-			out.print(readUtfChars(readFieldName(ci)));
+			out.print(readUnicode(readFieldName(ci)));
 			out.print(' ');
-			out.print(readUtfChars(readFieldDesc(ci)));
+			out.print(readUnicode(readFieldDesc(ci)));
 			break;
 		case TAG_CPROC:
 			out.print("cproc ");
-			out.print(readUtfChars(readCprocClass(ci)));
+			out.print(readUnicode(readCprocClass(ci)));
 			out.print('.');
-			out.print(readUtfChars(readCprocName(ci)));
+			out.print(readUnicode(readCprocName(ci)));
 			out.print(' ');
-			out.print(readUtfChars(readCprocDesc(ci)));
+			out.print(readUnicode(readCprocDesc(ci)));
 			break;
 		case TAG_IPROC:
 			out.print("iproc ");
-			out.print(readUtfChars(readIprocClass(ci)));
+			out.print(readUnicode(readIprocClass(ci)));
 			out.print('.');
-			out.print(readUtfChars(readIprocName(ci)));
-			out.print(readUtfChars(readIprocDesc(ci)));
+			out.print(readUnicode(readIprocName(ci)));
+			out.print(readUnicode(readIprocDesc(ci)));
 			break;
 		case TAG_NAMEDESC:
 			out.print("nameDesc ");
-			out.print(readUtfChars(readNameDescName(ci)));
+			out.print(readUnicode(readNameDescName(ci)));
 			out.print(' ');
-			out.print(readUtfChars(readNameDescDesc(ci)));
+			out.print(readUnicode(readNameDescDesc(ci)));
 			break;
 		}
 	}
@@ -910,21 +731,21 @@ public class Constants
 		printConLn(ci, out);
 	}
 
-	public void printUtfChars(PrintStream out, int utfCi, int verbose)
+	public void printUtf(PrintStream out, int utfCi, int verbose)
 	{
 		if (verbose > 0 && utfCi > 0)
 		{
 			out.print(':');
-			out.print(readUtfChars(utfCi));
+			out.print(readUnicode(utfCi));
 		}
 	}
 
-	public void printClassChars(PrintStream out, int classCi, int verbose)
+	public void printClass(PrintStream out, int classCi, int verbose)
 	{
 		if (verbose > 0 && classCi > 0)
 		{
 			out.print(':');
-			out.print(readUtfChars(readClass(classCi)));
+			out.print(readUnicode(readClass(classCi)));
 		}
 	}
 
@@ -942,57 +763,24 @@ public class Constants
 		}
 	}
 
-	/** @return byte index of appended constant */
-	protected int append(int bn)
+	/** @return second byte index of appended constant */
+	protected int append(byte tag, int bn)
 	{
-		int n = bis[conN] + bn;
-		ensureN(conN + 2, n);
-		bis[++conN] = n;
-		return n - bn;
-	}
-
-	public int appendUtf(byte[] utf)
-	{
-		int bi = append(3 + utf.length);
-		write0s1(bi, TAG_UTF);
-		write0u2(bi + 1, utf.length);
-		System.arraycopy(utf, 0, bytes, bi + 3, utf.length);
-		return conN - 1;
-	}
-
-	public int appendUtf(byte[] utf, int begin, int end1)
-	{
-		Math2.checkRange(begin, end1, utf.length);
-		int bi = append(3 + end1 - begin);
-		write0s1(bi, TAG_UTF);
-		write0u2(bi + 1, end1 - begin);
-		System.arraycopy(utf, begin, bytes, bi + 3, end1 - begin);
-		return conN - 1;
+		int bi = bis[conN];
+		ensureN(conN + 3, bi + bn);
+		if (tag == TAG_LONG || tag == TAG_DOUBLE)
+			bis[++conN] = bi; // stupid specification
+		bis[++conN] = bi + bn;
+		write0s1(bi, tag);
+		return bi;
 	}
 
 	public int appendUtf(Bytes utf)
 	{
-		int bi = append(3 + utf.byteN());
-		write0s1(bi, TAG_UTF);
+		int bi = append(TAG_UTF, 3 + utf.byteN());
 		write0u2(bi + 1, utf.byteN());
 		utf.copyTo(0, bytes, bi + 3, utf.byteN());
 		return conN - 1;
-	}
-
-	public int putUtf(byte[] utf)
-	{
-		int i = searchUtf(utf);
-		if (i < 0)
-			i = appendUtf(utf);
-		return i;
-	}
-
-	public int putUtf(byte[] utf, int begin, int end1)
-	{
-		int i = searchUtf(utf, begin, end1);
-		if (i < 0)
-			i = appendUtf(utf, begin, end1);
-		return i;
 	}
 
 	public int putUtf(Bytes utf)
@@ -1003,35 +791,32 @@ public class Constants
 		return i;
 	}
 
-	public int putUtfFromLast(byte[] utf)
+	public int putUtfLast(Bytes utf)
 	{
-		int i = searchUtfFromLast(utf);
+		int i = searchUtfLast(utf);
 		if (i < 0)
 			i = appendUtf(utf);
 		return i;
 	}
 
-	public int putUtfFromLast(byte[] utf, int begin, int end1)
+	public int appendUnicode(String s)
 	{
-		int i = searchUtfFromLast(utf, begin, end1);
-		if (i < 0)
-			i = appendUtf(utf, begin, end1);
-		return i;
+		return appendUtf(utf(s));
 	}
 
-	public int putUtfFromLast(Bytes utf)
+	public int putUnicode(String s)
 	{
-		int i = searchUtfFromLast(utf);
-		if (i < 0)
-			i = appendUtf(utf);
-		return i;
+		return putUtf(utf(s));
+	}
+
+	public int putUnicodeLast(String s)
+	{
+		return putUtfLast(utf(s));
 	}
 
 	public int appendInt(int v)
 	{
-		int bi = append(5);
-		write0s1(bi, TAG_INT);
-		write0s4(bi + 1, v);
+		write0s4(append(TAG_INT, 5) + 1, v);
 		return conN - 1;
 	}
 
@@ -1045,11 +830,8 @@ public class Constants
 
 	public int appendLong(long v)
 	{
-		int bi = append(9);
-		append(9); // stupid specification
-		write0s1(bi, TAG_LONG);
-		write0s8(bi + 1, v);
-		return conN - 2;
+		write0s8(append(TAG_LONG, 9) + 1, v);
+		return conN - 2; // stupid specification
 	}
 
 	public int putLong(long v)
@@ -1062,9 +844,7 @@ public class Constants
 
 	public int appendFloat(float v)
 	{
-		int bi = append(5);
-		write0s1(bi, TAG_FLOAT);
-		write0s4(bi + 1, Float.floatToRawIntBits(v));
+		write0s4(append(TAG_FLOAT, 5) + 1, Float.floatToRawIntBits(v));
 		return conN - 1;
 	}
 
@@ -1078,11 +858,8 @@ public class Constants
 
 	public int appendDouble(double v)
 	{
-		int bi = append(9);
-		append(bi + 9); // stupid specification
-		write0s1(bi, TAG_DOUBLE);
-		write0s8(bi + 1, Double.doubleToRawLongBits(v));
-		return conN - 2;
+		write0s8(append(TAG_DOUBLE, 9) + 1, Double.doubleToRawLongBits(v));
+		return conN - 2; // stupid specification
 	}
 
 	public int putDouble(double v)
@@ -1097,9 +874,7 @@ public class Constants
 	{
 		if (readTag(refCi) != refTag)
 			throw new ClassCastException();
-		int bi = append(3);
-		write0s1(bi, tag);
-		write0u2(bi + 1, refCi);
+		write0u2(append(tag, 3) + 1, refCi);
 		return conN - 1;
 	}
 
@@ -1123,6 +898,16 @@ public class Constants
 		return putRef(TAG_CLASS, nameCi, TAG_UTF);
 	}
 
+	public int appendClass(Class<?> cla)
+	{
+		return appendRef(TAG_CLASS, appendUtf(utf(Class2.pathName(cla))), TAG_UTF);
+	}
+
+	public int putClass(Class<?> cla)
+	{
+		return putRef(TAG_CLASS, putUtf(utf(Class2.pathName(cla))), TAG_UTF);
+	}
+
 	public int appendString(int strCi)
 	{
 		return appendRef(TAG_STRING, strCi, TAG_UTF);
@@ -1137,8 +922,7 @@ public class Constants
 	{
 		if (readTag(ref1Ci) != ref1Tag || readTag(ref2I) != ref2Tag)
 			throw new ClassCastException();
-		int bi = append(5);
-		write0s1(bi, tag);
+		int bi = append(tag, 5);
 		write0u2(bi + 1, ref1Ci);
 		write0u2(bi + 3, ref2I);
 		return conN - 1;
@@ -1196,12 +980,12 @@ public class Constants
 
 	public int appendUtf(Constants cons, int ci)
 	{
-		return appendUtf(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci));
+		return appendUtf(new Bytes(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci)));
 	}
 
 	public int putUtf(Constants cons, int ci)
 	{
-		return putUtfFromLast(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci));
+		return putUtfLast(new Bytes(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci)));
 	}
 
 	public int appendClass(Constants cons, int ci)
@@ -1227,52 +1011,55 @@ public class Constants
 	public int appendField(Constants cons, int ci)
 	{
 		return appendField(appendClass(appendUtf(cons, cons.readFieldClass(ci))),
-			appendNameDesc(appendUtf(cons, cons.readFieldName(ci)), appendUtf(cons, cons
-				.readFieldDesc(ci))));
+			appendNameDesc(appendUtf(cons, cons.readFieldName(ci)), //
+				appendUtf(cons, cons.readFieldDesc(ci))));
 	}
 
 	public int putField(Constants cons, int ci)
 	{
-		return putField(putClass(putUtf(cons, cons.readFieldClass(ci))), putNameDesc(putUtf(
-			cons, cons.readFieldName(ci)), putUtf(cons, cons.readFieldDesc(ci))));
+		return putField(putClass(putUtf(cons, cons.readFieldClass(ci))), //
+			putNameDesc(putUtf(cons, cons.readFieldName(ci)), //
+				putUtf(cons, cons.readFieldDesc(ci))));
 	}
 
 	public int appendCproc(Constants cons, int ci)
 	{
 		return appendCproc(appendClass(appendUtf(cons, cons.readCprocClass(ci))),
-			appendNameDesc(appendUtf(cons, cons.readCprocName(ci)), appendUtf(cons, cons
-				.readCprocDesc(ci))));
+			appendNameDesc(appendUtf(cons, cons.readCprocName(ci)), //
+				appendUtf(cons, cons.readCprocDesc(ci))));
 	}
 
 	public int putCproc(Constants cons, int ci)
 	{
-		return putCproc(putClass(putUtf(cons, cons.readCprocClass(ci))), putNameDesc(putUtf(
-			cons, cons.readCprocName(ci)), putUtf(cons, cons.readCprocDesc(ci))));
+		return putCproc(putClass(putUtf(cons, cons.readCprocClass(ci))), //
+			putNameDesc(putUtf(cons, cons.readCprocName(ci)), //
+				putUtf(cons, cons.readCprocDesc(ci))));
 	}
 
 	public int appendIproc(Constants cons, int ci)
 	{
 		return appendIproc(appendClass(appendUtf(cons, cons.readIprocClass(ci))),
-			appendNameDesc(appendUtf(cons, cons.readIprocName(ci)), appendUtf(cons, cons
-				.readIprocDesc(ci))));
+			appendNameDesc(appendUtf(cons, cons.readIprocName(ci)), //
+				appendUtf(cons, cons.readIprocDesc(ci))));
 	}
 
 	public int putIproc(Constants cons, int ci)
 	{
-		return putIproc(putClass(putUtf(cons, cons.readIprocClass(ci))), putNameDesc(putUtf(
-			cons, cons.readIprocName(ci)), putUtf(cons, cons.readIprocDesc(ci))));
+		return putIproc(putClass(putUtf(cons, cons.readIprocClass(ci))), //
+			putNameDesc(putUtf(cons, cons.readIprocName(ci)), //
+				putUtf(cons, cons.readIprocDesc(ci))));
 	}
 
 	public int appendNameDesc(Constants cons, int ci)
 	{
-		return appendNameDesc(appendUtf(cons, cons.readNameDescName(ci)), appendUtf(cons,
-			cons.readNameDescDesc(ci)));
+		return appendNameDesc(appendUtf(cons, cons.readNameDescName(ci)), //
+			appendUtf(cons, cons.readNameDescDesc(ci)));
 	}
 
 	public int putNameDesc(Constants cons, int ci)
 	{
-		return putNameDesc(putUtf(cons, cons.readNameDescName(ci)), putUtf(cons, cons
-			.readNameDescDesc(ci)));
+		return putNameDesc(putUtf(cons, cons.readNameDescName(ci)), //
+			putUtf(cons, cons.readNameDescDesc(ci)));
 	}
 
 	public int appendConstant(Constants cons, int ci)
@@ -1332,7 +1119,7 @@ public class Constants
 		case TAG_NAMEDESC:
 			return putNameDesc(cons, ci);
 		}
-		throw new ClassFormatError("invalid constant info tag");
+		throw new ClassFormatError("invalid constant info tag " + cons.readTag(ci));
 	}
 
 	@Override

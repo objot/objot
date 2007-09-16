@@ -10,17 +10,17 @@ public class Bytecode
 {
 	public static final Bytecode EMPTY;
 
-	protected static final byte[] SIGNATURE = chars2Utf("Signature");
-	protected static final byte[] CONSTANTVALUE = chars2Utf("ConstantValue");
-	protected static final byte[] ANNOS = chars2Utf("RuntimeVisibleAnnotations");
-	protected static final byte[] ANNOHIDES = chars2Utf("RuntimeInvisibleAnnotations");
-	protected static final byte[] EXCEPTIONS = chars2Utf("Exceptions");
-	protected static final byte[] ANNOS_ARG = chars2Utf("RuntimeVisibleParameterAnnotations");
-	protected static final byte[] ANNOHIDES_ARG = chars2Utf("RuntimeInvisibleParameterAnnotations");
-	protected static final byte[] CODE = chars2Utf("Code");
-	protected static final byte[] CODE_LINES = chars2Utf("LineNumberTable");
-	protected static final byte[] CODE_VARS = chars2Utf("LocalVariableTable");
-	protected static final byte[] CODE_VARSIGNS = chars2Utf("LocalVariableTypeTable");
+	protected static final Bytes SIGNATURE = utf("Signature");
+	protected static final Bytes CONSTANTVALUE = utf("ConstantValue");
+	protected static final Bytes ANNOS = utf("RuntimeVisibleAnnotations");
+	protected static final Bytes ANNOHIDES = utf("RuntimeInvisibleAnnotations");
+	protected static final Bytes EXCEPTIONS = utf("Exceptions");
+	protected static final Bytes ANNO_PARAMS = utf("RuntimeVisibleParameterAnnotations");
+	protected static final Bytes ANNOHIDE_PARAMS = utf("RuntimeInvisibleParameterAnnotations");
+	protected static final Bytes CODE = utf("Code");
+	protected static final Bytes CODE_LINES = utf("LineNumberTable");
+	protected static final Bytes CODE_VARS = utf("LocalVariableTable");
+	protected static final Bytes CODE_VARSIGNS = utf("LocalVariableTypeTable");
 
 	static
 	{
@@ -33,13 +33,11 @@ public class Bytecode
 		bs.write0u2(i, 3); // constantN (index from 1)
 		i += 2;
 		bs.write0s1(i, Constants.TAG_UTF);
-		bs.write0u2(i + 1, CODE.length);
-		bs.copyFrom(i + 3, CODE, 0, CODE.length);
-		i += 3 + CODE.length;
+		bs.write0u2(i + 1, CODE.byteN());
+		i = CODE.copyTo(0, bs, i + 3, CODE.byteN());
 		bs.write0s1(i, Constants.TAG_UTF);
-		bs.write0u2(i + 1, EXCEPTIONS.length);
-		bs.copyFrom(i + 3, EXCEPTIONS, 0, EXCEPTIONS.length);
-		i += 3 + EXCEPTIONS.length;
+		bs.write0u2(i + 1, EXCEPTIONS.byteN());
+		i = EXCEPTIONS.copyTo(0, bs, i + 3, EXCEPTIONS.byteN());
 		// head
 		bs.write0u2(i, 0); // modifier
 		bs.write0u2(i + 2, 0); // classCi
@@ -182,7 +180,7 @@ public class Bytecode
 		out.flush();
 	}
 
-	public byte[] normalize()
+	public byte[] generate()
 	{
 		byte[] bs = new byte[generateByteN()];
 		generateTo(bs, 0);

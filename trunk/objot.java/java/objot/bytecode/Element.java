@@ -93,12 +93,12 @@ public abstract class Element
 
 	// ********************************************************************************
 
-	public static byte[] chars2Utf(String s)
+	public static Bytes utf(String s)
 	{
-		return chars2Utf(s, 0, s.length());
+		return utf(s, 0, s.length());
 	}
 
-	public static byte[] chars2Utf(String s, int begin, int end1)
+	public static Bytes utf(String s, int begin, int end1)
 	{
 		Math2.checkRange(begin, end1, s.length());
 		int ulen = 0;
@@ -133,24 +133,20 @@ public abstract class Element
 				utf[ui++] = (byte)(0x80 | c & 0x3F);
 			}
 		}
-		return utf;
+		return new Bytes(utf);
 	}
 
-	public static Bytes utf(String s)
+	public static String unicode(Bytes utf)
 	{
-		return new Bytes(chars2Utf(s));
+		return unicode(utf, 0, utf.byteN());
 	}
 
-	public static String utf2chars(byte[] utf)
+	public static String unicode(Bytes utf, int begin, int end1)
 	{
-		return utf2chars(utf, 0, utf.length);
-	}
-
-	public static String utf2chars(byte[] utf, int begin, int end1)
-	{
+		Math2.checkRange(begin, end1, utf.end1Bi - utf.beginBi);
 		try
 		{
-			return new String(utf, begin, end1 - begin, "UTF-8");
+			return new String(utf.bytes, utf.beginBi + begin, end1 - begin, "UTF-8");
 		}
 		catch (UnsupportedEncodingException e)
 		{
@@ -158,40 +154,37 @@ public abstract class Element
 		}
 	}
 
-	public String utf2chars(int begin, int end1)
+	/** @see Class2#pathName(Class) */
+	public static Bytes classDesc2Name(Bytes descUtf)
 	{
-		return utf2chars(bytes, begin, end1);
+		return classDesc2Name(descUtf, 0, descUtf.byteN());
 	}
 
-	public static byte[] classDesc2Internal(byte[] descUtf)
+	/** @see Class2#pathName(Class) */
+	public static Bytes classDesc2Name(Bytes descUtf, int begin, int end1)
 	{
-		return classDesc2Internal(descUtf, 0, descUtf.length);
-	}
-
-	public static byte[] classDesc2Internal(byte[] descUtf, int begin, int end1)
-	{
-		if (descUtf[begin] != 'L' || descUtf[end1 - 1] != ';')
+		if (descUtf.readS1(begin) != 'L' || descUtf.readS1(end1 - 1) != ';')
 			throw new IllegalArgumentException("only declaring class supported");
-		byte[] name = new byte[end1 - begin - 2];
-		System.arraycopy(descUtf, begin + 1, name, 0, name.length);
-		return name;
+		return new Bytes(descUtf, begin + 1, end1 - begin - 2);
 	}
 
-	public static String classDesc2InternalChars(byte[] descUtf)
+	/** @see Class2#pathName(Class) */
+	public static String classDesc2NameUnicode(Bytes descUtf)
 	{
-		return classDesc2InternalChars(descUtf, 0, descUtf.length);
+		return classDesc2NameUnicode(descUtf, 0, descUtf.byteN());
 	}
 
-	public static String classDesc2InternalChars(byte[] descUtf, int begin, int end1)
+	/** @see Class2#pathName(Class) */
+	public static String classDesc2NameUnicode(Bytes descUtf, int begin, int end1)
 	{
-		if (descUtf[begin] != 'L' || descUtf[end1 - 1] != ';')
+		if (descUtf.readS1(begin) != 'L' || descUtf.readS1(end1 - 1) != ';')
 			throw new IllegalArgumentException("only declaring class supported");
-		return utf2chars(descUtf, begin + 1, end1 - 1);
+		return unicode(descUtf, begin + 1, end1 - 1);
 	}
 
-	public static int typeDescByteN(byte[] descUtf, int begin, int end1)
+	public static int typeDescByteN(Bytes descUtf, int begin)
 	{
-		switch (descUtf[begin])
+		switch (descUtf.readS1(begin))
 		{
 		case 'Z':
 		case 'B':
@@ -204,25 +197,21 @@ public abstract class Element
 			return 1;
 		case 'L':
 		{
-			int bi = begin + 1;
+			int bi = descUtf.beginBi + begin + 1;
 			ObjectDesc:
 			{
-				for (; bi < end1; bi++)
-					if (descUtf[bi] == ';')
+				for (; bi < descUtf.end1Bi; bi++)
+					if (descUtf.bytes[bi] == ';')
 						break ObjectDesc;
 				throw new ClassFormatError("invalid procedure descriptor "
-					+ Element.utf2chars(descUtf, begin, end1));
+					+ Element.unicode(descUtf, begin, descUtf.byteN()));
 			}
 			return bi - begin + 1;
 		}
 		case '[':
-			return 1 + typeDescByteN(descUtf, begin + 1, end1);
+			return 1 + typeDescByteN(descUtf, begin + 1);
 		}
-		throw new ClassFormatError("invalid procedure descriptor " + (char)descUtf[begin]);
-	}
-
-	public int typeDescByteN(int begin, int end1)
-	{
-		return typeDescByteN(bytes, begin, end1);
+		throw new ClassFormatError("invalid procedure descriptor "
+			+ (char)descUtf.readS1(begin));
 	}
 }

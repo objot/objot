@@ -136,10 +136,10 @@ public class Field
 		printIndent(out, indent);
 		out.print("nameCi ");
 		out.print(getNameCi());
-		cons.printUtfChars(out, getNameCi(), verbose);
+		cons.printUtf(out, getNameCi(), verbose);
 		out.print(" descCi ");
 		out.print(getDescCi());
-		cons.printUtfChars(out, getDescCi(), verbose);
+		cons.printUtf(out, getDescCi(), verbose);
 		out.println();
 		printIndent(out, indent);
 		out.print("attrN ");
@@ -147,7 +147,7 @@ public class Field
 		printIndent(out, indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
-		cons.printUtfChars(out, getSignatureCi(), verbose);
+		cons.printUtf(out, getSignatureCi(), verbose);
 		out.print(" constantCi ");
 		out.print(getConstantCi());
 		if (getConstantCi() != 0 && verbose > 0)

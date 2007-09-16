@@ -88,10 +88,10 @@ public class Head
 		printIndent(out, indent);
 		out.print("classCi ");
 		out.print(getClassCi());
-		getCons().printClassChars(out, getClassCi(), verbose);
+		getCons().printClass(out, getClassCi(), verbose);
 		out.print(" superCi ");
 		out.print(getSuperCi());
-		getCons().printClassChars(out, getSuperCi(), verbose);
+		getCons().printClass(out, getSuperCi(), verbose);
 		out.println();
 		for (int i = 0; i < getInterfaceN(); i++)
 		{
@@ -99,7 +99,7 @@ public class Head
 			out.print(i);
 			out.print(". interfaceCi ");
 			out.print(getInterfaceCi(i));
-			getCons().printClassChars(out, getInterfaceCi(i), verbose);
+			getCons().printClass(out, getInterfaceCi(i), verbose);
 			out.println();
 		}
 	}
