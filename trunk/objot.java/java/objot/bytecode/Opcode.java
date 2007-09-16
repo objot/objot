@@ -632,17 +632,17 @@ public final class Opcode
 		throw new ClassFormatError("invalid opcode " + (op & 0xFF));
 	}
 
-	public static void println(Code c, int ad, PrintStream out, String indent1st,
-		String indent, int verbose)
+	public static void println(Code c, int ad, PrintStream out, int indent1st, int indent,
+		int verbose)
 	{
 		println(c.insBytes(), ad + c.getAddrBi(), c.getAddrBi(), c.cons, //
 			out, indent1st, indent, verbose);
 	}
 
 	public static void println(byte[] bs, int bi, int addrBi, Constants cons,
-		PrintStream out, String indent1st, String indent, int verbose)
+		PrintStream out, int indent1st, int indent, int verbose)
 	{
-		out.print(indent1st);
+		Element.printIndent(out, indent1st);
 		out.print(toString(bs[bi]));
 		int ad = bi - addrBi;
 		switch (bs[bi])
@@ -814,7 +814,7 @@ public final class Opcode
 				for (int i = 0; i < n; i++, bi += 8)
 				{
 					out.println();
-					out.print(indent);
+					Element.printIndent(out, indent);
 					out.print(i);
 					out.print(". ");
 					out.print(Bytes.readS4(bs, bi));
@@ -847,7 +847,7 @@ public final class Opcode
 				for (int i = 0; i < n; i++, bi += 4)
 				{
 					out.println();
-					out.print(indent);
+					Element.printIndent(out, indent);
 					out.print(low + i);
 					out.print(". goto ");
 					out.print(ad + Bytes.readS4(bs, bi));

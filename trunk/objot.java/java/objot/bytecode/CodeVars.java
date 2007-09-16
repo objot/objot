@@ -107,13 +107,13 @@ public class CodeVars
 	}
 
 	@Override
-	protected void printContents(PrintStream out, String indent1st, String indent,
-		int verbose, boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
+		boolean hash)
 	{
 		out.println();
 		for (int i = 0; i < getVarN(); i++)
 		{
-			out.print(indent);
+			printIndent(out, indent);
 			out.print(i);
 			out.print(". beginAd ");
 			out.print(getBeginAd(i));

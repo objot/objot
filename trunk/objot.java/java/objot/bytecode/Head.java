@@ -76,16 +76,16 @@ public class Head
 	}
 
 	@Override
-	protected void printContents(PrintStream out, String indent1st, String indent,
-		int verbose, boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
+		boolean hash)
 	{
 		out.println();
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));
 		out.print(' ');
 		out.println(Mod2.toString(modifier));
-		out.print(indent);
+		printIndent(out, indent);
 		out.print("classCi ");
 		out.print(getClassCi());
 		getCons().printClassChars(out, getClassCi(), verbose);
@@ -95,7 +95,7 @@ public class Head
 		out.println();
 		for (int i = 0; i < getInterfaceN(); i++)
 		{
-			out.print(indent);
+			printIndent(out, indent);
 			out.print(i);
 			out.print(". interfaceCi ");
 			out.print(getInterfaceCi(i));

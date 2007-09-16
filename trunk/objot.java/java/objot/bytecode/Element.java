@@ -2,7 +2,6 @@ package objot.bytecode;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 import objot.util.Bytes;
 import objot.util.Class2;
@@ -44,22 +43,27 @@ public abstract class Element
 	}
 
 	/**
-	 * @param indent1st Indent for 1st line, only '\t's allowed.
-	 * @param indent Indent for other lines, only '\t's allowed.
+	 * @param indent1st Indent for 1st line.
+	 * @param indent Indent for other lines.
 	 */
-	public void printTo(PrintStream out, String indent1st, String indent, int verbose,
-		boolean hash)
+	public void printTo(PrintStream out, int indent1st, int indent, int verbose, boolean hash)
 	{
 		printIdentity(out, indent1st, hash);
-		printContents(out, "", moreIndent(indent), verbose, hash);
+		printContents(out, 0, indent + 1, verbose, hash);
 	}
 
-	protected abstract void printContents(PrintStream out, String indent1st, String indent,
+	public static void printIndent(PrintStream out, int indent)
+	{
+		while (--indent >= 0)
+			out.print('\t');
+	}
+
+	protected abstract void printContents(PrintStream out, int indent1st, int indent,
 		int verbose, boolean hash);
 
-	public void printIdentity(PrintStream out, String indent, boolean hash)
+	public void printIdentity(PrintStream out, int indent, boolean hash)
 	{
-		out.print(indent);
+		printIndent(out, indent);
 		if (Element.class.getPackage().equals(getClass().getPackage()))
 			out.print(Class2.selfName(getClass()));
 		else
@@ -80,24 +84,10 @@ public abstract class Element
 		out.print(')');
 	}
 
-	public void printIdentityLn(PrintStream out, String indent, boolean hash)
+	public void printIdentityLn(PrintStream out, int indent, boolean hash)
 	{
 		printIdentity(out, indent, hash);
 		out.println();
-	}
-
-	private static final String[] INDENTS = { "", "\t", "\t\t", "\t\t\t", "\t\t\t\t",
-		"\t\t\t\t\t", "\t\t\t\t\t\t", "\t\t\t\t\t\t\t", "\t\t\t\t\t\t\t\t",
-		"\t\t\t\t\t\t\t\t\t", "\t\t\t\t\t\t\t\t\t\t" };
-
-	/** @return tablet characters with length as <code>indent.length()</code> + 1 */
-	protected static String moreIndent(String indent)
-	{
-		if (indent.length() + 1 < INDENTS.length)
-			return INDENTS[indent.length() + 1];
-		char[] i = new char[indent.length() + 1];
-		Arrays.fill(i, '\t');
-		return new String(i);
 	}
 
 	/** @return the number of bytes generated. */

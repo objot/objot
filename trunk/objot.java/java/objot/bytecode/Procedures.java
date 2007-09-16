@@ -56,16 +56,16 @@ public class Procedures
 	}
 
 	@Override
-	protected void printContents(PrintStream out, String indent1st, String indent,
-		int verbose, boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
+		boolean hash)
 	{
 		out.println();
 		for (int i = 0; i < getProcN(); i++)
 		{
-			out.print(indent);
+			printIndent(out, indent);
 			out.print(i);
 			out.print('.');
-			getProc(i).printTo(out, "", indent, verbose, hash);
+			getProc(i).printTo(out, 0, indent, verbose, hash);
 		}
 	}
 
