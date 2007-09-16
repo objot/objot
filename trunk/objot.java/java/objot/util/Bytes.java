@@ -14,7 +14,7 @@ public class Bytes
 	public Bytes(byte[] bs, int begin, int end1)
 	{
 		bytes = bs != null ? bs : Array2.BYTES0;
-		Math2.checkRange(begin, end1, bs.length);
+		Math2.checkRange(begin, end1, bytes.length);
 		beginBi = begin;
 		end1Bi = end1;
 	}

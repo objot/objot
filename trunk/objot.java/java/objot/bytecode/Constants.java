@@ -24,10 +24,10 @@ public class Constants
 	public static final byte TAG_IPROC = 11;
 	public static final byte TAG_NAMEDESC = 12;
 
+	protected int byteN0;
 	/** index [1, N) excluding 0. */
 	protected int conN0;
 	protected int conN;
-	/** [last] is normalized end byte index */
 	protected int[] bis;
 
 	public Constants(byte[] bs, int beginBi_)
@@ -48,6 +48,13 @@ public class Constants
 			bi += readConByteN(bi);
 		}
 		end1Bi = bi;
+		byteN0 = end1Bi - beginBi;
+	}
+
+	@Override
+	public int byteN0()
+	{
+		return byteN0;
 	}
 
 	public int getConN()
@@ -88,7 +95,7 @@ public class Constants
 	{
 		if (bis != null)
 			return;
-		bis = new int[allocN(Math.max(conN + 1, 100))];
+		bis = new int[allocN(Math.max(conN, 100))];
 		bis[0] = Integer.MIN_VALUE;
 		bis[1] = beginBi + 2;
 		for (int ci = 2; ci < conN; ci++)
@@ -102,7 +109,6 @@ public class Constants
 				ci++;
 			}
 		}
-		bis[conN] = end1Bi;
 	}
 
 	/** @param ci [1, N) excluding 0. */
@@ -637,10 +643,15 @@ public class Constants
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
 		boolean hash)
 	{
-		printIndent(out, indent1st);
-		out.print(" conN ");
-		out.println(getConN());
-		for (int i = 1; i < getConN(); i++)
+		if (verbose > 0)
+		{
+			printIndent(out, indent1st);
+			out.print(" conN ");
+			out.print(conN);
+			out.print("-1");
+		}
+		out.println();
+		for (int i = 1; i < conN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -766,13 +777,14 @@ public class Constants
 	/** @return second byte index of appended constant */
 	protected int append(byte tag, int bn)
 	{
-		int bi = bis[conN];
-		ensureN(conN + 3, bi + bn);
+		readBis();
+		ensureN(conN + 2, end1Bi + bn);
 		if (tag == TAG_LONG || tag == TAG_DOUBLE)
-			bis[++conN] = bi; // stupid specification
-		bis[++conN] = bi + bn;
-		write0s1(bi, tag);
-		return bi;
+			bis[conN++] = end1Bi; // stupid specification
+		bis[conN++] = end1Bi;
+		write0s1(end1Bi, tag);
+		end1Bi += bn;
+		return end1Bi - bn;
 	}
 
 	public int appendUtf(Bytes utf)
@@ -1123,17 +1135,16 @@ public class Constants
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
-		return bis == null ? byteN() : bis[conN] - beginBi;
+		return byteN();
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
-		int n = generateByteN();
-		System.arraycopy(bytes, beginBi, bs, begin, n);
+		System.arraycopy(bytes, beginBi, bs, begin, byteN());
 		writeU2(bs, begin, conN);
-		return begin + n;
+		return begin + byteN();
 	}
 }

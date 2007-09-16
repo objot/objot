@@ -59,8 +59,14 @@ public class Fields
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
 		boolean hash)
 	{
+		if (verbose > 0)
+		{
+			printIndent(out, indent1st);
+			out.print(" fieldN ");
+			out.print(fieldN);
+		}
 		out.println();
-		for (int i = 0; i < getFieldN(); i++)
+		for (int i = 0; i < fieldN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -92,28 +98,28 @@ public class Fields
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		if (fields == null)
-			return byteN();
+			return byteN0();
 		int n = 2;
 		for (int i = 0; i < fieldN; i++)
-			n += fields[i].generateByteN();
+			n += fields[i].normalizeByteN();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		if (fields == null)
 		{
-			System.arraycopy(bytes, beginBi, bs, begin, byteN());
-			return begin + byteN();
+			System.arraycopy(bytes, beginBi, bs, begin, byteN0());
+			return begin + byteN0();
 		}
 		writeU2(bs, begin, fieldN);
 		begin += 2;
 		for (int i = 0; i < fieldN; i++)
-			begin = fields[i].generateTo(bs, begin);
+			begin = fields[i].normalizeTo(bs, begin);
 		return begin;
 	}
 }

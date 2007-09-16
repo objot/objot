@@ -9,42 +9,9 @@ import objot.util.Mod2;
 public class Procedure
 	extends Element
 {
-	/** No signature and attribute except exceptions and code. */
-	public static final Procedure EMPTY;
-
 	public static final Bytes CTOR_NAMEUTF = Element.utf("<init>");
 	public static final Bytes CINIT_NAMEUTF = Element.utf("<cinit>");
 	public static final Bytes VOID_DESC = Element.utf("()V");
-
-	static
-	{
-		Constants cons = Bytecode.EMPTY.cons;
-		Bytes bs = new Bytes(null).ensureByteN(128);
-		bs.write0u2(0, 0); // modifier
-		bs.write0u2(2, 0); // nameCi
-		bs.write0u2(4, 0); // descCi
-		// attrs
-		bs.write0u2(6, 2); // attrN
-		int i = 8;
-		// code
-		bs.write0u2(i, cons.searchUtf(Bytecode.CODE)); // attr name ci
-		bs.write0u4(i + 2, 12); // attr length
-		i += 6;
-		bs.write0u2(i, 0); // stackN
-		bs.write0u2(i + 2, 0); // localN
-		bs.write0u4(i + 4, 0); // addrN and ins
-		bs.write0u2(i + 8, 0); // catchN
-		bs.write0u2(i + 10, 0); // attrN
-		i += 12;
-		// exceptions
-		bs.write0u2(i, cons.searchUtf(Bytecode.EXCEPTIONS)); // attr name ci
-		bs.write0u4(i + 2, 2); // attr length
-		i += 6;
-		bs.write0u2(i, 0); // exceptionN
-		i += 2;
-		// end
-		EMPTY = new Procedure(cons, bs.bytes, bs.beginBi);
-	}
 
 	public final Constants cons;
 	protected int modifier;
@@ -112,6 +79,33 @@ public class Procedure
 			bi += 6 + read0u4(bi + 2);
 		}
 		end1Bi = bi;
+	}
+
+	/** empty procedure, with exceptions and code, without signature and attribute */
+	public Procedure(Constants c)
+	{
+		super(null, 0);
+		cons = c;
+		ensureByteN(128);
+		write0u2(0, 0); // modifier
+		write0u2(2, 0); // nameCi
+		write0u2(4, 0); // descCi
+		write0u2(6, 2); // attrN
+		int i = 8;
+		write0u2(i, cons.putUtf(Bytecode.CODE)); // attr name ci
+		write0u4(i + 2, 12); // attr length
+		i += 6;
+		write0u2(i, 0); // stackN
+		write0u2(i + 2, 0); // localN
+		write0u4(i + 4, 0); // addrN and ins
+		write0u2(i + 8, 0); // catchN
+		write0u2(i + 10, 0); // attrN
+		i += 12;
+		write0u2(i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
+		write0u4(i + 2, 2); // attr length
+		i += 6;
+		write0u2(i, 0); // exceptionN
+		end1Bi = i + 2;
 	}
 
 	public int getModifier()
@@ -248,7 +242,7 @@ public class Procedure
 		out.println();
 		printIndent(out, indent);
 		out.print("attrN ");
-		out.println(getAttrN());
+		out.println(attrN);
 		printIndent(out, indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
@@ -371,26 +365,26 @@ public class Procedure
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
-		int n = byteN();
+		int n = byteN0();
 		if (annos != null)
-			n += annos.generateByteN() - annos.byteN();
+			n += annos.normalizeByteN() - annos.byteN0();
 		if (annoHides != null)
-			n += annoHides.generateByteN() - annoHides.byteN();
+			n += annoHides.normalizeByteN() - annoHides.byteN0();
 		if (annoParams != null)
-			n += annoParams.generateByteN() - annoParams.byteN();
+			n += annoParams.normalizeByteN() - annoParams.byteN0();
 		if (annoHideParams != null)
-			n += annoHideParams.generateByteN() - annoHideParams.byteN();
+			n += annoHideParams.normalizeByteN() - annoHideParams.byteN0();
 		if (exceptions != null)
-			n += exceptions.generateByteN() - exceptions.byteN();
+			n += exceptions.normalizeByteN() - exceptions.byteN0();
 		if (code != null)
-			n += code.generateByteN() - code.byteN();
+			n += code.normalizeByteN() - code.byteN0();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, modifier & 0xFFFF);
 		writeU2(bs, begin + 2, nameCi);
@@ -408,17 +402,17 @@ public class Procedure
 				begin += 8;
 			}
 			else if (bi == annosBi && annos != null)
-				begin = annos.generateTo(bs, begin);
+				begin = annos.normalizeTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
-				begin = annoHides.generateTo(bs, begin);
+				begin = annoHides.normalizeTo(bs, begin);
 			else if (bi == annoParamsBi && annoParams != null)
-				begin = annoParams.generateTo(bs, begin);
+				begin = annoParams.normalizeTo(bs, begin);
 			else if (bi == annoHideParamsBi && annoHideParams != null)
-				begin = annoHideParams.generateTo(bs, begin);
+				begin = annoHideParams.normalizeTo(bs, begin);
 			else if (bi == exceptionsBi && exceptions != null)
-				begin = exceptions.generateTo(bs, begin);
+				begin = exceptions.normalizeTo(bs, begin);
 			else if (bi == codeBi && code != null)
-				begin = code.generateTo(bs, begin);
+				begin = code.normalizeTo(bs, begin);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);

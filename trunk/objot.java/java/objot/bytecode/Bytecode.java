@@ -8,10 +8,8 @@ import objot.util.Bytes;
 public class Bytecode
 	extends Element
 {
-	public static final Bytecode EMPTY;
-
 	protected static final Bytes SIGNATURE = utf("Signature");
-	protected static final Bytes CONSTANTVALUE = utf("ConstantValue");
+	protected static final Bytes CONSTANT_VALUE = utf("ConstantValue");
 	protected static final Bytes ANNOS = utf("RuntimeVisibleAnnotations");
 	protected static final Bytes ANNOHIDES = utf("RuntimeInvisibleAnnotations");
 	protected static final Bytes EXCEPTIONS = utf("Exceptions");
@@ -21,41 +19,6 @@ public class Bytecode
 	protected static final Bytes CODE_LINES = utf("LineNumberTable");
 	protected static final Bytes CODE_VARS = utf("LocalVariableTable");
 	protected static final Bytes CODE_VARSIGNS = utf("LocalVariableTypeTable");
-
-	static
-	{
-		Bytes bs = new Bytes(null).ensureByteN(256);
-		bs.write0s4(0, 0xcafebabe); // magic number
-		bs.write0u2(4, 0); // minor verson
-		bs.write0u2(6, 49); // major version
-		int i = 8;
-		// constants
-		bs.write0u2(i, 3); // constantN (index from 1)
-		i += 2;
-		bs.write0s1(i, Constants.TAG_UTF);
-		bs.write0u2(i + 1, CODE.byteN());
-		i = CODE.copyTo(0, bs, i + 3, CODE.byteN());
-		bs.write0s1(i, Constants.TAG_UTF);
-		bs.write0u2(i + 1, EXCEPTIONS.byteN());
-		i = EXCEPTIONS.copyTo(0, bs, i + 3, EXCEPTIONS.byteN());
-		// head
-		bs.write0u2(i, 0); // modifier
-		bs.write0u2(i + 2, 0); // classCi
-		bs.write0u2(i + 4, 0); // superCi
-		bs.write0u2(i + 6, 0); // interfaceN
-		i += 8;
-		// fields
-		bs.write0u2(i, 0); // fieldN
-		i += 2;
-		// procs
-		bs.write0u2(i, 0); // procN
-		i += 2;
-		// attrs
-		bs.write0u2(i, 0); // attrN
-		i += 2;
-		// end
-		EMPTY = new Bytecode(bs.bytes, bs.beginBi, bs.beginBi + i);
-	}
 
 	public final Constants cons;
 	public final Head head;
@@ -70,10 +33,11 @@ public class Bytecode
 	protected int annoHidesBi;
 	protected Annotations annoHides;
 
+	/** @param end1Bi_ be lazy checked */
 	public Bytecode(byte[] bs, int beginBi_, int end1Bi_)
 	{
 		super(bs, beginBi_);
-		if (read0s4(beginBi) != 0xcafebabe)
+		if (read0s4(beginBi) != 0xCAFEBABE)
 			throw new ClassFormatError("invalid magic number");
 		if ((read0u2(beginBi + 4) | read0u2(beginBi + 6) << 16) > 50 << 16)
 			throw new ClassFormatError("unsupported bytecode version");
@@ -81,6 +45,27 @@ public class Bytecode
 		if (end1Bi <= beginBi)
 			throw new ClassFormatError("invalid bytecode index");
 		cons = new Constants(bytes, beginBi + 8);
+		head = new Head(cons, bytes, cons.end1Bi);
+	}
+
+	/** empty bytecode */
+	public Bytecode()
+	{
+		super(null, 0);
+		ensureByteN(24);
+		write0s4(0, 0xCAFEBABE);
+		write0u2(4, 0); // minor verson
+		write0u2(6, 49); // major version
+		write0u2(8, 1); // constantN
+		write0u2(10, 0); // modifier
+		write0u2(12, 0); // classCi
+		write0u2(14, 0); // superCi
+		write0u2(16, 0); // interfaceN
+		write0u2(18, 0); // fieldN
+		write0u2(20, 0); // procN
+		write0u2(22, 0); // attrN
+		end1Bi = 24;
+		cons = new Constants(bytes, 8);
 		head = new Head(cons, bytes, cons.end1Bi);
 	}
 
@@ -180,40 +165,39 @@ public class Bytecode
 		out.flush();
 	}
 
-	public byte[] generate()
+	public byte[] normalize()
 	{
-		byte[] bs = new byte[generateByteN()];
-		generateTo(bs, 0);
+		byte[] bs = new byte[normalizeByteN()];
+		normalizeTo(bs, 0);
 		return bs;
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
-		int n = byteN();
-		n += cons.generateByteN() - cons.byteN();
+		int n = byteN0() + cons.normalizeByteN() - cons.byteN0();
 		if (head != null)
-			n += head.generateByteN() - head.byteN();
+			n += head.normalizeByteN() - head.byteN0();
 		if (fields != null)
-			n += fields.generateByteN() - fields.byteN();
+			n += fields.normalizeByteN() - fields.byteN0();
 		if (procs != null)
-			n += procs.generateByteN() - procs.byteN();
+			n += procs.normalizeByteN() - procs.byteN0();
 		if (annos != null)
-			n += annos.generateByteN() - annos.byteN();
+			n += annos.normalizeByteN() - annos.byteN0();
 		if (annoHides != null)
-			n += annoHides.generateByteN() - annoHides.byteN();
+			n += annoHides.normalizeByteN() - annoHides.byteN0();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		System.arraycopy(bytes, 0, bs, begin, 8);
 		int bi = cons.end1Bi;
-		begin = cons.generateTo(bs, begin + 8);
+		begin = cons.normalizeTo(bs, begin + 8);
 
 		bi = head.end1Bi;
-		begin = head.generateTo(bs, begin);
+		begin = head.normalizeTo(bs, begin);
 
 		if (fields == null)
 		{
@@ -221,7 +205,7 @@ public class Bytecode
 			return begin + end1Bi - bi;
 		}
 		bi = fields.end1Bi;
-		begin = fields.generateTo(bs, begin);
+		begin = fields.normalizeTo(bs, begin);
 
 		if (procs == null)
 		{
@@ -229,7 +213,7 @@ public class Bytecode
 			return begin + end1Bi - bi;
 		}
 		bi = procs.end1Bi;
-		begin = procs.generateTo(bs, begin);
+		begin = procs.normalizeTo(bs, begin);
 
 		if (attrBi <= 0)
 		{
@@ -243,9 +227,9 @@ public class Bytecode
 		{
 			int bn = 6 + read0u4(bi + 2);
 			if (bi == annosBi && annos != null)
-				begin = annos.generateTo(bs, begin);
+				begin = annos.normalizeTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
-				begin = annoHides.generateTo(bs, begin);
+				begin = annoHides.normalizeTo(bs, begin);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);

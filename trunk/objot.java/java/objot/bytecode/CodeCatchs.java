@@ -90,7 +90,7 @@ public class CodeCatchs
 		boolean hash)
 	{
 		out.println();
-		for (int i = 0; i < getCatchN(); i++)
+		for (int i = 0; i < catchN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -146,19 +146,19 @@ public class CodeCatchs
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		return 2 + (catchN << 3);
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, catchN);
 		if (beginAds == null)
 		{
 			System.arraycopy(bytes, beginBi + 2, bs, begin + 2, catchN << 3);
-			return begin + generateByteN();
+			return begin + normalizeByteN();
 		}
 		begin += 2;
 		for (int i = 0; i < catchN; i++, begin += 8)

@@ -111,7 +111,7 @@ public class CodeVars
 		boolean hash)
 	{
 		out.println();
-		for (int i = 0; i < getVarN(); i++)
+		for (int i = 0; i < varN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -174,21 +174,21 @@ public class CodeVars
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		return 8 + varN * 10;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, read0u2(beginBi));
-		writeS4(bs, begin + 2, generateByteN() - 6);
+		writeS4(bs, begin + 2, normalizeByteN() - 6);
 		writeU2(bs, begin + 6, varN);
 		if (beginAds == null)
 		{
 			System.arraycopy(bytes, beginBi + 8, bs, begin + 8, varN * 10);
-			return begin + generateByteN();
+			return begin + normalizeByteN();
 		}
 		begin += 8;
 		for (int i = 0; i < varN; i++, begin += 10)

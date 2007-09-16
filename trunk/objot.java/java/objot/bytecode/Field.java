@@ -8,14 +8,6 @@ import objot.util.Mod2;
 public class Field
 	extends Element
 {
-	/** No constant value, signature and attribute. */
-	public static final Field EMPTY = new Field(Bytecode.EMPTY.cons, new byte[] //
-		{ 0, 0, // modifier
-			0, 0, // nameCi
-			0, 0, // descCi
-			0, 0, // attrN
-		}, 0);
-
 	public final Constants cons;
 	protected int modifier;
 	protected int nameCi;
@@ -57,7 +49,7 @@ public class Field
 				signatureBi = bi;
 				signatureCi = read0u2(bi + 6);
 			}
-			else if (constantBi <= 0 && cons.equalsUtf(name, Bytecode.CONSTANTVALUE))
+			else if (constantBi <= 0 && cons.equalsUtf(name, Bytecode.CONSTANT_VALUE))
 			{
 				constantBi = bi;
 				constantCi = read0u2(bi + 6);
@@ -69,6 +61,19 @@ public class Field
 			bi += 6 + read0u4(bi + 2);
 		}
 		end1Bi = bi;
+	}
+
+	/** empty field, without value signature and attribute. */
+	public Field(Constants c)
+	{
+		super(null, 0);
+		cons = c;
+		ensureByteN(8);
+		write0u2(0, 0); // modifier
+		write0u2(2, 0); // nameCi
+		write0u2(4, 0); // descCi
+		write0u2(6, 0); // attrN
+		end1Bi = 8;
 	}
 
 	public int getModifier()
@@ -143,7 +148,7 @@ public class Field
 		out.println();
 		printIndent(out, indent);
 		out.print("attrN ");
-		out.println(getAttrN());
+		out.println(attrN);
 		printIndent(out, indent);
 		out.print("signatureCi ");
 		out.print(getSignatureCi());
@@ -189,18 +194,18 @@ public class Field
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
-		int n = byteN();
+		int n = byteN0();
 		if (annos != null)
-			n += annos.generateByteN() - annos.byteN();
+			n += annos.normalizeByteN() - annos.byteN0();
 		if (annoHides != null)
-			n += annoHides.generateByteN() - annoHides.byteN();
+			n += annoHides.normalizeByteN() - annoHides.byteN0();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		writeU2(bs, begin, modifier & 0xFFFF);
 		writeU2(bs, begin + 2, nameCi);
@@ -224,9 +229,9 @@ public class Field
 				begin += 8;
 			}
 			else if (bi == annosBi && annos != null)
-				begin = annos.generateTo(bs, begin);
+				begin = annos.normalizeTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
-				begin = annoHides.generateTo(bs, begin);
+				begin = annoHides.normalizeTo(bs, begin);
 			else
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);

@@ -26,21 +26,21 @@ public class InvalidRangeException
 
 	public InvalidRangeException(int begin, int end1)
 	{
-		super("invalid range " + begin + '-' + end1);
+		super("invalid range [" + begin + ',' + end1 + ')');
 	}
 
 	public InvalidRangeException(long begin, long end1)
 	{
-		super("invalid range " + begin + '-' + end1);
+		super("invalid range [" + begin + ',' + end1 + ')');
 	}
 
 	public InvalidRangeException(int begin, int end1, int maxEnd1)
 	{
-		super("invalid range " + begin + '-' + end1 + '-' + maxEnd1);
+		super("invalid range [" + begin + ',' + end1 + ',' + maxEnd1 + ')');
 	}
 
 	public InvalidRangeException(long begin, long end1, long maxEnd1)
 	{
-		super("invalid range " + begin + '-' + end1 + '-' + maxEnd1);
+		super("invalid range [" + begin + ',' + end1 + ',' + maxEnd1 + ')');
 	}
 }

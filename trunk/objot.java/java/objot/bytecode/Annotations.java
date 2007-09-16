@@ -65,9 +65,8 @@ public class Annotations
 		Class<? extends java.lang.annotation.Annotation> anno)
 	{
 		if (as != null)
-			for (int i = as.getAnnoN() - 1; i >= 0; i--)
-				if (as.cons
-					.equalsUtf(as.getAnno(i).getDescCi(), utf(Class2.descript(anno))))
+			for (int i = as.annoN - 1; i >= 0; i--)
+				if (as.cons.equalsUtf(as.getAnno(i).getDescCi(), utf(Class2.descript(anno))))
 					return i;
 		return -1;
 	}
@@ -90,7 +89,7 @@ public class Annotations
 		Class<? extends java.lang.annotation.Annotation> anno) throws ClassNotFoundException
 	{
 		if (as != null)
-			for (int i = as.getAnnoN() - 1; i >= 0; i--)
+			for (int i = as.annoN - 1; i >= 0; i--)
 			{
 				int desc = as.getAnno(i).getDescCi();
 				Class<?> ca = cl.loadClass(as.cons.classDesc2NameUnicode(desc));
@@ -117,8 +116,14 @@ public class Annotations
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
 		boolean hash)
 	{
+		if (verbose > 0)
+		{
+			printIndent(out, indent1st);
+			out.print(" annoN ");
+			out.print(annoN);
+		}
 		out.println();
-		for (int i = 0; i < getAnnoN(); i++)
+		for (int i = 0; i < annoN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
@@ -149,33 +154,29 @@ public class Annotations
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		if (annos == null)
-			return byteN();
+			return byteN0();
 		int n = 8;
 		for (int i = 0; i < annoN; i++)
-			n += annos[i].byteN();
+			n += annos[i].normalizeByteN();
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		if (annos == null)
 		{
-			System.arraycopy(bytes, beginBi, bs, begin, byteN());
-			return begin + byteN();
+			System.arraycopy(bytes, beginBi, bs, begin, byteN0());
+			return begin + byteN0();
 		}
 		writeU2(bs, begin, read0u2(beginBi));
 		writeU2(bs, begin + 6, annoN);
 		int bi = begin + 8;
 		for (int i = 0; i < annoN; i++)
-		{
-			Annotation a = annos[i];
-			System.arraycopy(a.bytes, a.beginBi, bs, bi, a.byteN());
-			bi += a.byteN();
-		}
+			bi = annos[i].normalizeTo(bs, bi);
 		writeS4(bs, begin + 2, bi - begin - 6);
 		return bi;
 	}

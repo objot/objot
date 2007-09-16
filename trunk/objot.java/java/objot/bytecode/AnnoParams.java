@@ -95,7 +95,7 @@ public class AnnoParams
 		Class<? extends java.lang.annotation.Annotation> anno)
 	{
 		if (as != null)
-			for (int g = as.getParamN() - 1; g >= 0; g--)
+			for (int g = as.paramN - 1; g >= 0; g--)
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
 					if (as.cons.equalsUtf(as.getAnno(g, a).getDescCi(), utf(Class2
 						.descript(anno))))
@@ -111,7 +111,7 @@ public class AnnoParams
 		Class<? extends java.lang.annotation.Annotation> anno) throws ClassNotFoundException
 	{
 		if (as != null)
-			for (int g = as.getParamN() - 1; g >= 0; g--)
+			for (int g = as.paramN - 1; g >= 0; g--)
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
 				{
 					int desc = as.getAnno(g, a).getDescCi();
@@ -127,8 +127,14 @@ public class AnnoParams
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
 		boolean hash)
 	{
+		if (verbose > 0)
+		{
+			printIndent(out, indent1st);
+			out.print(" paramN ");
+			out.print(paramN);
+		}
 		out.println();
-		for (int i = 0; i < getParamN(); i++)
+		for (int i = 0; i < paramN; i++)
 			for (int j = 0; j < getAnnoN(i); i++)
 			{
 				printIndent(out, indent);
@@ -164,27 +170,27 @@ public class AnnoParams
 	}
 
 	@Override
-	public int generateByteN()
+	public int normalizeByteN()
 	{
 		if (annos == null)
-			return byteN();
+			return byteN0();
 		int n = 7;
 		for (int i = 0; i < paramN; i++)
 		{
 			n += 2;
 			for (int j = 0; j < annoNs[i]; j++)
-				n += annos[i][j].byteN();
+				n += annos[i][j].normalizeByteN();
 		}
 		return n;
 	}
 
 	@Override
-	public int generateTo(byte[] bs, int begin)
+	public int normalizeTo(byte[] bs, int begin)
 	{
 		if (annos == null)
 		{
-			System.arraycopy(bytes, beginBi, bs, begin, byteN());
-			return begin + byteN();
+			System.arraycopy(bytes, beginBi, bs, begin, byteN0());
+			return begin + byteN0();
 		}
 		writeU2(bs, begin, read0u2(beginBi));
 		writeU1(bs, begin + 6, paramN);
@@ -194,11 +200,7 @@ public class AnnoParams
 			writeU2(bs, bi, annoNs[gi]);
 			bi += 2;
 			for (int ai = 0; ai < annoNs[gi]; ai++)
-			{
-				Annotation a = annos[gi][ai];
-				System.arraycopy(a.bytes, a.beginBi, bs, bi, a.byteN());
-				bi += a.byteN();
-			}
+				bi = annos[gi][ai].normalizeTo(bs, bi);
 		}
 		writeS4(bs, begin + 2, bi - begin - 6);
 		return bi;
