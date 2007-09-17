@@ -128,7 +128,7 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 		h.$this0 !== undefined && h.$done0.call(h.$this0);
 		var ok = false, err = false;
 		if (code == 0)
-			(res = $set(res)) instanceof Err ? err = res : ok = res;
+			(res = $dec(res)) instanceof Err ? err = res : ok = res;
 		else if (code > 0)
 			err = new Err('HTTP Error ' + code + ' ' + res);
 		h.$this1 !== undefined && h.$done1.call(h.$this1, ok, err, h);

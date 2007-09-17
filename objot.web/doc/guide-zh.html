@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
-<title>Objot 版本15 指南</title>
+<title>Objot 版本20 指南</title>
 <style>
 	body	{ padding:0; margin:1em; background:white; line-height:1.4; font-family:sans-serif; }
 	h2		{ margin:3em 0 1em; padding:0.2ex 0; border-bottom:0.3ex solid #cdf; color:#730; }
@@ -28,11 +28,11 @@
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
-<h1	align=center><a href=http://objot.info>Objot</a> 版本15 指南</h1>
+<h1	align=center><a href=http://objot.info>Objot</a> 版本20 指南</h1>
 <hr>
 
 <p>这是一个了解Objot，了解如何利用Objot开发浏览端的指南。
-关于Java服务端开发请参考<a href=guide-java-zh.html>《Objot 版本15 Java服务端指南》</a>。
+关于Java服务端开发请参考<a href=guide-java-zh.html>《Objot 版本20 Java服务端指南》</a>。
 
 <p>版权所有2007蔡倩彦，遵循GNU General Public License version 2。
 
@@ -100,15 +100,14 @@ $class(true, 'ErrUnsigned', Err); // ErrUnsigned的父类是Err
 </pre>
 3个function定义了构造函数，$class把这些function定义为类，第一个参数表示可否编解码。
 
-<p>使用$get可以将数据编码为字符串：
+<p>使用$enc可以将数据编码为字符串：
 <pre>ok = new Ok("I'm Ok");
-_ = $get(ok, Object);
+_ = $enc(ok, Object);
 </pre>
-$get可以理解为get from object，得到的字符串可以再被解码为数据：
-<pre>ok2 = $set(_);
+得到的字符串可以再被解码为数据：
+<pre>ok2 = $dec(_);
 ok.hint == ok2.hint || $throw('error'); // 如果hint不同，就抛出异常
 </pre>
-$set可以理解为set to object。
 注意，解码时创建对象不调用$class中定义的构造函数，而是直接生成对象（空构造函数）。
 
 <!--****************************************************************************************-->
@@ -129,10 +128,10 @@ u2 = new User('u2');
 ... // 多创建几个
 u1.friends = [ u1, u2, ... ]; // 广交朋友
 u2.friends = [ ... ]; // 四海皆兄弟
-y = $get(u1, Object); // 以u1为起点，编码整个SO图
+y = $enc(u1, Object); // 以u1为起点，编码整个SO图
 </pre>
 解码之后，得到和原来一样的SO图：
-<pre>v1 = $set(y);
+<pre>v1 = $dec(y);
 u1.name == v1.name &amp;&amp; u1.email == v1.email
 	&amp;&amp; u1.friends[0].name == v1.friends[0].name &amp;&amp; ... // 完整检查
 	|| $throw('error');
@@ -148,22 +147,22 @@ u1.name == v1.name &amp;&amp; u1.email == v1.email
 DoUser.all = function () {};
 </pre>
 然后设置SO类与这些function对应时哪些属性被编码：
-<pre>$class.get(User, Object, ['name'], DoUser, ['name', 'friends'], DoUser.all, null);
+<pre>$class.enc(User, Object, ['name'], DoUser, ['name', 'friends'], DoUser.all, null);
 </pre>
-用$class.get为User这个SO类设置规则：与Object对应时，只编码name属性；与DoUser对应时，编码name和friends属性；与DoUser.all对应时，编码所有属性；与这些都不对应时，不编码任何属性。
+用$class.enc为User这个SO类设置规则：与Object对应时，只编码name属性；与DoUser对应时，编码name和friends属性；与DoUser.all对应时，编码所有属性；与这些都不对应时，不编码任何属性。
 
 <p>在编码时给出需要对应的function：
-<pre>$get(u1, Object); // 只编码u1的name属性
-$get(u1, DoUser); // 编码u1的name和friends属性，并对friends中每个User运用同样的规则，包含整个SO图
-$get(u1, DoUser.all); // 编码u1的全部属性，以及整个SO图
+<pre>$enc(u1, Object); // 只编码u1的name属性
+$enc(u1, DoUser); // 编码u1的name和friends属性，并对friends中每个User运用同样的规则，包含整个SO图
+$enc(u1, DoUser.all); // 编码u1的全部属性，以及整个SO图
 </pre>
 排除某些引用属性，就可以排除这些引用构成的SO图。
 
 <p>修改规则，设置某些临时引用，使得某些SO的某些引用被编码：
-<pre>$class.get(User, Object, ['name']);
-$class.get(User, DoUser, ['name', 'myFriends'], DoUser.all, null);
+<pre>$class.enc(User, Object, ['name']);
+$class.enc(User, DoUser, ['name', 'myFriends'], DoUser.all, null);
 u1.myFriends = u1.friends; // u1的myFriends属性与friends属性相同，但其他User没有myFriends属性
-$get(u1, DoUser);
+$enc(u1, DoUser);
 delete u1.myFriends; // 清除临时属性
 </pre>
 这样编码了u1的name和myFriends属性，因为其他User没有myFriends，所以编码的SO子图就是u1自己，以及u1的直接好友。
@@ -172,7 +171,7 @@ delete u1.myFriends; // 清除临时属性
 
 <h3>服务端Service Object</h3>
 
-<p>请参考<a href=guide-java-zh.html>《Objot 版本15 Java服务端指南》</a>。
+<p>请参考<a href=guide-java-zh.html>《Objot 版本20 Java服务端指南》</a>。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -209,7 +208,7 @@ Client与Service交互通常借助异步HTTP来完成，考虑：
 <p>Objot通过$http函数提供异步HTTP功能：
 <pre>http = $http(url, timeout, req, done, data);
 </pre>
-req是请求内容字符串，可以是$get编码串，$http总是用POST方式发出请求，这样不需要格式转换，长度也不受限制。
+req是请求内容字符串，可以是$enc编码串，$http总是用POST方式发出请求，这样不需要格式转换，长度也不受限制。
 timeout&gt;0是超时毫秒数，否则忽略不做超时处理。
 done是HTTP回合结束时异步回调的函数，可能是回合完成，可能是超时，也可能是停止。
 $http返回一个无参数函数，用来停止这个回合，并异步调用done，如果交互已经结束，则不起作用。
@@ -237,7 +236,7 @@ $Do返回值和$http相同，但附加了一些以$开头为名的属性用作�
 	alert(ok + '\n' + err + '\n' + http);
 }
 </pre>
-若回合成功完成（服务器返回200），ok为$set解码的SO，err为false；若超时或错误，ok为false，err为前面定义的Err对象；若是停止，ok和err均为false。
+若回合成功完成（服务器返回200），ok为$dec解码的SO，err为false；若超时或错误，ok为false，err为前面定义的Err对象；若是停止，ok和err均为false。
 http是$Do也是$http的返回值。
 当某个回调出现错误，将传递给Javascript引擎，后续回调函数就不执行了，依此类推。
 
@@ -297,7 +296,7 @@ DoUser = function () {}
 DoUser.update = function (friends, This, done) {
 	var u = new User();
 	u.friends = friends;
-	var h = $Do('DoUser-update', 'Updating my info', $get(u, this.update),
+	var h = $Do('DoUser-update', 'Updating my info', $enc(u, this.update),
 		This, done, null, this.doneUpdate);
 	h.user = u;
 	return h;
@@ -310,7 +309,7 @@ DoUser.update中，先生成一个临时数据u，并设置为$Do返回函数的
 DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user。
 临时数据也可以作为对象传入$Do：
 <pre>	...
-	var h = $Do('DoUser-update', 'Updating my info', $get(u, this.update),
+	var h = $Do('DoUser-update', 'Updating my info', $enc(u, this.update),
 		This, done, u, this.doneUpdate);
 	...
 }
@@ -415,7 +414,7 @@ $d('click', onClick); // 相当于 $d('click', onClick, undefined, undefined);
 	doSign: function () {
 		this.submit.disabled = true, this.submit.blur();
 		$Http(this.http, $Do('DoSign-inUp', 'Signing',
-			$get(new User(null, this.name.value, this.pass.value)), this, this.doneSign));
+			$enc(new User(null, this.name.value, this.pass.value)), this, this.doneSign));
 			// 访问service，提供一个User作为SO
 	},
 	doneSign: function (ok, err) {

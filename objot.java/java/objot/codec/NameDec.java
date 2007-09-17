@@ -12,16 +12,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** the annotated field could be get while {@link Getting#go} or {@link Setting#go} */
-@Target( { ElementType.TYPE, ElementType.FIELD })
+/** The encoded property name while decoding */
+@Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface GetSet
+public @interface NameDec
 {
-	/**
-	 * getting and setting rules about the class specified in {@link Getting#go} or
-	 * {@link Setting#go}
-	 */
-	Class<?>[] value() default {};
+	String value();
 }

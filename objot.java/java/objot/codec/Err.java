@@ -6,7 +6,7 @@ package objot.codec;
 
 public class Err
 {
-	@Get
+	@Enc
 	public final String hint;
 
 	public Err()

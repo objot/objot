@@ -13,21 +13,21 @@ class PropMethod
 	private Method m;
 
 	/** @throws RuntimeException if not available getter/setter */
-	PropMethod(Method m_, Get g, Set s, boolean get)
+	PropMethod(Method m_, Enc e, Dec d, boolean enc)
 	{
-		super(m_, m_.getDeclaringClass(), name(m_, get), g, s, null, get);
+		super(m_, m_.getDeclaringClass(), name(m_, enc), e, d, null, enc);
 		m = m_;
-		cla = get ? m_.getReturnType() : m_.getParameterTypes()[0];
-		type = get ? m_.getGenericReturnType() : m_.getGenericParameterTypes()[0];
+		cla = enc ? m_.getReturnType() : m_.getParameterTypes()[0];
+		type = enc ? m_.getGenericReturnType() : m_.getGenericParameterTypes()[0];
 	}
 
-	static String name(Method _, boolean get)
+	static String name(Method _, boolean enc)
 	{
 		String n = _.getName();
-		if (get && ( !n.startsWith("get") || _.getParameterTypes().length > 0 //
+		if (enc && ( !n.startsWith("get") || _.getParameterTypes().length > 0 //
 		|| _.getReturnType() == void.class))
 			throw new RuntimeException("invalid getter: " + _);
-		if ( !get && ( !n.startsWith("set") || _.getParameterTypes().length != 1 //
+		if ( !enc && ( !n.startsWith("set") || _.getParameterTypes().length != 1 //
 		|| _.getReturnType() != void.class))
 			throw new RuntimeException("invalid setter: " + _);
 		if (n.length() > 4 && Character.isUpperCase(n.charAt(3))

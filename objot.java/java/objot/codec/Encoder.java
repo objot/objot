@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 
-final class Getting
+final class Encoder
 {
 	private static final char S = Codec.S;
 	private static final int HASH_MASK = 255;
@@ -30,7 +30,7 @@ final class Getting
 	/** for object graph, the number of used (multi) reference numbers */
 	private int refn;
 
-	Getting(Codec o, Class<?> for_)
+	Encoder(Codec o, Class<?> for_)
 	{
 		objot = o;
 		forClass = for_;
@@ -71,7 +71,7 @@ final class Getting
 			for (Object v: (Set<?>)o)
 				refs(v);
 		else if ( !o.getClass().isArray()) // other
-			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
+			for (Map.Entry<String, Property> pv: objot.encs(o.getClass()).entrySet())
 			{
 				Class<?> c = pv.getValue().cla;
 				if ( !c.isPrimitive() && !Number.class.isAssignableFrom(c)
@@ -196,7 +196,7 @@ final class Getting
 		{
 			s.append(S).append(objot.className(o.getClass()));
 			ref(o, s);
-			for (Map.Entry<String, Property> pv: objot.gets(o.getClass()).entrySet())
+			for (Map.Entry<String, Property> pv: objot.encs(o.getClass()).entrySet())
 				if (pv.getValue().allow(forClass))
 				{
 					s.append(S).append(pv.getKey());

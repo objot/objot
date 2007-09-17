@@ -10,10 +10,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
-import objot.codec.Get;
-import objot.codec.GetSet;
-import objot.codec.NameGet;
-import objot.codec.Set;
+import objot.codec.Enc;
+import objot.codec.EncDec;
+import objot.codec.NameEnc;
+import objot.codec.Dec;
 
 import org.hibernate.annotations.Proxy;
 
@@ -30,19 +30,19 @@ public class User
 	extends IdAuto<User>
 {
 	@BeText(max = 20)
-	@Get( { DoUser.class, DoChat.class })
-	@Set( { DoSign.class, DoUser.class })
+	@Enc( { DoUser.class, DoChat.class })
+	@Dec( { DoSign.class, DoUser.class })
 	public String name;
 
 	@BeText(max = 20)
-	@Set(DoSign.class)
+	@Dec(DoSign.class)
 	public String password;
 
 	@ManyToMany
 	public java.util.Set<User> friends;
 
-	@GetSet(DoUser.class)
-	@NameGet("friends")
+	@EncDec(DoUser.class)
+	@NameEnc("friends")
 	@Transient
 	public java.util.Set<User> friends_;
 }

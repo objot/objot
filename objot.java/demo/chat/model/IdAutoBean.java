@@ -8,8 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.MappedSuperclass;
 
-import objot.codec.Get;
-import objot.codec.Set;
+import objot.codec.Enc;
+import objot.codec.Dec;
 
 
 @MappedSuperclass
@@ -18,7 +18,7 @@ public abstract class IdAutoBean<T extends IdAutoBean<T>>
 {
 	private int id; // use Integer just for less object creation
 
-	@Get
+	@Enc
 	@javax.persistence.Id
 	@GeneratedValue(strategy = GenerationType.AUTO /* start from 1 */)
 	public int getId()
@@ -26,7 +26,7 @@ public abstract class IdAutoBean<T extends IdAutoBean<T>>
 		return id;
 	}
 
-	@Set
+	@Dec
 	public void setId(int v)
 	{
 		id = v;

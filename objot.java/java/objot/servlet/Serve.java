@@ -50,7 +50,7 @@ public class Serve
 	public CharSequence get(Object o, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws Exception
 	{
-		return codec.get(o, cla);
+		return codec.enc(o, cla);
 	}
 
 	public CharSequence serve(char[] req, HttpServletRequest hReq, HttpServletResponse hRes)
@@ -58,7 +58,7 @@ public class Serve
 	{
 		if (req == null)
 			return serve(null, hReq, hRes);
-		return serve(null, hReq, hRes, codec.set(req, reqClas[0], cla));
+		return serve(null, hReq, hRes, codec.dec(req, reqClas[0], cla));
 	}
 
 	public CharSequence serve(Object service, HttpServletRequest hReq,

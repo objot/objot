@@ -12,9 +12,9 @@ class PropField
 {
 	private Field f;
 
-	PropField(Field f_, Get g, Set s, GetSet gs, boolean get)
+	PropField(Field f_, Enc e, Dec d, EncDec ed, boolean enc)
 	{
-		super(f_, f_.getDeclaringClass(), f_.getName(), g, s, gs, get);
+		super(f_, f_.getDeclaringClass(), f_.getName(), e, d, ed, enc);
 		f = f_;
 		cla = f.getType();
 		type = f.getGenericType();

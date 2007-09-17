@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 
-final class Setting
+final class Decoder
 {
 	private Codec objot;
 	private Class<?> forClass;
@@ -33,7 +33,7 @@ final class Setting
 	private Object[] refs;
 	private int intOrLongOrNot;
 
-	Setting(Codec o, Class<?> for_, char[] s)
+	Decoder(Codec o, Class<?> for_, char[] s)
 	{
 		objot = o;
 		forClass = for_;
@@ -345,7 +345,7 @@ final class Setting
 		}
 		if (uniqueClass != null)
 		{
-			Set<Object> ls = objot.newUnique(len);
+			Set<Object> ls = objot.newUniques(len);
 			for (Object o: lo)
 				ls.add(o);
 			return ls;
@@ -388,7 +388,7 @@ final class Setting
 			Object v;
 			if (cla != HashMap.class)
 			{
-				p = objot.sets(cla).get(n);
+				p = objot.decs(cla).get(n);
 				if (p == null)
 					throw new RuntimeException(cla.getCanonicalName() + "." + n
 						+ " not found or not setable");

@@ -18,40 +18,40 @@ abstract class Property
 	Class<?>[] clas;
 	boolean[] allows;
 
-	Property(AccessibleObject p, Class<?> out, String name_, Get g, Set s, GetSet gs,
-		boolean get)
+	Property(AccessibleObject p, Class<?> out, String name_, Enc e, Dec d, EncDec ed,
+		boolean enc)
 	{
 		Class<?>[] pcs;
-		if (gs == null)
-			pcs = get ? g.value() : s.value();
-		else if (g == null && s == null)
-			pcs = gs.value();
+		if (ed == null)
+			pcs = enc ? e.value() : d.value();
+		else if (e == null && d == null)
+			pcs = ed.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (get ? Get.class.getName() : Set.class.getName()) + " for " + p);
+				+ (enc ? Enc.class.getName() : Dec.class.getName()) + " for " + p);
 
-		Get cg = get ? out.getAnnotation(Get.class) : null;
-		Set cs = get ? null : out.getAnnotation(Set.class);
-		GetSet cgs = out.getAnnotation(GetSet.class);
+		Enc ce = enc ? out.getAnnotation(Enc.class) : null;
+		Dec cd = enc ? null : out.getAnnotation(Dec.class);
+		EncDec ced = out.getAnnotation(EncDec.class);
 		Class<?>[] ocs;
-		if (cgs == null)
-			ocs = cg != null ? cg.value() : cs != null ? cs.value() : Codec.CS0;
-		else if (cg == null && cs == null)
-			ocs = cgs.value();
+		if (ced == null)
+			ocs = ce != null ? ce.value() : cd != null ? cd.value() : Codec.CS0;
+		else if (ce == null && cd == null)
+			ocs = ced.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (get ? Get.class.getName() : Set.class.getName()) + " for " + out);
+				+ (enc ? Enc.class.getName() : Dec.class.getName()) + " for " + out);
 
-		NameGet ng = get ? p.getAnnotation(NameGet.class) : null;
-		NameSet ns = get ? null : p.getAnnotation(NameSet.class);
-		Name name1 = p.getAnnotation(Name.class);
-		if (name1 == null)
-			name = ng != null ? ng.value() : ns != null ? ns.value() : name_;
-		else if (ng == null && ns == null)
-			name = name1.value();
+		NameEnc ne = enc ? p.getAnnotation(NameEnc.class) : null;
+		NameDec nd = enc ? null : p.getAnnotation(NameDec.class);
+		Name ned = p.getAnnotation(Name.class);
+		if (ned == null)
+			name = ne != null ? ne.value() : nd != null ? nd.value() : name_;
+		else if (ne == null && nd == null)
+			name = ned.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (get ? NameGet.class.getName() : NameSet.class.getName()) + " for " + p);
+				+ (enc ? NameEnc.class.getName() : NameDec.class.getName()) + " for " + p);
 
 		int n = 0;
 		for (Class<?> c: ocs)

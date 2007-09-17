@@ -21,14 +21,14 @@ public class Codec
 	 * @param o the whole gettable object graph must keep unchanged since the references
 	 *            detection is not thread safe
 	 */
-	public CharSequence get(Object o, Class<?> for_) throws Exception
+	public CharSequence enc(Object o, Class<?> for_) throws Exception
 	{
-		return new Getting(this, for_).go(o);
+		return new Encoder(this, for_).go(o);
 	}
 
-	public Object set(char[] s, Class<?> clazz, Class<?> for_) throws Exception
+	public Object dec(char[] s, Class<?> clazz, Class<?> for_) throws Exception
 	{
-		return new Setting(this, for_, s).go(clazz);
+		return new Decoder(this, for_, s).go(clazz);
 	}
 
 	/** multi thread, may be cached */
@@ -52,66 +52,66 @@ public class Codec
 	}
 
 	/** {@link HashSet} by default but not recommended for ORM */
-	protected java.util.Set<Object> newUnique(int len) throws Exception
+	protected java.util.Set<Object> newUniques(int len) throws Exception
 	{
 		return new HashSet<Object>(len);
 	}
 
 	static final Class<?>[] CS0 = {};
 
-	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> gets //
+	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> encs //
 	= new ConcurrentHashMap<Class<?>, HashMap<String, Property>>(64, 0.8f, 32);
-	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> sets //
+	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> decs //
 	= new ConcurrentHashMap<Class<?>, HashMap<String, Property>>(64, 0.8f, 32);
 
-	final HashMap<String, Property> gets(Class<?> c)
+	final HashMap<String, Property> encs(Class<?> c)
 	{
-		HashMap<String, Property> inf = gets.get(c);
+		HashMap<String, Property> inf = encs.get(c);
 		if (inf == null)
 		{
 			inf = new HashMap<String, Property>();
 			for (Field f: c.getFields())
 				if ((f.getModifiers() & Modifier.STATIC) == 0)
 				{
-					Get g = f.getAnnotation(Get.class);
-					GetSet gs = f.getAnnotation(GetSet.class);
-					if (g != null || gs != null)
-						new PropField(f, g, null, gs, true).into(inf);
+					Enc e = f.getAnnotation(Enc.class);
+					EncDec gs = f.getAnnotation(EncDec.class);
+					if (e != null || gs != null)
+						new PropField(f, e, null, gs, true).into(inf);
 				}
 			for (Method m: c.getMethods())
 				if ((m.getModifiers() & Modifier.STATIC) == 0)
 				{
-					Get g = m.getAnnotation(Get.class);
-					if (g != null)
-						new PropMethod(m, g, null, true).into(inf);
+					Enc e = m.getAnnotation(Enc.class);
+					if (e != null)
+						new PropMethod(m, e, null, true).into(inf);
 				}
-			gets.put(c, inf);
+			encs.put(c, inf);
 		}
 		return inf;
 	}
 
-	final HashMap<String, Property> sets(Class<?> c)
+	final HashMap<String, Property> decs(Class<?> c)
 	{
-		HashMap<String, Property> inf = sets.get(c);
+		HashMap<String, Property> inf = decs.get(c);
 		if (inf == null)
 		{
 			inf = new HashMap<String, Property>();
 			for (Field f: c.getFields())
 				if ((f.getModifiers() & Modifier.STATIC) == 0)
 				{
-					Set s = f.getAnnotation(Set.class);
-					GetSet gs = f.getAnnotation(GetSet.class);
-					if (s != null || gs != null)
-						new PropField(f, null, s, gs, false).into(inf);
+					Dec d = f.getAnnotation(Dec.class);
+					EncDec gs = f.getAnnotation(EncDec.class);
+					if (d != null || gs != null)
+						new PropField(f, null, d, gs, false).into(inf);
 				}
 			for (Method m: c.getMethods())
 				if ((m.getModifiers() & Modifier.STATIC) == 0)
 				{
-					Set s = m.getAnnotation(Set.class);
-					if (s != null)
-						new PropMethod(m, null, s, false).into(inf);
+					Dec d = m.getAnnotation(Dec.class);
+					if (d != null)
+						new PropMethod(m, null, d, false).into(inf);
 				}
-			sets.put(c, inf);
+			decs.put(c, inf);
 		}
 		return inf;
 	}

@@ -4,7 +4,7 @@
 //
 package objot.codec;
 
-/** In {@link GetSet#value()}, following classes are included */
+/** In {@link EncDec#value()}, following classes are included */
 public final class Yes
 {
 	private Yes()

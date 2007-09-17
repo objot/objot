@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
-<title>Objot 版本15 Java服务端指南</title>
+<title>Objot 版本20 Java服务端指南</title>
 <style>
 	body	{ padding:0; margin:1em; background:white; line-height:1.4; font-family:sans-serif; }
 	h2		{ margin:3em 0 1em; padding:0.2ex 0; border-bottom:0.3ex solid #cdf; color:#730; }
@@ -28,11 +28,11 @@
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
-<h1	align=center><a href=http://objot.info>Objot</a> 版本15 Java服务端指南</h1>
+<h1	align=center><a href=http://objot.info>Objot</a> 版本20 Java服务端指南</h1>
 <hr>
 
 <p>这是一个了解如何利用Objot开发Java服务端的指南。
-关于Objot及浏览端开发请参考<a href=guide-zh.html>《Objot 版本15 指南》</a>。
+关于Objot及浏览端开发请参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
 
 <p>
 
@@ -44,7 +44,7 @@
 
 <h2>面向服务的AJAX</h2>
 
-<p>参见<a href=guide-zh.html>《Objot 版本15 指南》</a>。
+<p>参见<a href=guide-zh.html>《Objot 版本20 指南》</a>。
 部署范例的Java服务端时，需要将objot.java目录对应为/objot/，并与浏览端部署在同一个服务器上。
 同时，拷贝以下文件（或其他合适的版本）到objot.java/WEB-INF/lib/目录中：
 <ul>
@@ -83,7 +83,7 @@
 
 <h2>服务对象Service Object</h2>
 
-<p>参考<a href=guide-zh.html>《Objot 版本15 指南》</a>。
+<p>参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
 Java支持的SO类型包括：
 <table>
 	<tr><th>Javascript<th>Java</tr>
@@ -104,52 +104,52 @@ Javascript中数只有52bit精度（IEEE754），因此Java服务端编码时若
 <p>Java服务端需要定义SO类，支持field，getter和setter：
 <pre>package demo; ...
 public class User {
-	@GetSet // 被编解码，相当于@Get @Set
+	@EncDec // 被编解码，相当于@Enc @Dec
 	public Integer id;
 
 	protected String name;
 
-	@Get({DoUser.class, DoChat.class}) // 编码
+	@Enc({DoUser.class, DoChat.class}) // 编码
 	public String getName() {
 		return name;
 	}
-	@Set({DoSign.class, DoUser.class}) // 解码
+	@Dec({DoSign.class, DoUser.class}) // 解码
 	public void setName(String _) {
 		name = _;
 	}
 
 	public List&lt;User&gt; friends; // 不被编解码
 
-	@GetSet(DoUser.class) // 相当于 @Get(DoUser.class) @Set(DoUser.class)
-	@NameGet("friends") // 编码的名称
+	@EncDec(DoUser.class) // 相当于 @Enc(DoUser.class) @Dec(DoUser.class)
+	@NameEnc("friends") // 编码的名称
 	public List&lt;User&gt; friends_;
 }
 </pre>
 其中id、name、friends_被编码和解码，friends不被。
 与任何类对应时，id均可编解码；与DoUser类对应时，friends_可编解码，并且编码名称为friends；与DoChat或者DoUser对应时，name可编码，与DoUser或DoSign对应时，name可解码。
-@GetSet不能用于getter和setter，用于field时相当于@Get且@Set。
+@EncDec不能用于getter和setter，用于field时相当于@Enc且@Dec。
 
-<p>在类上定义@Get、@Set、@GetSet，其指定的类对应规则将被插入到属性的@Get、@Set、@GetSet中：
-<pre>@GetSet(DoChat.class)
+<p>在类上定义@Enc、@Dec、@EncDec，其指定的类对应规则将被插入到属性的@Enc、@Dec、@EncDec中：
+<pre>@EncDec(DoChat.class)
 public class Chat {
-	@GetSet(Object.class) // 实际是@GetSet({DoChat.class, Object.class})
+	@EncDec(Object.class) // 实际是@EncDec({DoChat.class, Object.class})
 	public Integer id;
 
-	@GetSet // 实际是@GetSet(DoChat.class)
+	@EncDec // 实际是@EncDec(DoChat.class)
 	public User out;
 
-	@GetSet 
-	@Name("In") // 相当于@NameSet("In") @NameSet("In")
+	@EncDec 
+	@Name("In") // 相当于@NameDec("In") @NameDec("In")
 	public User in;
 
 	public int internal; // 不被编解码
 }
 </pre>
-如果属性上不定义@Get、@Set、@GetSet，则类的定义被忽略，仍然不被编解码。
+如果属性上不定义@Enc、@Dec、@EncDec，则类的定义被忽略，仍然不被编解码。
 
 <p>使用Hibernate等ORM时，可以将SO与对应的Persistent Object定义为同一个类：
 <pre>public class User {
-	@GetSet
+	@EncDec
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer id;
@@ -157,11 +157,11 @@ public class Chat {
 	@Column(length = 50)
 	protected String name;
 
-	@Get({DoUser.class, DoChat.class}) // 编码
+	@Enc({DoUser.class, DoChat.class}) // 编码
 	public String getName() {
 		return name;
 	}
-	@Set({DoSign.class, DoUser.class}) // 解码
+	@Dec({DoSign.class, DoUser.class}) // 解码
 	public void setName(String _) {
 		name = _;
 	}
@@ -169,8 +169,8 @@ public class Chat {
 	@ManyToMany
 	public List&lt;User&gt; friends;
 
-	@GetSet(DoUser.class)
-	@NameGet("friends")
+	@EncDec(DoUser.class)
+	@NameEnc("friends")
 	@Transient // 不在数据库里，只用在SO中
 	public List&lt;User&gt; friends_;
 
@@ -213,13 +213,13 @@ u1.friends.add(u2);
 u2.friends.add(...);
 ...
 u1.friends_ = u1.friends;
-CharSequence s = codec.get(u1, DoUser.class); // 对应DoUser，编码u1
+CharSequence s = codec.enc(u1, DoUser.class); // 对应DoUser，编码u1
 u1.friends_ = null;
-v1 = codec.set(s.toString().toCharArray(), Object.class, DoUser.class);
+v1 = codec.dec(s.toString().toCharArray(), Object.class, DoUser.class);
 	// 对应DoUser，解码为v1，限制v1的类必须是Object
 </pre>
-get方法将对象图编码为unicode字符串，set将unicode字符数组解码为对象图。
-set方法第二个参数表示限定类，解码起点对象的类必须是此类或其子类。
+enc方法将对象图编码为unicode字符串，dec将unicode字符数组解码为对象图。
+dec方法第二个参数表示限定类，解码起点对象的类必须是此类或其子类。
 当解码list起点时，如果限定类是数组，则解码为数组，如果是Set，则解码为Set，否则解码为List。
 
 
@@ -228,7 +228,7 @@ set方法第二个参数表示限定类，解码起点对象的类必须是此�
 
 <h2>服务Service</h2>
 
-<p>参考<a href=guide-zh.html>《Objot 版本15 指南》</a>。
+<p>参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
 根据使用的Java框架和平台，可以用不同的方式来构建服务，Objot提供了ObjotServlet，并在范例中使用了Guice和JUnit。
 
 <!--****************************************************************************************-->
@@ -262,10 +262,10 @@ public class DoSign {
 
 <p>浏览端可以使用此服务：
 <pre>$http('/objot/service/demo.DoSign-in', 30000,
-	$get(new demo.User('name', 'password'), DoSign),
+	$enc(new demo.User('name', 'password'), DoSign),
 	function (code, res) {
 		if (code == 0)
-			alert($set(res, DoSign).id);
+			alert($dec(res, DoSign).id);
 	}
 );
 </pre>
@@ -360,7 +360,7 @@ public final class Servlet extends ObjotServlet {
 				if (Q == null) // 如果没有请求内容
 					S = go(null, req, res, $); // 通过Serve调用服务，参数为($)
 				else // 对应服务类解码请求，通过Serve调用服务，参数为(起点对象,$)
-					S = go(null, req, res, codec.set(Q, reqClas[0], cla), $);
+					S = go(null, req, res, codec.dec(Q, reqClas[0], cla), $);
 				if (tran)
 					$.data.getTransaction().commit();
 				return S;
@@ -403,7 +403,7 @@ public final class Servlet extends ObjotServlet {
 
 <h2>视图View</h2>
 
-<p>服务端不需要构建视图，浏览端请参考<a href=guide-zh.html>《Objot 版本15 指南》</a>。
+<p>服务端不需要构建视图，浏览端请参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
 但是可以通过不同的Servlet配置使面向服务的Objot和其他包含视图的框架共存。
 
 
@@ -412,4 +412,3 @@ public final class Servlet extends ObjotServlet {
 
 </body>
 </html>
-

@@ -57,7 +57,7 @@ DoSign = function () {
 }
 
 DoSign.inUp = function (name, pass, This, done) {
-	return $Do('DoSign-inUp', 'Signing', $get(new User(null, name, pass), this),
+	return $Do('DoSign-inUp', 'Signing', $enc(new User(null, name, pass), this),
 		This, done, null, this.doneInUp);
 }
 	DoSign.doneInUp = function (ok, err) {
@@ -85,7 +85,7 @@ DoUser.me = function (This, done) {
 DoUser.update = function (friends, This, done) {
 	var me = new User();
 	me.friends_ = friends;
-	var h = $Do('DoUser-update', 'Updating my info', $get(me, this.update),
+	var h = $Do('DoUser-update', 'Updating my info', $enc(me, this.update),
 		This, done, null, this.doneUpdate);
 	h.me = me;
 	return h;
@@ -95,7 +95,7 @@ DoUser.update = function (friends, This, done) {
 	}
 
 DoUser.get = function (users, This, done) {
-	return $Do('DoUser-get', 'Getting users info', $get(users, this.get), This, done);
+	return $Do('DoUser-get', 'Getting users info', $enc(users, this.get), This, done);
 }
 
 //********************************************************************************************//
@@ -104,19 +104,19 @@ DoChat = function () {
 }
 
 DoChat.read = function (chat, This, done) {
-	return $Do('DoChat-read', 'Reading chats', $get(chat, this), This, done);
+	return $Do('DoChat-read', 'Reading chats', $enc(chat, this), This, done);
 }
 
 DoChat.post = function (In, text, This, done) {
 	return $Do('DoChat-post', 'Posting chat',
-		$get(new Chat(null, In, DatimeMin, text), this), This, done);
+		$enc(new Chat(null, In, DatimeMin, text), this), This, done);
 }
 
 //********************************************************************************************//
 
-$class.get(User, Object, ['id'], DoSign, ['name', 'password']);
-$class.get(User, DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
-$class.get(Chat, DoChat, null);
+$class.enc(User, Object, ['id'], DoSign, ['name', 'password']);
+$class.enc(User, DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
+$class.enc(Chat, DoChat, null);
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
