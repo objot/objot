@@ -12,13 +12,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** the annotated field could be set while {@link Setting#go} */
+/** the annotated field could be decoded while {@link Decoder#go} */
 @Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface Set
+public @interface Dec
 {
-	/** setting rules about the class specified in {@link Setting#go} */
+	/** decoding rules about the class specified in {@link Decoder#go} */
 	Class<?>[] value() default {};
 }

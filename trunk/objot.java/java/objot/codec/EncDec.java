@@ -12,13 +12,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** the annotated field could be get while {@link Getting#go} */
-@Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
+/**
+ * the annotated field could be encoded and decoded while {@link Encoder#go} or
+ * {@link Decoder#go}
+ */
+@Target( { ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface Get
+public @interface EncDec
 {
-	/** getting rules about the class specified in {@link Getting#go} */
+	/**
+	 * encoding and decoding rules about the class specified in {@link Encoder#go} or
+	 * {@link Decoder#go}
+	 */
 	Class<?>[] value() default {};
 }

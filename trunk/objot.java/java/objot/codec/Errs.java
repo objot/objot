@@ -7,7 +7,7 @@ package objot.codec;
 public class Errs
 	extends Err
 {
-	@Get
+	@Enc
 	public final String[] hints;
 
 	public static final String[] HINTS0 = {};

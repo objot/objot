@@ -12,7 +12,7 @@ import objot.codec.Codec;
 
 /**
  * For {@link ObjotServlet}, the annotated method is service. the returned object graph
- * must keep unchanged (see {@link Codec#get}
+ * must keep unchanged (see {@link Codec#enc}
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Service

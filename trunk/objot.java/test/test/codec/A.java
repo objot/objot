@@ -1,18 +1,18 @@
 package test.codec;
 import java.util.Date;
 
-import objot.codec.Get;
-import objot.codec.GetSet;
-import objot.codec.Set;
+import objot.codec.Enc;
+import objot.codec.EncDec;
+import objot.codec.Dec;
 
 
 public class A
 {
-	@Get
-	@Set
+	@Enc
+	@Dec
 	// ( { A.class })
 	public Object a2;
 
-	@GetSet
+	@EncDec
 	public Date d;
 }

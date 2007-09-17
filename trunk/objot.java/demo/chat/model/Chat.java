@@ -14,10 +14,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
-import objot.codec.Get;
-import objot.codec.GetSet;
+import objot.codec.Enc;
+import objot.codec.EncDec;
 import objot.codec.Name;
-import objot.codec.Set;
+import objot.codec.Dec;
 
 import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.NotNull;
@@ -29,37 +29,37 @@ import chat.service.DoChat;
 @Entity
 @Proxy(lazy = false /* prevent from Hibernate proxy and unexpected behavior */)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "out", "in_", "datime" }))
-@GetSet(DoChat.class)
+@EncDec(DoChat.class)
 public class Chat
 	extends IdAuto<Chat>
 {
 	@NotNull
-	@GetSet
+	@EncDec
 	@ManyToOne
 	public User out;
 
 	@NotNull
-	@GetSet
+	@EncDec
 	@Name("In")
 	@ManyToOne
 	@JoinColumn(name = "in_")
 	public User in;
 
 	@NotNull
-	@GetSet
+	@EncDec
 	@Temporal(TemporalType.TIMESTAMP)
 	public Date datime;
 
 	@BeText(max = 1024, simple = false)
 	public Clob text;
 
-	@Get
+	@Enc
 	public Clob getText()
 	{
 		return text;
 	}
 
-	@Set
+	@Dec
 	public void setText(Clob _)
 	{
 		text = _;

@@ -28,7 +28,7 @@ $throw = function (x) {
 
 //********************************************************************************************//
 
-/** make class. @param SO whether could $get and $set. @param sup superclass or null.
+/** make class. @param SO whether could $enc and $dec. @param sup superclass or null.
  * @param protos be copied into prototype */
 $class = function (SO, ctorName, sup, protos) {
 	$.s(ctorName);
@@ -49,45 +49,45 @@ $class = function (SO, ctorName, sup, protos) {
 	return ctor;
 }
 /** add encoding rules to the class. former rules are overrided by later rules.
- * (@param forClass key. @param get what to encode, all if null)... */
-$class.get = function (clazz, forClass, gets) {
-	clazz.$gets || (clazz.$gets = []);
+ * (@param forClass key. @param encs what to encode, all if null)... */
+$class.enc = function (clazz, forClass, encs) {
+	clazz.$encs || (clazz.$encs = []);
 	for (var x = 1; x < arguments.length; ) {
-		clazz.$gets.push($.f(arguments[x++]));
-		if ((gets = arguments[x++]) === null)
-			clazz.$gets.push(null);
-		else if (gets instanceof Array) {
-			for (var y = 0; y < gets.length; y++)
-				if (typeof gets[y] !== 'string')
-					$throw($S(gets) + ' must not contain ' + $S(gets[y]));
-			clazz.$gets.push(gets);
+		clazz.$encs.push($.f(arguments[x++]));
+		if ((encs = arguments[x++]) === null)
+			clazz.$encs.push(null);
+		else if (encs instanceof Array) {
+			for (var y = 0; y < encs.length; y++)
+				if (typeof encs[y] !== 'string')
+					$throw($S(encs) + ' must not contain ' + $S(encs[y]));
+			clazz.$encs.push(encs);
 		}
 		else
-			$throw($S(gets) + ' must be array or null');
+			$throw($S(encs) + ' must be array or null');
 	}
 }
 
 //********************************************************************************************//
 
-/** encode, get string from object graph, following the encoding rules.
+/** encode object graph to string, following the encoding rules.
  * @param forClass rule key or subclass of rule key */
-$get = function (o, forClass) {
+$enc = function (o, forClass) {
 	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
 	s.clazz = $.f(forClass);
 	try {
-		$get.refX = 0, $get.ref(o);
-		o instanceof Array ? $get.l(o, s, 1) : $get.o(o, s, 1);
+		$enc.refX = 0, $enc.ref(o);
+		o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1);
 	} catch(_) {
-		try { $get.unref(o); } catch(_) {}
+		try { $enc.unref(o); } catch(_) {}
 		throw _;
 	}
-	$get.unref(o);
+	$enc.unref(o);
 	return s.join('\20');
 }
-	$get.ref = function (o, ox) {
+	$enc.ref = function (o, ox) {
 		if (o instanceof String || o instanceof Boolean || o instanceof Number)
 			$throw($S(x) + ' must not be String or Boolean or Number');
-		if (o[''] = '' in o) // whether and set multi references
+		if (o[''] = '' in o) // check and set multi reference flag
 			return;
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x ++)
@@ -102,13 +102,13 @@ $get = function (o, forClass) {
 				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
 				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
 	}
-	$get.unref = function (o, ox) {
+	$enc.unref = function (o, ox) {
 		if ('' in o && /*true*/delete o[''])
 			for (var x in o)
 				o.hasOwnProperty(x) && (ox = o[x]) !== null && typeof ox === 'object'
 					&& this.unref(ox);
 	}
-	$get.l = function (o, s, x) {
+	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length);
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 		for (var i = 0, v, t; i < o.length; i++)
@@ -122,18 +122,18 @@ $get = function (o, forClass) {
 		s[x++] = ']';
 		return x;
 	}
-	$get.o = function (o, s, x) {
-		var v, t = o.constructor.$name, get;
+	$enc.o = function (o, s, x) {
+		var v, t = o.constructor.$name, enc;
 		s[x++] = t === 'Object' ? '' : t;
 		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
 		P: {
-			G: if (get = o.constructor.$gets) {
-				for (var c = s.clazz, g = get.length - 2; g >= 0; g -= 2)
-					if (c === get[g] || c.prototype instanceof get[g]) {
-						if (get = get[g + 1]) {
+			G: if (enc = o.constructor.$encs) {
+				for (var c = s.clazz, g = enc.length - 2; g >= 0; g -= 2)
+					if (c === enc[g] || c.prototype instanceof enc[g]) {
+						if (enc = enc[g + 1]) {
 
-		for (var p, n = 0; n < get.length; n++)
-			if ((p = get[n]) in o && (v = o[p], t = typeof v) !== 'function')
+		for (var p, n = 0; n < enc.length; n++)
+			if ((p = enc[n]) in o && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
 				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
@@ -162,18 +162,18 @@ $get = function (o, forClass) {
 		return x;
 	}
 
-/** decode, set object graph from string, objects are created without constructors */
-$set = function (s) {
+/** decode string to object graph, objects are created without constructors */
+$dec = function (s) {
 	try {
 		s = $.s(s).split('\20'/* Ctrl-P in vim */);
-		var x = s[0] === '[' ? $set.l(s, 1) : s[0] === '{' ? $set.o(s, 1) : -1;
+		var x = s[0] === '[' ? $dec.l(s, 1) : s[0] === '{' ? $dec.o(s, 1) : -1;
 		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
-			: $set.r.length = 0, s.o;
+			: $dec.r.length = 0, s.o;
 	} catch(_) {
-		throw $set.r.length = 0, _;
+		throw $dec.r.length = 0, _;
 	}
 }
-	$set.l = function (s, x) {
+	$dec.l = function (s, x) {
 		var o = new Array(s[x++] - 0);
 		s[x] === '=' && (this.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
@@ -190,7 +190,7 @@ $set = function (s) {
 		s.o = o;
 		return x;
 	}
-	$set.o = function (s, x, p, v) {
+	$dec.o = function (s, x, p, v) {
 		var o = new ($.c(s[x++]).$ctor);
 		s[x] === '=' && (this.r[s[++x]] = o, x++);
 		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
@@ -206,7 +206,7 @@ $set = function (s) {
 		s.o = o;
 		return x;
 	}
-	$set.r = [];
+	$dec.r = [];
 
 //********************************************************************************************//
 
@@ -428,7 +428,7 @@ $dom.cla = function (clazz) {
  * @return attribute if no argument, this */
 $dom.att = function (a, v) {
 	if (arguments.length <= 1)
-		return this.getAttribute(a);
+		return this.getAttribute(a, 2/*exact value in ie*/);
 	for (var x = 0; x < arguments.length; x++)
 		a = arguments[x ++], v = arguments[x]
 		v === null ? this.removeAttribute(a) : this.setAttribute(a, v);

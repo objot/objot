@@ -12,12 +12,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** The name of the encoded field for getting */
+/** The encoded property name while encoding */
 @Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-public @interface NameGet
+public @interface NameEnc
 {
 	String value();
 }

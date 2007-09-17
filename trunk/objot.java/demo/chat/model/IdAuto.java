@@ -8,14 +8,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.MappedSuperclass;
 
-import objot.codec.GetSet;
+import objot.codec.EncDec;
 
 
 @MappedSuperclass
 public abstract class IdAuto<T extends IdAuto<T>>
 	extends Id<T>
 {
-	@GetSet
+	@EncDec
 	@javax.persistence.Id
 	@GeneratedValue(strategy = GenerationType.AUTO /* start from 1 */)
 	public int id;

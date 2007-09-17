@@ -4,14 +4,14 @@
 //
 package chat.model;
 
-import objot.codec.Get;
+import objot.codec.Enc;
 
 
 public class Ok
 {
 	public static final Ok OK = new Ok("");
 
-	@Get
+	@Enc
 	public final String hint;
 
 	public Ok(String hint_)

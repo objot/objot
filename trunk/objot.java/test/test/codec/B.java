@@ -3,36 +3,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import objot.codec.GetSet;
+import objot.codec.EncDec;
 
 
 public class B
 	extends A
 {
-	@GetSet
+	@EncDec
 	public String bb;
 
-	@GetSet
+	@EncDec
 	public String a1;
 
-	@GetSet
+	@EncDec
 	public float a3;
 
-	@GetSet
+	@EncDec
 	public String a4;
 
-	@GetSet
+	@EncDec
 	public String a5;
 
-	@GetSet
+	@EncDec
 	public List<Object[]> a6;
 
-	@GetSet
+	@EncDec
 	public Map<String, A> a7;
 
-	@GetSet
+	@EncDec
 	public boolean a8;
 
-	@GetSet
+	@EncDec
 	public Set<String> a9;
 }

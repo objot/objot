@@ -112,7 +112,7 @@ public final class Servlet
 					.getAllSecondLevelCacheRegions().values())
 					((Cache)c).clear();
 				new ModelsCreate(true, 1, true);
-				return codec.get(Ok.OK, Object.class);
+				return codec.enc(Ok.OK, Object.class);
 			}
 
 			Session sess = (Session)hReq.getSession().getAttribute("scope");
@@ -138,7 +138,7 @@ public final class Servlet
 				if (req == null)
 					res = serve(s, hReq, hRes);
 				else
-					res = serve(s, hReq, hRes, codec.set(req, reqClas[0], cla));
+					res = serve(s, hReq, hRes, codec.dec(req, reqClas[0], cla));
 				ok = true;
 				return res;
 			}
