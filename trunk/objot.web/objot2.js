@@ -16,9 +16,9 @@ $S = function (x) {
 			(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
 }
 
-$fox = navigator.userAgent.indexOf('Gecko') >= 0;
-$ie7 = navigator.userAgent.indexOf('MSIE 7') >= 0;
-$ie6 = !$fox && !$ie7;
+$ie7 = navigator.userAgent.search('MSIE (7|8)') >= 0;
+$ie6 = navigator.userAgent.indexOf('MSIE') >= 0;
+$fox = !$ie6 && !$ie7; //Gecko|Opera|Safari
 
 /** throw Error */
 $throw = function (x) {
@@ -556,8 +556,7 @@ $.ctor = function (c) {
 $.c = function ($_$, $_$_) {
 	if ($_$ in this.cs)
 		return this.cs[$_$];
-	$_$_ || $throw($S($_$) + ' class not found');
-	with(window) $_$_ = eval($_$);
+	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found');
 	return typeof $_$_ === 'function' ? this.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function');
 }
