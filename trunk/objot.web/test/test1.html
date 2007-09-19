@@ -14,10 +14,10 @@
 
 <body>
 <div id=div style="float:left">
-<button onclick="demoG.call(this,event)">get</button><br>
+<button onclick="demoE.call(this,event)">enc</button><br>
 <button onclick="demoH.call(this,event)">http</button><br>
-<button onclick="demoS.call(this,event)">set</button><br>
-<button onclick="demoE.call(this,event)">eval</button><br>
+<button onclick="demoD.call(this,event)">dec</button><br>
+<button onclick="demoV.call(this,event)">eval</button><br>
 </div>
 <input id=url type=text size=60><br>
 <textarea id=text rows=40 cols=50></textarea>
@@ -33,10 +33,10 @@ window.url = $id('url');
 window.text = $id('text');
 url.value = location.protocol + '//' + location.host + '/';
 
-function demoG(){
+function demoE(){
 	x.a2 = text.value;
-	G = $get(z, demoG);
-	text.value = G;
+	E = $enc(z, demoE);
+	text.value = E;
 }
 function demoH(){
 	$http(url.value, 0, text.value, function (code, data) {
@@ -44,13 +44,13 @@ function demoH(){
 		text.value = U = data;
 	});
 }
-function demoS(){
-	S = $set(G);
-	GG = $get(S, demoS);
-	if (GG != G)
+function demoD(){
+	D = $dec(E);
+	EE = $enc(D, demoD);
+	if (EE != E)
 		$throw('error');
 }
-function demoE(event){
+function demoV(event){
 	eval(text.value);
 }
 
@@ -65,7 +65,7 @@ function C() {
 $class(false, 'A');
 $class(false, 'B', A);
 A.prototype.aa = 'aa';
-$class.get(B, demoG, ['a1'], Object, null);
+$class.enc(B, demoE, ['a1'], Object, null);
 
 $class(false, 'C', B);
 C.prototype.c = 'c';
