@@ -1,5 +1,9 @@
 package objot.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+
 public class Bytes
 {
 	public byte[] bytes;
@@ -25,6 +29,17 @@ public class Bytes
 		Math2.checkRange(begin, end1, bs.end1Bi - bs.beginBi);
 		beginBi = bs.beginBi + begin;
 		end1Bi = bs.beginBi + end1;
+	}
+
+	public Bytes(InputStream i, boolean close) throws IOException
+	{
+		this(null);
+		int len = 0;
+		do
+			ensureByteN((end1Bi += len) + i.available() + 1);
+		while ((len = i.read(bytes, end1Bi, bytes.length - end1Bi)) > 0);
+		if (close)
+			i.close();
 	}
 
 	public int byteN()

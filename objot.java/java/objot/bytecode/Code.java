@@ -175,7 +175,6 @@ public class Code
 		boolean hash)
 	{
 		out.println();
-		cons.printIdentityLn(out, indent, hash);
 		printIndent(out, indent);
 		out.print("stackN ");
 		out.print(stackN);

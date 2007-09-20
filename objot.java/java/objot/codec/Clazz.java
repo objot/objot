@@ -16,12 +16,13 @@ import objot.bytecode.Opcode;
 import objot.bytecode.Procedure;
 import objot.util.Bytes;
 import objot.util.Class2;
+import objot.util.Mod2;
 
 
 public abstract class Clazz
 {
 	private static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
-	private Property[] encs;
+	protected Property[] encs;
 
 	private HashMap<String, Property> decs = new HashMap<String, Property>();
 
@@ -69,21 +70,21 @@ public abstract class Clazz
 		String name = Clazz.class.getName() + "$$" + c.getName().replace('.', '$');
 		Bytecode b = new Bytecode();
 		int superCi = b.cons.appendClass(Clazz.class);
-		b.head.setModifier(Modifier.PUBLIC);
+		b.head.setModifier(Modifier.PUBLIC | Modifier.FINAL | Mod2.SYNTHETIC);
 		b.head.setClassCi(b.cons.appendClass(b.cons.appendUcs(Class2.pathName(name))));
 		b.head.setSuperCi(superCi);
 		b.getProcs().appendProc(Procedure.appendEmptyCtor(b.cons, superCi, Modifier.PUBLIC));
 		int classCi = b.cons.appendClass(c);
 		int encsCi = b.cons.appendField(F_encs);
-		int allowCi = b.cons.appendIproc(Property.M_allow);
+		int allowCi = b.cons.appendProc(Property.M_allow);
 		int nameCi = b.cons.appendField(Property.F_name);
 
-		makeEncodeRefs(b, es, classCi, encsCi, allowCi);
 		makeEncode(b, es, classCi, encsCi, allowCi, nameCi);
+		makeEncodeRefs(b, es, classCi, encsCi, allowCi);
 		// makeDecode(zb, ds);
 
-		b.printTo(System.out, 0, 0, 1000, false);
-		Clazz z = Bytecode.LOADER.<Clazz>loadClass(name, b.normalize()).newInstance();
+		Clazz z = Class2.<Clazz>load(Clazz.class.getClassLoader(), name, b.normalize())
+			.newInstance();
 		z.encs = es;
 		z.decs = ds;
 		return z;
@@ -131,20 +132,22 @@ public abstract class Clazz
 		int allowCi)
 	{
 		Procedure p = new Procedure(b.cons);
+		p.setModifier(Modifier.FINAL);
 		p.setNameCi(p.cons.appendUtf(NAME_encodeRefs));
 		p.setDescCi(p.cons.appendUtf(DESC_encodeRefs));
 		Instruction s = new Instruction(256);
+		s.ins0(Opcode.ALOAD2);
+		s.insU2(Opcode.CHECKCAST, classCi);
+		s.insU1(Opcode.ASTORE, 4); // object
 		s.ins0(Opcode.ALOAD0);
 		s.insU2(Opcode.GETFIELD, encsCi); // properties
-		s.ins0(Opcode.ALOAD2);
-		s.insU2(Opcode.CHECKCAST, classCi); // object
-		int refsCi = p.cons.appendIproc(Encoder.M_refs);
+		int refsCi = p.cons.appendProc(Encoder.M_refs);
 		Property e;
 		for (int i = 0; i < es.length; i++)
 			if ( !(e = es[i]).cla.isPrimitive() && !Number.class.isAssignableFrom(e.cla)
 				&& e.cla != Boolean.class)
 			{
-				s.ins0(Opcode.DUPI); // properties
+				s.ins0(Opcode.DUP);
 				s.insS2(Opcode.SIPUSH, i);
 				s.ins0(Opcode.AALOAD); // property
 				s.ins0(Opcode.ALOAD3);
@@ -152,17 +155,17 @@ public abstract class Clazz
 				int adIf = s.addr;
 				s.insS2(Opcode.IFIE0, 0);
 				s.ins0(Opcode.ALOAD1);
-				s.ins0(Opcode.DUPI); // object
+				s.insU1(Opcode.ALOAD, 4); // object
 				if (e.field != null)
 					s.insU2(Opcode.GETFIELD, p.cons.appendField(e.field));
 				else
-					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.appendIproc(e.method));
+					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.appendProc(e.method));
 				s.insU2(Opcode.INVOKEVIRTUAL, refsCi);
 				s.write0s2(adIf + 1, s.addr - adIf);
 			}
 		s.ins0(Opcode.RETURN);
 		p.getCode().setIns(s, false);
-		p.getCode().setLocalN(4);
+		p.getCode().setLocalN(5);
 		p.getCode().setStackN(4);
 		b.getProcs().appendProc(p);
 	}
@@ -171,23 +174,25 @@ public abstract class Clazz
 		int allowCi, int nameCi)
 	{
 		Procedure p = new Procedure(b.cons);
+		p.setModifier(Modifier.FINAL);
 		p.setNameCi(p.cons.appendUtf(NAME_encode));
 		p.setDescCi(p.cons.appendUtf(DESC_encode));
 		Instruction s = new Instruction(256);
+		s.ins0(Opcode.ALOAD2);
+		s.insU2(Opcode.CHECKCAST, classCi);
+		s.insU1(Opcode.ASTORE, 4); // object
 		s.ins0(Opcode.ALOAD0);
 		s.insU2(Opcode.GETFIELD, encsCi); // properties
-		s.ins0(Opcode.ALOAD2);
-		s.insU2(Opcode.CHECKCAST, classCi); // object
-		int intCi = p.cons.appendIproc(Encoder.M_valueInt);
-		int longCi = p.cons.appendIproc(Encoder.M_valueLong);
-		int boolCi = p.cons.appendIproc(Encoder.M_valueBool);
-		int floatCi = p.cons.appendIproc(Encoder.M_valueFloat);
-		int doubleCi = p.cons.appendIproc(Encoder.M_valueDouble);
-		int objCi = p.cons.appendIproc(Encoder.M_valueObject);
+		int intCi = p.cons.appendProc(Encoder.M_valueInt);
+		int longCi = p.cons.appendProc(Encoder.M_valueLong);
+		int boolCi = p.cons.appendProc(Encoder.M_valueBool);
+		int floatCi = p.cons.appendProc(Encoder.M_valueFloat);
+		int doubleCi = p.cons.appendProc(Encoder.M_valueDouble);
+		int objCi = p.cons.appendProc(Encoder.M_valueObject);
 		Property e;
 		for (int i = 0; i < es.length; i++)
 		{
-			s.ins0(Opcode.DUPI); // properties
+			s.ins0(Opcode.DUP);
 			s.insS2(Opcode.SIPUSH, i);
 			s.ins0(Opcode.AALOAD); // property
 			s.ins0(Opcode.DUP); // property
@@ -195,14 +200,15 @@ public abstract class Clazz
 			s.insU2(Opcode.INVOKEVIRTUAL, allowCi);
 			int adIf = s.addr;
 			s.insS2(Opcode.IFIE0, 0);
+			s.ins0(Opcode.DUP); // property
 			s.ins0(Opcode.ALOAD1);
-			s.ins0(Opcode.SWAP); // property
+			s.ins0(Opcode.SWAP);
 			s.insU2(Opcode.GETFIELD, nameCi);
-			s.ins0(Opcode.DUPII); // object
+			s.insU1(Opcode.ALOAD, 4); // object
 			if ((e = es[i]).field != null)
 				s.insU2(Opcode.GETFIELD, p.cons.appendField(e.field));
 			else
-				s.insU2(Opcode.INVOKEVIRTUAL, p.cons.appendIproc(e.method));
+				s.insU2(Opcode.INVOKEVIRTUAL, p.cons.appendProc(e.method));
 			if (e.cla == int.class)
 				s.insU2(Opcode.INVOKEVIRTUAL, intCi);
 			else if (e.cla == long.class)
@@ -219,11 +225,12 @@ public abstract class Clazz
 				s.insU2(Opcode.INVOKEVIRTUAL, objCi);
 			}
 			s.write0s2(adIf + 1, s.addr - adIf);
+			s.ins0(Opcode.POP); // property
 		}
 		s.ins0(Opcode.RETURN);
 		p.getCode().setIns(s, false);
-		p.getCode().setLocalN(4);
-		p.getCode().setStackN(5);
+		p.getCode().setLocalN(5);
+		p.getCode().setStackN(6);
 		b.getProcs().appendProc(p);
 	}
 

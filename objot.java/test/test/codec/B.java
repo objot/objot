@@ -1,4 +1,5 @@
 package test.codec;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,4 +36,7 @@ public class B
 
 	@EncDec
 	public Set<String> a9;
+
+	@EncDec
+	public double a10;
 }

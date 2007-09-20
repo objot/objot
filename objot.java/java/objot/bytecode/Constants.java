@@ -21,7 +21,9 @@ public class Constants
 	public static final byte TAG_CLASS = 7;
 	public static final byte TAG_STRING = 8;
 	public static final byte TAG_FIELD = 9;
+	/** class procedure */
 	public static final byte TAG_CPROC = 10;
+	/** interface procedure */
 	public static final byte TAG_IPROC = 11;
 	public static final byte TAG_NAMEDESC = 12;
 
@@ -985,16 +987,6 @@ public class Constants
 		return putRef2(TAG_CPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
-	public int appendCproc(Method m)
-	{
-		return appendCproc(appendClass(m.getDeclaringClass()), appendNameDesc(m));
-	}
-
-	public int putCproc(Method m)
-	{
-		return putCproc(putClass(m.getDeclaringClass()), putNameDesc(m));
-	}
-
 	public int appendIproc(int classCi, int nameDescCi)
 	{
 		return appendRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
@@ -1005,14 +997,16 @@ public class Constants
 		return putRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
-	public int appendIproc(Method m)
+	public int appendProc(Method m)
 	{
-		return appendIproc(appendClass(m.getDeclaringClass()), appendNameDesc(m));
+		return appendRef2(m.getDeclaringClass().isInterface() ? TAG_IPROC : TAG_CPROC,
+			appendClass(m.getDeclaringClass()), TAG_CLASS, appendNameDesc(m), TAG_NAMEDESC);
 	}
 
-	public int putIproc(Method m)
+	public int putProc(Method m)
 	{
-		return putIproc(putClass(m.getDeclaringClass()), putNameDesc(m));
+		return putRef2(m.getDeclaringClass().isInterface() ? TAG_IPROC : TAG_CPROC,
+			putClass(m.getDeclaringClass()), TAG_CLASS, putNameDesc(m), TAG_NAMEDESC);
 	}
 
 	public int appendNameDesc(int nameCi, int descCi)

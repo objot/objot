@@ -11,12 +11,14 @@ public class Mod2
 		throw new AbstractMethodError();
 	}
 
+	/** reuse {@link #SYNCHRONIZED} */
 	public static final int SUPER = 0x0020;
 	public static final int SYNTHETIC = 0x1000;
 	public static final int ANNOTATION = 0x2000;
 	public static final int ENUM = 0x4000;
-
+	/** reuse {@link #VOLATILE} */
 	public static final int BRIDGE = 0x0040;
+	/** reuse {@link #TRANSIENT} */
 	public static final int VARARGS = 0x0080;
 
 	/** default visible */

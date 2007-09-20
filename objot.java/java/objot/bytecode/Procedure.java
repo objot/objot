@@ -267,7 +267,6 @@ public class Procedure
 		boolean hash)
 	{
 		out.println();
-		cons.printIdentityLn(out, indent, hash);
 		printIndent(out, indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));
@@ -389,8 +388,7 @@ public class Procedure
 	public void setNameCi(int v)
 	{
 		nameCi = v;
-		modifier = Mod2.get(modifier, nameCi > 0 ? cons.read0s1(cons.readUtfBegin(nameCi))
-			: '\0');
+		modifier = Mod2.get(modifier, v > 0 ? cons.read0s1(cons.readUtfBegin(v)) : '\0');
 	}
 
 	public void setDescCi(int v)

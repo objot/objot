@@ -56,11 +56,17 @@ public final class Opcode
 	public static final byte DSTORE2 = 73;
 	public static final byte DSTORE3 = 74;
 	public static final byte DSUB = 103;
+	/** Stack: x -> x x */
 	public static final byte DUP = 89;
+	/** Stack: y x -> x y x, stupid */
 	public static final byte DUPI = 90;
+	/** Stack: z y x -> x z y x, stupid */
 	public static final byte DUPII = 91;
+	/** Stack: xx -> xx xx */
 	public static final byte DUP8 = 92;
+	/** Stack: y xx -> xx y xx, stupid */
 	public static final byte DUP8I = 93;
+	/** Stack: z y xx -> xx z y xx, stupid */
 	public static final byte DUP8II = 94;
 	public static final byte F2D = (byte)141;
 	public static final byte F2I = (byte)139;
