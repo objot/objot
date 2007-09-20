@@ -132,7 +132,6 @@ public class Field
 		boolean hash)
 	{
 		out.println();
-		cons.printIdentityLn(out, indent, hash);
 		printIndent(out, indent);
 		out.print("modifier 0x");
 		out.print(Integer.toHexString(modifier));

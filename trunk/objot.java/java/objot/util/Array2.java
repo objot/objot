@@ -423,7 +423,7 @@ public class Array2
 	{
 		if (n <= array.length)
 			return array;
-		byte[] a = new byte[Math.max((int)(array.length * 1.5f + 2.5f), n)];
+		byte[] a = new byte[Math2.max((int)(array.length * 1.4f + 2.5f), n, 12)];
 		System.arraycopy(array, 0, a, 0, array.length);
 		return a;
 	}
@@ -432,7 +432,7 @@ public class Array2
 	{
 		if (n <= array.length)
 			return array;
-		int[] a = new int[Math.max((int)(array.length * 1.5f + 2.5f), n)];
+		int[] a = new int[Math2.max((int)(array.length * 1.5f + 2.5f), n, 4)];
 		System.arraycopy(array, 0, a, 0, array.length);
 		return a;
 	}
@@ -443,7 +443,7 @@ public class Array2
 		if (n <= array.length)
 			return array;
 		T[] a = (T[])Array.newInstance(array.getClass().getComponentType(), //
-			Math.max((int)(array.length * 1.5f + 2.5f), n));
+			Math2.max((int)(array.length * 1.5f + 2.5f), n, 4));
 		System.arraycopy(array, 0, a, 0, array.length);
 		return a;
 	}

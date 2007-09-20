@@ -1,9 +1,14 @@
 package objot.util;
 
+import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 
 
 public class Class2
@@ -117,7 +122,7 @@ public class Class2
 
 	public static String resourceName(String className)
 	{
-		return pathName(className).concat(".class");
+		return '/' + pathName(className) + ".class";
 	}
 
 	public static String descript(Class<?> c)
@@ -194,6 +199,20 @@ public class Class2
 		return Default;
 	}
 
+	public static final Exception exception(Throwable e) throws Error
+	{
+		if (e instanceof Error)
+			throw (Error)e;
+		return e instanceof Exception ? (Exception)e : new Exception(e);
+	}
+
+	public static final RuntimeException runtimeException(Throwable e) throws Error
+	{
+		if (e instanceof Error)
+			throw (Error)e;
+		return e instanceof RuntimeException ? (RuntimeException)e : new RuntimeException(e);
+	}
+
 	public static Field field(Class<?> c, String name)
 	{
 		try
@@ -262,5 +281,59 @@ public class Class2
 			if (m.getName().equals(name))
 				return m;
 		throw new RuntimeException(new NoSuchMethodException(c.getName() + '.' + name));
+	}
+
+	public static <T extends AccessibleObject>T accessible(final T o)
+	{
+		return AccessController.doPrivileged(new PrivilegedAction<T>()
+		{
+			public T run()
+			{
+				o.setAccessible(true);
+				return o;
+			}
+		});
+	}
+
+	public static Bytes classFile(Class<?> c) throws IOException
+	{
+		return new Bytes(c.getResourceAsStream(Class2.resourceName(c)), true);
+	}
+
+	public static final Method DEFINE_CLASS = accessible(declaredMethod(ClassLoader.class,
+		"defineClass", String.class, byte[].class, int.class, int.class));
+
+	@SuppressWarnings("unchecked")
+	public static final <T>Class<T> load(ClassLoader l, String name, final byte[] bytecode,
+		final int begin, final int end1) throws Exception
+	{
+		try
+		{
+			l.loadClass(name);
+			throw new Exception("duplicate class " + name);
+		}
+		catch (ClassNotFoundException e)
+		{
+		}
+		try
+		{
+			return (Class<T>)DEFINE_CLASS.invoke(l, name, bytecode, begin, end1 - begin);
+		}
+		catch (InvocationTargetException e)
+		{
+			throw exception(e.getCause());
+		}
+	}
+
+	public static final <T>Class<T> load(ClassLoader l, String name, byte[] bytecode)
+		throws Exception
+	{
+		return load(l, name, bytecode, 0, bytecode.length);
+	}
+
+	public static final <T>Class<T> load(ClassLoader l, String name, Bytes bytecode)
+		throws Exception
+	{
+		return load(l, name, bytecode.bytes, bytecode.beginBi, bytecode.end1Bi);
 	}
 }

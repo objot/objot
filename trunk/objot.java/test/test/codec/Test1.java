@@ -32,6 +32,7 @@ public class Test1
 		y.a9 = new HashSet<String>();
 		y.a9.add("unique1");
 		y.a9.add("unique2");
+		y.a10 = 23e+100;
 		Object[] z = new Object[] { y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
