@@ -232,11 +232,19 @@ final class Decoder
 					return len;
 				}
 
+				/** for Java 5 */
 				@SuppressWarnings("unchecked")
 				@Override
 				public Object[] toArray(Object[] a)
 				{
 					return lo_ = a;
+				}
+
+				/** for Java 6 */
+				@Override
+				public Object[] toArray()
+				{
+					return lo_ = new Object[len];
 				}
 
 				@Override
