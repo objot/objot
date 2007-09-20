@@ -11,21 +11,20 @@ import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Clob;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
+
+import objot.util.Array2;
 
 
 final class Decoder
 {
-	private Codec objot;
+	private Codec codec;
 	private Class<?> forClass;
 	private char[] bs;
 	private int bx;
@@ -35,7 +34,7 @@ final class Decoder
 
 	Decoder(Codec o, Class<?> for_, char[] s)
 	{
-		objot = o;
+		codec = o;
 		forClass = for_;
 		bs = s;
 	}
@@ -264,7 +263,7 @@ final class Decoder
 		{
 			bxy();
 			ref = (int)Int(1);
-			refs = Codec.ensureN(refs, ref + 1);
+			refs = Array2.ensureN(refs, ref + 1);
 			refs[ref] = l;
 			bxy();
 		}
@@ -345,7 +344,7 @@ final class Decoder
 		}
 		if (uniqueClass != null)
 		{
-			Set<Object> ls = objot.newUniques(len);
+			Set<Object> ls = codec.newUniques(len);
 			for (Object o: lo)
 				ls.add(o);
 			return ls;
@@ -365,7 +364,7 @@ final class Decoder
 	Object object(Class<?> cla0) throws Exception
 	{
 		String cName = str();
-		Class<?> cla = cName.length() > 0 ? objot.classByName(cName) : HashMap.class;
+		Class<?> cla = cName.length() > 0 ? codec.classByName(cName) : HashMap.class;
 		bxy();
 		if ( !cla0.isAssignableFrom(cla))
 			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
@@ -375,7 +374,7 @@ final class Decoder
 		{
 			bxy();
 			ref = (int)Int(1);
-			refs = Codec.ensureN(refs, ref + 1);
+			refs = Array2.ensureN(refs, ref + 1);
 			bxy();
 		}
 		Object o = cla.newInstance();
@@ -384,97 +383,104 @@ final class Decoder
 		for (char c; chr() != '}'; bxy())
 		{
 			String n = str();
-			Property p = null;
-			Object v;
-			if (cla != HashMap.class)
-			{
-				p = objot.decs(cla).get(n);
-				if (p == null)
-					throw new RuntimeException(cla.getCanonicalName() + "." + n
-						+ " not found or not setable");
-				if ( !p.allow(forClass))
-					throw new RuntimeException("setting " + cla.getCanonicalName() + "." + n
-						+ " forbidden for " + forClass.getCanonicalName());
-			}
 			bxy();
 			c = chr();
 			if (c == 0 || c == '[' || c == '{' || c == '+' || c == '*')
 				bxy();
-
-			if (c == 0)
-				v = p != null && Clob.class.isAssignableFrom(p.cla) ? clob() : str();
-			else if (c == '[')
-				if (p != null && p.cla.isArray())
-					v = list(null, null, p.cla.getComponentType());
-				else if (p != null && List.class.isAssignableFrom(p.cla)
-					&& p.type instanceof ParameterizedType)
-				{
-					Type t = ((ParameterizedType)p.type).getActualTypeArguments()[0];
-					v = list(t instanceof Class ? (Class)t : Object.class, null, null);
-				}
-				else if (p != null && Set.class.isAssignableFrom(p.cla)
-					&& p.type instanceof ParameterizedType)
-				{
-					Type t = ((ParameterizedType)p.type).getActualTypeArguments()[0];
-					v = list(null, t instanceof Class ? (Class)t : Object.class, null);
-				}
+			if (cla == HashMap.class)
+			{
+				HashMap<String, Object> m = (HashMap<String, Object>)o;
+				if (c == 0)
+					m.put(n, str());
+				else if (c == '[')
+					m.put(n, list(Object.class, null, null));
+				else if (c == '{')
+					m.put(n, object(Object.class));
+				else if (c == '+')
+					m.put(n, ref());
+				else if (c == '*')
+					m.put(n, new Date(Int( -1)));
+				else if (c == '.')
+					m.put(n, null);
+				else if (c == '<')
+					m.put(n, false);
+				else if (c == '>')
+					m.put(n, true);
 				else
-					v = list(Object.class, null, null);
-			else if (c == '{')
-				v = object(p == null ? Object.class : p.cla);
-			else if (c == '+')
-				v = ref();
-			else if (c == '*')
-				v = new Date(Int( -1));
-			else if (c == '.')
-				v = null;
-			else if (c == '<')
-				v = false;
-			else if (c == '>')
-				v = true;
-			else if (p.cla == int.class)
-			{
-				p.set(o, (int)Int(1));
+				{
+					long v = Int(0);
+					if (intOrLongOrNot > 0)
+						m.put(n, (int)v);
+					else if (intOrLongOrNot < 0)
+						m.put(n, v);
+					else
+						m.put(n, number());
+				}
 				continue;
-			}
-			else if (p.cla == long.class)
-			{
-				p.set(o, Int( -1));
-				continue;
-			}
-			else if (p.cla == double.class)
-			{
-				p.set(o, number());
-				continue;
-			}
-			else if (p.cla == float.class)
-			{
-				p.set(o, (float)number());
-				continue;
-			}
-			else if (p.cla == Long.class)
-				v = Int( -1);
-			else if (p.cla == Double.class)
-				v = number();
-			else if (p.cla == Float.class)
-				v = (float)number();
-			else
-			{
-				long _ = Int(0);
-				if (intOrLongOrNot > 0)
-					v = (int)_;
-				else if (intOrLongOrNot < 0)
-					v = _;
-				else
-					v = number();
 			}
 
+			Clazz z = codec.clazz(cla);
+			int x = z.decIndex(n, forClass);
+			if (x < 0)
+				throw new RuntimeException(cla.getCanonicalName() + "." + n
+					+ " not found or not decodable or forbidden for "
+					+ forClass.getCanonicalName());
 			try
 			{
-				if (p == null)
-					((HashMap)o).put(n, v);
+				if (c == 0)
+					v = p.clob ? clob() : str();
+				else if (c == '[')
+					v = list(p.list, p.unique, p.array);
+				else if (c == '{')
+					v = object(p == null ? Object.class : p.cla);
+				else if (c == '+')
+					v = ref();
+				else if (c == '*')
+					v = new Date(Int( -1));
+				else if (c == '.')
+					v = null;
+				else if (c == '<')
+					v = false;
+				else if (c == '>')
+					v = true;
+				else if (p.cla == int.class)
+				{
+					p.set(o, (int)Int(1));
+					continue;
+				}
+				else if (p.cla == long.class)
+				{
+					p.set(o, Int( -1));
+					continue;
+				}
+				else if (p.cla == double.class)
+				{
+					p.set(o, number());
+					continue;
+				}
+				else if (p.cla == float.class)
+				{
+					p.set(o, (float)number());
+					continue;
+				}
+				else if (p.cla == Long.class)
+					v = Int( -1);
+				else if (p.cla == Double.class)
+					v = number();
+				else if (p.cla == Float.class)
+					v = (float)number();
 				else
-					p.set(o, v);
+				{
+					long _ = Int(0);
+					if (intOrLongOrNot > 0)
+						v = (int)_;
+					else if (intOrLongOrNot < 0)
+						v = _;
+					else
+						v = number();
+				}
+
+				p.set(o, v);
 			}
 			catch (InvocationTargetException e)
 			{

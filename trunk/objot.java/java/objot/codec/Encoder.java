@@ -4,6 +4,7 @@
 //
 package objot.codec;
 
+import java.lang.reflect.Method;
 import java.sql.Clob;
 import java.util.Calendar;
 import java.util.Date;
@@ -11,12 +12,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import objot.util.Array2;
+import objot.util.Class2;
+
 
 final class Encoder
 {
-	private static final char S = Codec.S;
 	private static final int HASH_MASK = 255;
-	private Codec objot;
+	private Codec codec;
 	private Class<?> forClass;
 	/** for object graph, as keys */
 	private Object[][] objs;
@@ -29,32 +32,35 @@ final class Encoder
 	private int[][] refs;
 	/** for object graph, the number of used (multi) reference numbers */
 	private int refn;
+	private StringBuilder str;
 
 	Encoder(Codec o, Class<?> for_)
 	{
-		objot = o;
+		codec = o;
 		forClass = for_;
 		objs = new Object[HASH_MASK + 1][32];
 		refs = new int[HASH_MASK + 1][32];
 		refn = 0;
+		str = new StringBuilder(1000);
 	}
 
 	CharSequence go(Object o) throws Exception
 	{
 		refs(o);
-		StringBuilder s = new StringBuilder(1000);
 		if (o instanceof List || o.getClass().isArray())
-			list(o, s.append('['));
+			list(o);
 		else
-			object(o, s.append('{'));
-		return s;
+			object(o);
+		return str;
 	}
+
+	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
 
 	@SuppressWarnings("unchecked")
 	/** visit the object graph */
-	private void refs(Object o) throws Exception
+	void refs(Object o) throws Exception
 	{
-		if (o instanceof String && ((String)o).indexOf(S) >= 0)
+		if (o instanceof String && ((String)o).indexOf(Codec.S) >= 0)
 			throw new RuntimeException("String must not contain \20 \\20");
 		if (o == null || ref(o, -1) < 0 /* multi references */)
 			return;
@@ -71,13 +77,7 @@ final class Encoder
 			for (Object v: (Set<?>)o)
 				refs(v);
 		else if ( !o.getClass().isArray()) // other
-			for (Map.Entry<String, Property> pv: objot.encs(o.getClass()).entrySet())
-			{
-				Class<?> c = pv.getValue().cla;
-				if ( !c.isPrimitive() && !Number.class.isAssignableFrom(c)
-					&& c != Boolean.class && pv.getValue().allow(forClass))
-					refs(pv.getValue().get(o));
-			}
+			codec.clazz(o.getClass()).encodeRefs(this, o, forClass);
 		else if ( !o.getClass().getComponentType().isPrimitive()) // array
 			for (Object v: (Object[])o)
 				refs(v);
@@ -105,156 +105,189 @@ final class Encoder
 		if (r < 0)
 		{
 			s[x] = o;
-			objs[h] = ensureN(s, x + 2);
-			refs[h] = ensureN(refs[h], x + 2);
+			objs[h] = Array2.ensureN(s, x + 2);
+			refs[h] = Array2.ensureN(refs[h], x + 2);
 		}
 		return 0;
 	}
 
-	private static Object[] ensureN(Object[] s, int n)
+	private StringBuilder split()
 	{
-		if (n <= s.length)
-			return s;
-		Object[] _ = new Object[Math.max(n, s.length + (s.length >> 2) + 5)];
-		System.arraycopy(s, 0, _, 0, s.length);
-		return _;
+		if (str.length() > 0)
+			str.append(Codec.S);
+		return str;
 	}
 
-	private static int[] ensureN(int[] s, int n)
+	private StringBuilder split(StringBuilder s)
 	{
-		if (n <= s.length)
-			return s;
-		int[] _ = new int[Math.max(n, s.length + (s.length >> 2) + 5)];
-		System.arraycopy(s, 0, _, 0, s.length);
-		return _;
+		return str.append(Codec.S);
 	}
 
-	private void list(Object o, StringBuilder s) throws Exception
+	private void list(Object o) throws Exception
 	{
+		split().append('[');
 		if (o instanceof List)
 		{
 			List<?> l = (List<?>)o;
-			s.append(S).append(l.size());
-			ref(o, s);
+			split().append(l.size());
+			ref(o);
 			for (Object v: l)
-				value(v, s);
+				value(null, v);
 		}
 		else if (o instanceof Set)
 		{
 			Set<?> l = (Set<?>)o;
-			s.append(S).append(l.size());
-			ref(o, s);
+			split().append(l.size());
+			ref(o);
 			for (Object v: l)
-				value(v, s);
+				value(null, v);
 		}
 		else if (o instanceof boolean[])
 		{
 			boolean[] l = (boolean[])o;
-			s.append(S).append(l.length);
-			ref(o, s);
+			split().append(l.length);
+			ref(o);
 			for (boolean v: l)
-				s.append(S).append(v ? '>' : '<');
+				split().append(v ? '>' : '<');
 		}
 		else if (o instanceof int[])
 		{
 			int[] l = (int[])o;
-			s.append(S).append(l.length);
-			ref(o, s);
+			split().append(l.length);
+			ref(o);
 			for (int v: l)
-				s.append(S).append(v);
+				split().append(v);
 		}
 		else if (o instanceof long[])
 		{
 			long[] l = (long[])o;
-			s.append(S).append(l.length);
-			ref(o, s);
+			split().append(l.length);
+			ref(o);
 			for (long v: l)
-				s.append(S).append(objot.getLong(v));
+				split().append(codec.getLong(v));
 		}
 		else
 		{
 			Object[] l = (Object[])o;
-			s.append(S).append(l.length);
-			ref(o, s);
+			split().append(l.length);
+			ref(o);
 			for (Object v: l)
-				value(v, s);
+				value(null, v);
 		}
-		s.append(S).append(']');
+		split().append(']');
 	}
 
 	@SuppressWarnings("unchecked")
-	private void object(Object o, StringBuilder s) throws Exception
+	private void object(Object o) throws Exception
 	{
+		split().append('{');
 		if (o instanceof Map)
 		{
-			s.append(S);
-			ref(o, s);
+			split();
+			ref(o);
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
-				value(pv.getValue(), s.append(S).append(pv.getKey()));
+				value(pv.getKey(), pv.getValue());
 		}
 		else
 		{
-			s.append(S).append(objot.className(o.getClass()));
-			ref(o, s);
-			for (Map.Entry<String, Property> pv: objot.encs(o.getClass()).entrySet())
-				if (pv.getValue().allow(forClass))
-				{
-					s.append(S).append(pv.getKey());
-					Property p = pv.getValue();
-					Class<?> c = p.cla;
-					if (c == double.class)
-						s.append(S).append(p.getDouble(o));
-					else if (c == float.class)
-						s.append(S).append(p.getFloat(o));
-					else if (c == int.class)
-						s.append(S).append(p.getInt(o));
-					else if (c == long.class)
-						s.append(S).append(objot.getLong(p.getLong(o)));
-					else if (c == boolean.class)
-						s.append(S).append(p.getBoolean(o) ? '>' : '<');
-					else
-						value(p.get(o), s);
-				}
+			split().append(codec.className(o.getClass()));
+			ref(o);
+			codec.clazz(o.getClass()).encode(this, o, forClass);
 		}
-		s.append(S).append('}');
+		split().append('}');
 	}
 
-	private void ref(Object o, StringBuilder s)
+	private void ref(Object o)
 	{
 		int ref = ref(o, 1);
 		if (ref > 0)
-			s.append(S).append('=').append(S).append(ref);
+			split(split().append('=')).append(ref);
 	}
 
-	private void value(Object v, StringBuilder s) throws Exception
+	static final Method M_valueInt = Class2.declaredMethod(Encoder.class, "value",
+		String.class, int.class);
+
+	void value(String name, int v)
 	{
+		if (name != null)
+			split().append(name);
+		split().append(v);
+	}
+
+	static final Method M_valueLong = Class2.declaredMethod(Encoder.class, "value",
+		String.class, long.class);
+
+	void value(String name, long v) throws Exception
+	{
+		if (name != null)
+			split().append(name);
+		split().append(codec.getLong(v));
+	}
+
+	static final Method M_valueBool = Class2.declaredMethod(Encoder.class, "value",
+		String.class, boolean.class);
+
+	void value(String name, boolean v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v ? '>' : '<');
+	}
+
+	static final Method M_valueFloat = Class2.declaredMethod(Encoder.class, "value",
+		String.class, float.class);
+
+	void value(String name, float v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v);
+	}
+
+	static final Method M_valueDouble = Class2.declaredMethod(Encoder.class, "value",
+		String.class, double.class);
+
+	void value(String name, double v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v);
+	}
+
+	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value", String.class,
+		Object.class);
+
+	void value(String name, Object v) throws Exception
+	{
+		if (name != null)
+			split().append(name);
 		int ref;
 		if (v == null)
-			s.append(S).append('.');
+			split().append('.');
 		else if (v instanceof String)
-			s.append(S).append(S).append((String)v);
+			split(split()).append((String)v);
 		else if (v instanceof Clob)
-			s.append(S).append(S).append(((Clob)v).getSubString(1, //
+			split(split()).append(((Clob)v).getSubString(1, //
 				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE)));
 		else if (v instanceof Boolean)
-			s.append(S).append((Boolean)v ? '>' : '<');
+			split().append((Boolean)v ? '>' : '<');
 		else if (v instanceof Double)
-			s.append(S).append((double)(Double)v);
+			split().append((double)(Double)v);
 		else if (v instanceof Float)
-			s.append(S).append((float)(Float)v);
+			split().append((float)(Float)v);
 		else if (v instanceof Long)
-			s.append(S).append(objot.getLong((Long)v));
+			split().append(codec.getLong((Long)v));
 		else if (v instanceof Number)
-			s.append(S).append(((Number)v).intValue());
+			split().append(((Number)v).intValue());
 		else if (v instanceof Date)
-			s.append(S).append('*').append(S).append(((Date)v).getTime());
+			split(split().append('*')).append(((Date)v).getTime());
 		else if (v instanceof Calendar)
-			s.append(S).append('*').append(S).append(((Calendar)v).getTimeInMillis());
+			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
 		else if ((ref = ref(v, 0)) > 0)
-			s.append(S).append('+').append(S).append(ref);
+			split(split().append('+')).append(ref);
 		else if (v instanceof List || v instanceof Set || v.getClass().isArray())
-			list(v, s.append(S).append('['));
+			list(v);
 		else
-			object(v, s.append(S).append('{'));
+			object(v);
 	}
 }

@@ -9,9 +9,9 @@ import objot.util.Mod2;
 public class Procedure
 	extends Element
 {
-	public static final Bytes CTOR_NAMEUTF = Element.utf("<init>");
-	public static final Bytes CINIT_NAMEUTF = Element.utf("<cinit>");
-	public static final Bytes VOID_DESC = Element.utf("()V");
+	public static final String CTOR_NAME = "<init>";
+	public static final String CINIT_NAME = "<cinit>";
+	public static final String VOID_DESC = "()V";
 
 	public final Constants cons;
 	protected int modifier;
@@ -90,8 +90,12 @@ public class Procedure
 		write0u2(0, 0); // modifier
 		write0u2(2, 0); // nameCi
 		write0u2(4, 0); // descCi
-		write0u2(6, 2); // attrN
-		int i = 8;
+		paramN = -1;
+		attrN = 2;
+		write0u2(6, attrN);
+		attrBi = 8;
+		int i = attrBi;
+		codeBi = i;
 		write0u2(i, cons.putUtf(Bytecode.CODE)); // attr name ci
 		write0u4(i + 2, 12); // attr length
 		i += 6;
@@ -101,11 +105,48 @@ public class Procedure
 		write0u2(i + 8, 0); // catchN
 		write0u2(i + 10, 0); // attrN
 		i += 12;
+		exceptionsBi = i;
 		write0u2(i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
 		write0u4(i + 2, 2); // attr length
 		i += 6;
 		write0u2(i, 0); // exceptionN
 		end1Bi = i + 2;
+	}
+
+	public static Procedure appendEmptyCtor(Constants c, int superCi, int modifier)
+	{
+		Procedure p = new Procedure(c);
+		int ctorCi = c.appendUcs(CTOR_NAME);
+		int voidCi = c.appendUcs(VOID_DESC);
+		p.setModifier(modifier);
+		p.setNameCi(ctorCi);
+		p.setDescCi(voidCi);
+		Instruction s = new Instruction(5);
+		s.ins0(Opcode.ALOAD0);
+		s.insU2(Opcode.INVOKESPECIAL, //
+			c.appendCproc(superCi, c.appendNameDesc(ctorCi, voidCi)));
+		s.ins0(Opcode.RETURN);
+		p.getCode().setLocalN(1);
+		p.getCode().setStackN(1);
+		p.getCode().setIns(s, false);
+		return p;
+	}
+
+	public static Procedure putEmptyCtor(Constants c, int superCi)
+	{
+		Procedure p = new Procedure(c);
+		int ctorCi = c.putUcs(CTOR_NAME);
+		int voidCi = c.putUcs(VOID_DESC);
+		p.setNameCi(ctorCi);
+		p.setDescCi(voidCi);
+		Instruction s = new Instruction(5);
+		s.ins0(Opcode.ALOAD0);
+		s.insU2(Opcode.INVOKESPECIAL, c.putCproc(superCi, c.putNameDesc(ctorCi, voidCi)));
+		s.ins0(Opcode.RETURN);
+		p.getCode().setLocalN(1);
+		p.getCode().setStackN(1);
+		p.getCode().setIns(s, false);
+		return p;
 	}
 
 	public int getModifier()
@@ -290,18 +331,18 @@ public class Procedure
 	public static int getParamN(Bytes descUtf)
 	{
 		if (descUtf.readS1(0) != '(')
-			throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+			throw new ClassFormatError("invalid descriptor " + Element.ucs(descUtf));
 		for (int i = descUtf.beginBi + 1, n = 0; i < descUtf.end1Bi; //
 		i += typeDescByteN(descUtf, i - descUtf.beginBi), n++)
 			if (descUtf.bytes[i] == ')')
 				return n;
-		throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+		throw new ClassFormatError("invalid descriptor " + Element.ucs(descUtf));
 	}
 
 	public static int getParamLocalN(Bytes descUtf)
 	{
 		if (descUtf.readS1(0) != '(')
-			throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+			throw new ClassFormatError("invalid descriptor " + Element.ucs(descUtf));
 		for (int i = descUtf.beginBi + 1, n = 0; i < descUtf.end1Bi; //
 		i += typeDescByteN(descUtf, i - descUtf.beginBi), n++)
 		{
@@ -309,7 +350,7 @@ public class Procedure
 				return n;
 			n += Opcode.getLocalStackN((char)descUtf.bytes[i]);
 		}
-		throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+		throw new ClassFormatError("invalid descriptor " + Element.ucs(descUtf));
 	}
 
 	/** @return char of return type */
@@ -335,7 +376,7 @@ public class Procedure
 					throw new ClassFormatError("invalid return type "
 						+ (char)descUtf.bytes[i + 1]);
 				}
-		throw new ClassFormatError("invalid descriptor " + Element.unicode(descUtf));
+		throw new ClassFormatError("invalid descriptor " + Element.ucs(descUtf));
 	}
 
 	public void setModifier(int v)
@@ -348,7 +389,8 @@ public class Procedure
 	public void setNameCi(int v)
 	{
 		nameCi = v;
-		modifier = Mod2.get(modifier, cons.read0s1(cons.readUtfBegin(nameCi)));
+		modifier = Mod2.get(modifier, nameCi > 0 ? cons.read0s1(cons.readUtfBegin(nameCi))
+			: '\0');
 	}
 
 	public void setDescCi(int v)

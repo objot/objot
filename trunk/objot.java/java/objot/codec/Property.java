@@ -5,22 +5,62 @@
 package objot.codec;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.sql.Clob;
 import java.util.HashMap;
+import java.util.Set;
+
+import objot.util.Class2;
 
 
-abstract class Property
+final class Property
 {
+	Class<?> out;
+	Field field;
+	Method method;
+	static final Field F_name = Class2.declaredField(Property.class, "name");
 	String name;
 	Class<?> cla;
-	Type type;
-	Class<?>[] clas;
-	boolean[] allows;
+	boolean clob;
+	Class<?> list;
+	Class<?> unique;
+	Class<?> array;
+	int index;
+	private Class<?>[] clas;
+	private boolean[] allows;
 
-	Property(AccessibleObject p, Class<?> out, String name_, Enc e, Dec d, EncDec ed,
-		boolean enc)
+	Property(Field f, Enc e, Dec d, EncDec ed, boolean enc)
 	{
+		out = f.getDeclaringClass();
+		field = f;
+		name = f.getName();
+		cla = f.getType();
+		init(f, f.getGenericType(), e, d, ed, enc);
+	}
+
+	/** @param m be checked against getter/setter rules */
+	Property(Method m, Enc e, Dec d, boolean enc)
+	{
+		out = m.getDeclaringClass();
+		method = m;
+		name = Class2.propertyName(m, enc);
+		cla = enc ? m.getReturnType() : m.getParameterTypes()[0];
+		init(m, enc ? m.getGenericReturnType() : m.getGenericParameterTypes()[0], e, d, null,
+			enc);
+	}
+
+	private void init(AccessibleObject p, Type type, Enc e, Dec d, EncDec ed, boolean enc)
+	{
+		clob = Clob.class.isAssignableFrom(cla);
+		if (cla.isArray())
+			array = cla.getComponentType();
+		else if (Set.class.isAssignableFrom(cla))
+			unique = Class2.typeParamClass(type, 0, Object.class);
+		else
+			list = Class2.typeParamClass(type, 0, Object.class);
+
 		Class<?>[] pcs;
 		if (ed == null)
 			pcs = enc ? e.value() : d.value();
@@ -46,7 +86,7 @@ abstract class Property
 		NameDec nd = enc ? null : p.getAnnotation(NameDec.class);
 		Name ned = p.getAnnotation(Name.class);
 		if (ned == null)
-			name = ne != null ? ne.value() : nd != null ? nd.value() : name_;
+			name = ne != null ? ne.value() : nd != null ? nd.value() : name;
 		else if (ne == null && nd == null)
 			name = ned.value();
 		else
@@ -88,7 +128,6 @@ abstract class Property
 			}
 	}
 
-	/** not thread safe */
 	void into(HashMap<String, Property> map)
 	{
 		Property p = map.get(name);
@@ -97,6 +136,8 @@ abstract class Property
 		map.put(name, this);
 	}
 
+	static final Method M_allow = Class2.declaredMethod1(Property.class, "allow");
+
 	boolean allow(Class<?> c)
 	{
 		for (int x = clas.length - 1; x >= 0; x--)
@@ -104,40 +145,4 @@ abstract class Property
 				return allows[x];
 		return clas.length == 0 || !allows[0];
 	}
-
-	/** @throws InvocationTargetException or Exception */
-	abstract Object get(Object o) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract boolean getBoolean(Object o) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract int getInt(Object o) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract long getLong(Object o) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract float getFloat(Object o) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract double getDouble(Object o) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract void set(Object o, Object v) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract void set(Object o, boolean v) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract void set(Object o, int v) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract void set(Object o, long v) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract void set(Object o, float v) throws Exception;
-
-	/** @throws InvocationTargetException or Exception */
-	abstract void set(Object o, double v) throws Exception;
 }

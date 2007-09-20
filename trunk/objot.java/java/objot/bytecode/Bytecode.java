@@ -239,4 +239,43 @@ public class Bytecode
 		}
 		return begin;
 	}
+
+	public static final Loader LOADER = new Loader(Bytecode.class.getClassLoader());
+
+	public static class Loader
+		extends ClassLoader
+	{
+		public Loader()
+		{
+			super();
+		}
+
+		public Loader(ClassLoader parent)
+		{
+			super(parent);
+		}
+
+		public <T>Class<T> loadClass(String name, byte[] bytecode) throws Exception
+		{
+			return loadClass(name, bytecode, 0, bytecode.length, false);
+		}
+
+		@SuppressWarnings("unchecked")
+		public <T>Class<T> loadClass(String name, byte[] bytecode, int begin, int len,
+			boolean resolve) throws Exception
+		{
+			try
+			{
+				loadClass(name);
+				throw new Exception("duplicate class " + name);
+			}
+			catch (ClassNotFoundException e)
+			{
+				Class c = defineClass(name, bytecode, begin, len);
+				if (resolve)
+					resolveClass(c);
+				return c;
+			}
+		}
+	}
 }
