@@ -155,12 +155,12 @@ public abstract class Element
 		return new Bytes(utf);
 	}
 
-	public static String unicode(Bytes utf)
+	public static String ucs(Bytes utf)
 	{
-		return unicode(utf, 0, utf.byteN());
+		return ucs(utf, 0, utf.byteN());
 	}
 
-	public static String unicode(Bytes utf, int begin, int end1)
+	public static String ucs(Bytes utf, int begin, int end1)
 	{
 		Math2.checkRange(begin, end1, utf.end1Bi - utf.beginBi);
 		try
@@ -188,17 +188,17 @@ public abstract class Element
 	}
 
 	/** @see Class2#pathName(Class) */
-	public static String classDesc2NameUnicode(Bytes descUtf)
+	public static String classDesc2NameUcs(Bytes descUtf)
 	{
-		return classDesc2NameUnicode(descUtf, 0, descUtf.byteN());
+		return classDesc2NameUcs(descUtf, 0, descUtf.byteN());
 	}
 
 	/** @see Class2#pathName(Class) */
-	public static String classDesc2NameUnicode(Bytes descUtf, int begin, int end1)
+	public static String classDesc2NameUcs(Bytes descUtf, int begin, int end1)
 	{
 		if (descUtf.readS1(begin) != 'L' || descUtf.readS1(end1 - 1) != ';')
 			throw new IllegalArgumentException("only declaring class supported");
-		return unicode(descUtf, begin + 1, end1 - 1);
+		return ucs(descUtf, begin + 1, end1 - 1);
 	}
 
 	public static int typeDescByteN(Bytes descUtf, int begin)
@@ -223,7 +223,7 @@ public abstract class Element
 					if (descUtf.bytes[bi] == ';')
 						break ObjectDesc;
 				throw new ClassFormatError("invalid procedure descriptor "
-					+ Element.unicode(descUtf, begin, descUtf.byteN()));
+					+ Element.ucs(descUtf, begin, descUtf.byteN()));
 			}
 			return bi - begin + 1;
 		}

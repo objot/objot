@@ -1,5 +1,11 @@
 package objot.util;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
+
 public class Class2
 {
 	protected Class2()
@@ -142,5 +148,119 @@ public class Class2
 		if (className.charAt(0) == '[')
 			return pathName(className);
 		return 'L' + pathName(className) + ';';
+	}
+
+	public static String descript(Field f)
+	{
+		return descript(f.getType());
+	}
+
+	public static String descript(Method m)
+	{
+		StringBuilder d = new StringBuilder(31);
+		d.append('(');
+		for (Class<?> a: m.getParameterTypes())
+			d.append(descript(a));
+		d.append(')');
+		d.append(descript(m.getReturnType()));
+		return d.toString();
+	}
+
+	/** @param m be checked if follows the rules of getter/setter name and parameters */
+	public static String propertyName(Method m, boolean get)
+	{
+		String n = m.getName();
+		if (get && ( !n.startsWith("get") || m.getParameterTypes().length > 0 //
+		|| m.getReturnType() == void.class))
+			throw new RuntimeException("invalid getter: " + m);
+		if ( !get && ( !n.startsWith("set") || m.getParameterTypes().length != 1 //
+		|| m.getReturnType() != void.class))
+			throw new RuntimeException("invalid setter: " + m);
+		if (n.length() > 4 && Character.isUpperCase(n.charAt(3))
+			&& Character.isUpperCase(n.charAt(4)))
+			return n.substring(3);
+		else
+			return Character.toLowerCase(n.charAt(3)) + n.substring(4);
+	}
+
+	public static Class<?> typeParamClass(Type t, int paramIndex, Class<?> Default)
+	{
+		if (t instanceof ParameterizedType)
+		{
+			t = ((ParameterizedType)t).getActualTypeArguments()[paramIndex];
+			if (t instanceof Class)
+				Default = (Class<?>)t;
+		}
+		return Default;
+	}
+
+	public static Field field(Class<?> c, String name)
+	{
+		try
+		{
+			return c.getField(name);
+		}
+		catch (NoSuchFieldException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static Field declaredField(Class<?> c, String name)
+	{
+		try
+		{
+			return c.getDeclaredField(name);
+		}
+		catch (NoSuchFieldException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/** excludes {@link Mod2.P#INITER} */
+	@SuppressWarnings("cast")
+	public static Method method(Class<?> c, String name, Class<?>... paramTypes)
+	{
+		try
+		{
+			return c.getMethod(name, (Class<?>[])paramTypes);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/** excludes {@link Mod2.P#INITER} */
+	public static Method method1(Class<?> c, String name)
+	{
+		for (Method m: c.getMethods())
+			if (m.getName().equals(name))
+				return m;
+		throw new RuntimeException(new NoSuchMethodException(c.getName() + '.' + name));
+	}
+
+	/** excludes {@link Mod2.P#INITER} */
+	@SuppressWarnings("cast")
+	public static Method declaredMethod(Class<?> c, String name, Class<?>... paramTypes)
+	{
+		try
+		{
+			return c.getDeclaredMethod(name, (Class<?>[])paramTypes);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/** excludes {@link Mod2.P#INITER} */
+	public static Method declaredMethod1(Class<?> c, String name)
+	{
+		for (Method m: c.getDeclaredMethods())
+			if (m.getName().equals(name))
+				return m;
+		throw new RuntimeException(new NoSuchMethodException(c.getName() + '.' + name));
 	}
 }

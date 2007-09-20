@@ -92,7 +92,7 @@ public class Annotations
 			for (int i = as.annoN - 1; i >= 0; i--)
 			{
 				int desc = as.getAnno(i).getDescCi();
-				Class<?> ca = cl.loadClass(as.cons.classDesc2NameUnicode(desc));
+				Class<?> ca = cl.loadClass(as.cons.classDesc2NameUcs(desc));
 				if (ca.isAnnotationPresent(anno))
 					return i;
 			}

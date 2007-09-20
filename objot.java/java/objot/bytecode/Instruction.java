@@ -38,63 +38,55 @@ public class Instruction
 
 	public final void copyFrom(byte[] ins, int ad, int adN)
 	{
-		reserveN(adN);
+		ensureByteN(addr + adN);
 		System.arraycopy(ins, ad, bytes, addr, adN);
 		addr += adN;
 	}
 
 	public final void copyFrom(Bytes ins, int ad, int adN)
 	{
-		reserveN(adN);
+		ensureByteN(addr + adN);
 		ins.copyTo(ad, bytes, addr, adN);
 		addr += adN;
 	}
 
 	public final void copyFrom(Code code, int ad, int adN)
 	{
-		reserveN(adN);
+		ensureByteN(addr + adN);
 		code.copyInsTo(ad, bytes, addr, adN);
 		addr += adN;
 	}
 
-	public final void reserveN(int n)
-	{
-		ensureByteN(addr + n);
-	}
-
 	public final void ins0(byte op)
 	{
-		reserveN(1);
+		ensureByteN(addr + 1);
 		write0s1(addr++, op);
 	}
 
 	public final void insS1(byte op, byte s1)
 	{
-		reserveN(2);
-		write0s1(addr, op);
-		write0s1(addr + 1, s1);
-		addr += 2;
+		ensureByteN(addr + 2);
+		write0s1(addr++, op);
+		write0s1(addr++, s1);
 	}
 
 	public final void insS1(byte op, int s1)
 	{
-		reserveN(2);
-		write0s1(addr, op);
-		write0s1(addr + 1, s1);
-		addr += 2;
+		ensureByteN(addr + 2);
+		write0s1(addr++, op);
+		write0s1(addr++, s1);
 	}
 
 	public final void insU1(byte op, int u1)
 	{
-		reserveN(2);
-		write0s1(addr, op);
-		write0u1(addr + 1, u1);
-		addr += 2;
+		ensureByteN(addr + 2);
+		write0s1(addr++, op);
+		write0u1(addr++, u1);
 	}
 
 	public final void insU2(byte op, int u2)
 	{
-		reserveN(3);
+		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0u2(addr + 1, u2);
 		addr += 3;
@@ -102,7 +94,7 @@ public class Instruction
 
 	public final void insS2(byte op, short s2)
 	{
-		reserveN(3);
+		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0s2(addr + 1, s2);
 		addr += 3;
@@ -110,7 +102,7 @@ public class Instruction
 
 	public final void insS2(byte op, int s2)
 	{
-		reserveN(3);
+		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0s2(addr + 1, s2);
 		addr += 3;
@@ -118,7 +110,7 @@ public class Instruction
 
 	public final void insS4(byte op, int s4)
 	{
-		reserveN(5);
+		ensureByteN(addr + 5);
 		write0s1(addr, op);
 		write0s4(addr + 1, s4);
 		addr += 5;
@@ -126,7 +118,7 @@ public class Instruction
 
 	public final void insS1U2(byte op, byte s1, int u2)
 	{
-		reserveN(4);
+		ensureByteN(addr + 4);
 		write0s1(addr, op);
 		write0s1(addr + 1, s1);
 		write0u2(addr + 2, u2);
@@ -135,7 +127,7 @@ public class Instruction
 
 	public final void insS1U2(byte op, int s1, int u2)
 	{
-		reserveN(4);
+		ensureByteN(addr + 4);
 		write0s1(addr, op);
 		write0s1(addr + 1, s1);
 		write0u2(addr + 2, u2);
@@ -152,7 +144,7 @@ public class Instruction
 
 	public final void insU1S1(byte op, int u1, byte s1)
 	{
-		reserveN(3);
+		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0u1(addr + 1, u1);
 		write0s1(addr + 2, s1);
@@ -161,7 +153,7 @@ public class Instruction
 
 	public final void insU1S1(byte op, int u1, int s1)
 	{
-		reserveN(3);
+		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0u1(addr + 1, u1);
 		write0s1(addr + 2, s1);
@@ -170,7 +162,7 @@ public class Instruction
 
 	public final void insIproc(int iProcCi, int needStackN)
 	{
-		reserveN(5);
+		ensureByteN(addr + 5);
 		write0s1(addr, INVOKEINTERFACE);
 		write0u2(addr + 1, iProcCi);
 		write0u1(addr + 3, needStackN);
@@ -180,7 +172,7 @@ public class Instruction
 
 	public final void insWideU2(byte op, int u2)
 	{
-		reserveN(4);
+		ensureByteN(addr + 4);
 		write0s1(addr, WIDE);
 		write0s1(addr + 1, op);
 		write0u2(addr + 2, u2);
@@ -189,7 +181,7 @@ public class Instruction
 
 	public final void insWideInc(int localI, int incValue)
 	{
-		reserveN(6);
+		ensureByteN(addr + 6);
 		write0s1(addr, WIDE);
 		write0s1(addr + 1, IINC);
 		write0u2(addr + 2, localI);
@@ -200,7 +192,7 @@ public class Instruction
 	/** @return jump tag: <code>addr-op</code> */
 	public final int insJump2(byte op)
 	{
-		reserveN(3);
+		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0s2(addr + 1, 0);
 		addr += 3;
@@ -210,7 +202,7 @@ public class Instruction
 	/** @return jump tag: <code>-addr-op - 1</code> */
 	public final int insJump4(byte op)
 	{
-		reserveN(5);
+		ensureByteN(addr + 5);
 		write0s1(addr, op);
 		write0s4(addr + 1, 0);
 		addr += 5;
@@ -245,7 +237,7 @@ public class Instruction
 				+ high0);
 		int h = 4 - (addr & 3);
 		int bn = h + 12 + (n << 2);
-		reserveN(bn);
+		ensureByteN(addr + bn);
 		write0s1(addr, TABLESWITCH);
 		Arrays.fill(bytes, addr + 1, addr + bn, (byte)0);
 		write0s4(addr + h + 4, low);
@@ -283,7 +275,7 @@ public class Instruction
 			throw new ClassFormatError("invalid lookup switch valueN " + n);
 		int h = 4 - (addr & 3);
 		int bn = h + 8 + (n << 3);
-		reserveN(bn);
+		ensureByteN(addr + bn);
 		write0s1(addr, LOOKUPSWITCH);
 		Arrays.fill(bytes, addr + 1, addr + bn, (byte)0);
 		write0s4(addr + h + 4, n);
@@ -324,7 +316,7 @@ public class Instruction
 		if (c.isPrimitive())
 			insU2(GETSTATIC, cons.putField(cons.putClass(Class2.box(c, false)), //
 				cons.putNameDesc(cons.putUtf(TYPE_NAME), //
-					cons.putUnicode(Class2.descript(Class.class)))));
+					cons.putUcs(Class2.descript(Class.class)))));
 		else
 			insU2(LDCW, cons.putClass(c));
 	}
@@ -337,7 +329,7 @@ public class Instruction
 		Class<?> b = Class2.box(c, false);
 		insU2(INVOKESTATIC, cons.putCproc(cons.putClass(b), //
 			cons.putNameDesc(cons.putUtf(VALUEOF_NAME), //
-				cons.putUnicode('(' + Class2.descript(c) + ')' + Class2.descript(b)))));
+				cons.putUcs('(' + Class2.descript(c) + ')' + Class2.descript(b)))));
 	}
 
 	/** Stack: object --> primitive value(s) or narrowed object */
@@ -349,8 +341,8 @@ public class Instruction
 			int cla = cons.putClass(b);
 			insU2(CHECKCAST, cla);
 			insU2(INVOKEVIRTUAL, cons.putCproc(cla, //
-				cons.putNameDesc(cons.putUnicode(c.getName() + "Value"), //
-					cons.putUnicode("()" + Class2.descript(c)))));
+				cons.putNameDesc(cons.putUcs(c.getName() + "Value"), //
+					cons.putUcs("()" + Class2.descript(c)))));
 		}
 		else if (c != Object.class)
 			insU2(CHECKCAST, cons.putClass(c));

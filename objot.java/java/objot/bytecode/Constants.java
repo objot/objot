@@ -1,6 +1,7 @@
 package objot.bytecode;
 
 import java.io.PrintStream;
+import java.lang.reflect.Method;
 
 import objot.util.Array2;
 import objot.util.Bytes;
@@ -142,9 +143,9 @@ public class Constants
 		bs.copyFrom(bi, bytes, readUtfBegin(ci), readUtfByteN(ci));
 	}
 
-	public String readUnicode(int ci)
+	public String readUcs(int ci)
 	{
-		return unicode(this, readUtfBegin(ci) - beginBi, readUtfEnd1(ci) - beginBi);
+		return ucs(this, readUtfBegin(ci) - beginBi, readUtfEnd1(ci) - beginBi);
 	}
 
 	public int readUtfByteN(int ci)
@@ -290,6 +291,8 @@ public class Constants
 			throw new ClassCastException();
 		return read0u2(bis[ci] + 3);
 	}
+
+	// ********************************************************************************
 
 	public boolean equalsUtf(int ci, Bytes utf)
 	{
@@ -633,9 +636,9 @@ public class Constants
 	}
 
 	/** @see Class2#pathName(Class) */
-	public String classDesc2NameUnicode(int utfCi)
+	public String classDesc2NameUcs(int utfCi)
 	{
-		return classDesc2NameUnicode(this, readUtfBegin(utfCi) - beginBi, readUtfEnd1(utfCi)
+		return classDesc2NameUcs(this, readUtfBegin(utfCi) - beginBi, readUtfEnd1(utfCi)
 			- beginBi);
 	}
 
@@ -666,7 +669,7 @@ public class Constants
 		{
 		case TAG_UTF:
 			out.print("utf ");
-			out.print(readUnicode(ci));
+			out.print(readUcs(ci));
 			break;
 		case TAG_INT:
 			out.print("int ");
@@ -686,40 +689,40 @@ public class Constants
 			break;
 		case TAG_CLASS:
 			out.print("class ");
-			out.print(readUnicode(readClass(ci)));
+			out.print(readUcs(readClass(ci)));
 			break;
 		case TAG_STRING:
 			out.print("str ");
-			out.print(readUnicode(readString(ci)));
+			out.print(readUcs(readString(ci)));
 			break;
 		case TAG_FIELD:
 			out.print("field ");
-			out.print(readUnicode(readFieldClass(ci)));
+			out.print(readUcs(readFieldClass(ci)));
 			out.print('.');
-			out.print(readUnicode(readFieldName(ci)));
+			out.print(readUcs(readFieldName(ci)));
 			out.print(' ');
-			out.print(readUnicode(readFieldDesc(ci)));
+			out.print(readUcs(readFieldDesc(ci)));
 			break;
 		case TAG_CPROC:
 			out.print("cproc ");
-			out.print(readUnicode(readCprocClass(ci)));
+			out.print(readUcs(readCprocClass(ci)));
 			out.print('.');
-			out.print(readUnicode(readCprocName(ci)));
+			out.print(readUcs(readCprocName(ci)));
 			out.print(' ');
-			out.print(readUnicode(readCprocDesc(ci)));
+			out.print(readUcs(readCprocDesc(ci)));
 			break;
 		case TAG_IPROC:
 			out.print("iproc ");
-			out.print(readUnicode(readIprocClass(ci)));
+			out.print(readUcs(readIprocClass(ci)));
 			out.print('.');
-			out.print(readUnicode(readIprocName(ci)));
-			out.print(readUnicode(readIprocDesc(ci)));
+			out.print(readUcs(readIprocName(ci)));
+			out.print(readUcs(readIprocDesc(ci)));
 			break;
 		case TAG_NAMEDESC:
 			out.print("nameDesc ");
-			out.print(readUnicode(readNameDescName(ci)));
+			out.print(readUcs(readNameDescName(ci)));
 			out.print(' ');
-			out.print(readUnicode(readNameDescDesc(ci)));
+			out.print(readUcs(readNameDescDesc(ci)));
 			break;
 		}
 	}
@@ -747,7 +750,7 @@ public class Constants
 		if (verbose > 0 && utfCi > 0)
 		{
 			out.print(':');
-			out.print(readUnicode(utfCi));
+			out.print(readUcs(utfCi));
 		}
 	}
 
@@ -756,9 +759,11 @@ public class Constants
 		if (verbose > 0 && classCi > 0)
 		{
 			out.print(':');
-			out.print(readUnicode(readClass(classCi)));
+			out.print(readUcs(readClass(classCi)));
 		}
 	}
+
+	// ********************************************************************************
 
 	protected void ensureN(int cn, int bn)
 	{
@@ -811,17 +816,17 @@ public class Constants
 		return i;
 	}
 
-	public int appendUnicode(String s)
+	public int appendUcs(String s)
 	{
 		return appendUtf(utf(s));
 	}
 
-	public int putUnicode(String s)
+	public int putUcs(String s)
 	{
 		return putUtf(utf(s));
 	}
 
-	public int putUnicodeLast(String s)
+	public int putUcsLast(String s)
 	{
 		return putUtfLast(utf(s));
 	}
@@ -960,6 +965,16 @@ public class Constants
 		return putRef2(TAG_FIELD, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
+	public int appendField(java.lang.reflect.Field f)
+	{
+		return appendField(appendClass(f.getDeclaringClass()), appendNameDesc(f));
+	}
+
+	public int putField(java.lang.reflect.Field f)
+	{
+		return putField(putClass(f.getDeclaringClass()), putNameDesc(f));
+	}
+
 	public int appendCproc(int classCi, int nameDescCi)
 	{
 		return appendRef2(TAG_CPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
@@ -968,6 +983,16 @@ public class Constants
 	public int putCproc(int classCi, int nameDescCi)
 	{
 		return putRef2(TAG_CPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
+	}
+
+	public int appendCproc(Method m)
+	{
+		return appendCproc(appendClass(m.getDeclaringClass()), appendNameDesc(m));
+	}
+
+	public int putCproc(Method m)
+	{
+		return putCproc(putClass(m.getDeclaringClass()), putNameDesc(m));
 	}
 
 	public int appendIproc(int classCi, int nameDescCi)
@@ -980,15 +1005,57 @@ public class Constants
 		return putRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
-	public int appendNameDesc(int nameCi, int descI)
+	public int appendIproc(Method m)
 	{
-		return appendRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descI, TAG_UTF);
+		return appendIproc(appendClass(m.getDeclaringClass()), appendNameDesc(m));
 	}
 
-	public int putNameDesc(int nameCi, int descI)
+	public int putIproc(Method m)
 	{
-		return putRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descI, TAG_UTF);
+		return putIproc(putClass(m.getDeclaringClass()), putNameDesc(m));
 	}
+
+	public int appendNameDesc(int nameCi, int descCi)
+	{
+		return appendRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descCi, TAG_UTF);
+	}
+
+	public int putNameDesc(int nameCi, int descCi)
+	{
+		return putRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descCi, TAG_UTF);
+	}
+
+	public int appendNameDesc(Bytes name, Bytes desc)
+	{
+		return appendRef2(TAG_NAMEDESC, appendUtf(name), TAG_UTF, appendUtf(desc), TAG_UTF);
+	}
+
+	public int putNameDesc(Bytes name, Bytes desc)
+	{
+		return putRef2(TAG_NAMEDESC, putUtf(name), TAG_UTF, putUtf(desc), TAG_UTF);
+	}
+
+	public int appendNameDesc(java.lang.reflect.Field f)
+	{
+		return appendNameDesc(utf(f.getName()), utf(Class2.descript(f)));
+	}
+
+	public int putNameDesc(java.lang.reflect.Field f)
+	{
+		return putNameDesc(utf(f.getName()), utf(Class2.descript(f)));
+	}
+
+	public int appendNameDesc(Method m)
+	{
+		return appendNameDesc(utf(m.getName()), utf(Class2.descript(m)));
+	}
+
+	public int putNameDesc(Method m)
+	{
+		return putNameDesc(utf(m.getName()), utf(Class2.descript(m)));
+	}
+
+	// ********************************************************************************
 
 	public int appendUtf(Constants cons, int ci)
 	{

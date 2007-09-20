@@ -5,10 +5,6 @@
 package objot.codec;
 
 import java.io.UTFDataFormatException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -59,81 +55,15 @@ public class Codec
 
 	static final Class<?>[] CS0 = {};
 
-	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> encs //
-	= new ConcurrentHashMap<Class<?>, HashMap<String, Property>>(64, 0.8f, 32);
-	private final ConcurrentHashMap<Class<?>, HashMap<String, Property>> decs //
-	= new ConcurrentHashMap<Class<?>, HashMap<String, Property>>(64, 0.8f, 32);
+	private final ConcurrentHashMap<Class<?>, Clazz> clas //
+	= new ConcurrentHashMap<Class<?>, Clazz>(64, 0.8f, 32);
 
-	final HashMap<String, Property> encs(Class<?> c)
+	final Clazz clazz(Class<?> c) throws Exception
 	{
-		HashMap<String, Property> inf = encs.get(c);
-		if (inf == null)
-		{
-			inf = new HashMap<String, Property>();
-			for (Field f: c.getFields())
-				if ((f.getModifiers() & Modifier.STATIC) == 0)
-				{
-					Enc e = f.getAnnotation(Enc.class);
-					EncDec gs = f.getAnnotation(EncDec.class);
-					if (e != null || gs != null)
-						new PropField(f, e, null, gs, true).into(inf);
-				}
-			for (Method m: c.getMethods())
-				if ((m.getModifiers() & Modifier.STATIC) == 0)
-				{
-					Enc e = m.getAnnotation(Enc.class);
-					if (e != null)
-						new PropMethod(m, e, null, true).into(inf);
-				}
-			encs.put(c, inf);
-		}
-		return inf;
-	}
-
-	final HashMap<String, Property> decs(Class<?> c)
-	{
-		HashMap<String, Property> inf = decs.get(c);
-		if (inf == null)
-		{
-			inf = new HashMap<String, Property>();
-			for (Field f: c.getFields())
-				if ((f.getModifiers() & Modifier.STATIC) == 0)
-				{
-					Dec d = f.getAnnotation(Dec.class);
-					EncDec gs = f.getAnnotation(EncDec.class);
-					if (d != null || gs != null)
-						new PropField(f, null, d, gs, false).into(inf);
-				}
-			for (Method m: c.getMethods())
-				if ((m.getModifiers() & Modifier.STATIC) == 0)
-				{
-					Dec d = m.getAnnotation(Dec.class);
-					if (d != null)
-						new PropMethod(m, null, d, false).into(inf);
-				}
-			decs.put(c, inf);
-		}
-		return inf;
-	}
-
-	public static Object[] ensureN(Object[] s, int n)
-	{
-		if (n <= s.length)
-			return s;
-		Object[] _ = new Object[Math.max(n, s.length + (s.length >> 1) + 5)];
-		System.arraycopy(s, 0, _, 0, s.length);
-		return _;
-	}
-
-	public static Class<?>[] concat(Class<?>[] a, Class<?>[] b)
-	{
-		if (a == null || a.length == 0)
-			return b;
-		if (b == null || b.length == 0)
-			return a;
-		Class<?>[] _ = new Class<?>[a.length + b.length];
-		System.arraycopy(b, 0, _, a.length, b.length);
-		return _;
+		Clazz z = clas.get(c);
+		if (z == null)
+			clas.put(c, z = Clazz.create(c));
+		return z;
 	}
 
 	public static char[] utf(byte[] s) throws UTFDataFormatException

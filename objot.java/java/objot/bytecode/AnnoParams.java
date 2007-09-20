@@ -115,7 +115,7 @@ public class AnnoParams
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
 				{
 					int desc = as.getAnno(g, a).getDescCi();
-					Class<?> ca = cl.loadClass(as.cons.classDesc2NameUnicode(desc).replace(
+					Class<?> ca = cl.loadClass(as.cons.classDesc2NameUcs(desc).replace(
 						'/', '.'));
 					if (ca.isAnnotationPresent(anno))
 						return g << 32L | a & 0xFFFFFFFFL;
