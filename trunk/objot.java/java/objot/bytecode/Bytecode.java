@@ -154,23 +154,22 @@ public class Bytecode
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
-		cons.printTo(out, indent, indent, verbose, hash);
-		head.printTo(out, indent, indent, verbose, hash);
-		getFields().printTo(out, indent, indent, verbose, hash);
-		getProcs().printTo(out, indent, indent, verbose, hash);
+		cons.printTo(out, indent, indent, verbose);
+		head.printTo(out, indent, indent, verbose);
+		getFields().printTo(out, indent, indent, verbose);
+		getProcs().printTo(out, indent, indent, verbose);
 		printIndent(out, indent);
 		out.print("attrN ");
 		out.println(getAttrN());
 		if (getAnnos() != null)
-			getAnnos().printTo(out, indent, indent, verbose, hash);
+			getAnnos().printTo(out, indent, indent, verbose);
 		if (getAnnoHides() != null)
-			getAnnoHides().printTo(out, indent, indent, verbose, hash);
+			getAnnoHides().printTo(out, indent, indent, verbose);
 		out.print("end of ");
-		printIdentityLn(out, 0, hash);
+		printIdentity(out, 0).println();
 		out.flush();
 	}
 

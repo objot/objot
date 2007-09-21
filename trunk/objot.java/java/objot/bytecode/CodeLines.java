@@ -67,8 +67,7 @@ public class CodeLines
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		for (int i = 0; i < lineN; i++)

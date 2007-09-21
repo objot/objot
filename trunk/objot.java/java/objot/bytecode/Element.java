@@ -50,10 +50,11 @@ public abstract class Element
 	 * @param indent1st Indent for 1st line.
 	 * @param indent Indent for other lines.
 	 */
-	public void printTo(PrintStream out, int indent1st, int indent, int verbose, boolean hash)
+	public PrintStream printTo(PrintStream out, int indent1st, int indent, int verbose)
 	{
-		printIdentity(out, indent1st, hash);
-		printContents(out, 0, indent + 1, verbose, hash);
+		printIdentity(out, indent1st);
+		printContents(out, 0, indent + 1, verbose);
+		return out;
 	}
 
 	public static void printIndent(PrintStream out, int indent)
@@ -63,20 +64,15 @@ public abstract class Element
 	}
 
 	protected abstract void printContents(PrintStream out, int indent1st, int indent,
-		int verbose, boolean hash);
+		int verbose);
 
-	public void printIdentity(PrintStream out, int indent, boolean hash)
+	public PrintStream printIdentity(PrintStream out, int indent)
 	{
 		printIndent(out, indent);
 		if (Element.class.getPackage().equals(getClass().getPackage()))
 			out.print(Class2.selfName(getClass()));
 		else
 			out.print(getClass().getName());
-		if (hash)
-		{
-			out.print('@');
-			out.print(Integer.toHexString(System.identityHashCode(this)));
-		}
 		out.print(" [");
 		out.print(beginBi);
 		if (byteN0() != byteN())
@@ -86,22 +82,8 @@ public abstract class Element
 		}
 		out.print(',');
 		out.print(end1Bi);
-		out.print(")0x[");
-		out.print(Integer.toHexString(beginBi));
-		if (byteN0() != byteN())
-		{
-			out.print(',');
-			out.print(Integer.toHexString(beginBi + byteN0()));
-		}
-		out.print(',');
-		out.print(Integer.toHexString(end1Bi));
 		out.print(')');
-	}
-
-	public void printIdentityLn(PrintStream out, int indent, boolean hash)
-	{
-		printIdentity(out, indent, hash);
-		out.println();
+		return out;
 	}
 
 	/** @return the number of bytes generated. */

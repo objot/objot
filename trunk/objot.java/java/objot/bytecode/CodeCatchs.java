@@ -13,6 +13,7 @@ import objot.util.InvalidValueException;
 public class CodeCatchs
 	extends Element
 {
+	public final Constants cons;
 	protected int catchN;
 	protected int[] beginAds;
 	protected int[] end1Ads;
@@ -24,9 +25,10 @@ public class CodeCatchs
 		return 2 + (readU2(bs, bi) << 3);
 	}
 
-	public CodeCatchs(byte[] bs, int beginBi_)
+	public CodeCatchs(Constants c, byte[] bs, int beginBi_)
 	{
 		super(bs, beginBi_);
+		cons = c;
 		catchN = read0u2(beginBi);
 		end1Bi = beginBi + 2 + (catchN << 3);
 	}
@@ -90,8 +92,7 @@ public class CodeCatchs
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		for (int i = 0; i < catchN; i++)
@@ -104,8 +105,8 @@ public class CodeCatchs
 			out.print(getEnd1Ad(i));
 			out.print(" catchAd ");
 			out.print(getCatchAd(i));
-			out.print(" typeCi ");
-			out.println(getTypeCi(i));
+			out.print(" type ");
+			cons.print(out, getTypeCi(i), verbose).println();
 		}
 	}
 

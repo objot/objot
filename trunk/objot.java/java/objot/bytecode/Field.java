@@ -132,8 +132,7 @@ public class Field
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);
@@ -142,29 +141,30 @@ public class Field
 		out.print(' ');
 		out.println(Mod2.toString(modifier));
 		printIndent(out, indent);
-		out.print("nameCi ");
-		out.print(getNameCi());
-		cons.printUtf(out, getNameCi(), verbose);
-		out.print(" descCi ");
-		out.print(getDescCi());
-		cons.printUtf(out, getDescCi(), verbose);
+		out.print("name ");
+		cons.print(out, getNameCi(), verbose);
+		out.print(" desc ");
+		cons.print(out, getDescCi(), verbose);
 		out.println();
 		printIndent(out, indent);
 		out.print("attrN ");
 		out.println(attrN);
-		printIndent(out, indent);
-		out.print("signatureCi ");
-		out.print(getSignatureCi());
-		cons.printUtf(out, getSignatureCi(), verbose);
-		out.print(" constantCi ");
-		out.print(getConstantCi());
-		if (getConstantCi() != 0 && verbose > 0)
-			cons.printConColon(getConstantCi(), out);
-		out.println();
+		if (getSignatureCi() > 0)
+		{
+			printIndent(out, indent);
+			out.print("signature ");
+			cons.print(out, getSignatureCi(), verbose).println();
+		}
+		if (getConstantCi() > 0)
+		{
+			printIndent(out, indent);
+			out.print("constant ");
+			cons.print(out, getConstantCi(), verbose).println();
+		}
 		if (getAnnos() != null)
-			getAnnos().printTo(out, indent, indent, verbose, hash);
+			getAnnos().printTo(out, indent, indent, verbose);
 		if (getAnnoHides() != null)
-			getAnnoHides().printTo(out, indent, indent, verbose, hash);
+			getAnnoHides().printTo(out, indent, indent, verbose);
 	}
 
 	public void setModifier(int v)

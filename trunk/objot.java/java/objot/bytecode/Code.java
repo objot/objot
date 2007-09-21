@@ -139,7 +139,7 @@ public class Code
 	public CodeCatchs getCatchs()
 	{
 		if (catchs == null)
-			catchs = new CodeCatchs(bytes, catchBi);
+			catchs = new CodeCatchs(cons, bytes, catchBi);
 		return catchs;
 	}
 
@@ -163,37 +163,35 @@ public class Code
 	public CodeVars getVars()
 	{
 		if (vars == null && varsBi > 0)
-			vars = new CodeVars(bytes, varsBi, false);
+			vars = new CodeVars(cons, bytes, varsBi, false);
 		return vars;
 	}
 
 	public CodeVars getVarSigns()
 	{
 		if (varSigns == null && varSignsBi > 0)
-			varSigns = new CodeVars(bytes, varSignsBi, true);
+			varSigns = new CodeVars(cons, bytes, varSignsBi, true);
 		return varSigns;
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);
 		out.print("stackN ");
 		out.print(stackN);
 		out.print(" localN ");
-		out.println(localN);
-		printIndent(out, indent);
-		out.print("addrN ");
+		out.print(localN);
+		out.print(" addrN ");
 		out.print(addrN);
-		if (hash)
+		if (verbose > 1)
 		{
 			out.print(' ');
 			out.print(insBytes());
 		}
 		out.println();
-		if (verbose >= 2)
+		if (verbose > 0)
 			for (int i = 0; i < addrN; i += readInsAddrN(i))
 			{
 				printIndent(out, indent);
@@ -201,19 +199,19 @@ public class Code
 				out.print(". ");
 				Opcode.println(this, i, out, 0, indent + 2, verbose);
 			}
-		getCatchs().printTo(out, indent, indent, verbose, hash);
+		getCatchs().printTo(out, indent, indent, verbose);
 		printIndent(out, indent);
 		out.print("attrN ");
 		out.println(attrN);
 		if (getLines() != null)
-			getLines().printTo(out, indent, indent, verbose, hash);
+			getLines().printTo(out, indent, indent, verbose);
 		if (getVars() != null)
-			getVars().printTo(out, indent, indent, verbose, hash);
+			getVars().printTo(out, indent, indent, verbose);
 		if (getVarSigns() != null)
 		{
 			printIndent(out, indent);
 			out.print("varSigns ");
-			getVarSigns().printTo(out, 0, indent, verbose, hash);
+			getVarSigns().printTo(out, 0, indent, verbose);
 		}
 	}
 

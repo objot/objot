@@ -115,7 +115,7 @@ public class Mod2
 		if ((mod & INTERFACE) != 0)
 			s.append("interface ");
 
-		if ((mod & P.INSTANCE) != 0)
+		if ((mod & P.NORMAL) != 0)
 			s.append("() ");
 		if ((mod & P.CTOR) != 0)
 			s.append("<init>() ");
