@@ -1,3 +1,7 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package objot.bytecode;
 
 import java.io.PrintStream;
@@ -115,8 +119,8 @@ public class AnnoParams
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
 				{
 					int desc = as.getAnno(g, a).getDescCi();
-					Class<?> ca = cl.loadClass(as.cons.classDesc2NameUcs(desc).replace(
-						'/', '.'));
+					Class<?> ca = cl.loadClass(as.cons.classDesc2NameUcs(desc).replace('/',
+						'.'));
 					if (ca.isAnnotationPresent(anno))
 						return g << 32L | a & 0xFFFFFFFFL;
 				}
