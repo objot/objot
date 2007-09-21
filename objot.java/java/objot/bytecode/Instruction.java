@@ -10,11 +10,9 @@ import static objot.bytecode.Opcode.LDCW;
 import static objot.bytecode.Opcode.LOOKUPSWITCH;
 import static objot.bytecode.Opcode.TABLESWITCH;
 import static objot.bytecode.Opcode.WIDE;
-import java.util.Arrays;
 
 import objot.util.Bytes;
 import objot.util.Class2;
-import objot.util.Math2;
 
 
 public class Instruction
@@ -209,12 +207,12 @@ public class Instruction
 		return -(addr - 5) - 1;
 	}
 
-	public final void jumpTo(int jumpTag)
+	public final void jumpFrom(int jumpTag)
 	{
-		jumpTo(jumpTag, addr);
+		jump(jumpTag, addr);
 	}
 
-	public final void jumpTo(int jumpTag, int addrTo)
+	public final void jump(int jumpTag, int addrTo)
 	{
 		if (jumpTag >= 0)
 			write0s2(jumpTag + 1, addrTo - jumpTag);
@@ -238,8 +236,8 @@ public class Instruction
 		int h = 4 - (addr & 3);
 		int bn = h + 12 + (n << 2);
 		ensureByteN(addr + bn);
+		write0s4(addr, 0);
 		write0s1(addr, TABLESWITCH);
-		Arrays.fill(bytes, addr + 1, addr + bn, (byte)0);
 		write0s4(addr + h + 4, low);
 		write0s4(addr + h + 8, high0);
 		addr += bn;
@@ -247,13 +245,13 @@ public class Instruction
 	}
 
 	/** @param index negative for default, 0 for low-value ... */
-	public final void switchTableTo(long tableTag, int index)
+	public final void switchTableFrom(long tableTag, int index)
 	{
-		switchTableTo(tableTag, index, addr);
+		switchTable(tableTag, index, addr);
 	}
 
 	/** @param index negative for default, 0 for low-value ... */
-	public final void switchTableTo(long tableTag, int index, int addrTo)
+	public final void switchTable(long tableTag, int index, int addrTo)
 	{
 		int n = (int)(tableTag >> 32);
 		int adOp = (int)tableTag;
@@ -276,29 +274,21 @@ public class Instruction
 		int h = 4 - (addr & 3);
 		int bn = h + 8 + (n << 3);
 		ensureByteN(addr + bn);
+		write0s4(addr, 0);
 		write0s1(addr, LOOKUPSWITCH);
-		Arrays.fill(bytes, addr + 1, addr + bn, (byte)0);
 		write0s4(addr + h + 4, n);
 		addr += bn;
 		return (long)n << 32 | addr - bn & 0xFFFFFFFFL;
 	}
 
-	public final void switchLookupValue(long lookupTag, int index, int value)
-	{
-		int n = (int)(lookupTag >> 32);
-		int adOp = (int)lookupTag;
-		Math2.checkIndex(index, n);
-		write0s4(adOp + 4 - (adOp & 3) + 8 + (index << 3), value);
-	}
-
 	/** @param index negative for default, 0 for first value ... */
-	public final void switchLookupTo(long lookupTag, int index)
+	public final void switchLookupFrom(long lookupTag, int index)
 	{
-		switchTableTo(lookupTag, index, addr);
+		switchTable(lookupTag, index, addr);
 	}
 
 	/** @param index negative for default, 0 for low-value ... */
-	public final void switchLookupTo(long lookupTag, int index, int addrTo)
+	public final void switchLookup(long lookupTag, int index, int addrTo)
 	{
 		int n = (int)(lookupTag >> 32);
 		int adOp = (int)lookupTag;

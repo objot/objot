@@ -62,7 +62,7 @@ public class Codec
 	{
 		Clazz z = clas.get(c);
 		if (z == null)
-			clas.put(c, z = Clazz.create(c));
+			clas.put(c, z = Clazz.clazz(c));
 		return z;
 	}
 

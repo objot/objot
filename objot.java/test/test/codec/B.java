@@ -14,7 +14,7 @@ public class B
 	public String bb;
 
 	@EncDec
-	public String a1;
+	public int a1;
 
 	@EncDec
 	public float a3;
@@ -23,7 +23,7 @@ public class B
 	public String a4;
 
 	@EncDec
-	public String a5;
+	public long a5;
 
 	@EncDec
 	public List<Object[]> a6;

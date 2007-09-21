@@ -1009,6 +1009,18 @@ public class Constants
 			putClass(m.getDeclaringClass()), TAG_CLASS, putNameDesc(m), TAG_NAMEDESC);
 	}
 
+	public int addCtor0(int classCi)
+	{
+		return addRef2(TAG_CPROC, classCi, TAG_CLASS, //
+			addNameDesc(Procedure.CTOR_NAME_, Procedure.VOID_DESC_), TAG_NAMEDESC);
+	}
+
+	public int putCtor0(int classCi)
+	{
+		return putRef2(TAG_CPROC, classCi, TAG_CLASS, //
+			putNameDesc(Procedure.CTOR_NAME_, Procedure.VOID_DESC_), TAG_NAMEDESC);
+	}
+
 	public int addNameDesc(int nameCi, int descCi)
 	{
 		return addRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descCi, TAG_UTF);
