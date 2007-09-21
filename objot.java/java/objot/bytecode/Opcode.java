@@ -680,10 +680,8 @@ public final class Opcode
 			out.println(Bytes.readU1(bs, bi + 1));
 			return;
 		case LDC:
-			out.print(" ci ");
-			out.print(Bytes.readU1(bs, bi + 1));
-			if (cons != null && verbose >= 3)
-				cons.printConColon(Bytes.readU1(bs, bi + 1), out);
+			out.print(' ');
+			Constants.print(cons, out, Bytes.readU1(bs, bi + 1), verbose);
 			break;
 		case NEWARRAY:
 			out.print(' ');
@@ -728,10 +726,8 @@ public final class Opcode
 		case NEW:
 		case PUTFIELD:
 		case PUTSTATIC:
-			out.print(" ci ");
-			out.print(Bytes.readU2(bs, bi + 1));
-			if (cons != null && verbose >= 3)
-				cons.printConColon(Bytes.readU2(bs, bi + 1), out);
+			out.print(' ');
+			Constants.print(cons, out, Bytes.readU2(bs, bi + 1), verbose);
 			break;
 		case IINC:
 			out.print(" local ");
@@ -740,10 +736,8 @@ public final class Opcode
 			out.println(bs[bi + 2]);
 			return;
 		case INVOKEINTERFACE:
-			out.print(" ci ");
-			out.print(Bytes.readU2(bs, bi + 1));
-			if (cons != null && verbose >= 3)
-				cons.printConColon(Bytes.readU2(bs, bi + 1), out);
+			out.print(' ');
+			Constants.print(cons, out, Bytes.readU2(bs, bi + 1), verbose);
 			out.print(" with ");
 			out.print(Bytes.readU1(bs, bi + 3));
 			out.println(" stacks");
@@ -770,10 +764,8 @@ public final class Opcode
 			out.println(ad + Bytes.readS2(bs, bi + 1));
 			return;
 		case MULTIANEWARRAY:
-			out.print(" ci ");
-			out.print(Bytes.readU2(bs, bi + 1));
-			if (cons != null && verbose >= 3)
-				cons.printConColon(Bytes.readU2(bs, bi + 1), out);
+			out.print(' ');
+			Constants.print(cons, out, Bytes.readU2(bs, bi + 1), verbose);
 			out.print(" dimen ");
 			out.println(Bytes.readU1(bs, bi + 3));
 			return;
@@ -818,7 +810,7 @@ public final class Opcode
 			int n = Bytes.readS4(bs, bi + 4);
 			if (n >> 16 != 0)
 				throw new ClassFormatError("invalid lookup switch valueN " + n);
-			if (verbose >= 3)
+			if (verbose > 0)
 			{
 				bi += 8;
 				for (int i = 0; i < n; i++, bi += 8)
@@ -851,7 +843,7 @@ public final class Opcode
 			if (n >> 16 != 0)
 				throw new ClassFormatError("invalid table switch low/high value " + low + ' '
 					+ high);
-			if (verbose >= 3)
+			if (verbose > 0)
 			{
 				bi += 12;
 				for (int i = 0; i < n; i++, bi += 4)

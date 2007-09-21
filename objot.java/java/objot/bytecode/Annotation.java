@@ -113,21 +113,18 @@ public class Annotation
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		printIndent(out, indent1st);
-		out.print(" descCi ");
-		out.print(getDescCi());
-		cons.printUtf(out, getDescCi(), verbose);
+		out.print(" desc ");
+		cons.print(out, getDescCi(), verbose);
 		out.println();
 		for (int i = 0; i < propN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
-			out.print(". nameCi ");
-			out.print(getPropNameCi(i));
-			cons.printUtf(out, getPropNameCi(i), verbose);
+			out.print(". name ");
+			cons.print(out, getPropNameCi(i), verbose);
 			out.print(" valueBi ");
 			out.println(getPropValueBi(i));
 		}

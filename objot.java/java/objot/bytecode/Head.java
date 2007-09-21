@@ -32,11 +32,6 @@ public class Head
 		end1Bi = beginBi + 8 + (interfaceN << 1);
 	}
 
-	public Constants getCons()
-	{
-		return cons;
-	}
-
 	public int getModifier()
 	{
 		return modifier;
@@ -80,8 +75,7 @@ public class Head
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);
@@ -90,21 +84,17 @@ public class Head
 		out.print(' ');
 		out.println(Mod2.toString(modifier));
 		printIndent(out, indent);
-		out.print("classCi ");
-		out.print(getClassCi());
-		getCons().printClass(out, getClassCi(), verbose);
-		out.print(" superCi ");
-		out.print(getSuperCi());
-		getCons().printClass(out, getSuperCi(), verbose);
+		out.print("class ");
+		cons.print(out, getClassCi(), verbose);
+		out.print(" super ");
+		cons.print(out, getSuperCi(), verbose);
 		out.println();
 		for (int i = 0; i < interfaceN; i++)
 		{
 			printIndent(out, indent);
 			out.print(i);
-			out.print(". interfaceCi ");
-			out.print(getInterfaceCi(i));
-			getCons().printClass(out, getInterfaceCi(i), verbose);
-			out.println();
+			out.print(". interface ");
+			cons.print(out, getInterfaceCi(i), verbose).println();
 		}
 	}
 

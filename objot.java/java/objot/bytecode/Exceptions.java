@@ -13,12 +13,14 @@ import objot.util.InvalidValueException;
 public class Exceptions
 	extends Element
 {
+	public final Constants cons;
 	protected int exceptionN;
 	protected int[] exceptionCis;
 
-	public Exceptions(byte[] bs, int beginBi_)
+	public Exceptions(Constants c, byte[] bs, int beginBi_)
 	{
 		super(bs, beginBi_);
+		cons = c;
 		exceptionN = read0u2(beginBi + 6);
 		end1Bi = beginBi + 8 + (exceptionN << 1);
 		if (end1Bi - beginBi - 6 != read0u4(beginBi + 2))
@@ -53,8 +55,7 @@ public class Exceptions
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{
@@ -67,8 +68,8 @@ public class Exceptions
 		{
 			printIndent(out, indent);
 			out.print(i);
-			out.print(". exceptionCi ");
-			out.println(getExceptionCi(i));
+			out.print(". exception ");
+			cons.print(out, getExceptionCi(i), verbose).println();
 		}
 	}
 

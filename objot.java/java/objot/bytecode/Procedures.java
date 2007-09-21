@@ -60,8 +60,7 @@ public class Procedures
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{
@@ -75,7 +74,7 @@ public class Procedures
 			printIndent(out, indent);
 			out.print(i);
 			out.print('.');
-			getProc(i).printTo(out, 0, indent, verbose, hash);
+			getProc(i).printTo(out, 0, indent, verbose);
 		}
 	}
 

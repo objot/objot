@@ -117,8 +117,7 @@ public class Annotations
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{
@@ -132,7 +131,7 @@ public class Annotations
 			printIndent(out, indent);
 			out.print(i);
 			out.print('.');
-			getAnno(i).printTo(out, 0, indent, verbose, hash);
+			getAnno(i).printTo(out, 0, indent, verbose);
 		}
 	}
 

@@ -13,6 +13,7 @@ import objot.util.InvalidValueException;
 public class CodeVars
 	extends Element
 {
+	public final Constants cons;
 	protected boolean signature;
 	protected int varN;
 	protected int[] beginAds;
@@ -21,9 +22,10 @@ public class CodeVars
 	protected int[] descCis;
 	protected int[] locals;
 
-	public CodeVars(byte[] bs, int beginBi_, boolean signature_)
+	public CodeVars(Constants c, byte[] bs, int beginBi_, boolean signature_)
 	{
 		super(bs, beginBi_);
+		cons = c;
 		signature = signature_;
 		varN = read0u2(beginBi + 6);
 		end1Bi = beginBi + 8 + varN * 10;
@@ -111,8 +113,7 @@ public class CodeVars
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		for (int i = 0; i < varN; i++)
@@ -125,12 +126,12 @@ public class CodeVars
 			out.print(getAdN(i));
 			out.print(" end1Ad ");
 			out.print(getEnd1Ad(i));
-			out.print(" nameCi ");
-			out.print(getNameCi(i));
-			out.print(" descCi ");
-			out.print(getDescCi(i));
 			out.print(" local ");
-			out.println(getLocal(i));
+			out.print(getLocal(i));
+			out.print(" name ");
+			cons.print(out, getNameCi(i), verbose);
+			out.print(" desc ");
+			cons.print(out, getDescCi(i), verbose).println();
 		}
 	}
 

@@ -257,7 +257,7 @@ public class Procedure
 	public Exceptions getExceptions()
 	{
 		if (exceptions == null && exceptionsBi > 0)
-			exceptions = new Exceptions(bytes, exceptionsBi);
+			exceptions = new Exceptions(cons, bytes, exceptionsBi);
 		return exceptions;
 	}
 
@@ -269,8 +269,7 @@ public class Procedure
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);
@@ -279,33 +278,32 @@ public class Procedure
 		out.print(' ');
 		out.println(Mod2.toString(modifier));
 		printIndent(out, indent);
-		out.print("nameCi ");
-		out.print(getNameCi());
-		cons.printUtf(out, getNameCi(), verbose);
-		out.print(" descCi ");
-		out.print(getDescCi());
-		cons.printUtf(out, getDescCi(), verbose);
+		out.print("name ");
+		cons.print(out, getNameCi(), verbose);
+		out.print(" desc ");
+		cons.print(out, getDescCi(), verbose);
 		out.println();
 		printIndent(out, indent);
 		out.print("attrN ");
 		out.println(attrN);
-		printIndent(out, indent);
-		out.print("signatureCi ");
-		out.print(getSignatureCi());
-		cons.printUtf(out, getSignatureCi(), verbose);
-		out.println();
+		if (getSignatureCi() > 0)
+		{
+			printIndent(out, indent);
+			out.print("signature ");
+			cons.print(out, getSignatureCi(), verbose).println();
+		}
 		if (getAnnos() != null)
-			getAnnos().printTo(out, indent, indent, verbose, hash);
+			getAnnos().printTo(out, indent, indent, verbose);
 		if (getAnnoHides() != null)
-			getAnnoHides().printTo(out, indent, indent, verbose, hash);
+			getAnnoHides().printTo(out, indent, indent, verbose);
 		if (getAnnoParams() != null)
-			getAnnoParams().printTo(out, indent, indent, verbose, hash);
+			getAnnoParams().printTo(out, indent, indent, verbose);
 		if (getAnnoHideParams() != null)
-			getAnnoHideParams().printTo(out, indent, indent, verbose, hash);
+			getAnnoHideParams().printTo(out, indent, indent, verbose);
 		if (getExceptions() != null)
-			getExceptions().printTo(out, indent, indent, verbose, hash);
+			getExceptions().printTo(out, indent, indent, verbose);
 		if (getCode() != null)
-			getCode().printTo(out, indent, indent, verbose, hash);
+			getCode().printTo(out, indent, indent, verbose);
 	}
 
 	/** @return the annotation found, null for not found. */

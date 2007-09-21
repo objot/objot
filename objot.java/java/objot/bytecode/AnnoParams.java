@@ -128,8 +128,7 @@ public class AnnoParams
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{
@@ -146,7 +145,7 @@ public class AnnoParams
 				out.print(',');
 				out.println(j);
 				out.print('.');
-				getAnno(i, j).printTo(out, 0, indent, verbose, hash);
+				getAnno(i, j).printTo(out, 0, indent, verbose);
 			}
 	}
 

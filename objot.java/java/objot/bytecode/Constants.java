@@ -649,8 +649,7 @@ public class Constants
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose,
-		boolean hash)
+	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{
@@ -660,113 +659,90 @@ public class Constants
 			out.print("-1");
 		}
 		out.println();
-		for (int i = 1; i < conN; i++)
-		{
-			printIndent(out, indent);
-			out.print(i);
-			out.print(". ");
-			printConLn(i, out);
-		}
+		if (verbose > 1)
+			for (int i = 1; i < conN; i++)
+			{
+				printIndent(out, indent);
+				print(out, i, verbose).println();
+			}
 	}
 
-	public void printCon(int ci, PrintStream out)
+	public PrintStream print(PrintStream out, int ci, int verbose)
 	{
-		switch (readTag(ci))
-		{
-		case TAG_UTF:
-			out.print("utf ");
-			out.print(readUcs(ci));
-			break;
-		case TAG_INT:
-			out.print("int ");
-			out.print(readInt(ci));
-			break;
-		case TAG_FLOAT:
-			out.print("float ");
-			out.print(readFloat(ci));
-			break;
-		case TAG_LONG:
-			out.print("long ");
-			out.print(readLong(ci));
-			break;
-		case TAG_DOUBLE:
-			out.print("double ");
-			out.print(readDouble(ci));
-			break;
-		case TAG_CLASS:
-			out.print("class ");
-			out.print(readUcs(readClass(ci)));
-			break;
-		case TAG_STRING:
-			out.print("str ");
-			out.print(readUcs(readString(ci)));
-			break;
-		case TAG_FIELD:
-			out.print("field ");
-			out.print(readUcs(readFieldClass(ci)));
-			out.print('.');
-			out.print(readUcs(readFieldName(ci)));
-			out.print(' ');
-			out.print(readUcs(readFieldDesc(ci)));
-			break;
-		case TAG_CPROC:
-			out.print("cproc ");
-			out.print(readUcs(readCprocClass(ci)));
-			out.print('.');
-			out.print(readUcs(readCprocName(ci)));
-			out.print(' ');
-			out.print(readUcs(readCprocDesc(ci)));
-			break;
-		case TAG_IPROC:
-			out.print("iproc ");
-			out.print(readUcs(readIprocClass(ci)));
-			out.print('.');
-			out.print(readUcs(readIprocName(ci)));
-			out.print(readUcs(readIprocDesc(ci)));
-			break;
-		case TAG_NAMEDESC:
-			out.print("nameDesc ");
-			out.print(readUcs(readNameDescName(ci)));
-			out.print(' ');
-			out.print(readUcs(readNameDescDesc(ci)));
-			break;
-		}
+		out.print(ci);
+		if (verbose < 0 || ci <= 0)
+			out.print('~');
+		else
+			switch (readTag(ci))
+			{
+			case TAG_UTF:
+				out.print("'");
+				out.print(readUcs(ci));
+				break;
+			case TAG_INT:
+				out.print("~int ");
+				out.print(readInt(ci));
+				break;
+			case TAG_FLOAT:
+				out.print("~float ");
+				out.print(readFloat(ci));
+				break;
+			case TAG_LONG:
+				out.print("~long ");
+				out.print(readLong(ci));
+				break;
+			case TAG_DOUBLE:
+				out.print("~double ");
+				out.print(readDouble(ci));
+				break;
+			case TAG_CLASS:
+				out.print("{");
+				out.print(readUcs(readClass(ci)));
+				break;
+			case TAG_STRING:
+				out.print("~str ");
+				out.print(readUcs(readString(ci)));
+				break;
+			case TAG_FIELD:
+				out.print("~field ");
+				out.print(readUcs(readFieldClass(ci)));
+				out.print('.');
+				out.print(readUcs(readFieldName(ci)));
+				out.print(' ');
+				out.print(readUcs(readFieldDesc(ci)));
+				break;
+			case TAG_CPROC:
+				out.print("~cproc ");
+				out.print(readUcs(readCprocClass(ci)));
+				out.print('.');
+				out.print(readUcs(readCprocName(ci)));
+				out.print(' ');
+				out.print(readUcs(readCprocDesc(ci)));
+				break;
+			case TAG_IPROC:
+				out.print("~iproc ");
+				out.print(readUcs(readIprocClass(ci)));
+				out.print('.');
+				out.print(readUcs(readIprocName(ci)));
+				out.print(readUcs(readIprocDesc(ci)));
+				break;
+			case TAG_NAMEDESC:
+				out.print("~nameDesc ");
+				out.print(readUcs(readNameDescName(ci)));
+				out.print(' ');
+				out.print(readUcs(readNameDescDesc(ci)));
+				break;
+			}
+		return out;
 	}
 
-	public void printConLn(int ci, PrintStream out)
+	public static PrintStream print(Constants cons, PrintStream out, int ci, int verbose)
 	{
-		printCon(ci, out);
-		out.println();
-	}
-
-	public void printConColon(int ci, PrintStream out)
-	{
-		out.print(':');
-		printCon(ci, out);
-	}
-
-	public void printConColonLn(int ci, PrintStream out)
-	{
-		out.print(':');
-		printConLn(ci, out);
-	}
-
-	public void printUtf(PrintStream out, int utfCi, int verbose)
-	{
-		if (verbose > 0 && utfCi > 0)
-		{
-			out.print(':');
-			out.print(readUcs(utfCi));
-		}
-	}
-
-	public void printClass(PrintStream out, int classCi, int verbose)
-	{
-		if (verbose > 0 && classCi > 0)
-		{
-			out.print(':');
-			out.print(readUcs(readClass(classCi)));
-		}
+		if (cons != null)
+			return cons.print(out, ci, verbose);
+		out.print(ci);
+		out.print('~');
+		return out;
 	}
 
 	// ********************************************************************************
