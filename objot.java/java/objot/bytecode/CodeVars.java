@@ -140,7 +140,7 @@ public class CodeVars
 		locals = Array2.ensureN(locals, n);
 	}
 
-	public int appendInfo(int beginAd, int adN, int nameCi, int descCi, int local)
+	public int addInfo(int beginAd, int adN, int nameCi, int descCi, int local)
 	{
 		reads();
 		ensureVarN(varN + 1);
@@ -159,7 +159,7 @@ public class CodeVars
 			if (beginAds[i] == beginAd && adNs[i] == adN && nameCis[i] == nameCi
 				&& descCis[i] == descCi && locals[i] == local)
 				return i;
-		return appendInfo(beginAd, adN, nameCi, descCi, local);
+		return addInfo(beginAd, adN, nameCi, descCi, local);
 	}
 
 	public void setInfo(int vi, int beginAd, int adN, int nameCi, int descCi, int local)

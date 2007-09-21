@@ -126,7 +126,7 @@ public class Head
 	}
 
 	/** @return interface index(not Ci) */
-	public int appendInterface(int interfaceCi)
+	public int addInterface(int interfaceCi)
 	{
 		readInterfaceCis();
 		ensureInterfaceN(interfaceN + 1);
@@ -141,7 +141,7 @@ public class Head
 		for (int i = 0; i < interfaceN; i++)
 			if (interfaceCis[i] == interfaceCi)
 				return i;
-		return appendInterface(interfaceCi);
+		return addInterface(interfaceCi);
 	}
 
 	public void setInterface(int ii, int interfaceCi)

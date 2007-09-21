@@ -82,7 +82,7 @@ public class Fields
 	}
 
 	/** @return field index(not Ci) */
-	public int appendField(Field f)
+	public int addField(Field f)
 	{
 		readFields();
 		ensureFieldN(fieldN + 1);

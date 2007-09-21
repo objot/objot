@@ -19,7 +19,7 @@ import objot.util.Class2;
 import objot.util.Mod2;
 
 
-public abstract class Clazz
+abstract class Clazz
 {
 	private static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
 	protected Property[] encs;
@@ -69,15 +69,15 @@ public abstract class Clazz
 	{
 		String name = Clazz.class.getName() + "$$" + c.getName().replace('.', '$');
 		Bytecode b = new Bytecode();
-		int superCi = b.cons.appendClass(Clazz.class);
-		b.head.setModifier(Modifier.PUBLIC | Modifier.FINAL | Mod2.SYNTHETIC);
-		b.head.setClassCi(b.cons.appendClass(b.cons.appendUcs(Class2.pathName(name))));
+		int superCi = b.cons.addClass(Clazz.class);
+		b.head.setModifier(Modifier.FINAL | Mod2.SYNTHETIC);
+		b.head.setClassCi(b.cons.addClass(b.cons.addUcs(Class2.pathName(name))));
 		b.head.setSuperCi(superCi);
-		b.getProcs().appendProc(Procedure.appendEmptyCtor(b.cons, superCi, Modifier.PUBLIC));
-		int classCi = b.cons.appendClass(c);
-		int encsCi = b.cons.appendField(F_encs);
-		int allowCi = b.cons.appendProc(Property.M_allow);
-		int nameCi = b.cons.appendField(Property.F_name);
+		b.getProcs().addProc(Procedure.addEmptyCtor(b.cons, superCi, 0));
+		int classCi = b.cons.addClass(c);
+		int encsCi = b.cons.addField(F_encs);
+		int allowCi = b.cons.addProc(Property.M_allow);
+		int nameCi = b.cons.addField(Property.F_name);
 
 		makeEncode(b, es, classCi, encsCi, allowCi, nameCi);
 		makeEncodeRefs(b, es, classCi, encsCi, allowCi);
@@ -133,15 +133,15 @@ public abstract class Clazz
 	{
 		Procedure p = new Procedure(b.cons);
 		p.setModifier(Modifier.FINAL);
-		p.setNameCi(p.cons.appendUtf(NAME_encodeRefs));
-		p.setDescCi(p.cons.appendUtf(DESC_encodeRefs));
+		p.setNameCi(p.cons.addUtf(NAME_encodeRefs));
+		p.setDescCi(p.cons.addUtf(DESC_encodeRefs));
 		Instruction s = new Instruction(256);
 		s.ins0(Opcode.ALOAD2);
 		s.insU2(Opcode.CHECKCAST, classCi);
 		s.insU1(Opcode.ASTORE, 4); // object
 		s.ins0(Opcode.ALOAD0);
 		s.insU2(Opcode.GETFIELD, encsCi); // properties
-		int refsCi = p.cons.appendProc(Encoder.M_refs);
+		int refsCi = p.cons.addProc(Encoder.M_refs);
 		Property e;
 		for (int i = 0; i < es.length; i++)
 			if ( !(e = es[i]).cla.isPrimitive() && !Number.class.isAssignableFrom(e.cla)
@@ -157,9 +157,9 @@ public abstract class Clazz
 				s.ins0(Opcode.ALOAD1);
 				s.insU1(Opcode.ALOAD, 4); // object
 				if (e.field != null)
-					s.insU2(Opcode.GETFIELD, p.cons.appendField(e.field));
+					s.insU2(Opcode.GETFIELD, p.cons.addField(e.field));
 				else
-					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.appendProc(e.method));
+					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(e.method));
 				s.insU2(Opcode.INVOKEVIRTUAL, refsCi);
 				s.write0s2(adIf + 1, s.addr - adIf);
 			}
@@ -167,7 +167,7 @@ public abstract class Clazz
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(5);
 		p.getCode().setStackN(4);
-		b.getProcs().appendProc(p);
+		b.getProcs().addProc(p);
 	}
 
 	private static void makeEncode(Bytecode b, Property[] es, int classCi, int encsCi,
@@ -175,20 +175,20 @@ public abstract class Clazz
 	{
 		Procedure p = new Procedure(b.cons);
 		p.setModifier(Modifier.FINAL);
-		p.setNameCi(p.cons.appendUtf(NAME_encode));
-		p.setDescCi(p.cons.appendUtf(DESC_encode));
+		p.setNameCi(p.cons.addUtf(NAME_encode));
+		p.setDescCi(p.cons.addUtf(DESC_encode));
 		Instruction s = new Instruction(256);
 		s.ins0(Opcode.ALOAD2);
 		s.insU2(Opcode.CHECKCAST, classCi);
 		s.insU1(Opcode.ASTORE, 4); // object
 		s.ins0(Opcode.ALOAD0);
 		s.insU2(Opcode.GETFIELD, encsCi); // properties
-		int intCi = p.cons.appendProc(Encoder.M_valueInt);
-		int longCi = p.cons.appendProc(Encoder.M_valueLong);
-		int boolCi = p.cons.appendProc(Encoder.M_valueBool);
-		int floatCi = p.cons.appendProc(Encoder.M_valueFloat);
-		int doubleCi = p.cons.appendProc(Encoder.M_valueDouble);
-		int objCi = p.cons.appendProc(Encoder.M_valueObject);
+		int intCi = p.cons.addProc(Encoder.M_valueInt);
+		int longCi = p.cons.addProc(Encoder.M_valueLong);
+		int boolCi = p.cons.addProc(Encoder.M_valueBool);
+		int floatCi = p.cons.addProc(Encoder.M_valueFloat);
+		int doubleCi = p.cons.addProc(Encoder.M_valueDouble);
+		int objCi = p.cons.addProc(Encoder.M_valueObject);
 		Property e;
 		for (int i = 0; i < es.length; i++)
 		{
@@ -206,9 +206,9 @@ public abstract class Clazz
 			s.insU2(Opcode.GETFIELD, nameCi);
 			s.insU1(Opcode.ALOAD, 4); // object
 			if ((e = es[i]).field != null)
-				s.insU2(Opcode.GETFIELD, p.cons.appendField(e.field));
+				s.insU2(Opcode.GETFIELD, p.cons.addField(e.field));
 			else
-				s.insU2(Opcode.INVOKEVIRTUAL, p.cons.appendProc(e.method));
+				s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(e.method));
 			if (e.cla == int.class)
 				s.insU2(Opcode.INVOKEVIRTUAL, intCi);
 			else if (e.cla == long.class)
@@ -231,7 +231,7 @@ public abstract class Clazz
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(5);
 		p.getCode().setStackN(6);
-		b.getProcs().appendProc(p);
+		b.getProcs().addProc(p);
 	}
 
 	int decIndex(String name, Class<?> forClass)

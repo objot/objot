@@ -75,7 +75,7 @@ public class Exceptions
 	}
 
 	/** @return exception index(not Ci) */
-	public int appendException(int exceptionCi)
+	public int addException(int exceptionCi)
 	{
 		readExceptionCis();
 		ensureExceptionN(exceptionN + 1);
@@ -90,7 +90,7 @@ public class Exceptions
 		for (int i = 0; i < exceptionN; i++)
 			if (exceptionCis[i] == exceptionCi)
 				return i;
-		return appendException(exceptionCi);
+		return addException(exceptionCi);
 	}
 
 	public void setException(int ei, int exceptionCi)

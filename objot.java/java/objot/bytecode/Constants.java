@@ -781,8 +781,8 @@ public class Constants
 		}
 	}
 
-	/** @return second byte index of appended constant */
-	protected int append(byte tag, int bn)
+	/** @return second byte index of added constant */
+	protected int add(byte tag, int bn)
 	{
 		readBis();
 		ensureN(conN + 2, end1Bi + bn);
@@ -794,9 +794,9 @@ public class Constants
 		return end1Bi - bn;
 	}
 
-	public int appendUtf(Bytes utf)
+	public int addUtf(Bytes utf)
 	{
-		int bi = append(TAG_UTF, 3 + utf.byteN());
+		int bi = add(TAG_UTF, 3 + utf.byteN());
 		write0u2(bi + 1, utf.byteN());
 		utf.copyTo(0, bytes, bi + 3, utf.byteN());
 		return conN - 1;
@@ -806,7 +806,7 @@ public class Constants
 	{
 		int i = searchUtf(utf);
 		if (i < 0)
-			i = appendUtf(utf);
+			i = addUtf(utf);
 		return i;
 	}
 
@@ -814,13 +814,13 @@ public class Constants
 	{
 		int i = searchUtfLast(utf);
 		if (i < 0)
-			i = appendUtf(utf);
+			i = addUtf(utf);
 		return i;
 	}
 
-	public int appendUcs(String s)
+	public int addUcs(String s)
 	{
-		return appendUtf(utf(s));
+		return addUtf(utf(s));
 	}
 
 	public int putUcs(String s)
@@ -833,9 +833,9 @@ public class Constants
 		return putUtfLast(utf(s));
 	}
 
-	public int appendInt(int v)
+	public int addInt(int v)
 	{
-		write0s4(append(TAG_INT, 5) + 1, v);
+		write0s4(add(TAG_INT, 5) + 1, v);
 		return conN - 1;
 	}
 
@@ -843,13 +843,13 @@ public class Constants
 	{
 		int i = searchInt(v);
 		if (i < 0)
-			i = appendInt(v);
+			i = addInt(v);
 		return i;
 	}
 
-	public int appendLong(long v)
+	public int addLong(long v)
 	{
-		write0s8(append(TAG_LONG, 9) + 1, v);
+		write0s8(add(TAG_LONG, 9) + 1, v);
 		return conN - 2; // stupid specification
 	}
 
@@ -857,13 +857,13 @@ public class Constants
 	{
 		int i = searchLong(v);
 		if (i < 0)
-			i = appendLong(v);
+			i = addLong(v);
 		return i;
 	}
 
-	public int appendFloat(float v)
+	public int addFloat(float v)
 	{
-		write0s4(append(TAG_FLOAT, 5) + 1, Float.floatToRawIntBits(v));
+		write0s4(add(TAG_FLOAT, 5) + 1, Float.floatToRawIntBits(v));
 		return conN - 1;
 	}
 
@@ -871,13 +871,13 @@ public class Constants
 	{
 		int i = searchFloat(v);
 		if (i < 0)
-			i = appendFloat(v);
+			i = addFloat(v);
 		return i;
 	}
 
-	public int appendDouble(double v)
+	public int addDouble(double v)
 	{
-		write0s8(append(TAG_DOUBLE, 9) + 1, Double.doubleToRawLongBits(v));
+		write0s8(add(TAG_DOUBLE, 9) + 1, Double.doubleToRawLongBits(v));
 		return conN - 2; // stupid specification
 	}
 
@@ -885,15 +885,15 @@ public class Constants
 	{
 		int i = searchDouble(v);
 		if (i < 0)
-			i = appendDouble(v);
+			i = addDouble(v);
 		return i;
 	}
 
-	protected int appendRef(byte tag, int refCi, byte refTag)
+	protected int addRef(byte tag, int refCi, byte refTag)
 	{
 		if (readTag(refCi) != refTag)
 			throw new ClassCastException();
-		write0u2(append(tag, 3) + 1, refCi);
+		write0u2(add(tag, 3) + 1, refCi);
 		return conN - 1;
 	}
 
@@ -903,13 +903,13 @@ public class Constants
 			throw new ClassCastException();
 		int i = searchRef(tag, refCi);
 		if (i < 0)
-			i = appendRef(tag, refCi, refTag);
+			i = addRef(tag, refCi, refTag);
 		return i;
 	}
 
-	public int appendClass(int nameCi)
+	public int addClass(int nameCi)
 	{
-		return appendRef(TAG_CLASS, nameCi, TAG_UTF);
+		return addRef(TAG_CLASS, nameCi, TAG_UTF);
 	}
 
 	public int putClass(int nameCi)
@@ -917,9 +917,9 @@ public class Constants
 		return putRef(TAG_CLASS, nameCi, TAG_UTF);
 	}
 
-	public int appendClass(Class<?> cla)
+	public int addClass(Class<?> cla)
 	{
-		return appendRef(TAG_CLASS, appendUtf(utf(Class2.pathName(cla))), TAG_UTF);
+		return addRef(TAG_CLASS, addUtf(utf(Class2.pathName(cla))), TAG_UTF);
 	}
 
 	public int putClass(Class<?> cla)
@@ -927,9 +927,9 @@ public class Constants
 		return putRef(TAG_CLASS, putUtf(utf(Class2.pathName(cla))), TAG_UTF);
 	}
 
-	public int appendString(int strCi)
+	public int addString(int strCi)
 	{
-		return appendRef(TAG_STRING, strCi, TAG_UTF);
+		return addRef(TAG_STRING, strCi, TAG_UTF);
 	}
 
 	public int putString(int strCi)
@@ -937,11 +937,11 @@ public class Constants
 		return putRef(TAG_STRING, strCi, TAG_UTF);
 	}
 
-	protected int appendRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2I, byte ref2Tag)
+	protected int addRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2I, byte ref2Tag)
 	{
 		if (readTag(ref1Ci) != ref1Tag || readTag(ref2I) != ref2Tag)
 			throw new ClassCastException();
-		int bi = append(tag, 5);
+		int bi = add(tag, 5);
 		write0u2(bi + 1, ref1Ci);
 		write0u2(bi + 3, ref2I);
 		return conN - 1;
@@ -953,13 +953,13 @@ public class Constants
 			throw new ClassCastException();
 		int i = searchRef2(tag, ref1Ci, ref2Ci);
 		if (i < 0)
-			i = appendRef2(tag, ref1Ci, ref1Tag, ref2Ci, ref2Tag);
+			i = addRef2(tag, ref1Ci, ref1Tag, ref2Ci, ref2Tag);
 		return i;
 	}
 
-	public int appendField(int classCi, int nameDescCi)
+	public int addField(int classCi, int nameDescCi)
 	{
-		return appendRef2(TAG_FIELD, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
+		return addRef2(TAG_FIELD, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
 	public int putField(int classCi, int nameDescCi)
@@ -967,9 +967,9 @@ public class Constants
 		return putRef2(TAG_FIELD, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
-	public int appendField(java.lang.reflect.Field f)
+	public int addField(java.lang.reflect.Field f)
 	{
-		return appendField(appendClass(f.getDeclaringClass()), appendNameDesc(f));
+		return addField(addClass(f.getDeclaringClass()), addNameDesc(f));
 	}
 
 	public int putField(java.lang.reflect.Field f)
@@ -977,9 +977,9 @@ public class Constants
 		return putField(putClass(f.getDeclaringClass()), putNameDesc(f));
 	}
 
-	public int appendCproc(int classCi, int nameDescCi)
+	public int addCproc(int classCi, int nameDescCi)
 	{
-		return appendRef2(TAG_CPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
+		return addRef2(TAG_CPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
 	public int putCproc(int classCi, int nameDescCi)
@@ -987,9 +987,9 @@ public class Constants
 		return putRef2(TAG_CPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
-	public int appendIproc(int classCi, int nameDescCi)
+	public int addIproc(int classCi, int nameDescCi)
 	{
-		return appendRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
+		return addRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
 	public int putIproc(int classCi, int nameDescCi)
@@ -997,10 +997,10 @@ public class Constants
 		return putRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
-	public int appendProc(Method m)
+	public int addProc(Method m)
 	{
-		return appendRef2(m.getDeclaringClass().isInterface() ? TAG_IPROC : TAG_CPROC,
-			appendClass(m.getDeclaringClass()), TAG_CLASS, appendNameDesc(m), TAG_NAMEDESC);
+		return addRef2(m.getDeclaringClass().isInterface() ? TAG_IPROC : TAG_CPROC,
+			addClass(m.getDeclaringClass()), TAG_CLASS, addNameDesc(m), TAG_NAMEDESC);
 	}
 
 	public int putProc(Method m)
@@ -1009,9 +1009,9 @@ public class Constants
 			putClass(m.getDeclaringClass()), TAG_CLASS, putNameDesc(m), TAG_NAMEDESC);
 	}
 
-	public int appendNameDesc(int nameCi, int descCi)
+	public int addNameDesc(int nameCi, int descCi)
 	{
-		return appendRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descCi, TAG_UTF);
+		return addRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descCi, TAG_UTF);
 	}
 
 	public int putNameDesc(int nameCi, int descCi)
@@ -1019,9 +1019,9 @@ public class Constants
 		return putRef2(TAG_NAMEDESC, nameCi, TAG_UTF, descCi, TAG_UTF);
 	}
 
-	public int appendNameDesc(Bytes name, Bytes desc)
+	public int addNameDesc(Bytes name, Bytes desc)
 	{
-		return appendRef2(TAG_NAMEDESC, appendUtf(name), TAG_UTF, appendUtf(desc), TAG_UTF);
+		return addRef2(TAG_NAMEDESC, addUtf(name), TAG_UTF, addUtf(desc), TAG_UTF);
 	}
 
 	public int putNameDesc(Bytes name, Bytes desc)
@@ -1029,9 +1029,9 @@ public class Constants
 		return putRef2(TAG_NAMEDESC, putUtf(name), TAG_UTF, putUtf(desc), TAG_UTF);
 	}
 
-	public int appendNameDesc(java.lang.reflect.Field f)
+	public int addNameDesc(java.lang.reflect.Field f)
 	{
-		return appendNameDesc(utf(f.getName()), utf(Class2.descript(f)));
+		return addNameDesc(utf(f.getName()), utf(Class2.descript(f)));
 	}
 
 	public int putNameDesc(java.lang.reflect.Field f)
@@ -1039,9 +1039,9 @@ public class Constants
 		return putNameDesc(utf(f.getName()), utf(Class2.descript(f)));
 	}
 
-	public int appendNameDesc(Method m)
+	public int addNameDesc(Method m)
 	{
-		return appendNameDesc(utf(m.getName()), utf(Class2.descript(m)));
+		return addNameDesc(utf(m.getName()), utf(Class2.descript(m)));
 	}
 
 	public int putNameDesc(Method m)
@@ -1051,9 +1051,9 @@ public class Constants
 
 	// ********************************************************************************
 
-	public int appendUtf(Constants cons, int ci)
+	public int addUtf(Constants cons, int ci)
 	{
-		return appendUtf(new Bytes(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci)));
+		return addUtf(new Bytes(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci)));
 	}
 
 	public int putUtf(Constants cons, int ci)
@@ -1061,9 +1061,9 @@ public class Constants
 		return putUtfLast(new Bytes(cons.bytes, cons.readUtfBegin(ci), cons.readUtfEnd1(ci)));
 	}
 
-	public int appendClass(Constants cons, int ci)
+	public int addClass(Constants cons, int ci)
 	{
-		return appendClass(appendUtf(cons, cons.readClass(ci)));
+		return addClass(addUtf(cons, cons.readClass(ci)));
 	}
 
 	public int putClass(Constants cons, int ci)
@@ -1071,9 +1071,9 @@ public class Constants
 		return putClass(putUtf(cons, cons.readClass(ci)));
 	}
 
-	public int appendString(Constants cons, int ci)
+	public int addString(Constants cons, int ci)
 	{
-		return appendString(appendUtf(cons, cons.readString(ci)));
+		return addString(addUtf(cons, cons.readString(ci)));
 	}
 
 	public int putString(Constants cons, int ci)
@@ -1081,11 +1081,11 @@ public class Constants
 		return putString(putUtf(cons, cons.readString(ci)));
 	}
 
-	public int appendField(Constants cons, int ci)
+	public int addField(Constants cons, int ci)
 	{
-		return appendField(appendClass(appendUtf(cons, cons.readFieldClass(ci))),
-			appendNameDesc(appendUtf(cons, cons.readFieldName(ci)), //
-				appendUtf(cons, cons.readFieldDesc(ci))));
+		return addField(addClass(addUtf(cons, cons.readFieldClass(ci))), addNameDesc(addUtf(
+			cons, cons.readFieldName(ci)), //
+			addUtf(cons, cons.readFieldDesc(ci))));
 	}
 
 	public int putField(Constants cons, int ci)
@@ -1095,11 +1095,11 @@ public class Constants
 				putUtf(cons, cons.readFieldDesc(ci))));
 	}
 
-	public int appendCproc(Constants cons, int ci)
+	public int addCproc(Constants cons, int ci)
 	{
-		return appendCproc(appendClass(appendUtf(cons, cons.readCprocClass(ci))),
-			appendNameDesc(appendUtf(cons, cons.readCprocName(ci)), //
-				appendUtf(cons, cons.readCprocDesc(ci))));
+		return addCproc(addClass(addUtf(cons, cons.readCprocClass(ci))), addNameDesc(addUtf(
+			cons, cons.readCprocName(ci)), //
+			addUtf(cons, cons.readCprocDesc(ci))));
 	}
 
 	public int putCproc(Constants cons, int ci)
@@ -1109,11 +1109,11 @@ public class Constants
 				putUtf(cons, cons.readCprocDesc(ci))));
 	}
 
-	public int appendIproc(Constants cons, int ci)
+	public int addIproc(Constants cons, int ci)
 	{
-		return appendIproc(appendClass(appendUtf(cons, cons.readIprocClass(ci))),
-			appendNameDesc(appendUtf(cons, cons.readIprocName(ci)), //
-				appendUtf(cons, cons.readIprocDesc(ci))));
+		return addIproc(addClass(addUtf(cons, cons.readIprocClass(ci))), addNameDesc(addUtf(
+			cons, cons.readIprocName(ci)), //
+			addUtf(cons, cons.readIprocDesc(ci))));
 	}
 
 	public int putIproc(Constants cons, int ci)
@@ -1123,10 +1123,10 @@ public class Constants
 				putUtf(cons, cons.readIprocDesc(ci))));
 	}
 
-	public int appendNameDesc(Constants cons, int ci)
+	public int addNameDesc(Constants cons, int ci)
 	{
-		return appendNameDesc(appendUtf(cons, cons.readNameDescName(ci)), //
-			appendUtf(cons, cons.readNameDescDesc(ci)));
+		return addNameDesc(addUtf(cons, cons.readNameDescName(ci)), //
+			addUtf(cons, cons.readNameDescDesc(ci)));
 	}
 
 	public int putNameDesc(Constants cons, int ci)
@@ -1135,32 +1135,32 @@ public class Constants
 			putUtf(cons, cons.readNameDescDesc(ci)));
 	}
 
-	public int appendConstant(Constants cons, int ci)
+	public int addConstant(Constants cons, int ci)
 	{
 		switch (cons.readTag(ci))
 		{
 		case TAG_UTF:
-			return appendUtf(cons, ci);
+			return addUtf(cons, ci);
 		case TAG_INT:
-			return appendInt(cons.readInt(ci));
+			return addInt(cons.readInt(ci));
 		case TAG_FLOAT:
-			return appendFloat(cons.readFloat(ci));
+			return addFloat(cons.readFloat(ci));
 		case TAG_LONG:
-			return appendLong(cons.readLong(ci));
+			return addLong(cons.readLong(ci));
 		case TAG_DOUBLE:
-			return appendDouble(cons.readDouble(ci));
+			return addDouble(cons.readDouble(ci));
 		case TAG_CLASS:
-			return appendClass(cons, ci);
+			return addClass(cons, ci);
 		case TAG_STRING:
-			return appendString(cons, ci);
+			return addString(cons, ci);
 		case TAG_FIELD:
-			return appendField(cons, ci);
+			return addField(cons, ci);
 		case TAG_CPROC:
-			return appendCproc(cons, ci);
+			return addCproc(cons, ci);
 		case TAG_IPROC:
-			return appendIproc(cons, ci);
+			return addIproc(cons, ci);
 		case TAG_NAMEDESC:
-			return appendNameDesc(cons, ci);
+			return addNameDesc(cons, ci);
 		}
 		throw new ClassFormatError("invalid constant info tag " + cons.readTag(ci));
 	}

@@ -138,7 +138,7 @@ public class Annotations
 		annos = Array2.ensureN(annos, n);
 	}
 
-	public int appendAnno(Annotation a)
+	public int addAnno(Annotation a)
 	{
 		readAnnos();
 		ensureAnnoN(annoN + 1);
