@@ -54,10 +54,10 @@ public class Test1
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
 		z[0] = z;
 
-		Codec objot = new Codec();
-		CharSequence s = objot.enc(z, Object.class);
-		Object o = objot.dec(s.toString().toCharArray(), Object.class, Object.class);
-		CharSequence s2 = objot.enc(o, Object.class);
+		Codec codec = new Codec();
+		CharSequence s = codec.enc(z, Object.class);
+		Object o = codec.dec(s.toString().toCharArray(), Object.class, Object.class);
+		CharSequence s2 = codec.enc(o, Object.class);
 		if (s.length() != s2.length())
 			throw new Exception("length error: " + s.length() + " " + s2.length());
 		for (int i = 0; i < s.length(); i++)

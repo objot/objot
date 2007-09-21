@@ -153,7 +153,7 @@ public class AnnoParams
 		annos[pi] = Array2.ensureN(annos[pi], an);
 	}
 
-	public int appendAnno(int pi, Annotation a)
+	public int addAnno(int pi, Annotation a)
 	{
 		checkIndex(pi);
 		readAnnos();

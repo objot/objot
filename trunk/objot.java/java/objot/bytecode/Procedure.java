@@ -113,18 +113,17 @@ public class Procedure
 		end1Bi = i + 2;
 	}
 
-	public static Procedure appendEmptyCtor(Constants c, int superCi, int modifier)
+	public static Procedure addEmptyCtor(Constants c, int superCi, int modifier)
 	{
 		Procedure p = new Procedure(c);
-		int ctorCi = c.appendUcs(CTOR_NAME);
-		int voidCi = c.appendUcs(VOID_DESC);
+		int ctorCi = c.addUcs(CTOR_NAME);
+		int voidCi = c.addUcs(VOID_DESC);
 		p.setModifier(modifier);
 		p.setNameCi(ctorCi);
 		p.setDescCi(voidCi);
 		Instruction s = new Instruction(5);
 		s.ins0(Opcode.ALOAD0);
-		s.insU2(Opcode.INVOKESPECIAL, //
-			c.appendCproc(superCi, c.appendNameDesc(ctorCi, voidCi)));
+		s.insU2(Opcode.INVOKESPECIAL, c.addCproc(superCi, c.addNameDesc(ctorCi, voidCi)));
 		s.ins0(Opcode.RETURN);
 		p.getCode().setLocalN(1);
 		p.getCode().setStackN(1);

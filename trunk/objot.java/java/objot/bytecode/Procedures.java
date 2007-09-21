@@ -82,7 +82,7 @@ public class Procedures
 	}
 
 	/** @return procedure index(not Ci) */
-	public int appendProc(Procedure p)
+	public int addProc(Procedure p)
 	{
 		readProcs();
 		ensureProcN(procN + 1);

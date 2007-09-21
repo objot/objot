@@ -85,7 +85,7 @@ public class CodeLines
 		lines = Array2.ensureN(lines, n);
 	}
 
-	public int appendInfo(int beginAd, int line)
+	public int addInfo(int beginAd, int line)
 	{
 		reads();
 		ensureLineN(lineN + 1);
@@ -100,7 +100,7 @@ public class CodeLines
 		for (int i = 0; i < lineN; i++)
 			if (beginAds[i] == beginAd && lines[i] == line)
 				return i;
-		return appendInfo(beginAd, line);
+		return addInfo(beginAd, line);
 	}
 
 	public void setInfo(int li, int beginAd, int line)

@@ -114,7 +114,7 @@ public class CodeCatchs
 		typeCis = Array2.ensureN(typeCis, n);
 	}
 
-	public int appendInfo(int beginAd, int end1Ad, int catchAd, int typeCi)
+	public int addInfo(int beginAd, int end1Ad, int catchAd, int typeCi)
 	{
 		reads();
 		ensureCatchN(catchN + 1);
@@ -132,7 +132,7 @@ public class CodeCatchs
 			if (beginAds[i] == beginAd && end1Ads[i] == end1Ad && catchAds[i] == catchAd
 				&& typeCis[i] == typeCi)
 				return i;
-		return appendInfo(beginAd, end1Ad, catchAd, typeCi);
+		return addInfo(beginAd, end1Ad, catchAd, typeCi);
 	}
 
 	public void setInfo(int ti, int beginAd, int end1Ad, int catchAd, int typeCi)
