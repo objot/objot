@@ -13,14 +13,14 @@ public class Test1
 	public static void main(String[] args) throws Exception
 	{
 		A x = new A();
-		x.a2 = "x";
+		x.a2 = "\n\\20sss\tasdf34234sdf";
 		x.d = new Date(54321);
 		B y = new B();
-		y.a1 = "\tasdasdf";
+		y.a1 = Integer.MIN_VALUE / 2000;
 		y.a2 = true;
 		y.a3 = 34e-5f;
 		y.a4 = null;
-		y.a5 = "\n\\20";
+		y.a5 = Integer.MAX_VALUE / 2000 + 1L;
 		y.a6 = new ArrayList<Object[]>();
 		y.a6.add(new Object[] { y, y.a1, y.a2, y.a3, y.a4, y.a5, null, null });
 		y.a6.get(0)[6] = y.a6;

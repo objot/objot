@@ -12,6 +12,9 @@ public class Procedure
 	public static final String CTOR_NAME = "<init>";
 	public static final String CINIT_NAME = "<cinit>";
 	public static final String VOID_DESC = "()V";
+	protected static final Bytes CTOR_NAME_ = utf(CTOR_NAME);
+	protected static final Bytes CINIT_NAME_ = utf(CINIT_NAME);
+	protected static final Bytes VOID_DESC_ = utf(VOID_DESC);
 
 	public final Constants cons;
 	protected int modifier;
@@ -116,8 +119,8 @@ public class Procedure
 	public static Procedure addEmptyCtor(Constants c, int superCi, int modifier)
 	{
 		Procedure p = new Procedure(c);
-		int ctorCi = c.addUcs(CTOR_NAME);
-		int voidCi = c.addUcs(VOID_DESC);
+		int ctorCi = c.addUtf(CTOR_NAME_);
+		int voidCi = c.addUtf(VOID_DESC_);
 		p.setModifier(modifier);
 		p.setNameCi(ctorCi);
 		p.setDescCi(voidCi);
@@ -134,8 +137,8 @@ public class Procedure
 	public static Procedure putEmptyCtor(Constants c, int superCi)
 	{
 		Procedure p = new Procedure(c);
-		int ctorCi = c.putUcs(CTOR_NAME);
-		int voidCi = c.putUcs(VOID_DESC);
+		int ctorCi = c.putUtf(CTOR_NAME_);
+		int voidCi = c.putUtf(VOID_DESC_);
 		p.setNameCi(ctorCi);
 		p.setDescCi(voidCi);
 		Instruction s = new Instruction(5);

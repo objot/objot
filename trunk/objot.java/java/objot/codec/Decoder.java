@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.lang.reflect.Array;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Clob;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -30,7 +29,8 @@ final class Decoder
 	private int bx;
 	private int by;
 	private Object[] refs;
-	private int intOrLongOrNot;
+	private long numl;
+	private double numd;
 
 	Decoder(Codec o, Class<?> for_, char[] s)
 	{
@@ -84,7 +84,7 @@ final class Decoder
 
 	private Object ref() throws Exception
 	{
-		int i = (int)Int(1);
+		int i = numi(num());
 		if (i < 0 || i >= refs.length || refs[i] == null)
 			throw new RuntimeException("reference " + i + " not found");
 		return refs[i];
@@ -175,38 +175,55 @@ final class Decoder
 		};
 	}
 
-	/** @param L >0 for int only, < 0 for int or long, 0 for int or long or not */
-	private long Int(int L) throws Exception
+	/** @return 0 int >0 long <0 double */
+	private int num()
 	{
 		if (bx >= by)
 			throw new NumberFormatException("illegal number");
-		long v = 0, vv;
+		long v = 0, vv; // negative
 		for (int x = bs[bx] == '-' || bs[bx] == '+' ? bx + 1 : bx; x < by; x++)
-			if (bs[x] >= '0' && bs[x] <= '9')
-				if ((vv = v * 10 - (bs[x] - '0')) <= v) // negative
-					v = vv;
-				else if (L == 0)
-					return intOrLongOrNot = 0;
-				else
-					throw new NumberFormatException("long integer out of range " + str());
-			else if (L == 0)
-				return intOrLongOrNot = 0;
+			if (bs[x] >= '0' && bs[x] <= '9' && (vv = v * 10 - (bs[x] - '0')) <= v)
+				v = vv;
 			else
-				throw new NumberFormatException("illegal integer ".concat(str()));
-		if (bs[bx] != '-')
-			if ((v = -v) < 0)
-				throw new NumberFormatException("long integer out of range ".concat(str()));
-		intOrLongOrNot = (v >> 31) == 0 || (v >> 31) == -1 ? 1 : -1;
-		if (L > 0 && intOrLongOrNot < 0)
-			throw new NumberFormatException("integer out of range ".concat(str()));
-		return v;
+				return -1 | (int)(numd = Double.parseDouble(str()));
+		if (bs[bx] != '-' && (v = -v) < 0)
+			return -1 | (int)(numd = Double.parseDouble(str()));
+		numl = v;
+		return (v << 32 >> 32) == v ? 0 : 1;
 	}
 
-	private double number() throws Exception
+	private int numi(int type)
 	{
-		if (bx >= by)
-			throw new NumberFormatException("illegal number");
-		return Double.parseDouble(str());
+		if (type == 0)
+			return (int)numl;
+		throw new NumberFormatException("invalid int ".concat //
+			(type > 0 ? String.valueOf(numl) : String.valueOf(numd)));
+	}
+
+	private long numl(int type)
+	{
+		if (type >= 0)
+			return numl;
+		throw new NumberFormatException("invalid long " + numd);
+	}
+
+	private double numd(int type)
+	{
+		return type >= 0 ? numl : numd;
+	}
+
+	private Number Num(int type, Class<?> c) throws Exception
+	{
+		if (c == Integer.class)
+			return numi(type);
+		else if (c == Long.class)
+			return numl(type);
+		else if (c == Double.class)
+			return numd(type);
+		else if (c == Float.class)
+			return (float)numd(type);
+		return type == 0 ? Integer.valueOf((int)numl) : type > 0 ? Long.valueOf(numl)
+			: (Number)Double.valueOf(numd);
 	}
 
 	Object[] lo_ = null;
@@ -214,7 +231,7 @@ final class Decoder
 	private Object list(Class<?> listClass, Class<?> uniqueClass, Class<?> arrayClass)
 		throws Exception
 	{
-		final int len = (int)Int(1);
+		final int len = numi(num());
 		bxy();
 		boolean[] lb = null;
 		int[] li = null;
@@ -270,7 +287,7 @@ final class Decoder
 		if (chr() == '=')
 		{
 			bxy();
-			ref = (int)Int(1);
+			ref = numi(num());
 			refs = Array2.ensureN(refs, ref + 1);
 			refs[ref] = l;
 			bxy();
@@ -297,7 +314,7 @@ final class Decoder
 					throw new RuntimeException("integer expected for int[] but " + c + " at "
 						+ bx);
 				else
-					li[i++] = (int)Int(1);
+					li[i++] = numi(num());
 			return l;
 		}
 		else if (arrayClass == long.class)
@@ -308,7 +325,7 @@ final class Decoder
 					throw new RuntimeException("long integer expected for int[] but " + c
 						+ " at " + bx);
 				else
-					ll[i++] = Int( -1);
+					ll[i++] = numl(num());
 			return l;
 		}
 		else
@@ -326,29 +343,15 @@ final class Decoder
 			else if (c == '+')
 				set(lo, i++, ref(), cla);
 			else if (c == '*')
-				set(lo, i++, new Date(Int( -1)), cla);
+				set(lo, i++, new Date(numl(num())), cla);
 			else if (c == '.')
 				lo[i++] = null;
 			else if (c == '<')
 				set(lo, i++, false, cla);
 			else if (c == '>')
 				set(lo, i++, true, cla);
-			else if (cla == Long.class)
-				lo[i++] = Int( -1);
-			else if (cla == Double.class)
-				lo[i++] = number();
-			else if (cla == Float.class)
-				lo[i++] = (float)number();
 			else
-			{
-				long _ = Int(0);
-				if (intOrLongOrNot > 0)
-					set(lo, i++, (int)_, cla);
-				else if (intOrLongOrNot < 0)
-					set(lo, i++, _, cla);
-				else
-					set(lo, i++, number(), cla);
-			}
+				set(lo, i++, Num(num(), cla), cla);
 		}
 		if (uniqueClass != null)
 		{
@@ -381,11 +384,14 @@ final class Decoder
 		if (chr() == '=')
 		{
 			bxy();
-			ref = (int)Int(1);
+			ref = numi(num());
 			refs = Array2.ensureN(refs, ref + 1);
 			bxy();
 		}
-		Object o = cla.newInstance();
+		Clazz z = cla == HashMap.class ? null : codec.clazz(cla);
+		HashMap<String, Object> m = cla == HashMap.class ? new HashMap<String, Object>()
+			: null;
+		Object o = cla == HashMap.class ? m : z.object();
 		if (ref >= 0)
 			refs[ref] = o;
 		for (char c; chr() != '}'; bxy())
@@ -397,7 +403,6 @@ final class Decoder
 				bxy();
 			if (cla == HashMap.class)
 			{
-				HashMap<String, Object> m = (HashMap<String, Object>)o;
 				if (c == 0)
 					m.put(n, str());
 				else if (c == '[')
@@ -407,7 +412,7 @@ final class Decoder
 				else if (c == '+')
 					m.put(n, ref());
 				else if (c == '*')
-					m.put(n, new Date(Int( -1)));
+					m.put(n, new Date(numl(num())));
 				else if (c == '.')
 					m.put(n, null);
 				else if (c == '<')
@@ -415,87 +420,49 @@ final class Decoder
 				else if (c == '>')
 					m.put(n, true);
 				else
-				{
-					long v = Int(0);
-					if (intOrLongOrNot > 0)
-						m.put(n, (int)v);
-					else if (intOrLongOrNot < 0)
-						m.put(n, v);
-					else
-						m.put(n, number());
-				}
+					m.put(n, Num(num(), null));
 				continue;
 			}
 
-			Clazz z = codec.clazz(cla);
-			int x = z.decIndex(n, forClass);
-			if (x < 0)
+			Property p = z.decs.get(n);
+			if (p == null)
 				throw new RuntimeException(cla.getCanonicalName() + "." + n
-					+ " not found or not decodable or forbidden for "
-					+ forClass.getCanonicalName());
+					+ " not found or not decodable");
+			if ( !p.allow(forClass))
+				throw new RuntimeException("decoding " + cla.getCanonicalName() + "." + n
+					+ " forbidden for " + forClass.getCanonicalName());
+			Object v = Class.class;
 			try
 			{
 				if (c == 0)
-					v = p.clob ? clob() : str();
+					z.decode(o, p.index, v = p.clob ? clob() : str());
 				else if (c == '[')
-					v = list(p.list, p.unique, p.array);
+					z.decode(o, p.index, v = list(p.list, p.unique, p.array));
 				else if (c == '{')
-					v = object(p == null ? Object.class : p.cla);
+					z.decode(o, p.index, v = object(p.cla));
 				else if (c == '+')
-					v = ref();
+					z.decode(o, p.index, v = ref());
 				else if (c == '*')
-					v = new Date(Int( -1));
+					z.decode(o, p.index, v = new Date(numl(num())));
 				else if (c == '.')
-					v = null;
+					z.decode(o, p.index, v = null);
 				else if (c == '<')
-					v = false;
+					z.decode(o, p.index, v = false);
 				else if (c == '>')
-					v = true;
+					z.decode(o, p.index, v = true);
 				else if (p.cla == int.class)
-				{
-					p.set(o, (int)Int(1));
-					continue;
-				}
+					z.decode(o, p.index, numi(num()));
 				else if (p.cla == long.class)
-				{
-					p.set(o, Int( -1));
-					continue;
-				}
-				else if (p.cla == double.class)
-				{
-					p.set(o, number());
-					continue;
-				}
-				else if (p.cla == float.class)
-				{
-					p.set(o, (float)number());
-					continue;
-				}
-				else if (p.cla == Long.class)
-					v = Int( -1);
-				else if (p.cla == Double.class)
-					v = number();
-				else if (p.cla == Float.class)
-					v = (float)number();
+					z.decode(o, p.index, numl(num()));
+				else if (p.cla == double.class || p.cla == float.class)
+					z.decode(o, p.index, numd(num()));
 				else
-				{
-					long _ = Int(0);
-					if (intOrLongOrNot > 0)
-						v = (int)_;
-					else if (intOrLongOrNot < 0)
-						v = _;
-					else
-						v = number();
-				}
-
-				p.set(o, v);
+					z.decode(o, p.index, v = Num(num(), p.cla));
 			}
-			catch (InvocationTargetException e)
+			catch (ClassCastException e)
 			{
-				throw e;
-			}
-			catch (Exception e)
-			{
+				if (v == Class.class)
+					v = Num(num(), null);
 				throw new ClassCastException(cla.getCanonicalName() + "." + n + " : " //
 					+ (v != null ? v.getClass().getCanonicalName() : "null") //
 					+ " forbidden for " + p.cla);

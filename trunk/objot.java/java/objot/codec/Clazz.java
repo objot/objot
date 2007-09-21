@@ -21,12 +21,11 @@ import objot.util.Mod2;
 
 abstract class Clazz
 {
-	private static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
-	protected Property[] encs;
+	static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
+	Property[] encs;
+	HashMap<String, Property> decs = new HashMap<String, Property>();
 
-	private HashMap<String, Property> decs = new HashMap<String, Property>();
-
-	static Clazz create(Class<?> c) throws Exception
+	static Clazz clazz(Class<?> c) throws Exception
 	{
 		HashMap<String, Property> es_ = new HashMap<String, Property>();
 		for (Field f: c.getFields())
@@ -45,27 +44,34 @@ abstract class Clazz
 					new Property(m, e, null, true).into(es_);
 			}
 		Property[] es = es_.values().toArray(new Property[es_.size()]);
-		HashMap<String, Property> ds = new HashMap<String, Property>();
+
+		HashMap<String, Property> ds_ = new HashMap<String, Property>();
 		for (Field f: c.getFields())
 			if ((f.getModifiers() & Modifier.STATIC) == 0)
 			{
 				Dec d = f.getAnnotation(Dec.class);
 				EncDec gs = f.getAnnotation(EncDec.class);
 				if (d != null || gs != null)
-					new Property(f, null, d, gs, false).into(ds);
+					new Property(f, null, d, gs, false).into(ds_);
 			}
 		for (Method m: c.getMethods())
 			if ((m.getModifiers() & Modifier.STATIC) == 0)
 			{
 				Dec d = m.getAnnotation(Dec.class);
 				if (d != null)
-					new Property(m, null, d, false).into(ds);
+					new Property(m, null, d, false).into(ds_);
 			}
-		return make(c, es, ds);
+		Property[] ds = ds_.values().toArray(new Property[ds_.size()]);
+		for (int i = 0; i < ds.length; i++)
+			ds[i].index = i;
+
+		Clazz z = make(c, es, ds);
+		z.encs = es;
+		z.decs = ds_;
+		return z;
 	}
 
-	private static Clazz make(Class<?> c, Property[] es, HashMap<String, Property> ds)
-		throws Exception
+	private static Clazz make(Class<?> c, Property[] es, Property[] ds) throws Exception
 	{
 		String name = Clazz.class.getName() + "$$" + c.getName().replace('.', '$');
 		Bytecode b = new Bytecode();
@@ -74,24 +80,30 @@ abstract class Clazz
 		b.head.setClassCi(b.cons.addClass(b.cons.addUcs(Class2.pathName(name))));
 		b.head.setSuperCi(superCi);
 		b.getProcs().addProc(Procedure.addEmptyCtor(b.cons, superCi, 0));
+
 		int classCi = b.cons.addClass(c);
-		int encsCi = b.cons.addField(F_encs);
-		int allowCi = b.cons.addProc(Property.M_allow);
-		int nameCi = b.cons.addField(Property.F_name);
+		if (es.length > 0)
+		{
+			int encsCi = b.cons.addField(F_encs);
+			int allowCi = b.cons.addProc(Property.M_allow);
+			int nameCi = b.cons.addField(Property.F_name);
+			makeEncode(b, es, classCi, encsCi, allowCi, nameCi);
+			makeEncodeRefs(b, es, classCi, encsCi, allowCi);
+		}
+		makeObject(b, classCi);
+		if (ds.length > 0)
+		{
+			makeDecode(b, ds, classCi, 0);
+			makeDecode(b, ds, classCi, 1);
+			makeDecode(b, ds, classCi, 2);
+		}
 
-		makeEncode(b, es, classCi, encsCi, allowCi, nameCi);
-		makeEncodeRefs(b, es, classCi, encsCi, allowCi);
-		// makeDecode(zb, ds);
-
-		Clazz z = Class2.<Clazz>load(Clazz.class.getClassLoader(), name, b.normalize())
+		return Class2.<Clazz>load(Clazz.class.getClassLoader(), name, b.normalize())
 			.newInstance();
-		z.encs = es;
-		z.decs = ds;
-		return z;
 	}
 
-	private static final Bytes NAME_encodeRefs = utf("encodeRefs");
-	private static final Bytes DESC_encodeRefs = utf(Class2.descript //
+	static final Bytes NAME_encodeRefs = utf("encodeRefs");
+	static final Bytes DESC_encodeRefs = utf(Class2.descript //
 		(Class2.declaredMethod1(Clazz.class, "encodeRefs")));
 
 	/**
@@ -99,7 +111,7 @@ abstract class Clazz
 	 * 
 	 * <pre>
 	 * {@link Property}[] es = {@link #encs};
-	 * A a = (A)o;
+	 * A a = (A)o; // shouldn't cause ClassCastException
 	 * // no property 0
 	 * if (es[1].{@link Property#allow}(forClass) e.{@link Encoder#refs}(a.f1);
 	 * // no property 1
@@ -107,10 +119,12 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	abstract void encodeRefs(Encoder e, Object o, Class<?> forClass) throws Exception;
+	void encodeRefs(Encoder e, Object o, Class<?> forClass) throws Exception
+	{
+	}
 
-	private static final Bytes NAME_encode = utf("encode");
-	private static final Bytes DESC_encode = utf(Class2.descript //
+	static final Bytes NAME_encode = utf("encode");
+	static final Bytes DESC_encode = utf(Class2.descript //
 		(Class2.declaredMethod1(Clazz.class, "encode")));
 
 	/**
@@ -118,7 +132,7 @@ abstract class Clazz
 	 * 
 	 * <pre>
 	 * {@link Property}[] es = {@link #encs};
-	 * A a = (A)o;
+	 * A a = (A)o; // shouldn't cause ClassCastException
 	 * if (es[0].{@link Property#allow}(forClass))
 	 *   e.{@link Encoder#value(String, int)}(es[0].{@link Property#name}, a.f0);
 	 * if (es[1].{@link Property#allow}(forClass))
@@ -126,7 +140,9 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	abstract void encode(Encoder e, Object o, Class<?> forClass) throws Exception;
+	void encode(Encoder e, Object o, Class<?> forClass) throws Exception
+	{
+	}
 
 	private static void makeEncodeRefs(Bytecode b, Property[] es, int classCi, int encsCi,
 		int allowCi)
@@ -152,8 +168,7 @@ abstract class Clazz
 				s.ins0(Opcode.AALOAD); // property
 				s.ins0(Opcode.ALOAD3);
 				s.insU2(Opcode.INVOKEVIRTUAL, allowCi);
-				int adIf = s.addr;
-				s.insS2(Opcode.IFIE0, 0);
+				int if0 = s.insJump2(Opcode.IFIE0);
 				s.ins0(Opcode.ALOAD1);
 				s.insU1(Opcode.ALOAD, 4); // object
 				if (e.field != null)
@@ -161,7 +176,7 @@ abstract class Clazz
 				else
 					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(e.method));
 				s.insU2(Opcode.INVOKEVIRTUAL, refsCi);
-				s.write0s2(adIf + 1, s.addr - adIf);
+				s.jumpFrom(if0);
 			}
 		s.ins0(Opcode.RETURN);
 		p.getCode().setIns(s, false);
@@ -196,13 +211,12 @@ abstract class Clazz
 			s.insS2(Opcode.SIPUSH, i);
 			s.ins0(Opcode.AALOAD); // property
 			s.ins0(Opcode.DUP); // property
+			s.insU1(Opcode.ASTORE, 5); // property
 			s.ins0(Opcode.ALOAD3);
 			s.insU2(Opcode.INVOKEVIRTUAL, allowCi);
-			int adIf = s.addr;
-			s.insS2(Opcode.IFIE0, 0);
-			s.ins0(Opcode.DUP); // property
+			int if0 = s.insJump2(Opcode.IFIE0);
 			s.ins0(Opcode.ALOAD1);
-			s.ins0(Opcode.SWAP);
+			s.insU1(Opcode.ALOAD, 5); // property
 			s.insU2(Opcode.GETFIELD, nameCi);
 			s.insU1(Opcode.ALOAD, 4); // object
 			if ((e = es[i]).field != null)
@@ -224,19 +238,113 @@ abstract class Clazz
 				s.insBox(p.cons, e.cla);
 				s.insU2(Opcode.INVOKEVIRTUAL, objCi);
 			}
-			s.write0s2(adIf + 1, s.addr - adIf);
-			s.ins0(Opcode.POP); // property
+			s.jumpFrom(if0);
 		}
 		s.ins0(Opcode.RETURN);
 		p.getCode().setIns(s, false);
-		p.getCode().setLocalN(5);
-		p.getCode().setStackN(6);
+		p.getCode().setLocalN(6);
+		p.getCode().setStackN(5);
 		b.getProcs().addProc(p);
 	}
 
-	int decIndex(String name, Class<?> forClass)
+	static final Bytes NAME_object = utf("object");
+	static final Bytes DESC_object = utf(Class2.descript //
+		(Class2.declaredMethod1(Clazz.class, "object")));
+
+	/** Example: <code>return new A();</code> */
+	abstract Object object() throws Exception;
+
+	private static void makeObject(Bytecode b, int classCi)
 	{
-		Property p = decs.get(name);
-		return p != null && p.allow(forClass) ? p.index : -1;
+		Procedure p = new Procedure(b.cons);
+		p.setModifier(Modifier.FINAL);
+		p.setNameCi(p.cons.addUtf(NAME_object));
+		p.setDescCi(p.cons.addUtf(DESC_object));
+		Instruction s = new Instruction(256);
+		s.insU2(Opcode.NEW, classCi);
+		s.ins0(Opcode.DUP);
+		s.insU2(Opcode.INVOKESPECIAL, p.cons.addCtor0(classCi));
+		s.ins0(Opcode.ARETURN);
+		p.getCode().setIns(s, false);
+		p.getCode().setLocalN(1);
+		p.getCode().setStackN(2);
+		b.getProcs().addProc(p);
+	}
+
+	static final Bytes NAME_decode = utf("decode");
+	static final Bytes DESC_decode = utf(Class2.descript //
+		(Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, Object.class)));
+	static final Bytes DESC_decodeL = utf(Class2.descript //
+		(Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, long.class)));
+	static final Bytes DESC_decodeD = utf(Class2.descript //
+		(Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, double.class)));
+
+	/**
+	 * Example:
+	 * 
+	 * <pre>
+	 * A a = (A)o;
+	 * switch(x) {
+	 *   case 2: a.f2 = (Class2)v; return;
+	 *   case 5: a.m5((Class5)v); return;
+	 *   ...
+	 *   default: throw new ClassCastException();
+	 * }</pre>
+	 */
+	abstract void decode(Object o, int x, Object v) throws Exception;
+
+	abstract void decode(Object o, int x, long v) throws Exception;
+
+	/** includes floats */
+	abstract void decode(Object o, int x, double v) throws Exception;
+
+	private static void makeDecode(Bytecode b, Property[] ds, int classCi, int type)
+	{
+		Procedure p = new Procedure(b.cons);
+		p.setModifier(Modifier.FINAL);
+		p.setNameCi(p.cons.addUtf(NAME_decode));
+		p.setDescCi(p.cons.addUtf(type == 0 ? DESC_decode : type == 1 ? DESC_decodeL
+			: DESC_decodeD));
+		Instruction s = new Instruction(256);
+		s.ins0(Opcode.ALOAD1);
+		s.insU2(Opcode.CHECKCAST, classCi); // object
+		s.ins0(type == 0 ? Opcode.ALOAD3 : type == 1 ? Opcode.LLOAD3 : Opcode.DLOAD3);
+		s.ins0(Opcode.ILOAD2);
+		long switchs = s.insSwitchTable(0, ds.length - 1);
+		int switch0 = s.addr; // default
+		s.switchTableFrom(switchs, -1);
+		int exCi = p.cons.addClass(ClassCastException.class);
+		s.insU2(Opcode.NEW, exCi);
+		s.ins0(Opcode.DUP);
+		s.insU2(Opcode.INVOKESPECIAL, p.cons.addCtor0(exCi));
+		s.ins0(Opcode.ATHROW);
+		Property d;
+		for (int i = 0; i < ds.length && (d = ds[i]) != null; i++)
+			if (type == 0 ? d.cla.isPrimitive() && d.cla != boolean.class //
+			: type == 1 ? d.cla != int.class && d.cla != long.class //
+			: d.cla != double.class && d.cla != float.class)
+				s.switchTable(switchs, i, switch0);
+			else
+			{
+				s.switchTableFrom(switchs, i);
+				if (type == 0)
+					if (d.cla == boolean.class)
+						s.insUnboxNarrow(p.cons, d.cla);
+					else
+						s.insU2(Opcode.CHECKCAST, p.cons.addClass(d.cla));
+				else if (type == 1 && d.cla == int.class)
+					s.ins0(Opcode.L2I);
+				else if (type == 2 && d.cla == float.class)
+					s.ins0(Opcode.D2F);
+				if (d.field != null)
+					s.insU2(Opcode.PUTFIELD, p.cons.addField(d.field));
+				else
+					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(d.method));
+				s.ins0(Opcode.RETURN);
+			}
+		p.getCode().setIns(s, false);
+		p.getCode().setLocalN(5);
+		p.getCode().setStackN(5);
+		b.getProcs().addProc(p);
 	}
 }
