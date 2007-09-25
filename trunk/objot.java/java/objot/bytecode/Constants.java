@@ -680,19 +680,19 @@ public class Constants
 				out.print(readUcs(ci));
 				break;
 			case TAG_INT:
-				out.print("~int ");
+				out.print("-int ");
 				out.print(readInt(ci));
 				break;
 			case TAG_FLOAT:
-				out.print("~float ");
+				out.print("-float ");
 				out.print(readFloat(ci));
 				break;
 			case TAG_LONG:
-				out.print("~long ");
+				out.print("-long ");
 				out.print(readLong(ci));
 				break;
 			case TAG_DOUBLE:
-				out.print("~double ");
+				out.print("-double ");
 				out.print(readDouble(ci));
 				break;
 			case TAG_CLASS:
@@ -700,11 +700,11 @@ public class Constants
 				out.print(readUcs(readClass(ci)));
 				break;
 			case TAG_STRING:
-				out.print("~str ");
+				out.print("-str ");
 				out.print(readUcs(readString(ci)));
 				break;
 			case TAG_FIELD:
-				out.print("~field ");
+				out.print("-field ");
 				out.print(readUcs(readFieldClass(ci)));
 				out.print('.');
 				out.print(readUcs(readFieldName(ci)));
@@ -712,7 +712,7 @@ public class Constants
 				out.print(readUcs(readFieldDesc(ci)));
 				break;
 			case TAG_CPROC:
-				out.print("~cproc ");
+				out.print("-cproc ");
 				out.print(readUcs(readCprocClass(ci)));
 				out.print('.');
 				out.print(readUcs(readCprocName(ci)));
@@ -720,14 +720,14 @@ public class Constants
 				out.print(readUcs(readCprocDesc(ci)));
 				break;
 			case TAG_IPROC:
-				out.print("~iproc ");
+				out.print("-iproc ");
 				out.print(readUcs(readIprocClass(ci)));
 				out.print('.');
 				out.print(readUcs(readIprocName(ci)));
 				out.print(readUcs(readIprocDesc(ci)));
 				break;
 			case TAG_NAMEDESC:
-				out.print("~nameDesc ");
+				out.print("-nameDesc ");
 				out.print(readUcs(readNameDescName(ci)));
 				out.print(' ');
 				out.print(readUcs(readNameDescDesc(ci)));

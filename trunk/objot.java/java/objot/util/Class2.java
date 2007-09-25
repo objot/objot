@@ -9,10 +9,14 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class Class2
@@ -192,6 +196,8 @@ public class Class2
 			return Character.toLowerCase(n.charAt(3)) + n.substring(4);
 	}
 
+	// ********************************************************************************
+
 	public static Class<?> typeParamClass(Type t, int paramIndex, Class<?> Default)
 	{
 		if (t instanceof ParameterizedType)
@@ -201,20 +207,6 @@ public class Class2
 				Default = (Class<?>)t;
 		}
 		return Default;
-	}
-
-	public static final Exception exception(Throwable e) throws Error
-	{
-		if (e instanceof Error)
-			throw (Error)e;
-		return e instanceof Exception ? (Exception)e : new Exception(e);
-	}
-
-	public static final RuntimeException runtimeException(Throwable e) throws Error
-	{
-		if (e instanceof Error)
-			throw (Error)e;
-		return e instanceof RuntimeException ? (RuntimeException)e : new RuntimeException(e);
 	}
 
 	public static Field field(Class<?> c, String name)
@@ -239,6 +231,29 @@ public class Class2
 		{
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * find all not-private instance fields including those inherited from super classes.
+	 * fields in super class are before those in sub class.
+	 */
+	public static List<Field> fields(Class<?> c)
+	{
+		return fields(c, 0, Modifier.PRIVATE | Modifier.STATIC);
+	}
+
+	/**
+	 * find all matched fields including those inherited from super classes. fields in
+	 * super class are before those in sub class.
+	 */
+	public static List<Field> fields(Class<?> c, int mods, int notMods)
+	{
+		List<Field> s = c.getSuperclass() == null ? new ArrayList<Field>() //
+			: fields(c.getSuperclass(), mods, notMods);
+		for (Field f: c.getDeclaredFields())
+			if ((f.getModifiers() & mods) == mods && (f.getModifiers() & notMods) == 0)
+				s.add(f);
+		return s;
 	}
 
 	/** excludes {@link Mod2.P#INITER} */
@@ -285,6 +300,36 @@ public class Class2
 			if (m.getName().equals(name))
 				return m;
 		throw new RuntimeException(new NoSuchMethodException(c.getName() + '.' + name));
+	}
+
+	/**
+	 * find all matched methods including those inherited and not-overriden from super
+	 * classes. excludes {@link Mod2.P#INITER}. methods in super class are before those
+	 * in sub class, the overriden methods are replaced in their original position
+	 */
+	public static List<Method> methods(Class<?> c, int mods, int notMods)
+	{
+		List<Method> s = c.getSuperclass() == null ? new ArrayList<Method>() //
+			: methods(c.getSuperclass(), mods, notMods);
+		M: for (Method m: c.getDeclaredMethods())
+			if ((m.getModifiers() & mods) == mods && (m.getModifiers() & notMods) == 0)
+			{
+				if ((m.getModifiers() & Modifier.STATIC) == 0)
+					for (int i = 0; i < s.size(); i++)
+						if (override(s.get(i), m))
+						{
+							s.set(i, m);
+							continue M;
+						}
+				s.add(m);
+			}
+		return s;
+	}
+
+	public static boolean override(Method a, Method b)
+	{
+		return a.getName().equals(b.getName())
+			&& Arrays.equals(a.getParameterTypes(), b.getParameterTypes());
 	}
 
 	public static <T extends AccessibleObject>T accessible(final T o)
@@ -340,4 +385,21 @@ public class Class2
 	{
 		return load(l, name, bytecode.bytes, bytecode.beginBi, bytecode.end1Bi);
 	}
+
+	// ********************************************************************************
+
+	public static final Exception exception(Throwable e) throws Error
+	{
+		if (e instanceof Error)
+			throw (Error)e;
+		return e instanceof Exception ? (Exception)e : new Exception(e);
+	}
+
+	public static final RuntimeException runtimeException(Throwable e) throws Error
+	{
+		if (e instanceof Error)
+			throw (Error)e;
+		return e instanceof RuntimeException ? (RuntimeException)e : new RuntimeException(e);
+	}
+
 }
