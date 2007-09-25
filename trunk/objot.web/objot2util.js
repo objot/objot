@@ -151,13 +151,13 @@ $http.doneDelay = 300;
 $dom($D.body);
 
 /** get/set style.cssFloat in Firefox, style.styleFloat in IE */
-$.Float = $fox ? function (d, v) {
+$.Float = $fos ? function (d, v) {
 	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d);
 } : function (d, v) {
 	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d);
 }
 /** get/set style.opacity in Firefox, style.filter in IE */
-$.opacity = $fox ? function (d, v) {
+$.opacity = $fos ? function (d, v) {
 	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d);
 } : function (d, v) {
 	var s = d.style, f = s.filter;
@@ -191,7 +191,7 @@ $Http = function (box, h) {
  * @return the box */
 $Err = function (box, err, show, noStack) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
-	noStack || $fox && (err = err + '\n' + $.throwStack());
+	noStack || $fos && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
 	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-icon'));
 	show === true || box.firstChild.att('title', err).attach('dblclick', $.f(show));
@@ -214,9 +214,9 @@ $Pop = function (inner) {
 			)))
 		)
 	);
-	$fox || box.add(0, $.opacity(
+	$fos || box.add(0, $.opacity(
 		$dom('iframe', 's', 'position:absolute; width:100%; height:100%'), 0));
-	if ($ie6)
+	if ($ie == 6)
 		box.style.position = 'absolute',
 		box.style.top = $D.documentElement.scrollTop,
 		box.style.left = $D.documentElement.scrollLeft,
@@ -225,7 +225,7 @@ $Pop = function (inner) {
 	return $D.body.add(box), box;
 }
 	$Pop.des = function () {
-		$ie6 && ($D.documentElement.style.overflow = '');
+		$ie == 6 && ($D.documentElement.style.overflow = '');
 		$dom.des.apply(this, arguments);
 	}
 
