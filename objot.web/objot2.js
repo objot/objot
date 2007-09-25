@@ -16,13 +16,15 @@ $S = function (x) {
 			(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
 }
 
-$ie7 = navigator.userAgent.search('MSIE (7|8)') >= 0;
-$ie6 = navigator.userAgent.indexOf('MSIE') >= 0;
-$fox = !$ie6 && !$ie7; //Gecko|Opera|Safari
+/** false or version number */
+$ie = navigator.userAgent.search('MSIE');
+$ie = $ie >= 0 && navigator.userAgent.charCodeAt($ie + 5);
+/** Gecko|Opera|Safari */
+$fos = !$ie;
 
 /** throw Error */
 $throw = function (x) {
-	throw $fox ? $throw.err = Error(x instanceof Error ? x.message : x)
+	throw $fos ? $throw.err = Error(x instanceof Error ? x.message : x)
 		: x instanceof Error ? x : Error(0, x);
 }
 
@@ -218,10 +220,10 @@ $dec = function (s) {
  * @return a function to stop this round */
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
-	$fox && location.protocol === 'file:'
+	netscape && location.protocol === 'file:'
 		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
 		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
-	var h = $ie6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
+	var h = $ie == 6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
 	h.open('POST', url, true);
 	h.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
 	h.setRequestHeader('Cache-Control', 'no-cache');
@@ -241,7 +243,7 @@ $http = function (url, timeout, request, done, data) {
 				done = data = s = t = null;
 			} catch(_) {
 				done = data = s = t = null;
-				if (!$fox || !onerror)
+				if ($ie || !onerror) // TODO opera safari ?
 					throw _;
 				_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
 					: onerror(_, 0, 0);
@@ -256,7 +258,7 @@ $http = function (url, timeout, request, done, data) {
 				done(mode ? 1 : -1, mode ? 'timeout' : 'stop', data), done = data = null;
 		}
 	}
-	h.onreadystatechange = $fox && $http.doneDelay <= 0 ? on : function () {
+	h.onreadystatechange = $fos && $http.doneDelay <= 0 ? on : function () {
 		setTimeout(on, $http.doneDelay + 1);
 	};
 	timeout = timeout > 0 && setTimeout(function () {
@@ -291,7 +293,7 @@ $dom = function (domOrName, prop, value) {
 $doms = function (domOrName, props, from) {
 	var m = typeof domOrName == 'string' ? $D.createElement(domOrName) : $.o(domOrName);
 	m !== window || $throw('apply $dom or $doms to window forbidden');
-	$fox ? m.constructor.$on || delete $.copy(m.constructor.prototype, $dom).prototype
+	$fos ? m.constructor.$on || delete $.copy(m.constructor.prototype, $dom).prototype
 		: $.copy(m, $dom);
 	for (var v, p, x = from || 0; x < props.length; x++) {
 		p = $.s(props[x]), v = props[++x], v === undefined && (v = null);
@@ -300,7 +302,7 @@ $doms = function (domOrName, props, from) {
 	}
 	return m;
 }
-	$fox && ($dom.$on = false); // for dom node's constructor, be false for event attach
+	$fos && ($dom.$on = false); // for dom node's constructor, be false for event attach
 
 with ($)
 {
@@ -436,7 +438,7 @@ $dom.att = function (a, v) {
 }
 /** get/set textContent in Firefox, innerText in IE, multi lines and whitspaces reserved.
  * @return text if no argument, or this */
-$dom.tx = $fox ? function (v, multiLine) {
+$dom.tx = $fos ? function (v, multiLine) {
 	if (arguments.length == 0)
 		return this.textContent;
 	v = String(v).replace(/  /g, ' \u00a0'); // whitespaces unsupported
@@ -482,10 +484,10 @@ $dom.attach = function (type, handler, This, args, old) {
 			return this;
 		while (s[x] && (x = s[x]))
 // this causes window.onerror no effect for exceptions from event handlers
-//	else if ($fox) // more events available
+//	else if ($fos) // more events available
 //		this.addEventListener(type, $.event, false);
 // this causes unexpected "this" value in $.event
-//	else if (!$fox)
+//	else if ($ie)
 //		this.attachEvent('on' + type, $.event);
 	else
 		this['on' + type] = $.event;
@@ -512,7 +514,7 @@ $.throwStack = function (file, line) {
 		: $throw.err ? $throw.err.Stack() : '';
 	s = s.substr(s.indexOf('\n') + 1);
 	return arguments.length == 0 || $throw.err ? s
-		: '@' + file + ':' + ($fox ? line : line - 1) + '\n' + s;
+		: '@' + file + ':' + ($fos ? line : line - 1) + '\n' + s;
 }
 	Error.prototype.Stack = function (s) {
 		if (!(s = this.stack))
@@ -585,7 +587,7 @@ $.event = function (e, s, x, r, ee) {
 		do r = r || s[x + 3]
 			? s[x + 1].apply(s[x + 2] || new s[x + 1].$ctor, s[x + 3])
 			: s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, ee ||
-			($fox || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop),
+			($fos || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop),
 				ee = e));
 		while (x = s[x]);
 		return !r;
@@ -594,4 +596,4 @@ $.event = function (e, s, x, r, ee) {
 	$.eventStop = function () {
 		this.cancelBubble = true;
 	}
-	$fox && (Event.prototype.stop = Event.prototype.stopPropagation);
+	$fos && (Event.prototype.stop = Event.prototype.stopPropagation);
