@@ -311,11 +311,12 @@ public class Class2
 	{
 		List<Method> s = c.getSuperclass() == null ? new ArrayList<Method>() //
 			: methods(c.getSuperclass(), mods, notMods);
+		int supN = s.size();
 		M: for (Method m: c.getDeclaredMethods())
 			if ((m.getModifiers() & mods) == mods && (m.getModifiers() & notMods) == 0)
 			{
 				if ((m.getModifiers() & Modifier.STATIC) == 0)
-					for (int i = 0; i < s.size(); i++)
+					for (int i = 0; i < supN; i++)
 						if (override(s.get(i), m))
 						{
 							s.set(i, m);

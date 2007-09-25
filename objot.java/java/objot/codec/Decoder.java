@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
-import java.lang.reflect.Array;
 import java.sql.Clob;
 import java.util.AbstractCollection;
 import java.util.ArrayList;
@@ -274,7 +273,7 @@ final class Decoder
 			lo_ = null;
 		}
 		else if (uniqueClass != null)
-			lo = (Object[])Array.newInstance(uniqueClass, len);
+			lo = Array2.news(uniqueClass, len);
 		else if (arrayClass == boolean.class)
 			l = lb = new boolean[len];
 		else if (arrayClass == int.class)
@@ -282,7 +281,7 @@ final class Decoder
 		else if (arrayClass == long.class)
 			l = ll = new long[len];
 		else
-			l = lo = (Object[])Array.newInstance(arrayClass, len);
+			l = lo = Array2.news(arrayClass, len);
 		int ref = -1;
 		if (chr() == '=')
 		{

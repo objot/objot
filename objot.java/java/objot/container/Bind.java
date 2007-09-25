@@ -9,7 +9,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 
-class Bind
+public class Bind
 {
 	/** null */
 	Class<?> c;
@@ -18,8 +18,16 @@ class Bind
 	Scope s;
 	Field[] fs;
 	Object[] fbs;
-	Constructor<?>[] cs;
-	Object[] cbs;
+	Constructor<?> ct;
+	/** [param index] */
+	Object[] cb;
 	Method[] ms;
-	Object[] mbs;
+	/** [][param index] */
+	Object[][] mbs;
+
+	@Override
+	public String toString()
+	{
+		return "binding of " + c;
+	}
 }
