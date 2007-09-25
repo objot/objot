@@ -7,6 +7,7 @@ package objot.util;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 
 
 public class Array2
@@ -75,9 +76,16 @@ public class Array2
 
 	/** @return new allocated 1-dimension array */
 	@SuppressWarnings("unchecked")
-	public static <T>T[] newObjects(Class<T> componentClass, int length)
+	public static <T>T[] news(Class<T> component, int length)
 	{
-		return (T[])Array.newInstance(componentClass, length);
+		return (T[])Array.newInstance(component, length);
+	}
+
+	/** @return new allocated 1-dimension array */
+	@SuppressWarnings("unchecked")
+	public static <T>T[] news(T[] s, int length)
+	{
+		return (T[])Array.newInstance(s.getClass().getComponentType(), length);
 	}
 
 	/** @return the array, or a reused empty array if the array is null */
@@ -441,13 +449,11 @@ public class Array2
 		return a;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T>T[] ensureN(T[] array, int n)
 	{
 		if (n <= array.length)
 			return array;
-		T[] a = (T[])Array.newInstance(array.getClass().getComponentType(), //
-			Math2.max((int)(array.length * 1.5f + 2.5f), n, 4));
+		T[] a = news(array, Math2.max((int)(array.length * 1.5f + 2.5f), n, 4));
 		System.arraycopy(array, 0, a, 0, array.length);
 		return a;
 	}
@@ -472,13 +478,12 @@ public class Array2
 		return a;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T>T[] shrink(T[] array, int begin, int end1)
 	{
 		Math2.checkRange(begin, end1, array.length);
 		if (end1 - begin == array.length)
 			return array;
-		T[] a = (T[])Array.newInstance(array.getClass().getComponentType(), end1 - begin);
+		T[] a = news(array, end1 - begin);
 		System.arraycopy(array, begin, a, 0, end1 - begin);
 		return a;
 	}
@@ -499,12 +504,23 @@ public class Array2
 		return a;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T>T[] subClone(T[] array, int begin, int end1)
 	{
 		Math2.checkRange(begin, end1, array.length);
-		T[] a = (T[])Array.newInstance(array.getClass().getComponentType(), end1 - begin);
+		T[] a = news(array, end1 - begin);
 		System.arraycopy(array, begin, a, 0, end1 - begin);
 		return a;
+	}
+
+	public static <T>T[] from(List<? extends T> l, Class<T> c)
+	{
+		return l.toArray(news(c, l.size()));
+	}
+
+	public static <T, L extends List<? super T>>L addTo(T[] s, L l)
+	{
+		for (T x: s)
+			l.add(x);
+		return l;
 	}
 }
