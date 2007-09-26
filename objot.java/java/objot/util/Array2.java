@@ -25,6 +25,7 @@ public class Array2
 	public static final long[] LONGS0 = {};
 	public static final float[] FLOATS0 = {};
 	public static final double[] DOUBLES0 = {};
+	public static final Object[] OBJECTS0 = {};
 
 	/** @return new allocated array or a reused empty array */
 	public static boolean[] newBools(int n)

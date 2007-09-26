@@ -8,7 +8,7 @@ public abstract class Container
 {
 	public abstract <T>T get(Class<T> c);
 
-	public static Container create(Binder b) throws Exception
+	public static Container create(Binds b) throws Exception
 	{
 
 	}
