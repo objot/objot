@@ -24,6 +24,12 @@ public class Binds
 {
 	HashMap<Class<?>, Bind> binds = new HashMap<Class<?>, Bind>();
 
+	{
+		Bind b = new Bind();
+		b.c = Container.class;
+		binds.put(b.c, b);
+	}
+
 	public final Bind bind(Class<?> c) throws Exception
 	{
 		Bind b = binds.get(c);
@@ -31,10 +37,9 @@ public class Binds
 			return b;
 		binds.put(c, b = new Bind());
 		b.c = c;
-		b.b = b; // bind to self by default, must before doing actual binding
 		b.b = check(c, doBind(c));
 		if (b.b == b)
-			b.s = c.getAnnotation(Scope.class);
+			b.scope = Class2.annoExclusive(c, SCOPES).annotationType();
 
 		if (b.b == b)
 			for (Constructor<?> ct: c.getDeclaredConstructors())
@@ -122,12 +127,14 @@ public class Binds
 		return bind(c);
 	}
 
+	private static final Class<?>[] SCOPES = Scope.class.getDeclaredClasses();
+
 	private Object check(Class<?> c, Object o)
 	{
 		Class<?> oc = o instanceof Bind ? ((Bind)o).c : o != null ? o.getClass() : c;
 		if ( !c.isAssignableFrom(oc))
 			throw new ClassCastException("binding " + c + " to " + o + " forbidden");
-		return o instanceof Bind ? ((Bind)o).b : o;
+		return o;
 	}
 
 	private <O extends AccessibleObject & Member>O inject(O o, boolean needAnno)
