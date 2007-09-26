@@ -13,14 +13,22 @@ public class Bind
 {
 	/** null */
 	Class<?> c;
-	/** subclass of {@link #c}, or instance of {@link #c} */
+	/**
+	 * subclass of {@link #c} and {@link #b}.{@link #b} == {@link #b}, or instance of
+	 * {@link #c}
+	 */
 	Object b;
+	/** null if {@link #b} != this, use {@link #b}.{@link #s} instead */
 	Scope s;
+
+	/** null iif {@link #b} != this */
+	Constructor<?> ct;
+	/** [param index], null iif {@link #b} != this */
+	Object[] cb;
+
 	Field[] fs;
 	Object[] fbs;
-	Constructor<?> ct;
-	/** [param index] */
-	Object[] cb;
+
 	Method[] ms;
 	/** [][param index] */
 	Object[][] mbs;

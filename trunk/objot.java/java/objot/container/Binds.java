@@ -31,12 +31,37 @@ public class Binds
 			return b;
 		binds.put(c, b = new Bind());
 		b.c = c;
+		b.b = b; // bind to self by default, must before doing actual binding
 		b.b = check(c, doBind(c));
-		if (b.b instanceof Class)
-		{
+		if (b.b == b)
 			b.s = c.getAnnotation(Scope.class);
-			bind((Class<?>)b.b);
-		}
+
+		if (b.b == b)
+			for (Constructor<?> ct: c.getDeclaredConstructors())
+				if (inject(ct, true) != null)
+				{
+					if (b.ct != null)
+						throw new UnsupportedOperationException("binding constructors "
+							+ b.ct + " and " + ct + " forbidden");
+					Parameter[] ps = Parameter.gets(ct);
+					Object[] s = new Object[ps.length];
+					for (int i = 0; i < ps.length; i++)
+						s[i] = check(ps[i].cla, doBind(ps[i], ps[i].cla, ps[i].generic));
+					b.ct = ct;
+					b.cb = s;
+				}
+		if (b.b == b && b.ct == null)
+			try
+			{
+				b.cb = Array2.OBJECTS0;
+				b.ct = inject(c.getDeclaredConstructor(), false);
+			}
+			catch (Exception e)
+			{
+				throw new UnsupportedOperationException(
+					"one and only one constructor() or @Inject constructor expected", e);
+			}
+
 		ArrayList<Field> fs = new ArrayList<Field>();
 		ArrayList<Object> fbs = new ArrayList<Object>();
 		ArrayList<Method> ms = new ArrayList<Method>();
@@ -50,27 +75,14 @@ public class Binds
 			Array2.addTo(sup.mbs, mbs);
 		}
 		for (Field f: c.getDeclaredFields())
-			if (inject(f))
+			if (inject(f, true) != null)
 			{
 				fs.add(f);
 				fbs.add(check(f.getType(), doBind(f, f.getType(), f.getGenericType())));
 			}
-		for (Constructor<?> ct: c.getDeclaredConstructors())
-			if (inject(ct))
-			{
-				if (b.ct != null)
-					throw new IllegalAccessException("bind multi constructors " + b.ct
-						+ " and " + ct + " forbidden");
-				Parameter[] ps = Parameter.gets(ct);
-				Object[] s = new Object[ps.length];
-				for (int i = 0; i < ps.length; i++)
-					s[i] = check(ps[i].cla, doBind(ps[i], ps[i].cla, ps[i].generic));
-				b.ct = ct;
-				b.cb = s;
-			}
 		int supMn = ms.size();
 		M: for (Method m: c.getDeclaredMethods())
-			if (inject(m))
+			if (inject(m, true) != null)
 			{
 				Parameter[] ps = Parameter.gets(m);
 				Object[] bs = new Object[ps.length];
@@ -93,7 +105,7 @@ public class Binds
 		return b;
 	}
 
-	/** @return {@link Bind}, class, or instance, or null */
+	/** @return {@link Bind}, or instance, or null */
 	protected Object doBind(Class<?> c) throws Exception
 	{
 		return bind(c);
@@ -103,7 +115,7 @@ public class Binds
 	 * @param anno field or {@link Parameter}
 	 * @param c field class, or parameter class
 	 * @param t field generic type, or parameter generic type
-	 * @return {@link Bind}, class, or instance, or null
+	 * @return {@link Bind}, or instance, or null
 	 */
 	protected Object doBind(AnnotatedElement anno, Class<?> c, Type t) throws Exception
 	{
@@ -112,28 +124,18 @@ public class Binds
 
 	private Object check(Class<?> c, Object o)
 	{
-		if (o instanceof Bind)
-		{
-			if ( !c.isAssignableFrom(((Bind)o).c))
-				throw new ClassCastException("binding " + c + " to " + o + " forbidden");
-		}
-		else if (o instanceof Class)
-		{
-			if ( !c.isAssignableFrom((Class<?>)o))
-				throw new ClassCastException("binding " + c + " to " + o + " forbidden");
-		}
-		else if (o != null && !c.isAssignableFrom(o.getClass()))
-			throw new ClassCastException("binding " + c + " to instance of " + o.getClass()
-				+ " forbidden");
-		return o;
+		Class<?> oc = o instanceof Bind ? ((Bind)o).c : o != null ? o.getClass() : c;
+		if ( !c.isAssignableFrom(oc))
+			throw new ClassCastException("binding " + c + " to " + o + " forbidden");
+		return o instanceof Bind ? ((Bind)o).b : o;
 	}
 
-	private <O extends AccessibleObject & Member>boolean inject(O o) throws Exception
+	private <O extends AccessibleObject & Member>O inject(O o, boolean needAnno)
 	{
-		if ( !o.isAnnotationPresent(Inject.class))
-			return false;
+		if (needAnno && !o.isAnnotationPresent(Inject.class))
+			return null;
 		if ((o.getModifiers() & (Modifier.STATIC | Modifier.PRIVATE)) != 0)
-			throw new IllegalAccessException("inject " + o + " forbidden");
-		return true;
+			throw new UnsupportedOperationException("injecting " + o + " forbidden");
+		return o;
 	}
 }
