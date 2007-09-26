@@ -12,10 +12,42 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Documented
+// @Target(ElementType.PACKAGE)
 public @interface Scope
 {
+	/** out of containers, create instance every time */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface None
+	{
+	}
+
+	/** create instance in this container if not found in this container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Private
+	{
+	}
+
+	/** create instance in this container if not found from this to top container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Spread
+	{
+	}
+
+	/** create instance in top container if not found from this to top container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface SpreadCreate
+	{
+	}
 }

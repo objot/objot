@@ -5,7 +5,9 @@
 package objot.util;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,6 +18,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -89,6 +92,8 @@ public class Class2
 		else
 			throw new ClassCastException();
 	}
+
+	// ********************************************************************************
 
 	/** @return class name without package. */
 	public static String selfName(Class<?> c)
@@ -345,6 +350,8 @@ public class Class2
 		});
 	}
 
+	// ********************************************************************************
+
 	public static Bytes classFile(Class<?> c) throws IOException
 	{
 		return new Bytes(c.getResourceAsStream(Class2.resourceName(c)), true);
@@ -403,4 +410,42 @@ public class Class2
 		return e instanceof RuntimeException ? (RuntimeException)e : new RuntimeException(e);
 	}
 
+	// ********************************************************************************
+
+	@SuppressWarnings("unchecked")
+	public static final Annotation annoExclusive(AnnotatedElement o, Class<?>[] cs)
+	{
+		Class<?> c0 = null;
+		Annotation a = null;
+		for (Class<?> c: cs)
+			if (c.isAnnotation() && (a = o.getAnnotation((Class)c)) != null)
+				if (c0 == null)
+					c0 = c;
+				else
+					throw new RuntimeException(o + ": annotation " + c0.getName()
+						+ " and annotation " + c.getName() + " are exclusive");
+		return a;
+	}
+
+	public static final Annotation annoExclusive(AnnotatedElement o, Class<?> outC)
+	{
+		return annoExclusive(o, outC.getDeclaredClasses());
+	}
+
+	public static final <O extends AnnotatedElement>O annoExclusive(O o)
+	{
+		HashMap<Class<?>, Class<?>> outs = new HashMap<Class<?>, Class<?>>();
+		for (Annotation a: o.getAnnotations())
+		{
+			Class<?> c = a.annotationType();
+			Class<?> out = c.getDeclaringClass();
+			if (out != null)
+				if (outs.get(out) == null)
+					outs.put(out, c);
+				else
+					throw new RuntimeException(o + ": annotation " + outs.get(out).getName()
+						+ " and annotation " + c.getName() + " are exclusive");
+		}
+		return o;
+	}
 }

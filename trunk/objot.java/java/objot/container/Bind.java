@@ -4,6 +4,7 @@
 //
 package objot.container;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -14,12 +15,12 @@ public class Bind
 	/** null */
 	Class<?> c;
 	/**
-	 * subclass of {@link #c} and {@link #b}.{@link #b} == {@link #b}, or instance of
+	 * {@link Bind} which {@link #c} is subclass of this {@link #c}, or instance of
 	 * {@link #c}
 	 */
 	Object b;
-	/** null if {@link #b} != this, use {@link #b}.{@link #s} instead */
-	Scope s;
+	/** null if {@link #b} != this */
+	Class<? extends Annotation> scope;
 
 	/** null iif {@link #b} != this */
 	Constructor<?> ct;

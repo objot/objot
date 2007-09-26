@@ -106,14 +106,15 @@ public final class Servlet
 			HttpServletResponse hRes) throws ErrThrow, Exception
 		{
 			if (cla == null) // test
-			{
-				dataFactory.evictQueries();
-				for (Object c: ((SessionFactoryImpl)dataFactory)
-					.getAllSecondLevelCacheRegions().values())
-					((Cache)c).clear();
-				new ModelsCreate(true, 1, true);
-				return codec.enc(Ok.OK, Object.class);
-			}
+				synchronized (dataFactory)
+				{
+					dataFactory.evictQueries();
+					for (Object c: ((SessionFactoryImpl)dataFactory)
+						.getAllSecondLevelCacheRegions().values())
+						((Cache)c).clear();
+					new ModelsCreate(true, 1, true);
+					return codec.enc(Ok.OK, Object.class);
+				}
 
 			Session sess = (Session)hReq.getSession().getAttribute("scope");
 			if (sess != null)
