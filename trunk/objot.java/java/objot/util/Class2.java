@@ -415,16 +415,16 @@ public class Class2
 	@SuppressWarnings("unchecked")
 	public static final Annotation annoExclusive(AnnotatedElement o, Class<?>[] cs)
 	{
-		Class<?> c0 = null;
-		Annotation a = null;
+		Annotation a0 = null, a = null;
 		for (Class<?> c: cs)
 			if (c.isAnnotation() && (a = o.getAnnotation((Class)c)) != null)
-				if (c0 == null)
-					c0 = c;
+				if (a0 == null)
+					a0 = a;
 				else
-					throw new RuntimeException(o + ": annotation " + c0.getName()
-						+ " and annotation " + c.getName() + " are exclusive");
-		return a;
+					throw new RuntimeException(o + ": annotation " + c.getName()
+						+ " and annotation " + a0.annotationType().getName()
+						+ " are exclusive");
+		return a0;
 	}
 
 	public static final Annotation annoExclusive(AnnotatedElement o, Class<?> outC)

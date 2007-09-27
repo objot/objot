@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 
 public class Parameter
 	extends AccessibleObject
+	implements Member
 {
 	public static Parameter[] gets(Member ctorMethod)
 	{
@@ -49,8 +50,8 @@ public class Parameter
 		Annotation[] as)
 	{
 		proc = p;
-		ctor = (Constructor<?>)p;
-		method = (Method)p;
+		ctor = c;
+		method = m;
 		index = x;
 		cla = z;
 		generic = g;
@@ -68,8 +69,28 @@ public class Parameter
 	public <T extends Annotation>T getAnnotation(Class<T> annoClass)
 	{
 		for (int i = 0; i < annos.length; i++)
-			if (annos[i].getClass() == annoClass)
+			if (annos[i].annotationType() == annoClass)
 				return (T)annos[i];
 		return null;
+	}
+
+	public Class<?> getDeclaringClass()
+	{
+		return proc.getDeclaringClass();
+	}
+
+	public int getModifiers()
+	{
+		return 0;
+	}
+
+	public String getName()
+	{
+		return "param" + index;
+	}
+
+	public boolean isSynthetic()
+	{
+		return false;
 	}
 }
