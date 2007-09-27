@@ -75,6 +75,12 @@ public class Array2
 		return n != 0 ? new double[n] : DOUBLES0;
 	}
 
+	/** @return new allocated array or a reused empty array */
+	public static Object[] newObjects(int n)
+	{
+		return n != 0 ? new Object[n] : OBJECTS0;
+	}
+
 	/** @return new allocated 1-dimension array */
 	@SuppressWarnings("unchecked")
 	public static <T>T[] news(Class<T> component, int length)

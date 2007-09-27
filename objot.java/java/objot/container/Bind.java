@@ -15,17 +15,17 @@ public class Bind
 	/** null */
 	Class<?> c;
 	/**
-	 * {@link Bind} which {@link #c} is subclass of this {@link #c}, or instance of
-	 * {@link #c}
+	 * {@link Bind} of {@link #c} and {@link #b}.{@link #b} == {@link #b}, or instance
+	 * of {@link #c}
 	 */
 	Object b;
-	/** null if {@link #b} != this */
+	/** null if {@link #b} != this, use {@link #b}.{@link #scope} instead */
 	Class<? extends Annotation> scope;
 
 	/** null iif {@link #b} != this */
 	Constructor<?> ct;
 	/** [param index], null iif {@link #b} != this */
-	Object[] cb;
+	Object[] cbs;
 
 	Field[] fs;
 	Object[] fbs;
