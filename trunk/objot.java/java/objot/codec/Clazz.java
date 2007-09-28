@@ -4,13 +4,13 @@
 //
 package objot.codec;
 
-import static objot.bytecode.Element.utf;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 import objot.bytecode.Bytecode;
+import objot.bytecode.Element;
 import objot.bytecode.Instruction;
 import objot.bytecode.Opcode;
 import objot.bytecode.Procedure;
@@ -79,7 +79,7 @@ abstract class Clazz
 		b.head.setModifier(Modifier.FINAL | Mod2.SYNTHETIC);
 		b.head.setClassCi(b.cons.addClass(b.cons.addUcs(Class2.pathName(name))));
 		b.head.setSuperCi(superCi);
-		b.getProcs().addProc(Procedure.addEmptyCtor(b.cons, superCi, 0));
+		b.getProcs().addProc(Procedure.addCtor0(b.cons, superCi, 0));
 
 		int classCi = b.cons.addClass(c);
 		if (es.length > 0)
@@ -102,9 +102,9 @@ abstract class Clazz
 			.newInstance();
 	}
 
-	static final Bytes NAME_encodeRefs = utf("encodeRefs");
-	static final Bytes DESC_encodeRefs = utf(Class2.descript //
-		(Class2.declaredMethod1(Clazz.class, "encodeRefs")));
+	static final Bytes NAME_encodeRefs = Element.utf("encodeRefs");
+	static final Bytes DESC_encodeRefs = Element.utf(Class2.descript( //
+		Class2.declaredMethod1(Clazz.class, "encodeRefs")));
 
 	/**
 	 * Example:
@@ -123,9 +123,9 @@ abstract class Clazz
 	{
 	}
 
-	static final Bytes NAME_encode = utf("encode");
-	static final Bytes DESC_encode = utf(Class2.descript //
-		(Class2.declaredMethod1(Clazz.class, "encode")));
+	static final Bytes NAME_encode = Element.utf("encode");
+	static final Bytes DESC_encode = Element.utf(Class2.descript( //
+		Class2.declaredMethod1(Clazz.class, "encode")));
 
 	/**
 	 * Example:
@@ -151,7 +151,7 @@ abstract class Clazz
 		p.setModifier(Modifier.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encodeRefs));
 		p.setDescCi(p.cons.addUtf(DESC_encodeRefs));
-		Instruction s = new Instruction(256);
+		Instruction s = new Instruction(250);
 		s.ins0(Opcode.ALOAD2);
 		s.insU2(Opcode.CHECKCAST, classCi);
 		s.insU1(Opcode.ASTORE, 4); // object
@@ -192,7 +192,7 @@ abstract class Clazz
 		p.setModifier(Modifier.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encode));
 		p.setDescCi(p.cons.addUtf(DESC_encode));
-		Instruction s = new Instruction(256);
+		Instruction s = new Instruction(250);
 		s.ins0(Opcode.ALOAD2);
 		s.insU2(Opcode.CHECKCAST, classCi);
 		s.insU1(Opcode.ASTORE, 4); // object
@@ -247,9 +247,9 @@ abstract class Clazz
 		b.getProcs().addProc(p);
 	}
 
-	static final Bytes NAME_object = utf("object");
-	static final Bytes DESC_object = utf(Class2.descript //
-		(Class2.declaredMethod1(Clazz.class, "object")));
+	static final Bytes NAME_object = Element.utf("object");
+	static final Bytes DESC_object = Element.utf(Class2.descript( //
+		Class2.declaredMethod1(Clazz.class, "object")));
 
 	/** Example: <code>return new A();</code> */
 	abstract Object object() throws Exception;
@@ -260,7 +260,7 @@ abstract class Clazz
 		p.setModifier(Modifier.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_object));
 		p.setDescCi(p.cons.addUtf(DESC_object));
-		Instruction s = new Instruction(256);
+		Instruction s = new Instruction(250);
 		s.insU2(Opcode.NEW, classCi);
 		s.ins0(Opcode.DUP);
 		s.insU2(Opcode.INVOKESPECIAL, p.cons.addCtor0(classCi));
@@ -271,13 +271,13 @@ abstract class Clazz
 		b.getProcs().addProc(p);
 	}
 
-	static final Bytes NAME_decode = utf("decode");
-	static final Bytes DESC_decode = utf(Class2.descript //
-		(Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, Object.class)));
-	static final Bytes DESC_decodeL = utf(Class2.descript //
-		(Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, long.class)));
-	static final Bytes DESC_decodeD = utf(Class2.descript //
-		(Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, double.class)));
+	static final Bytes NAME_decode = Element.utf("decode");
+	static final Bytes DESC_decode = Element.utf(Class2.descript( //
+		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, Object.class)));
+	static final Bytes DESC_decodeL = Element.utf(Class2.descript( //
+		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, long.class)));
+	static final Bytes DESC_decodeD = Element.utf(Class2.descript( //
+		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, double.class)));
 
 	/**
 	 * Example:
@@ -305,14 +305,14 @@ abstract class Clazz
 		p.setNameCi(p.cons.addUtf(NAME_decode));
 		p.setDescCi(p.cons.addUtf(type == 0 ? DESC_decode : type == 1 ? DESC_decodeL
 			: DESC_decodeD));
-		Instruction s = new Instruction(256);
+		Instruction s = new Instruction(250);
 		s.ins0(Opcode.ALOAD1);
 		s.insU2(Opcode.CHECKCAST, classCi); // object
 		s.ins0(type == 0 ? Opcode.ALOAD3 : type == 1 ? Opcode.LLOAD3 : Opcode.DLOAD3);
 		s.ins0(Opcode.ILOAD2);
-		long switchs = s.insSwitchTable(0, ds.length - 1);
-		int switch0 = s.addr; // default
-		s.switchTableFrom(switchs, -1);
+		long sw = s.insSwitchTable(0, ds.length - 1);
+		int sw0 = s.addr; // default
+		s.switchTableFrom(sw, -1);
 		int exCi = p.cons.addClass(ClassCastException.class);
 		s.insU2(Opcode.NEW, exCi);
 		s.ins0(Opcode.DUP);
@@ -323,10 +323,10 @@ abstract class Clazz
 			if (type == 0 ? d.cla.isPrimitive() && d.cla != boolean.class //
 			: type == 1 ? d.cla != int.class && d.cla != long.class //
 			: d.cla != double.class && d.cla != float.class)
-				s.switchTable(switchs, i, switch0);
+				s.switchTable(sw, i, sw0);
 			else
 			{
-				s.switchTableFrom(switchs, i);
+				s.switchTableFrom(sw, i);
 				if (type == 0)
 					if (d.cla == boolean.class)
 						s.insUnboxNarrow(p.cons, d.cla);

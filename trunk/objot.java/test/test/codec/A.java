@@ -8,7 +8,14 @@ import objot.codec.Dec;
 
 
 public class A
+	implements Cloneable
 {
+	@Override
+	protected Object clone() throws CloneNotSupportedException
+	{
+		return super.clone();
+	}
+
 	@Enc
 	@Dec
 	// ( { A.class })

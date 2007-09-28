@@ -168,20 +168,59 @@ public class Class2
 		return 'L' + pathName(className) + ';';
 	}
 
+	public static char descriptChar(Class<?> c)
+	{
+		return descriptChar(c.getName());
+	}
+
+	public static char descriptChar(String className)
+	{
+		if (className.equals("int"))
+			return 'I';
+		if (className.equals("boolean"))
+			return 'Z';
+		if (className.equals("byte"))
+			return 'B';
+		if (className.equals("short"))
+			return 'S';
+		if (className.equals("char"))
+			return 'C';
+		if (className.equals("long"))
+			return 'J';
+		if (className.equals("float"))
+			return 'F';
+		if (className.equals("double"))
+			return 'D';
+		if (className.equals("void"))
+			return 'V';
+		if (className.charAt(0) == '[')
+			return '[';
+		return 'L';
+	}
+
 	public static String descript(Field f)
 	{
 		return descript(f.getType());
 	}
 
-	public static String descript(Method m)
+	/**
+	 * @param params (Class or descriptor String)[]
+	 * @param Return Class or descriptor String
+	 */
+	public static String descript(Object Return, Object... params)
 	{
 		StringBuilder d = new StringBuilder(31);
 		d.append('(');
-		for (Class<?> a: m.getParameterTypes())
-			d.append(descript(a));
+		for (Object p: params)
+			d.append(p instanceof Class ? descript((Class<?>)p) : (String)p);
 		d.append(')');
-		d.append(descript(m.getReturnType()));
+		d.append(Return instanceof Class ? descript((Class<?>)Return) : (String)Return);
 		return d.toString();
+	}
+
+	public static String descript(Method m)
+	{
+		return descript(m.getReturnType(), (Object[])m.getParameterTypes());
 	}
 
 	/** @param m be checked if follows the rules of getter/setter name and parameters */
@@ -262,12 +301,11 @@ public class Class2
 	}
 
 	/** excludes {@link Mod2.P#INITER} */
-	@SuppressWarnings("cast")
-	public static Method method(Class<?> c, String name, Class<?>... paramTypes)
+	public static Method method(Class<?> c, String name, Class<?>... params)
 	{
 		try
 		{
-			return c.getMethod(name, (Class<?>[])paramTypes);
+			return c.getMethod(name, params != null ? params : Array2.CLASSES0);
 		}
 		catch (NoSuchMethodException e)
 		{
@@ -285,12 +323,11 @@ public class Class2
 	}
 
 	/** excludes {@link Mod2.P#INITER} */
-	@SuppressWarnings("cast")
-	public static Method declaredMethod(Class<?> c, String name, Class<?>... paramTypes)
+	public static Method declaredMethod(Class<?> c, String name, Class<?>... params)
 	{
 		try
 		{
-			return c.getDeclaredMethod(name, (Class<?>[])paramTypes);
+			return c.getDeclaredMethod(name, params != null ? params : Array2.CLASSES0);
 		}
 		catch (NoSuchMethodException e)
 		{

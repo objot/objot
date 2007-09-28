@@ -4,7 +4,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
-import objot.container.Binds;
+import objot.container.Binder;
 import objot.container.Container;
 import objot.container.Factory;
 
@@ -21,7 +21,7 @@ public class TestContainer
 	@BeforeClass
 	public static void init() throws Exception
 	{
-		Binds bs = new Binds()
+		Binder b = new Binder()
 		{
 			@Override
 			protected Object doBind(Class<?> c) throws Exception
@@ -45,13 +45,13 @@ public class TestContainer
 				return bind(c);
 			}
 		};
-		bs.bind(None2.class);
-		bs.bind(Private2.class);
-		bs.bind(Spread.P.class);
-		bs.bind(Spread2.class);
-		bs.bind(SpreadC.class);
-		bs.bind(SpreadC2.class);
-		factory = new Factory(bs);
+		b.bind(None2.class);
+		b.bind(Private2.class);
+		b.bind(Spread.P.class);
+		b.bind(Spread2.class);
+		b.bind(SpreadC.class);
+		b.bind(SpreadC2.class);
+		factory = new Factory(b);
 	}
 
 	Container con = factory.container();
@@ -127,11 +127,11 @@ public class TestContainer
 		assertSame(con, con.get(Container.class));
 		Container con11 = con.create(Container.class);
 		assertNotSame(con, con11);
-		assertSame(con, con11.out);
+		assertSame(con, con11.outer);
 		Container con12 = con11.create(Container.class);
 		assertNotSame(con, con12);
 		assertNotSame(con11, con12);
-		assertSame(con11, con12.out);
+		assertSame(con11, con12.outer);
 	}
 
 	@Test

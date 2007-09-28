@@ -20,9 +20,9 @@ import objot.util.Class2;
 import objot.util.Parameter;
 
 
-public class Binds
+public class Binder
 {
-	HashMap<Class<?>, Bind> binds = new HashMap<Class<?>, Bind>();
+	private HashMap<Class<?>, Bind> binds = new HashMap<Class<?>, Bind>();
 
 	{
 		Bind b = new Bind();
@@ -145,5 +145,15 @@ public class Binds
 			throw new UnsupportedOperationException("injecting " + o + " forbidden");
 		o.setAccessible(true); // @todo
 		return o;
+	}
+
+	public final synchronized HashMap<Class<?>, Bind> toMap()
+	{
+		return new HashMap<Class<?>, Bind>(binds);
+	}
+
+	public final synchronized Bind[] toArray()
+	{
+		return Array2.from(binds.values(), Bind.class);
 	}
 }
