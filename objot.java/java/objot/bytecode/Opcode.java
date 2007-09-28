@@ -1313,12 +1313,12 @@ public final class Opcode
 		}
 	}
 
-	public static int getLocalI(Code c, int ad)
+	public static int getLocalIndex(Code c, int ad)
 	{
-		return getLocalI(c.insBytes(), ad + c.getAddrBi());
+		return getLocalIndex(c.insBytes(), ad + c.getAddrBi());
 	}
 
-	public static int getLocalI(byte[] bs, int bi)
+	public static int getLocalIndex(byte[] bs, int bi)
 	{
 		switch (bs[bi])
 		{

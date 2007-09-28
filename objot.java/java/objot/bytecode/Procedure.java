@@ -6,7 +6,9 @@ package objot.bytecode;
 
 import java.io.PrintStream;
 
+import objot.util.Array2;
 import objot.util.Bytes;
+import objot.util.Class2;
 import objot.util.Mod2;
 
 
@@ -120,37 +122,74 @@ public class Procedure
 		end1Bi = i + 2;
 	}
 
-	public static Procedure addEmptyCtor(Constants c, int superCi, int modifier)
+	/** <code>&lt;init&gt;() { super(); }</code> */
+	public static Procedure addCtor0(Constants c, int superCi, int modifier)
 	{
+		return addCtor(c, superCi, modifier, (Object[])null);
+	}
+
+	/** <code>&lt;init&gt;() { super(); }</code> */
+	public static Procedure putCtor0(Constants c, int superCi, int modifier)
+	{
+		return putCtor(c, superCi, modifier, (Object[])null);
+	}
+
+	/** <code>&lt;init&gt;(a, b, ...) { super(a, b, ...); }</code> */
+	public static Procedure addCtor(Constants c, int superCi, int modifier, Object... params)
+	{
+		if (params == null)
+			params = Array2.CLASSES0;
 		Procedure p = new Procedure(c);
 		int ctorCi = c.addUtf(CTOR_NAME_);
-		int voidCi = c.addUtf(VOID_DESC_);
+		int voidCi = params.length == 0 ? c.addUtf(VOID_DESC_) : c.addUcs(Class2.descript(
+			params, void.class));
 		p.setModifier(modifier);
 		p.setNameCi(ctorCi);
 		p.setDescCi(voidCi);
-		Instruction s = new Instruction(5);
+		Instruction s = new Instruction(5 + params.length * 2);
 		s.ins0(Opcode.ALOAD0);
+		int local = 1;
+		for (Object a: params)
+		{
+			char d = a instanceof Class ? Class2.descriptChar((Class<?>)a) : ((String)a)
+				.charAt(0);
+			s.insU1(Opcode.getLoadOp(d), local);
+			local += Opcode.getLocalStackN(d);
+		}
 		s.insU2(Opcode.INVOKESPECIAL, c.addCproc(superCi, c.addNameDesc(ctorCi, voidCi)));
 		s.ins0(Opcode.RETURN);
-		p.getCode().setLocalN(1);
-		p.getCode().setStackN(1);
+		p.getCode().setLocalN(local);
+		p.getCode().setStackN(local);
 		p.getCode().setIns(s, false);
 		return p;
 	}
 
-	public static Procedure putEmptyCtor(Constants c, int superCi)
+	/** <code>&lt;init&gt;(a, b, ...) { super(a, b, ...); }</code> */
+	public static Procedure putCtor(Constants c, int superCi, int modifier, Object... params)
 	{
+		if (params == null)
+			params = Array2.CLASSES0;
 		Procedure p = new Procedure(c);
 		int ctorCi = c.putUtf(CTOR_NAME_);
-		int voidCi = c.putUtf(VOID_DESC_);
+		int voidCi = params.length == 0 ? c.putUtf(VOID_DESC_) : c.putUcs(Class2.descript(
+			params, void.class));
+		p.setModifier(modifier);
 		p.setNameCi(ctorCi);
 		p.setDescCi(voidCi);
-		Instruction s = new Instruction(5);
+		Instruction s = new Instruction(5 + params.length * 2);
 		s.ins0(Opcode.ALOAD0);
+		int local = 1;
+		for (Object a: params)
+		{
+			char d = a instanceof Class ? Class2.descriptChar((Class<?>)a) //
+				: ((String)a).charAt(0);
+			s.insU1(Opcode.getLoadOp(d), local);
+			local += Opcode.getLocalStackN(d);
+		}
 		s.insU2(Opcode.INVOKESPECIAL, c.putCproc(superCi, c.putNameDesc(ctorCi, voidCi)));
 		s.ins0(Opcode.RETURN);
-		p.getCode().setLocalN(1);
-		p.getCode().setStackN(1);
+		p.getCode().setLocalN(local);
+		p.getCode().setStackN(local);
 		p.getCode().setIns(s, false);
 		return p;
 	}

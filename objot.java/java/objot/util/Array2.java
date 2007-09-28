@@ -6,8 +6,8 @@ package objot.util;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 
 
 public class Array2
@@ -26,6 +26,7 @@ public class Array2
 	public static final float[] FLOATS0 = {};
 	public static final double[] DOUBLES0 = {};
 	public static final Object[] OBJECTS0 = {};
+	public static final Class<?>[] CLASSES0 = {};
 
 	/** @return new allocated array or a reused empty array */
 	public static boolean[] newBools(int n)
@@ -519,12 +520,12 @@ public class Array2
 		return a;
 	}
 
-	public static <T>T[] from(List<? extends T> l, Class<T> c)
+	public static <T>T[] from(Collection<? extends T> s, Class<T> c)
 	{
-		return l.toArray(news(c, l.size()));
+		return s.toArray(news(c, s.size()));
 	}
 
-	public static <T, L extends List<? super T>>L addTo(T[] s, L l)
+	public static <T, S extends Collection<? super T>>S addTo(T[] s, S l)
 	{
 		for (T x: s)
 			l.add(x);
