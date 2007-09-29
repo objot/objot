@@ -11,20 +11,17 @@ import java.lang.reflect.Method;
 
 
 public class Bind
+	implements Cloneable
 {
-	/** null */
 	Class<?> c;
-	/**
-	 * {@link Bind} of {@link #c} and {@link #b}.{@link #b} == {@link #b}, or instance
-	 * of {@link #c}
-	 */
+	/** {@link Bind} of {@link #c}, or object of {@link #c} */
 	Object b;
-	/** null if {@link #b} != this, use {@link #b}.{@link #scope} instead */
+	/** null if {@link #b} != this */
 	Class<? extends Annotation> scope;
 
 	/** null iif {@link #b} != this */
 	Constructor<?> ct;
-	/** [param index], null iif {@link #b} != this */
+	/** [param index], empty if {@link #ct} null */
 	Object[] cbs;
 
 	Field[] fs;
@@ -33,6 +30,9 @@ public class Bind
 	Method[] ms;
 	/** [][param index] */
 	Object[][] mbs;
+
+	/** array of object or null(for {@link Bind}) */
+	Object[] os;
 
 	@Override
 	public String toString()

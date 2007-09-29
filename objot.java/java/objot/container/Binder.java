@@ -39,14 +39,13 @@ public class Binder
 			return b;
 		binds.put(c, b = new Bind());
 		b.c = c;
-		b.b = b; // bind to self by default, must before doing actual binding
 		b.b = check(c, doBind(c));
 		if (b.b == b)
 			scope(b);
-
 		if (c.getSuperclass() != null)
 			bind(c.getSuperclass());
 
+		b.cbs = Array2.OBJECTS0;
 		if (b.b == b)
 			for (Constructor<?> ct: c.getDeclaredConstructors())
 				if (inject(ct, true) != null)
@@ -54,17 +53,16 @@ public class Binder
 					if (b.ct != null)
 						throw new UnsupportedOperationException("binding constructors "
 							+ b.ct + " and " + ct + " forbidden");
-					Parameter[] ps = Parameter.gets(ct);
-					Object[] s = new Object[ps.length];
-					for (int i = 0; i < ps.length; i++)
-						s[i] = check(ps[i].cla, doBind(c, ps[i], ps[i].cla, ps[i].generic));
 					b.ct = ct;
-					b.cbs = s;
+					Parameter[] ps = Parameter.gets(ct);
+					b.cbs = new Object[ps.length];
+					for (int i = 0; i < ps.length; i++)
+						b.cbs[i] = check(ps[i].cla,
+							doBind(c, ps[i], ps[i].cla, ps[i].generic));
 				}
 		if (b.b == b && b.ct == null)
 			try
 			{
-				b.cbs = Array2.OBJECTS0;
 				b.ct = inject(c.getDeclaredConstructor(), false);
 			}
 			catch (Exception e)
@@ -101,7 +99,7 @@ public class Binder
 		return b;
 	}
 
-	/** @return {@link Bind}, or instance, or null */
+	/** @return {@link Bind}, or object, or null */
 	protected Object doBind(Class<?> c) throws Exception
 	{
 		return bind(c);
@@ -111,12 +109,43 @@ public class Binder
 	 * @param a field or {@link Parameter}
 	 * @param c field class, or parameter class
 	 * @param t field generic type, or parameter generic type
-	 * @return {@link Bind}, or instance, or null
+	 * @return {@link Bind}, or object, or null
 	 */
 	protected Object doBind(Class<?> out, AccessibleObject a, Class<?> c, Type t)
 		throws Exception
 	{
 		return bind(c);
+	}
+
+	/**
+	 * {@link Bind#b}.{@link Bind#b b} == ({@link Bind#b} | object) if {@link Bind#b}
+	 * is {@link Bind}, {@link Bind#os} generated
+	 */
+	public final synchronized Bind[] toArray()
+	{
+		Bind[] bs = Array2.from(binds.values(), Bind.class);
+		for (boolean ok = true; !(ok = !ok);)
+			for (Bind b: bs)
+				if (b.b != b && b.b instanceof Bind)
+				{
+					b.b = ((Bind)b.b).b;
+					ok = true;
+				}
+		ArrayList<Object> os = new ArrayList<Object>();
+		for (Bind b: bs)
+			if (b.os == null)
+			{
+				for (int i = 0; i < b.cbs.length; i++)
+					b.cbs[i] = bound(b.cbs[i], os);
+				for (int i = 0; i < b.fbs.length; i++)
+					b.fbs[i] = bound(b.fbs[i], os);
+				for (int i = 0; i < b.mbs.length; i++)
+					for (int j = 0; j < b.mbs[i].length; j++)
+						b.mbs[i][j] = bound(b.mbs[i][j], os);
+				b.os = os.toArray();
+				os.clear();
+			}
+		return bs;
 	}
 
 	private static final Class<?>[] SCOPES = Scope.class.getDeclaredClasses();
@@ -134,7 +163,7 @@ public class Binder
 		Class<?> oc = o instanceof Bind ? ((Bind)o).c : o != null ? o.getClass() : c;
 		if ( !c.isAssignableFrom(oc))
 			throw new ClassCastException("binding " + c + " to " + o + " forbidden");
-		return o instanceof Bind ? ((Bind)o).b : o;
+		return o;
 	}
 
 	private <O extends AccessibleObject & Member>O inject(O o, boolean needAnno)
@@ -147,13 +176,12 @@ public class Binder
 		return o;
 	}
 
-	public final synchronized HashMap<Class<?>, Bind> toMap()
+	private Object bound(Object o, ArrayList<Object> os)
 	{
-		return new HashMap<Class<?>, Bind>(binds);
-	}
-
-	public final synchronized Bind[] toArray()
-	{
-		return Array2.from(binds.values(), Bind.class);
+		if (o instanceof Bind)
+			o = ((Bind)o).b;
+		if ( !(o instanceof Bind))
+			os.add(o);
+		return o;
 	}
 }

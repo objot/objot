@@ -16,7 +16,7 @@ import java.lang.annotation.Target;
 // @Target({})
 public @interface Scope
 {
-	/** out of containers, create instance every time */
+	/** out of containers, create object every time */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
@@ -24,7 +24,7 @@ public @interface Scope
 	{
 	}
 
-	/** create instance in this container if not found in this container, default scope */
+	/** create object in this container if not found in this container, default scope */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
@@ -32,7 +32,7 @@ public @interface Scope
 	{
 	}
 
-	/** create instance in this container if not found from this to top container */
+	/** create object in this container if not found from this to top container */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
@@ -40,7 +40,7 @@ public @interface Scope
 	{
 	}
 
-	/** create instance in top container if not found from this to top container */
+	/** create object in top container if not found from this to top container */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Documented
