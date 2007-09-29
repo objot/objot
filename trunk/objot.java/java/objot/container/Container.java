@@ -4,7 +4,7 @@
 //
 package objot.container;
 
-import java.util.HashMap;
+import java.lang.reflect.Field;
 
 import objot.bytecode.Element;
 import objot.util.Array2;
@@ -16,11 +16,14 @@ import objot.util.Class2;
 public abstract class Container
 {
 	public final Container outer;
-	private final HashMap<Class<?>, Object> os = new HashMap<Class<?>, Object>();
 
-	Container(Container out)
+	static final Field F_objss = Class2.declaredField(Container.class, "objss");
+	final Object[][] objss;
+
+	Container(Container out, Object[][] ss)
 	{
 		outer = out;
+		objss = ss;
 	}
 
 	/** not thread-safe */
@@ -34,19 +37,20 @@ public abstract class Container
 	}
 
 	/** not thread-safe */
+	@SuppressWarnings("unchecked")
 	public final <T>T create(Class<T> c) throws Exception
 	{
 		int i = index(c);
 		if (i < 0)
 			throw new ClassCastException(c + " unbound");
-		return (T)create0(index(c));
+		return (T)create0(index(c), false);
 	}
 
 	static final Bytes NAME_createTop = Element.utf("createTop");
 	static final Bytes DESC_createTop = Element.utf(Class2.descript( //
 		Class2.declaredMethod1(Container.class, "createTop")));
 
-	/** Example: <code>return new Container123(null);</code> */
+	/** Example: <code>return new Container123(null, {@link #objss});</code> */
 	abstract Container createTop();
 
 	static final Bytes NAME_index = Element.utf("index");
@@ -78,16 +82,17 @@ public abstract class Container
 	 * 
 	 * <pre>
 	 * switch(i) {
-	 *     0: return o0; // bind to instance
+	 *     0: return objss[0][0]; // bind to object
 	 *     1: return this; // {@link Container}
-	 *     2: return create0(i); // {@link Scope.None}
-	 *     3: return o3 != null ? o3 : (o3 = create0(i)); // {@link Scope.Private}
+	 *     2: return create0(i, false); // {@link Scope.None}
+	 *     3: return o3 != null ? o3 : create0(i, true); // {@link Scope.Private}
 	 *     4: for (Container123 c = this; ; c = (Container123)c.outer)
 	 *        	if (c.o4 != null) return o4 = c.o4;
 	 *          else if (c.outer == null) break;
-	 *        return o4 = create0(i); // {@link Scope.Spread}
+	 *        return create0(i, true); // {@link Scope.Spread}
 	 *     5: ... // like 4
-	 *        return o5 = c.o5 = create0(i); // {@link Scope.SpreadCreate} 
+	 *        return o5 = c.create0(i, true); // {@link Scope.SpreadCreate}
+	 *     6: ... other.package.Create123.create0(this, i, true) ... // not-public
 	 *     default: return null;
 	 *   }
 	 * }</pre>
@@ -98,13 +103,13 @@ public abstract class Container
 	static final Bytes DESC_create0 = Element.utf(Class2.descript( //
 		Class2.declaredMethod1(Container.class, "create0")));
 
-	Object create0(Bind b, boolean put) throws Exception
+	Object create0(int index, boolean save) throws Exception
 	{
 		Object[] ps = Array2.newObjects(b.cbs.length);
 		for (int i = 0; i < ps.length; i++)
 			ps[i] = get(b.cbs[i]);
 		Object o = b.ct.newInstance(ps);
-		if (put)
+		if (save)
 			os.put(b.c, o);
 		for (int i = 0; i < b.fs.length; i++)
 			b.fs[i].set(o, get(b.fbs[i]));
