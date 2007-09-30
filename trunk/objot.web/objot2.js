@@ -112,12 +112,12 @@ $enc = function (o, forClass) {
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length);
-		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
+		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++this.refX));
 		for (var i = 0, v, t; i < o.length; i++)
 			if (v = o[i], (t = typeof v) !== 'function')
-				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
+				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
-					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
+					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
@@ -127,7 +127,7 @@ $enc = function (o, forClass) {
 	$enc.o = function (o, s, x) {
 		var v, t = o.constructor.$name, enc;
 		s[x++] = t === 'Object' ? '' : t;
-		o[''] && (s[x++] = '=', s[x++] = o[''] = String(++this.refX));
+		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++this.refX));
 		P: {
 			G: if (enc = o.constructor.$encs) {
 				for (var c = s.clazz, g = enc.length - 2; g >= 0; g -= 2)
@@ -137,9 +137,9 @@ $enc = function (o, forClass) {
 		for (var p, n = 0; n < enc.length; n++)
 			if ((p = enc[n]) in o && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
-				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
+				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
-					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
+					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
@@ -153,9 +153,9 @@ $enc = function (o, forClass) {
 		for (var p in o)
 			if (o.hasOwnProperty(p) && p.length && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
-				s[x++] = v == null ? '.' : v === false ? '<' : v === true ? '>'
+				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
-					: typeof v[''] === 'string' ? (s[x++] = v[''], '+')
+					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
@@ -177,16 +177,16 @@ $dec = function (s) {
 }
 	$dec.l = function (s, x) {
 		var o = new Array(s[x++] - 0);
-		s[x] === '=' && (this.r[s[++x]] = o, x++);
+		s[x] === ':' && (this.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
 			: (v = s[x++]) !== ']'; i++)
 			switch(v) {
-				case '': o[i] = s[x++]; break; case '.': o[i] = null; break;
+				case '': o[i] = s[x++]; break; case ',': o[i] = null; break;
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
 				case '*': o[i] = new Date(s[x++] - 0); break;
 				case '[': x = this.l(s, x); o[i] = s.o; break;
 				case '{': x = this.o(s, x); o[i] = s.o; break;
-				case '+': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
+				case '=': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: isNaN(o[i] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o;
@@ -194,15 +194,15 @@ $dec = function (s) {
 	}
 	$dec.o = function (s, x, p, v) {
 		var o = new ($.c(s[x++]).$ctor);
-		s[x] === '=' && (this.r[s[++x]] = o, x++);
+		s[x] === ':' && (this.r[s[++x]] = o, x++);
 		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
-				case '': o[p] = s[x++]; break; case '.': o[p] = null; break;
+				case '': o[p] = s[x++]; break; case ',': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
 				case '*': o[p] = new Date(s[x++] - 0); break;
 				case '[': x = this.l(s, x); o[p] = s.o; break;
 				case '{': x = this.o(s, x); o[p] = s.o; break;
-				case '+': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
+				case '=': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: isNaN(o[p] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o;
