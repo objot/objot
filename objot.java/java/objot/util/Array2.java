@@ -26,6 +26,7 @@ public class Array2
 	public static final float[] FLOATS0 = {};
 	public static final double[] DOUBLES0 = {};
 	public static final Object[] OBJECTS0 = {};
+	public static final String[] STRINGS0 = {};
 	public static final Class<?>[] CLASSES0 = {};
 
 	/** @return new allocated array or a reused empty array */
@@ -525,10 +526,10 @@ public class Array2
 		return s.toArray(news(c, s.size()));
 	}
 
-	public static <T, S extends Collection<? super T>>S addTo(T[] s, S l)
+	public static <T, C extends Collection<? super T>>C addTo(T[] s, C c)
 	{
-		for (T x: s)
-			l.add(x);
-		return l;
+		for (T o: s)
+			c.add(o);
+		return c;
 	}
 }
