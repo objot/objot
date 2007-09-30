@@ -7,10 +7,9 @@ package objot.codec;
 import java.lang.reflect.Method;
 import java.sql.Clob;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import objot.util.Array2;
 import objot.util.Class2;
@@ -47,7 +46,7 @@ final class Encoder
 	CharSequence go(Object o) throws Exception
 	{
 		refs(o);
-		if (o instanceof List || o.getClass().isArray())
+		if (o instanceof Collection || o.getClass().isArray())
 			list(o);
 		else
 			object(o);
@@ -70,11 +69,8 @@ final class Encoder
 				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
 					refs(pv.getValue());
 			}
-		else if (o instanceof List)
-			for (Object v: (List<?>)o)
-				refs(v);
-		else if (o instanceof Set)
-			for (Object v: (Set<?>)o)
+		else if (o instanceof Collection)
+			for (Object v: (Collection<?>)o)
 				refs(v);
 		else if ( !o.getClass().isArray()) // other
 			codec.clazz(o.getClass()).encodeRefs(this, o, forClass);
@@ -126,17 +122,9 @@ final class Encoder
 	private void list(Object o) throws Exception
 	{
 		split().append('[');
-		if (o instanceof List)
+		if (o instanceof Collection)
 		{
-			List<?> l = (List<?>)o;
-			split().append(l.size());
-			ref(o);
-			for (Object v: l)
-				value(null, v);
-		}
-		else if (o instanceof Set)
-		{
-			Set<?> l = (Set<?>)o;
+			Collection<?> l = (Collection<?>)o;
 			split().append(l.size());
 			ref(o);
 			for (Object v: l)
@@ -201,7 +189,7 @@ final class Encoder
 	{
 		int ref = ref(o, 1);
 		if (ref > 0)
-			split(split().append('=')).append(ref);
+			split(split().append(':')).append(ref);
 	}
 
 	static final Method M_valueInt = Class2.declaredMethod(Encoder.class, "value",
@@ -254,8 +242,8 @@ final class Encoder
 		split().append(v);
 	}
 
-	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value", String.class,
-		Object.class);
+	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value",
+		String.class, Object.class);
 
 	void value(String name, Object v) throws Exception
 	{
@@ -263,7 +251,7 @@ final class Encoder
 			split().append(name);
 		int ref;
 		if (v == null)
-			split().append('.');
+			split().append(',');
 		else if (v instanceof String)
 			split(split()).append((String)v);
 		else if (v instanceof Clob)
@@ -284,8 +272,8 @@ final class Encoder
 		else if (v instanceof Calendar)
 			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
 		else if ((ref = ref(v, 0)) > 0)
-			split(split().append('+')).append(ref);
-		else if (v instanceof List || v instanceof Set || v.getClass().isArray())
+			split(split().append('=')).append(ref);
+		else if (v instanceof Collection || v.getClass().isArray())
 			list(v);
 		else
 			object(v);

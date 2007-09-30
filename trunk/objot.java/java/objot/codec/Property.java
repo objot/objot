@@ -9,9 +9,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.Clob;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 
+import objot.util.Array2;
 import objot.util.Class2;
 
 
@@ -25,8 +26,6 @@ final class Property
 	Class<?> cla;
 	boolean clob;
 	Class<?> list;
-	Class<?> unique;
-	Class<?> array;
 	int index;
 	private Class<?>[] clas;
 	private boolean[] allows;
@@ -54,11 +53,7 @@ final class Property
 	private void init(AccessibleObject p, Type type, Enc e, Dec d, EncDec ed, boolean enc)
 	{
 		clob = Clob.class.isAssignableFrom(cla);
-		if (cla.isArray())
-			array = cla.getComponentType();
-		else if (Set.class.isAssignableFrom(cla))
-			unique = Class2.typeParamClass(type, 0, Object.class);
-		else
+		if (Collection.class.isAssignableFrom(cla))
 			list = Class2.typeParamClass(type, 0, Object.class);
 
 		Class<?>[] pcs;
@@ -75,7 +70,7 @@ final class Property
 		EncDec ced = out.getAnnotation(EncDec.class);
 		Class<?>[] ocs;
 		if (ced == null)
-			ocs = ce != null ? ce.value() : cd != null ? cd.value() : Codec.CS0;
+			ocs = ce != null ? ce.value() : cd != null ? cd.value() : Array2.CLASSES0;
 		else if (ce == null && cd == null)
 			ocs = ced.value();
 		else

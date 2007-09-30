@@ -4,22 +4,23 @@
 //
 package objot.codec;
 
+import objot.util.Array2;
+
+
 public class Errs
 	extends Err
 {
 	@Enc
 	public final String[] hints;
 
-	public static final String[] HINTS0 = {};
-
 	public Errs(String[] s)
 	{
-		hints = s != null ? s : HINTS0;
+		hints = s != null ? s : Array2.STRINGS0;
 	}
 
 	public Errs(Object[] s)
 	{
-		hints = s != null && s.length > 0 ? new String[s.length] : HINTS0;
+		hints = s != null && s.length > 0 ? new String[s.length] : Array2.STRINGS0;
 		for (int x = 0; x < hints.length; x++)
 			hints[x] = String.valueOf(s[x]);
 	}

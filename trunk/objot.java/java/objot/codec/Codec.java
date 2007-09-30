@@ -5,7 +5,10 @@
 package objot.codec;
 
 import java.io.UTFDataFormatException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -22,9 +25,9 @@ public class Codec
 		return new Encoder(this, for_).go(o);
 	}
 
-	public Object dec(char[] s, Class<?> clazz, Class<?> for_) throws Exception
+	public Object dec(char[] s, Class<?> cla, Class<?> for_) throws Exception
 	{
-		return new Decoder(this, for_, s).go(clazz);
+		return new Decoder(this, for_, s).go(cla);
 	}
 
 	/** multi thread, may be cached */
@@ -47,13 +50,17 @@ public class Codec
 		return l;
 	}
 
+	/** {@link HashMap} by default */
+	protected Map<String, Object> newMap() throws Exception
+	{
+		return new HashMap<String, Object>();
+	}
+
 	/** {@link HashSet} by default but not recommended for ORM */
-	protected java.util.Set<Object> newUniques(int len) throws Exception
+	protected Set<Object> newSet(int len) throws Exception
 	{
 		return new HashSet<Object>(len);
 	}
-
-	static final Class<?>[] CS0 = {};
 
 	private final ConcurrentHashMap<Class<?>, Clazz> clas //
 	= new ConcurrentHashMap<Class<?>, Clazz>(64, 0.8f, 32);

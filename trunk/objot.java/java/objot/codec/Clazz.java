@@ -168,7 +168,7 @@ abstract class Clazz
 				s.ins0(Opcode.AALOAD); // property
 				s.ins0(Opcode.ALOAD3);
 				s.insU2(Opcode.INVOKEVIRTUAL, allowCi);
-				int if0 = s.insJump2(Opcode.IFIE0);
+				int if0 = s.insJump(Opcode.IFIE0);
 				s.ins0(Opcode.ALOAD1);
 				s.insU1(Opcode.ALOAD, 4); // object
 				if (e.field != null)
@@ -214,7 +214,7 @@ abstract class Clazz
 			s.insU1(Opcode.ASTORE, 5); // property
 			s.ins0(Opcode.ALOAD3);
 			s.insU2(Opcode.INVOKEVIRTUAL, allowCi);
-			int if0 = s.insJump2(Opcode.IFIE0);
+			int if0 = s.insJump(Opcode.IFIE0);
 			s.ins0(Opcode.ALOAD1);
 			s.insU1(Opcode.ALOAD, 5); // property
 			s.insU2(Opcode.GETFIELD, nameCi);

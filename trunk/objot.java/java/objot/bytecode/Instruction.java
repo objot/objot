@@ -191,24 +191,20 @@ public class Instruction
 		addr += 6;
 	}
 
-	/** @return jump tag: <code>addr-op</code> */
-	public final int insJump2(byte op)
+	/** @return jump tag: <code>addr-op</code> or <code>-addr-op - 1</code> */
+	public final int insJump(byte op)
 	{
+		if (op == Opcode.GOTO4 || op == Opcode.JSR4)
+		{
+			ensureByteN(addr + 5);
+			write0s1(addr, op);
+			write0s4(addr + 1, 0);
+			return -((addr += 5) - 5) - 1;
+		}
 		ensureByteN(addr + 3);
 		write0s1(addr, op);
 		write0s2(addr + 1, 0);
-		addr += 3;
-		return addr - 3;
-	}
-
-	/** @return jump tag: <code>-addr-op - 1</code> */
-	public final int insJump4(byte op)
-	{
-		ensureByteN(addr + 5);
-		write0s1(addr, op);
-		write0s4(addr + 1, 0);
-		addr += 5;
-		return -(addr - 5) - 1;
+		return (addr += 3) - 3;
 	}
 
 	public final void jumpFrom(int jumpTag)
