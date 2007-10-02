@@ -4,7 +4,6 @@
 //
 package objot.container;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -17,6 +16,7 @@ import java.util.HashMap;
 
 import objot.util.Array2;
 import objot.util.Class2;
+import objot.util.Mod2;
 import objot.util.Parameter;
 
 
@@ -25,24 +25,24 @@ public class Binder
 	private HashMap<Class<?>, Bind> binds = new HashMap<Class<?>, Bind>();
 
 	{
-		Bind b = new Bind();
-		b.c = Container.class;
+		Bind b = new Bind(Container.class);
 		b.b = b;
-		scope(b);
 		binds.put(b.c, b);
 	}
 
 	public final synchronized Bind bind(Class<?> c) throws Exception
 	{
+		if ((c.getModifiers() & Modifier.PUBLIC) == 0)
+			throw new IllegalArgumentException("binding to not-public " + c + " forbidden");
+		if (c != Container.class && Container.class.isAssignableFrom(c)
+			|| Bind.class.isAssignableFrom(c))
+			throw new IllegalArgumentException("binding to " + c + " forbidden");
 		Bind b = binds.get(c);
 		if (b != null)
 			return b;
-		binds.put(c, b = new Bind());
-		b.c = c;
+		binds.put(c, b = new Bind(c));
 		b.b = check(c, doBind(c));
-		if (b.b == b)
-			scope(b);
-		if (c.getSuperclass() != null)
+		if (c.getSuperclass() != null && c.getSuperclass() != Object.class)
 			bind(c.getSuperclass());
 
 		b.cbs = Array2.OBJECTS0;
@@ -126,34 +126,31 @@ public class Binder
 		Bind[] bs = Array2.from(binds.values(), Bind.class);
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind b: bs)
-				if (b.b != b && b.b instanceof Bind)
+				if (b.b != b && b.b instanceof Bind && b.b != ((Bind)b.b).b)
 				{
 					b.b = ((Bind)b.b).b;
 					ok = true;
 				}
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind b: bs)
-			if (b.os == null)
+			if (b.os == null && b.cbs != null)
 			{
+				os.add(b.b instanceof Bind ? null : b.b);
 				for (int i = 0; i < b.cbs.length; i++)
 					b.cbs[i] = bound(b.cbs[i], os);
 				for (int i = 0; i < b.fbs.length; i++)
 					b.fbs[i] = bound(b.fbs[i], os);
+				b.maxParamN = Math.max(b.cbs.length, b.fbs.length > 0 ? 1 : 0);
 				for (int i = 0; i < b.mbs.length; i++)
+				{
 					for (int j = 0; j < b.mbs[i].length; j++)
 						b.mbs[i][j] = bound(b.mbs[i][j], os);
+					b.maxParamN = Math.max(b.maxParamN, b.mbs[i].length);
+				}
 				b.os = os.toArray();
 				os.clear();
 			}
 		return bs;
-	}
-
-	private static final Class<?>[] SCOPES = Scope.class.getDeclaredClasses();
-
-	private void scope(Bind b)
-	{
-		Annotation a = Class2.annoExclusive(b.c, SCOPES);
-		b.scope = a != null ? a.annotationType() : Scope.Private.class;
 	}
 
 	private Object check(Class<?> c, Object o)
@@ -170,8 +167,10 @@ public class Binder
 	{
 		if (needAnno && !o.isAnnotationPresent(Inject.class))
 			return null;
-		if ((o.getModifiers() & (Modifier.STATIC | Modifier.PRIVATE)) != 0)
-			throw new UnsupportedOperationException("injecting " + o + " forbidden");
+		if ((o.getModifiers() & Modifier.STATIC) != 0
+			|| (o.getModifiers() & Modifier.PUBLIC) == 0)
+			throw new IllegalArgumentException("injecting "
+				+ Mod2.toString(Mod2.get(o.getModifiers(), 0)) + " " + o + " forbidden");
 		o.setAccessible(true); // @todo
 		return o;
 	}
