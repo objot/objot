@@ -60,7 +60,7 @@ final class Encoder
 	void refs(Object o) throws Exception
 	{
 		if (o instanceof String && ((String)o).indexOf(Codec.S) >= 0)
-			throw new RuntimeException("String must not contain \20 \\20");
+			throw new RuntimeException("String must not contain the split char");
 		if (o == null || ref(o, -1) < 0 /* multi references */)
 			return;
 		if (o instanceof Map)

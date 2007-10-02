@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -216,6 +217,11 @@ public class Class2
 		d.append(')');
 		d.append(Return instanceof Class ? descript((Class<?>)Return) : (String)Return);
 		return d.toString();
+	}
+
+	public static String descript(Constructor<?> c)
+	{
+		return descript(void.class, (Object[])c.getParameterTypes());
 	}
 
 	public static String descript(Method m)

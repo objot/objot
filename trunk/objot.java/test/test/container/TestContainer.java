@@ -11,6 +11,14 @@ import objot.container.Factory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import test.container.S.None;
+import test.container.S.None2;
+import test.container.S.Private;
+import test.container.S.Private2;
+import test.container.S.Spread;
+import test.container.S.Spread2;
+import test.container.S.SpreadC;
+import test.container.S.SpreadC2;
 
 
 public class TestContainer
@@ -127,11 +135,11 @@ public class TestContainer
 		assertSame(con, con.get(Container.class));
 		Container con11 = con.create(Container.class);
 		assertNotSame(con, con11);
-		assertSame(con, con11.outer);
+		assertSame(con, con11.outer());
 		Container con12 = con11.create(Container.class);
 		assertNotSame(con, con12);
 		assertNotSame(con11, con12);
-		assertSame(con11, con12.outer);
+		assertSame(con11, con12.outer());
 	}
 
 	@Test

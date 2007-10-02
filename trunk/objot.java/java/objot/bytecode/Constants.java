@@ -5,6 +5,7 @@
 package objot.bytecode;
 
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import objot.util.Array2;
@@ -897,6 +898,16 @@ public class Constants
 		return putRef(TAG_CLASS, nameCi, TAG_UTF);
 	}
 
+	public int addClass(String name)
+	{
+		return addRef(TAG_CLASS, addUcs(Class2.pathName(name)), TAG_UTF);
+	}
+
+	public int putClass(String name)
+	{
+		return putRef(TAG_CLASS, putUcs(Class2.pathName(name)), TAG_UTF);
+	}
+
 	public int addClass(Class<?> cla)
 	{
 		return addRef(TAG_CLASS, addUtf(utf(Class2.pathName(cla))), TAG_UTF);
@@ -977,6 +988,18 @@ public class Constants
 		return putRef2(TAG_IPROC, classCi, TAG_CLASS, nameDescCi, TAG_NAMEDESC);
 	}
 
+	public int addProc(Constructor<?> c)
+	{
+		return addRef2(TAG_CPROC, addClass(c.getDeclaringClass()), TAG_CLASS, addNameDesc(c),
+			TAG_NAMEDESC);
+	}
+
+	public int putProc(Constructor<?> c)
+	{
+		return putRef2(TAG_CPROC, putClass(c.getDeclaringClass()), TAG_CLASS, putNameDesc(c),
+			TAG_NAMEDESC);
+	}
+
 	public int addProc(Method m)
 	{
 		return addRef2(m.getDeclaringClass().isInterface() ? TAG_IPROC : TAG_CPROC,
@@ -1029,6 +1052,16 @@ public class Constants
 	public int putNameDesc(java.lang.reflect.Field f)
 	{
 		return putNameDesc(utf(f.getName()), utf(Class2.descript(f)));
+	}
+
+	public int addNameDesc(Constructor<?> c)
+	{
+		return addNameDesc(Procedure.CTOR_NAME_, utf(Class2.descript(c)));
+	}
+
+	public int putNameDesc(Constructor<?> c)
+	{
+		return putNameDesc(Procedure.CTOR_NAME_, utf(Class2.descript(c)));
 	}
 
 	public int addNameDesc(Method m)
