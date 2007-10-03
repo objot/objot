@@ -10,6 +10,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 
 public class Bind
@@ -41,8 +42,11 @@ public class Bind
 	Bind(Class<?> c_)
 	{
 		c = c_;
-		if (c.isPrimitive())
-			throw new ClassCastException("primitive " + c + " forbidden");
+		if (c.isPrimitive() || Bind.class.isAssignableFrom(c) //
+			|| c != Container.class && Container.class.isAssignableFrom(c))
+			throw new IllegalArgumentException("binding " + c + " forbidden");
+		if ((c.getModifiers() & Modifier.PUBLIC) == 0)
+			throw new IllegalArgumentException("binding not-public " + c + " forbidden");
 		Annotation a = Class2.annoExclusive(c, SCOPES);
 		scope = a != null ? a.annotationType() : Scope.Private.class;
 	}

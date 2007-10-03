@@ -6,6 +6,7 @@ package objot.container;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -19,6 +20,7 @@ public @interface Scope
 	/** out of containers, create object every time */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
 	@Documented
 	public @interface None
 	{
@@ -27,6 +29,7 @@ public @interface Scope
 	/** create object in this container if not found in this container, default scope */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
 	@Documented
 	public @interface Private
 	{
@@ -35,6 +38,7 @@ public @interface Scope
 	/** create object in this container if not found from this to top container */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
 	@Documented
 	public @interface Spread
 	{
@@ -43,6 +47,7 @@ public @interface Scope
 	/** create object in top container if not found from this to top container */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
 	@Documented
 	public @interface SpreadCreate
 	{
