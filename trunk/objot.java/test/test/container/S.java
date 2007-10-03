@@ -18,6 +18,10 @@ public interface S
 		String name;
 		@Inject
 		public int none;
+		@Inject
+		public int[] ints;
+		@Inject
+		public long[] longs;
 
 		@Inject
 		public None(@Deprecated

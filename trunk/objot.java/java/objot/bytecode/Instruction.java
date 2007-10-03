@@ -4,6 +4,7 @@
 //
 package objot.bytecode;
 
+import static objot.bytecode.Opcode.ANEWARRAY;
 import static objot.bytecode.Opcode.CHECKCAST;
 import static objot.bytecode.Opcode.GETSTATIC;
 import static objot.bytecode.Opcode.IINC;
@@ -12,6 +13,15 @@ import static objot.bytecode.Opcode.INVOKESTATIC;
 import static objot.bytecode.Opcode.INVOKEVIRTUAL;
 import static objot.bytecode.Opcode.LDCW;
 import static objot.bytecode.Opcode.LOOKUPSWITCH;
+import static objot.bytecode.Opcode.NEWARRAY;
+import static objot.bytecode.Opcode.NEWARRAY_BOOL;
+import static objot.bytecode.Opcode.NEWARRAY_BYTE;
+import static objot.bytecode.Opcode.NEWARRAY_CHAR;
+import static objot.bytecode.Opcode.NEWARRAY_DOUBLE;
+import static objot.bytecode.Opcode.NEWARRAY_FLOAT;
+import static objot.bytecode.Opcode.NEWARRAY_INT;
+import static objot.bytecode.Opcode.NEWARRAY_LONG;
+import static objot.bytecode.Opcode.NEWARRAY_SHORT;
 import static objot.bytecode.Opcode.TABLESWITCH;
 import static objot.bytecode.Opcode.WIDE;
 
@@ -336,5 +346,30 @@ public class Instruction
 		}
 		else if (c != Object.class)
 			insU2(CHECKCAST, cons.putClass(c));
+	}
+
+	/** Stack: length --> elem[length] */
+	public final void insNews(Constants cons, Class<?> elem)
+	{
+		if ( !elem.isPrimitive())
+			insU2(ANEWARRAY, cons.putClass(elem));
+		else if (elem == int.class)
+			insU1(NEWARRAY, NEWARRAY_INT);
+		else if (elem == long.class)
+			insU1(NEWARRAY, NEWARRAY_LONG);
+		else if (elem == boolean.class)
+			insU1(NEWARRAY, NEWARRAY_BOOL);
+		else if (elem == byte.class)
+			insU1(NEWARRAY, NEWARRAY_BYTE);
+		else if (elem == char.class)
+			insU1(NEWARRAY, NEWARRAY_CHAR);
+		else if (elem == short.class)
+			insU1(NEWARRAY, NEWARRAY_SHORT);
+		else if (elem == float.class)
+			insU1(NEWARRAY, NEWARRAY_FLOAT);
+		else if (elem == double.class)
+			insU1(NEWARRAY, NEWARRAY_DOUBLE);
+		else
+			throw new ClassCastException("invalid array element class " + elem);
 	}
 }

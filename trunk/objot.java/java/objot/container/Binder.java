@@ -67,8 +67,8 @@ public class Binder
 			}
 			catch (Exception e)
 			{
-				throw new UnsupportedOperationException(c + //
-					": one and only one constructor() or @Inject constructor expected", e);
+				throw new UnsupportedOperationException(c
+					+ ": exact one constructor() or @Inject constructor expected", e);
 			}
 
 		ArrayList<Field> fs = new ArrayList<Field>();
@@ -158,9 +158,9 @@ public class Binder
 		if (c.isPrimitive())
 			c = Class2.box(c, true);
 		Class<?> oc = o instanceof Bind ? ((Bind)o).c : o != null ? o.getClass() : c;
-		if ( !c.isAssignableFrom(oc))
-			throw new ClassCastException("binding " + c + " to " + o + " forbidden");
-		return o;
+		if (c.isAssignableFrom(oc) || c.isArray() && oc == Integer.class)
+			return o;
+		throw new ClassCastException("binding " + c + " to " + o + " forbidden");
 	}
 
 	private <O extends AccessibleObject & Member>O inject(O o, boolean needAnno)
