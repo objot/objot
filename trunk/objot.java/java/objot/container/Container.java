@@ -54,7 +54,7 @@ public abstract class Container
 	 * Example:
 	 * 
 	 * <pre>
-	 * switch(c.hashCode()) {
+	 * switch(c.hashCode() % 15) {
 	 *     2: if (c == A.class) return 0;
 	 *        if (c == D.class) return 2;
 	 *        return -1;
@@ -82,7 +82,7 @@ public abstract class Container
 	 *        else if (c.outer == null) break;
 	 *      return create0(i, true); // @{@link Scope.Spread}
 	 *   5: ... // like 4
-	 *      return o5 = c.create0(i, true); // @{@link Scope.SpreadCreate}
+	 *      return o5 = (Abc5)c.create0(i, true); // @{@link Scope.SpreadCreate}
 	 *   default: return this; // never happen
 	 * }</pre>
 	 */
@@ -99,13 +99,13 @@ public abstract class Container
 	 *      o.outer = this;
 	 *      o.objss = objss;
 	 *      return o;
-	 *   2: A o = new A(get0(5), get0(7), objss[0][0], objss[0][1]);
+	 *   2: A o = new A((A1)get0(5), (A2)get0(7), (Object)objss[0][0], (A4)objss[0][1]);
 	 *      if (save)
 	 *        o0 = o;
-	 *      o.x = get0(3); // bind to index 3
-	 *      o.y = objss[0][2]; // bind to object
-	 *      o.p(objss[0][3]);
-	 *      o.q(get0(1));
+	 *      o.x = (Ax)get0(3); // bind to index 3
+	 *      o.y = (Ay)objss[0][2]; // bind to object
+	 *      o.p((Ap)objss[0][3]);
+	 *      o.q((int)(Integer)get0(1));
 	 *      return o;
 	 *   default: return null; // never happen
 	 * }</pre>

@@ -48,7 +48,6 @@ public final class Factory
 		makeGet0(y, get0Ci, create0Ci, outCi, ossCi, fCis);
 		makeCreate0(y, get0Ci, create0Ci, outCi, ossCi, fCis);
 
-		y.printTo(System.out, 0, 0, 1);
 		con = Class2.<Container>load(Container.class.getClassLoader(), name, y.normalize())
 			.newInstance();
 		con.objss = oss;
