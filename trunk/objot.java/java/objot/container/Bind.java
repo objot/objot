@@ -17,7 +17,7 @@ public class Bind
 {
 	/** not primitive */
 	final Class<?> c;
-	Class<? extends Annotation> scope;
+	Class<? extends Annotation> mode;
 	/** {@link Bind} of {@link #c}, or object of {@link #c} */
 	Object b;
 
@@ -37,7 +37,7 @@ public class Bind
 	Object[] os;
 	int maxParamN;
 
-	private static final Class<?>[] SCOPES = Scope.class.getDeclaredClasses();
+	private static final Class<?>[] MODES = Inject.class.getDeclaredClasses();
 
 	Bind(Class<?> c_)
 	{
@@ -47,8 +47,8 @@ public class Bind
 			throw new IllegalArgumentException("binding " + c + " forbidden");
 		if ((c.getModifiers() & Modifier.PUBLIC) == 0)
 			throw new IllegalArgumentException("binding not-public " + c + " forbidden");
-		Annotation a = Class2.annoExclusive(c, SCOPES);
-		scope = a != null ? a.annotationType() : Scope.Private.class;
+		Annotation a = Class2.annoExclusive(c, MODES);
+		mode = a != null ? a.annotationType() : Inject.Single.class;
 	}
 
 	@Override
