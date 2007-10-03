@@ -359,8 +359,8 @@ d.add(0, $tx('single line'), $l());
 	// 创建文本节点（非$dom性态）和&lt;label&gt;&lt;/label&gt;，添加到div第一个节点之前
 d.add($a0(), $bn());
 	// 创建&lt;a href=javascript://&gt;&lt;/a&gt;和&lt;button&gt;&lt;/button&gt;，添加到div末尾
-d.rem(1); // 将第二个节点清除
-d.des(0); // 将第一个节点递归销毁
+d.rem(1, 2); // 第二个节点开始的两个节点被清除
+d.des(0); // 从第一个节点到最后一个节点被递归销毁
 d.cla('cssClass2').cla(0, 'cssClass1'); // 添加cssClass2，然后清除cssClass1
 d.att('title', $dom(d, 'title', 'A div').att('title') + '...');
 	// 先直接设置对象属性title，再用getAttribute()取得title，再用setAttribute设置title

@@ -29,8 +29,17 @@ public class TestContainer
 	@BeforeClass
 	public static void init() throws Exception
 	{
-		Binder b = new Binder()
+		factory = new Factory(new Binder()
 		{
+			{
+				bind(None2.class);
+				bind(Private2.class);
+				bind(Spread.P.class);
+				bind(Spread2.class);
+				bind(SpreadC.class);
+				bind(SpreadC2.class);
+			}
+
 			@Override
 			protected Object doBind(Class<?> c) throws Exception
 			{
@@ -52,14 +61,7 @@ public class TestContainer
 						return bind(None2.class);
 				return bind(c);
 			}
-		};
-		b.bind(None2.class);
-		b.bind(Private2.class);
-		b.bind(Spread.P.class);
-		b.bind(Spread2.class);
-		b.bind(SpreadC.class);
-		b.bind(SpreadC2.class);
-		factory = new Factory(b);
+		});
 	}
 
 	Container con = factory.container();

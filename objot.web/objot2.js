@@ -352,22 +352,20 @@ $tx = function (singleLine) {
 
 //********************************************************************************************//
 
-/** append children if index is skipped or >= children length,
- * or prepend children if index == 0 or <= - chilren length,
- * or insert if index >= 0 (from first) or <= -1 (from last).
+/** append children if index is skipped or <0 or >= children length,
+ * or insert before index if index >= 0.
  * @return this */
 $dom.add = function (index) {
 	if (index >= 0 || index < 0)
-		for (var _ = this.childNodes[index < 0 ? Math.max(this.childNodes.length + index, 0)
-				: index] || null, x = 1; x < arguments.length; x++)
-			this.insertBefore(arguments[x], _);
+		for (var x = 1, m = this.childNodes[index]; x < arguments.length; x++)
+			this.insertBefore(arguments[x], m);
 	else
 		for (var x = 0; x < arguments.length; x++)
 			this.appendChild(arguments[x]);
 	return this;
 }
 /** remove children, or remove self if no argument,
- * or remove len children from index, or remove from index to last if !(len > 0)
+ * or remove len children from Math.max(index, 0), or remove to last if !(len > 0) 
  * or replace second argument if index === true.
  * @return this */
 $dom.rem = function (index, len) {
@@ -377,10 +375,9 @@ $dom.rem = function (index, len) {
 		$.o(len.parentNode).replaceChild(this, len);
 	else if (index >= 0 || index < 0) {
 		var s = this.childNodes;
-		index < 0 && (index = Math.max(s.length + index, 0));
-		if (index < s.length)
-			for (var x = len > 0 ? Math.min(index + len, s.length) : s.length; --x >= index;) 
-				this.removeChild(s[x]);
+		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null;
+		for (var x = s[index], y; x != len; x = y)
+			y = x.nextSibling, this.removeChild(x);
 	} else
 		for (var x = 0; x < arguments.length; x++)
 			this.removeChild(arguments[x]);
@@ -398,10 +395,9 @@ $dom.des = function (index, len) {
 		len.des ? len.des() : $dom.des.call(len);
 	else if (index >= 0 || index < 0) {
 		var s = this.childNodes;
-		index < 0 && (index = Math.max(s.length + index, 0));
-		if (index < s.length)
-			for (var x = len > 0 ? Math.min(index + len, s.length) : s.length; --x >= index;) 
-				s[x].des ? s[x].des() : $dom.des.call(s[x]);
+		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null;
+		for (var x = s[index], y; x != len; x = y)
+			y = x.nextSibling, x.des ? x.des() : $dom.des.call(x);
 	} else
 		for (var x = 0; x < arguments.length; x++)
 			arguments[x].des ? arguments[x].des() : $dom.des.call(arguments[x]);
@@ -547,6 +543,9 @@ $.is = function (x, clazz, name) {
 	return x !== null && x instanceof clazz ? x
 		: $throw($S(x) + ' must not-null and instanceof '
 		+ (clazz.$name || clazz.name || name || $S(clazz)));
+}
+/** @return 
+$.x = function (s, index) {
 }
 
 /** @return c which $ctor = an empty constructor */
