@@ -56,7 +56,7 @@ public interface S
 		}
 	}
 
-	@Scope.Private
+	/** should be {@link Scope.Private} */
 	public class Private
 	{
 		@Inject
@@ -79,15 +79,9 @@ public interface S
 	{
 		@Inject
 		public S s;
-
-		/** should not be {@link Scope.Spread} */
-		public static class P
-			extends Spread
-		{
-		}
 	}
 
-	@Scope.Spread
+	/** should be {@link Scope.Spread} */
 	public class Spread2
 		extends Spread
 	{
@@ -103,7 +97,7 @@ public interface S
 		public SpreadC c;
 	}
 
-	@Scope.SpreadCreate
+	/** should be {@link Scope.SpreadCreate} */
 	public class SpreadC2
 		extends SpreadC
 	{

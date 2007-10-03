@@ -32,11 +32,6 @@ public class Binder
 
 	public final synchronized Bind bind(Class<?> c) throws Exception
 	{
-		if ((c.getModifiers() & Modifier.PUBLIC) == 0)
-			throw new IllegalArgumentException("binding to not-public " + c + " forbidden");
-		if (c != Container.class && Container.class.isAssignableFrom(c)
-			|| Bind.class.isAssignableFrom(c))
-			throw new IllegalArgumentException("binding to " + c + " forbidden");
 		Bind b = binds.get(c);
 		if (b != null)
 			return b;

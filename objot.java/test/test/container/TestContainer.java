@@ -34,7 +34,6 @@ public class TestContainer
 			{
 				bind(None2.class);
 				bind(Private2.class);
-				bind(Spread.P.class);
 				bind(Spread2.class);
 				bind(SpreadC.class);
 				bind(SpreadC2.class);
@@ -171,9 +170,6 @@ public class TestContainer
 
 		assertSame(s, con11.get(Spread.class));
 		assertSame(s, con12.get(Spread.class));
-
-		assertNotSame(con.get(Spread.P.class), con11.get(Spread.P.class));
-		assertNotSame(con.get(Spread.P.class), con12.get(Spread.P.class));
 
 		Spread s12 = con12.get(Spread2.class);
 		Spread s1 = con.get(Spread2.class);

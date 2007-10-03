@@ -458,15 +458,20 @@ public class Class2
 	@SuppressWarnings("unchecked")
 	public static final Annotation annoExclusive(AnnotatedElement o, Class<?>[] cs)
 	{
-		Annotation a0 = null, a = null;
-		for (Class<?> c: cs)
-			if (c.isAnnotation() && (a = o.getAnnotation((Class)c)) != null)
-				if (a0 == null)
-					a0 = a;
-				else
-					throw new RuntimeException(o + ": annotation " + c.getName()
-						+ " and annotation " + a0.annotationType().getName()
-						+ " are exclusive");
+		Annotation a0 = null;
+		for (Annotation a: o.getDeclaredAnnotations())
+			for (Class<?> c: cs)
+				if (a.annotationType() == c)
+					if (a0 != null || (a0 = a) == null)
+						throw new RuntimeException(o + ": annotation " + c.getName()
+							+ " and " + a0.annotationType().getName() + " are exclusive");
+		Annotation a;
+		if (a0 == null)
+			for (Class c: cs)
+				if (c.isAnnotation() && (a = o.getAnnotation(c)) != null)
+					if (a0 != null || (a0 = a) == null)
+						throw new RuntimeException(o + ": annotation " + c.getName()
+							+ " and " + a0.annotationType().getName() + " are exclusive");
 		return a0;
 	}
 
@@ -477,17 +482,22 @@ public class Class2
 
 	public static final <O extends AnnotatedElement>O annoExclusive(O o)
 	{
-		HashMap<Class<?>, Class<?>> outs = new HashMap<Class<?>, Class<?>>();
+		HashMap<Class<?>, Class<?>> cos = new HashMap<Class<?>, Class<?>>();
+		for (Annotation a: o.getDeclaredAnnotations())
+		{
+			Class<?> c = a.annotationType();
+			Class<?> co = c.getDeclaringClass();
+			if (co != null && (co = cos.put(co, c)) != null)
+				throw new RuntimeException(o + ": annotation " + co.getName() + " and "
+					+ c.getName() + " are exclusive");
+		}
 		for (Annotation a: o.getAnnotations())
 		{
 			Class<?> c = a.annotationType();
-			Class<?> out = c.getDeclaringClass();
-			if (out != null)
-				if (outs.get(out) == null)
-					outs.put(out, c);
-				else
-					throw new RuntimeException(o + ": annotation " + outs.get(out).getName()
-						+ " and annotation " + c.getName() + " are exclusive");
+			Class<?> co = c.getDeclaringClass();
+			if (co != null && !cos.containsKey(co) && (co = cos.put(co, c)) != null)
+				throw new RuntimeException(o + ": annotation " + co.getName() + " and "
+					+ c.getName() + " are exclusive");
 		}
 		return o;
 	}
