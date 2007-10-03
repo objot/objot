@@ -12,10 +12,46 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
+/** The annotated constructors, fields and methods need dependence injection */
 @Target( { ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface Inject
 {
+	/** inject new object every time */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface New
+	{
+	}
+
+	/** inject and save object in this container if not found in this container, default */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Single
+	{
+	}
+
+	/** inject and save object in this container if not found from this to top container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Spread
+	{
+	}
+
+	/** inject and save object in top container if not found from this to top container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Inherit
+	{
+	}
 }

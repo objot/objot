@@ -178,9 +178,9 @@ public final class Factory
 			if (b.c == Container.class)
 				s.switchTable(sw, i, sw0); // return this
 			else if (b.b == b)
-				if (b.scope == Scope.None.class)
+				if (b.mode == Inject.New.class)
 					s.switchTable(sw, i, swN);
-				else if (b.scope == Scope.Private.class)
+				else if (b.mode == Inject.Single.class)
 				{
 					s.switchTableFrom(sw, i);
 					s.insU2(Opcode.GETFIELD, fCis[i]);
@@ -216,12 +216,12 @@ public final class Factory
 					s.insU2(Opcode.CHECKCAST, y.head.getClassCi());
 					s.jump(s.insJump(Opcode.GOTO), loop);
 					s.jumpFrom(j2);
-					if (b.scope != Scope.SpreadCreate.class)
+					if (b.mode == Inject.Spread.class)
 						s.ins0(Opcode.ALOAD0);
 					s.ins0(Opcode.ILOAD1);
 					s.ins0(Opcode.ICONST1);
 					s.insU2(Opcode.INVOKEVIRTUAL, create0Ci);
-					if (b.scope == Scope.SpreadCreate.class)
+					if (b.mode == Inject.Inherit.class)
 					{
 						s.ins0(Opcode.DUP);
 						s.ins0(Opcode.ALOAD0);

@@ -11,14 +11,14 @@ import objot.container.Factory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import test.container.S.None;
-import test.container.S.None2;
-import test.container.S.Private;
-import test.container.S.Private2;
-import test.container.S.Spread;
-import test.container.S.Spread2;
-import test.container.S.SpreadC;
-import test.container.S.SpreadC2;
+import test.container.X.New;
+import test.container.X.New2;
+import test.container.X.Single;
+import test.container.X.Single2;
+import test.container.X.Spread;
+import test.container.X.Spread2;
+import test.container.X.Inherit;
+import test.container.X.Inherit2;
 
 
 public class TestContainer
@@ -32,18 +32,18 @@ public class TestContainer
 		factory = new Factory(new Binder()
 		{
 			{
-				bind(None2.class);
-				bind(Private2.class);
+				bind(New2.class);
+				bind(Single2.class);
 				bind(Spread2.class);
-				bind(SpreadC.class);
-				bind(SpreadC2.class);
+				bind(Inherit.class);
+				bind(Inherit2.class);
 				bind(Object.class);
 			}
 
 			@Override
 			protected Object doBind(Class<?> c) throws Exception
 			{
-				return bind(c == S.class ? Spread.class : c);
+				return bind(c == X.class ? Spread.class : c);
 			}
 
 			@Override
@@ -59,11 +59,11 @@ public class TestContainer
 				if (c == long[].class)
 					return 65536;
 
-				if (out == Private2.class)
-					if (c == Private.class)
-						return bind(Private2.class);
+				if (out == Single2.class)
+					if (c == Single.class)
+						return bind(Single2.class);
 					else if (((Member)a).getName().equals("n"))
-						return bind(None2.class);
+						return bind(New2.class);
 
 				return bind(c);
 			}
@@ -80,64 +80,64 @@ public class TestContainer
 	}
 
 	@Test
-	public void none() throws Exception
+	public void new_() throws Exception
 	{
-		None o = con.get(None.class);
-		assertSame(None.class, o.getClass());
+		New o = con.get(New.class);
+		assertSame(New.class, o.getClass());
 		assertSame(con, o.con);
 		assertSame(Deprecated.class.getName(), o.name);
-		assertEquals( -1, o.none);
+		assertEquals( -1, o.new_);
 		assertSame(null, o.ints);
 		assertEquals(65536, o.longs.length);
 
-		None o1 = con.get(None.class);
+		New o1 = con.get(New.class);
 		assertNotSame(o, o1);
 		assertSame(o.con, o1.con);
 		assertSame(o.name, o1.name);
-		assertEquals(o.none, o1.none);
+		assertEquals(o.new_, o1.new_);
 		assertNotSame(o.longs, o1.longs);
 
-		None o2 = con.create(None.class);
+		New o2 = con.create(New.class);
 		assertNotSame(o, o2);
 		assertNotSame(o1, o2);
 		assertSame(o.con, o2.con);
 		assertSame(o.name, o2.name);
-		assertEquals(o.none, o2.none);
+		assertEquals(o.new_, o2.new_);
 
-		Private p = con.get(Private.class);
-		None2 o3 = con.get(None2.class);
+		Single p = con.get(Single.class);
+		New2 o3 = con.get(New2.class);
 		assertSame(o.con, o3.con);
 		assertSame(o.name, o3.name);
-		assertEquals(o.none, o3.none);
+		assertEquals(o.new_, o3.new_);
 		assertSame(p, o3.p);
 	}
 
 	@Test
-	public void priv() throws Exception
+	public void single() throws Exception
 	{
-		Private p0 = con.create(Private.class);
-		assertNotSame(p0, p0.p);
+		Single o0 = con.create(Single.class);
+		assertNotSame(o0, o0.s);
 
-		Private p = con.get(Private.class);
-		assertSame(Private.class, p.getClass());
-		assertSame(p0.p, p);
-		assertSame(p, p.p);
-		assertNotNull(p.n);
+		Single o = con.get(Single.class);
+		assertSame(Single.class, o.getClass());
+		assertSame(o0.s, o);
+		assertSame(o, o.s);
+		assertNotNull(o.n);
 
-		Private p1 = con.get(Private.class);
-		assertSame(p, p1);
-		assertNotSame(p.n, con.get(None.class));
+		Single o1 = con.get(Single.class);
+		assertSame(o, o1);
+		assertNotSame(o.n, con.get(New.class));
 
-		Private p2 = con2.get(Private.class);
-		assertNotSame(p0, p2);
-		assertNotSame(p, p2);
-		assertNotSame(p.n, p2.n);
+		Single o2 = con2.get(Single.class);
+		assertNotSame(o0, o2);
+		assertNotSame(o, o2);
+		assertNotSame(o.n, o2.n);
 
-		Private2 pp = con.get(Private2.class);
-		assertSame(pp, pp.p);
-		assertSame(None2.class, pp.n.getClass());
-		assertSame(None.class, pp.n0.getClass());
-		assertNotSame(p.n, pp.n0);
+		Single2 oo = con.get(Single2.class);
+		assertSame(oo, oo.s);
+		assertSame(New2.class, oo.n.getClass());
+		assertSame(New.class, oo.n0.getClass());
+		assertNotSame(o.n, oo.n0);
 	}
 
 	@Test
@@ -156,51 +156,51 @@ public class TestContainer
 	@Test
 	public void spread() throws Exception
 	{
-		Spread s0 = con.create(Spread.class);
-		assertNotSame(s0, s0.s);
+		Spread o0 = con.create(Spread.class);
+		assertNotSame(o0, o0.x);
 
-		Spread s = con.get(Spread.class);
-		assertSame(s0.s, s);
-		assertSame(s, s.s);
-		Spread s2 = con.get(Spread.class);
-		assertSame(s, s2);
+		Spread o = con.get(Spread.class);
+		assertSame(o0.x, o);
+		assertSame(o, o.x);
+		Spread o2 = con.get(Spread.class);
+		assertSame(o, o2);
 
 		Container con11 = con.create(Container.class);
 		Container con12 = con11.create(Container.class);
 
-		assertSame(s, con11.get(Spread.class));
-		assertSame(s, con12.get(Spread.class));
+		assertSame(o, con11.get(Spread.class));
+		assertSame(o, con12.get(Spread.class));
 
-		Spread s12 = con12.get(Spread2.class);
-		Spread s1 = con.get(Spread2.class);
-		Spread s11 = con11.get(Spread2.class);
-		assertSame(s1, s11);
-		assertNotSame(s1, s12);
+		Spread o12 = con12.get(Spread2.class);
+		Spread o1 = con.get(Spread2.class);
+		Spread o11 = con11.get(Spread2.class);
+		assertSame(o1, o11);
+		assertNotSame(o1, o12);
 	}
 
 	@Test
 	public void spreadCreate() throws Exception
 	{
-		SpreadC c0 = con.create(SpreadC.class);
-		assertNotSame(c0, c0.c);
+		Inherit o0 = con.create(Inherit.class);
+		assertNotSame(o0, o0.i);
 
-		SpreadC c = con.get(SpreadC.class);
-		assertSame(c0.c, c);
-		assertSame(c, c.c);
-		assertSame(con.get(Spread.class), c.s);
-		SpreadC c2 = con.get(SpreadC.class);
-		assertSame(c, c2);
+		Inherit o = con.get(Inherit.class);
+		assertSame(o0.i, o);
+		assertSame(o, o.i);
+		assertSame(con.get(Spread.class), o.x);
+		Inherit o2 = con.get(Inherit.class);
+		assertSame(o, o2);
 
 		Container con11 = con.create(Container.class);
 		Container con12 = con11.create(Container.class);
 
-		assertSame(c, con11.get(SpreadC.class));
-		assertSame(c, con12.get(SpreadC.class));
+		assertSame(o, con11.get(Inherit.class));
+		assertSame(o, con12.get(Inherit.class));
 
-		SpreadC c12 = con12.get(SpreadC2.class);
-		SpreadC c1 = con.get(SpreadC2.class);
-		SpreadC c11 = con11.get(SpreadC2.class);
-		assertSame(c1, c11);
-		assertSame(c1, c12);
+		Inherit o12 = con12.get(Inherit2.class);
+		Inherit o1 = con.get(Inherit2.class);
+		Inherit o11 = con11.get(Inherit2.class);
+		assertSame(o1, o11);
+		assertSame(o1, o12);
 	}
 }

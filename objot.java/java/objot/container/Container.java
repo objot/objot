@@ -4,6 +4,7 @@
 //
 package objot.container;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -12,8 +13,9 @@ import objot.util.Bytes;
 import objot.util.Class2;
 
 
-@Scope.Private
+@Inject.Single
 public abstract class Container
+	implements Serializable
 {
 	static final Field F_outer = Class2.declaredField(Container.class, "outer");
 	Container outer;
@@ -75,14 +77,14 @@ public abstract class Container
 	 * switch(i) {
 	 *   0: return objss[0][0]; // bind to object
 	 *   1: return this; // {@link Container}
-	 *   2: return create0(i, false); // @{@link Scope.None}
-	 *   3: return o3 != null ? o3 : create0(i, true); // @{@link Scope.Private}
+	 *   2: return create0(i, false); // @{@link Inject.New}
+	 *   3: return o3 != null ? o3 : create0(i, true); // @{@link Inject.Single}
 	 *   4: for (Container123 c = this; ; c = (Container123)c.outer)
 	 *      	if (c.o4 != null) return o4 = c.o4;
 	 *        else if (c.outer == null) break;
-	 *      return create0(i, true); // @{@link Scope.Spread}
+	 *      return create0(i, true); // @{@link Inject.Spread}
 	 *   5: ... // like 4
-	 *      return o5 = (Abc5)c.create0(i, true); // @{@link Scope.SpreadCreate}
+	 *      return o5 = (Abc5)c.create0(i, true); // @{@link Inject.Inherit}
 	 *   default: return this; // never happen
 	 * }</pre>
 	 */
