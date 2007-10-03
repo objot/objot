@@ -38,6 +38,7 @@ public class TestContainer
 				bind(Spread2.class);
 				bind(SpreadC.class);
 				bind(SpreadC2.class);
+				bind(Object.class);
 			}
 
 			@Override
@@ -54,11 +55,17 @@ public class TestContainer
 					return -1;
 				if (c == String.class && a.isAnnotationPresent(Deprecated.class))
 					return Deprecated.class.getName();
+				if (c == int[].class)
+					return null;
+				if (c == long[].class)
+					return 65536;
+
 				if (out == Private2.class)
 					if (c == Private.class)
 						return bind(Private2.class);
 					else if (((Member)a).getName().equals("n"))
 						return bind(None2.class);
+
 				return bind(c);
 			}
 		});
@@ -81,12 +88,15 @@ public class TestContainer
 		assertSame(con, o.con);
 		assertSame(Deprecated.class.getName(), o.name);
 		assertEquals( -1, o.none);
+		assertSame(null, o.ints);
+		assertEquals(65536, o.longs.length);
 
 		None o1 = con.get(None.class);
 		assertNotSame(o, o1);
 		assertSame(o.con, o1.con);
 		assertSame(o.name, o1.name);
 		assertEquals(o.none, o1.none);
+		assertNotSame(o.longs, o1.longs);
 
 		None o2 = con.create(None.class);
 		assertNotSame(o, o2);

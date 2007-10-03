@@ -21,12 +21,15 @@ public final class Factory
 {
 	final Container con;
 	Bind[] bs;
-	Object[][] oss;
+	int get0Ci;
+	int create0Ci;
+	int outCi;
+	int ossCi;
 
 	public Factory(Binder ber) throws Exception
 	{
 		bs = ber.toArray();
-		oss = new Object[bs.length][];
+		Object[][] oss = new Object[bs.length][];
 		for (int i = 0; i < bs.length; i++)
 			oss[i] = bs[i].os;
 
@@ -38,21 +41,19 @@ public final class Factory
 		y.head.setSuperCi(superCi);
 		y.getProcs().addProc(Procedure.addCtor0(y.cons, superCi, 0));
 
-		int get0Ci = y.cons.addProc(Container.M_get0);
-		int create0Ci = y.cons.addProc(Container.M_create0);
-		int outCi = y.cons.addField(Container.F_outer);
-		int ossCi = y.cons.addField(Container.F_objss);
+		get0Ci = y.cons.addProc(Container.M_get0);
+		create0Ci = y.cons.addProc(Container.M_create0);
+		outCi = y.cons.addField(Container.F_outer);
+		ossCi = y.cons.addField(Container.F_objss);
 		int[] fCis = new int[bs.length];
 		makeFields(y, fCis);
 		makeIndex(y);
-		makeGet0(y, get0Ci, create0Ci, outCi, ossCi, fCis);
-		makeCreate0(y, get0Ci, create0Ci, outCi, ossCi, fCis);
+		makeGet0(y, oss, fCis);
+		makeCreate0(y, oss, fCis);
 
 		con = Class2.<Container>load(Container.class.getClassLoader(), name, y.normalize())
 			.newInstance();
 		con.objss = oss;
-		bs = null;
-		oss = null;
 	}
 
 	public Container container()
@@ -146,8 +147,7 @@ public final class Factory
 		y.getProcs().addProc(p);
 	}
 
-	private void makeGet0(Bytecode y, int get0Ci, int create0Ci, int outCi, int ossCi,
-		int[] fCis)
+	private void makeGet0(Bytecode y, Object[][] oss, int[] fCis)
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Modifier.FINAL);
@@ -233,8 +233,13 @@ public final class Factory
 				}
 			else if (b.b instanceof Bind)
 				s.switchTable(sw, i, sw0); // never happen
-			else
+			else if (oss[i][0] != null)
 				s.switchTable(sw, i, swO);
+			else
+			{
+				s.ins0(Opcode.ACONSTNULL);
+				s.ins0(Opcode.ARETURN);
+			}
 		}
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(3);
@@ -242,8 +247,7 @@ public final class Factory
 		y.getProcs().addProc(p);
 	}
 
-	private void makeCreate0(Bytecode y, int get0Ci, int create0Ci, int outCi, int ossCi,
-		int[] fCis)
+	private void makeCreate0(Bytecode y, Object[][] oss, int[] fCis)
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Modifier.FINAL);
@@ -286,7 +290,7 @@ public final class Factory
 				s.ins0(Opcode.DUP);
 				Class<?>[] ps = b.ct.getParameterTypes();
 				for (int cb = 0; cb < b.cbs.length; cb++)
-					o = makeCreate0_bind(p.cons, s, get0Ci, ossCi, b.cbs[cb], ps[cb], o);
+					o = makeCreate0_bind(p.cons, s, b.cbs[cb], ps[cb], oss[i], o);
 				s.insU2(Opcode.INVOKESPECIAL, p.cons.putProc(b.ct));
 				s.ins0(Opcode.ILOAD2); // save
 				int j = s.insJump(Opcode.IFIE0);
@@ -298,8 +302,7 @@ public final class Factory
 				for (int f = 0; f < b.fs.length; f++)
 				{
 					s.ins0(Opcode.DUP);
-					o = makeCreate0_bind(p.cons, s, get0Ci, ossCi, b.fbs[f], b.fs[f]
-						.getType(), o);
+					o = makeCreate0_bind(p.cons, s, b.fbs[f], b.fs[f].getType(), oss[i], o);
 					s.insU2(Opcode.PUTFIELD, p.cons.addField(b.fs[f]));
 				}
 				for (int m = 0; m < b.ms.length; m++)
@@ -307,8 +310,7 @@ public final class Factory
 					ps = b.ms[m].getParameterTypes();
 					s.ins0(Opcode.DUP);
 					for (int mb = 0; mb < b.mbs[m].length; mb++)
-						o = makeCreate0_bind(p.cons, s, get0Ci, ossCi, b.mbs[m][mb], ps[mb],
-							o);
+						o = makeCreate0_bind(p.cons, s, b.mbs[m][mb], ps[mb], oss[i], o);
 					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(b.ms[m]));
 				}
 				s.ins0(Opcode.ARETURN);
@@ -322,25 +324,42 @@ public final class Factory
 		y.getProcs().addProc(p);
 	}
 
-	private int makeCreate0_bind(Constants cons, Instruction s, int get0Ci, int ossCi,
-		Object b, Class<?> c, int o)
+	private int makeCreate0_bind(Constants cons, Instruction s, Object b, Class<?> c,
+		Object[] os, int o)
 	{
 		if (b instanceof Bind)
 		{
 			s.ins0(Opcode.ALOAD0);
 			s.insU2(Opcode.SIPUSH, bind((Bind)b));
 			s.insU2(Opcode.INVOKEVIRTUAL, get0Ci);
+			s.insUnboxNarrow(cons, c);
+			return o;
 		}
-		else
+		if (c.isArray() && os[o] instanceof Integer)
+		{
+			int n = (Integer)os[o];
+			if (n << 16 >> 16 == n)
+				s.insS2(Opcode.SIPUSH, n);
+			else
+				s.insU2(Opcode.LDCW, cons.addInt(n));
+			s.insNews(cons, c.getComponentType());
+		}
+		else if (os[o] != null)
 		{
 			s.ins0(Opcode.ALOAD0);
 			s.insU2(Opcode.GETFIELD, ossCi);
 			s.ins0(Opcode.ILOAD1);
 			s.ins0(Opcode.AALOAD);
-			s.insU2(Opcode.SIPUSH, o++);
+			s.insU2(Opcode.SIPUSH, o);
 			s.ins0(Opcode.AALOAD); // oss[i][o]
+			s.insUnboxNarrow(cons, c);
 		}
-		s.insUnboxNarrow(cons, c);
-		return o;
+		else
+		{
+			s.ins0(Opcode.ACONSTNULL);
+			if (c.isPrimitive())
+				s.insUnboxNarrow(cons, c);
+		}
+		return ++o;
 	}
 }
