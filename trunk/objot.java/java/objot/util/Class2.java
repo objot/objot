@@ -20,7 +20,6 @@ import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 
 public class Class2
@@ -287,7 +286,7 @@ public class Class2
 	 * find all not-private instance fields including those inherited from super classes.
 	 * fields in super class are before those in sub class.
 	 */
-	public static List<Field> fields(Class<?> c)
+	public static ArrayList<Field> fields(Class<?> c)
 	{
 		return fields(c, 0, Modifier.PRIVATE | Modifier.STATIC);
 	}
@@ -296,9 +295,9 @@ public class Class2
 	 * find all matched fields including those inherited from super classes. fields in
 	 * super class are before those in sub class.
 	 */
-	public static List<Field> fields(Class<?> c, int mods, int notMods)
+	public static ArrayList<Field> fields(Class<?> c, int mods, int notMods)
 	{
-		List<Field> s = c.getSuperclass() == null ? new ArrayList<Field>() //
+		ArrayList<Field> s = c.getSuperclass() == null ? new ArrayList<Field>() //
 			: fields(c.getSuperclass(), mods, notMods);
 		for (Field f: c.getDeclaredFields())
 			if ((f.getModifiers() & mods) == mods && (f.getModifiers() & notMods) == 0)
@@ -351,13 +350,22 @@ public class Class2
 	}
 
 	/**
+	 * find all not-private instance methods including those inherited from super classes.
+	 * methods in super class are before those in sub class.
+	 */
+	public static ArrayList<Method> methods(Class<?> c)
+	{
+		return methods(c, 0, Modifier.PRIVATE | Modifier.STATIC);
+	}
+
+	/**
 	 * find all matched methods including those inherited and not-overriden from super
 	 * classes. excludes {@link Mod2.P#INITER}. methods in super class are before those
 	 * in sub class, the overriden methods are replaced in their original position
 	 */
-	public static List<Method> methods(Class<?> c, int mods, int notMods)
+	public static ArrayList<Method> methods(Class<?> c, int mods, int notMods)
 	{
-		List<Method> s = c.getSuperclass() == null ? new ArrayList<Method>() //
+		ArrayList<Method> s = c.getSuperclass() == null ? new ArrayList<Method>() //
 			: methods(c.getSuperclass(), mods, notMods);
 		int supN = s.size();
 		M: for (Method m: c.getDeclaredMethods())

@@ -4,7 +4,6 @@
 //
 package objot.container;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -15,7 +14,6 @@ import objot.util.Class2;
 
 @Inject.Single
 public abstract class Container
-	implements Serializable
 {
 	static final Field F_outer = Class2.declaredField(Container.class, "outer");
 	Container outer;

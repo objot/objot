@@ -4,6 +4,7 @@
 //
 package objot.bytecode;
 
+import java.io.FileInputStream;
 import java.io.PrintStream;
 
 import objot.util.Bytes;
@@ -246,5 +247,16 @@ public class Bytecode
 			bi += bn;
 		}
 		return begin;
+	}
+
+	public static void main(String[] ps) throws Exception
+	{
+		int verbose = 1;
+		for (String p: ps)
+			if (p.startsWith("-v"))
+				verbose = Integer.parseInt(p.substring(2));
+			else
+				new Bytecode(new Bytes(new FileInputStream(p), true)).printTo(System.out, 0,
+					0, verbose);
 	}
 }

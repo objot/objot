@@ -211,7 +211,7 @@ public abstract class Element
 				throw new ClassFormatError("invalid procedure descriptor "
 					+ Element.ucs(descUtf, begin, descUtf.byteN()));
 			}
-			return bi - begin + 1;
+			return bi - descUtf.beginBi - begin + 1;
 		}
 		case '[':
 			return 1 + typeDescByteN(descUtf, begin + 1);

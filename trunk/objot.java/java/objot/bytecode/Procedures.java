@@ -100,6 +100,13 @@ public class Procedures
 		procs[pi] = p;
 	}
 
+	public void removeProc(int pi)
+	{
+		readProcs();
+		System.arraycopy(procs, pi + 1, procs, pi, procN - pi - 1);
+		procs[--procN] = null;
+	}
+
 	@Override
 	public int normalizeByteN()
 	{
