@@ -138,12 +138,12 @@ public class AnnoParams
 		}
 		out.println();
 		for (int i = 0; i < paramN; i++)
-			for (int j = 0; j < getAnnoN(i); i++)
+			for (int j = 0; j < getAnnoN(i); j++)
 			{
 				printIndent(out, indent);
 				out.print(i);
 				out.print(',');
-				out.println(j);
+				out.print(j);
 				out.print('.');
 				getAnno(i, j).printTo(out, 0, indent, verbose);
 			}
