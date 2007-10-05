@@ -5,7 +5,6 @@
 package objot.container;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import objot.bytecode.Bytecode;
 import objot.bytecode.Constants;
@@ -14,6 +13,7 @@ import objot.bytecode.Instruction;
 import objot.bytecode.Procedure;
 import objot.util.Class2;
 import objot.util.Mod2;
+
 import static objot.bytecode.Opcode.*;
 
 
@@ -36,7 +36,7 @@ public final class Factory
 		String name = Container.class.getName() + "$$" + hashCode();
 		Bytecode y = new Bytecode();
 		int superCi = y.cons.addClass(Container.class);
-		y.head.setModifier(Modifier.FINAL | Mod2.SYNTHETIC);
+		y.head.setModifier(Mod2.FINAL | Mod2.SYNTHETIC);
 		y.head.setClassCi(y.cons.addClass(name));
 		y.head.setSuperCi(superCi);
 		y.getProcs().addProc(Procedure.addCtor0(y.cons, superCi, 0));
@@ -113,7 +113,7 @@ public final class Factory
 	private void makeIndex(Bytecode y)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(Container.NAME_index));
 		p.setDescCi(p.cons.addUtf(Container.DESC_index));
 		Instruction s = new Instruction(500);
@@ -150,7 +150,7 @@ public final class Factory
 	private void makeGet0(Bytecode y, Object[][] oss, int[] fCis)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.getCprocName(get0Ci));
 		p.setDescCi(p.cons.getCprocDesc(get0Ci));
 		Instruction s = new Instruction(1000);
@@ -250,7 +250,7 @@ public final class Factory
 	private void makeCreate0(Bytecode y, Object[][] oss, int[] fCis)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.getCprocName(create0Ci));
 		p.setDescCi(p.cons.getCprocDesc(create0Ci));
 		Instruction s = new Instruction(250);

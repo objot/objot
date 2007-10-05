@@ -86,44 +86,44 @@ public class Code
 		return addrBi;
 	}
 
-	public byte readInsS1(int addr)
+	public byte getInsS1(int addr)
 	{
 		return ins[addr + addrBi];
 	}
 
-	public int readInsU1(int addr)
+	public int getInsU1(int addr)
 	{
 		return ins[addr + addrBi] & 0xFF;
 	}
 
-	public short readInsS2(int addr)
+	public short getInsS2(int addr)
 	{
 		return readS2(ins, addr + addrBi);
 	}
 
-	public int readInsU2(int addr)
+	public int getInsU2(int addr)
 	{
 		return readU2(ins, addr + addrBi);
 	}
 
-	public int readInsS4(int addr)
+	public int getInsS4(int addr)
 	{
 		return readS4(ins, addr + addrBi);
 	}
 
-	public int readInsU4(int addr)
+	public int getInsU4(int addr)
 	{
 		return readU4(ins, addr + addrBi);
 	}
 
-	public long readInsS8(int addr)
+	public long getInsS8(int addr)
 	{
 		return readS8(ins, addr + addrBi);
 	}
 
-	public int readInsAddrN(int addr)
+	public int getInsAddrN(int addr)
 	{
-		return Opcode.readInsAddrN(ins, addr + addrBi, addrBi);
+		return Opcode.getInsAddrN(ins, addr + addrBi, addrBi);
 	}
 
 	public void copyInsTo(int addr, byte[] dest, int destBi, int n)
@@ -192,7 +192,7 @@ public class Code
 		}
 		out.println();
 		if (verbose > 0)
-			for (int i = 0; i < addrN; i += readInsAddrN(i))
+			for (int i = 0; i < addrN; i += getInsAddrN(i))
 			{
 				printIndent(out, indent);
 				out.print(i);

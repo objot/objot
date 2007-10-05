@@ -6,7 +6,6 @@ package objot.codec;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 
 import objot.bytecode.Bytecode;
@@ -30,7 +29,7 @@ abstract class Clazz
 	{
 		HashMap<String, Property> es_ = new HashMap<String, Property>();
 		for (Field f: c.getFields())
-			if ((f.getModifiers() & Modifier.STATIC) == 0)
+			if ((f.getModifiers() & Mod2.STATIC) == 0)
 			{
 				Enc e = f.getAnnotation(Enc.class);
 				EncDec gs = f.getAnnotation(EncDec.class);
@@ -38,7 +37,7 @@ abstract class Clazz
 					new Property(f, e, null, gs, true).into(es_);
 			}
 		for (Method m: c.getMethods())
-			if ((m.getModifiers() & Modifier.STATIC) == 0)
+			if ((m.getModifiers() & Mod2.STATIC) == 0)
 			{
 				Enc e = m.getAnnotation(Enc.class);
 				if (e != null)
@@ -48,7 +47,7 @@ abstract class Clazz
 
 		HashMap<String, Property> ds_ = new HashMap<String, Property>();
 		for (Field f: c.getFields())
-			if ((f.getModifiers() & Modifier.STATIC) == 0)
+			if ((f.getModifiers() & Mod2.STATIC) == 0)
 			{
 				Dec d = f.getAnnotation(Dec.class);
 				EncDec gs = f.getAnnotation(EncDec.class);
@@ -56,7 +55,7 @@ abstract class Clazz
 					new Property(f, null, d, gs, false).into(ds_);
 			}
 		for (Method m: c.getMethods())
-			if ((m.getModifiers() & Modifier.STATIC) == 0)
+			if ((m.getModifiers() & Mod2.STATIC) == 0)
 			{
 				Dec d = m.getAnnotation(Dec.class);
 				if (d != null)
@@ -76,7 +75,7 @@ abstract class Clazz
 	{
 		String name = Clazz.class.getName() + "$$" + c.getName().replace('.', '$');
 		Bytecode y = new Bytecode();
-		y.head.setModifier(Modifier.FINAL | Mod2.SYNTHETIC);
+		y.head.setModifier(Mod2.FINAL | Mod2.SYNTHETIC);
 		y.head.setClassCi(y.cons.addClass(y.cons.addUcs(Class2.pathName(name))));
 		y.head.setSuperCi(y.cons.addClass(Clazz.class));
 		y.getProcs().addProc(Procedure.addCtor0(y.cons, y.head.getSuperCi(), 0));
@@ -148,7 +147,7 @@ abstract class Clazz
 		int allowCi)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encodeRefs));
 		p.setDescCi(p.cons.addUtf(DESC_encodeRefs));
 		Instruction s = new Instruction(250);
@@ -189,7 +188,7 @@ abstract class Clazz
 		int allowCi, int nameCi)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encode));
 		p.setDescCi(p.cons.addUtf(DESC_encode));
 		Instruction s = new Instruction(250);
@@ -257,7 +256,7 @@ abstract class Clazz
 	private static void makeObject(Bytecode y, int classCi)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_object));
 		p.setDescCi(p.cons.addUtf(DESC_object));
 		Instruction s = new Instruction(250);
@@ -301,7 +300,7 @@ abstract class Clazz
 	private static void makeDecode(Bytecode y, Property[] ds, int classCi, int type)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Modifier.FINAL);
+		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_decode));
 		p.setDescCi(p.cons.addUtf(type == 0 ? DESC_decode : type == 1 ? DESC_decodeL
 			: DESC_decodeD));
