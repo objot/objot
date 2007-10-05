@@ -105,6 +105,17 @@ public class Exceptions
 		exceptionCis[ei] = exceptionCi;
 	}
 
+	/** @return exception ci */
+	public int removeException(int ei)
+	{
+		checkIndex(ei);
+		readExceptionCis();
+		int ci = exceptionCis[ei];
+		System.arraycopy(exceptionCis, ei + 1, exceptionCis, ei, exceptionN - ei - 1);
+		--exceptionN;
+		return ci;
+	}
+
 	@Override
 	public int normalizeByteN()
 	{

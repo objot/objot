@@ -7,6 +7,7 @@ package objot.bytecode;
 import java.io.PrintStream;
 
 import objot.util.Array2;
+import objot.util.Bytes;
 import objot.util.InvalidValueException;
 
 
@@ -59,6 +60,21 @@ public class Procedures
 		return procs[pi];
 	}
 
+	/**
+	 * @param name ignored if null
+	 * @param desc ignored if null
+	 * @return the index (not Ci) of found procedure, or negative if not found
+	 */
+	public int searchProc(Bytes name, Bytes desc)
+	{
+		readProcs();
+		for (int i = 0; i < procN; i++)
+			if ((name == null || cons.equalsUtf(procs[i].getNameCi(), name))
+				&& (desc == null || cons.equalsUtf(procs[i].getDescCi(), desc)))
+				return i;
+		return -1;
+	}
+
 	@Override
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
@@ -87,6 +103,8 @@ public class Procedures
 	/** @return procedure index(not Ci) */
 	public int addProc(Procedure p)
 	{
+		if (cons != p.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		readProcs();
 		ensureProcN(procN + 1);
 		procs[procN] = p;
@@ -95,16 +113,21 @@ public class Procedures
 
 	public void setProc(int pi, Procedure p)
 	{
+		if (cons != p.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		checkIndex(pi);
 		readProcs();
 		procs[pi] = p;
 	}
 
-	public void removeProc(int pi)
+	public Procedure removeProc(int pi)
 	{
+		checkIndex(pi);
 		readProcs();
+		Procedure p = procs[pi];
 		System.arraycopy(procs, pi + 1, procs, pi, procN - pi - 1);
 		procs[--procN] = null;
+		return p;
 	}
 
 	@Override

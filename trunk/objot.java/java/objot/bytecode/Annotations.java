@@ -143,6 +143,8 @@ public class Annotations
 
 	public int addAnno(Annotation a)
 	{
+		if (cons != a.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		readAnnos();
 		ensureAnnoN(annoN + 1);
 		annos[annoN] = a;
@@ -151,6 +153,8 @@ public class Annotations
 
 	public void setAnno(int ai, Annotation a)
 	{
+		if (cons != a.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		checkIndex(ai);
 		readAnnos();
 		annos[ai] = a;

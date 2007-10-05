@@ -264,8 +264,6 @@ public class Code
 	@Override
 	public int normalizeTo(byte[] bs, int begin)
 	{
-		if (attrNameCi <= 0)
-			throw new RuntimeException("attribute name constant index must be set");
 		writeU2(bs, begin, attrNameCi);
 		writeU2(bs, begin + 6, stackN);
 		writeU2(bs, begin + 8, localN);
