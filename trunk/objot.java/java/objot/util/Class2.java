@@ -12,7 +12,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.AccessController;
@@ -288,7 +287,7 @@ public class Class2
 	 */
 	public static ArrayList<Field> fields(Class<?> c)
 	{
-		return fields(c, 0, Modifier.PRIVATE | Modifier.STATIC);
+		return fields(c, 0, Mod2.PRIVATE | Mod2.STATIC);
 	}
 
 	/**
@@ -355,7 +354,7 @@ public class Class2
 	 */
 	public static ArrayList<Method> methods(Class<?> c)
 	{
-		return methods(c, 0, Modifier.PRIVATE | Modifier.STATIC);
+		return methods(c, 0, Mod2.PRIVATE | Mod2.STATIC);
 	}
 
 	/**
@@ -371,7 +370,7 @@ public class Class2
 		M: for (Method m: c.getDeclaredMethods())
 			if ((m.getModifiers() & mods) == mods && (m.getModifiers() & notMods) == 0)
 			{
-				if ((m.getModifiers() & Modifier.STATIC) == 0)
+				if ((m.getModifiers() & Mod2.STATIC) == 0)
 					for (int i = 0; i < supN; i++)
 						if (override(s.get(i), m))
 						{

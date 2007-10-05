@@ -868,12 +868,12 @@ public final class Opcode
 		out.println();
 	}
 
-	public static int readInsAddrN(Code c, int ad)
+	public static int getInsAddrN(Code c, int ad)
 	{
-		return readInsAddrN(c.insBytes(), ad + c.getAddrBi(), c.getAddrBi());
+		return getInsAddrN(c.insBytes(), ad + c.getAddrBi(), c.getAddrBi());
 	}
 
-	public static int readInsAddrN(byte[] bs, int bi, int addrBi)
+	public static int getInsAddrN(byte[] bs, int bi, int addrBi)
 	{
 		switch (bs[bi])
 		{

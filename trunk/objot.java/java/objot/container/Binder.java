@@ -9,7 +9,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -162,8 +161,7 @@ public class Binder
 	{
 		if (needAnno && !o.isAnnotationPresent(Inject.class))
 			return null;
-		if ((o.getModifiers() & Modifier.STATIC) != 0
-			|| (o.getModifiers() & Modifier.PUBLIC) == 0)
+		if ((o.getModifiers() & Mod2.STATIC) != 0 || (o.getModifiers() & Mod2.PUBLIC) == 0)
 			throw new IllegalArgumentException("injecting "
 				+ Mod2.toString(Mod2.get(o.getModifiers(), 0)) + " " + o + " forbidden");
 		o.setAccessible(true); // @todo

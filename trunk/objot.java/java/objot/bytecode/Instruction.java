@@ -4,29 +4,10 @@
 //
 package objot.bytecode;
 
-import static objot.bytecode.Opcode.ANEWARRAY;
-import static objot.bytecode.Opcode.CHECKCAST;
-import static objot.bytecode.Opcode.GETSTATIC;
-import static objot.bytecode.Opcode.IINC;
-import static objot.bytecode.Opcode.INVOKEINTERFACE;
-import static objot.bytecode.Opcode.INVOKESTATIC;
-import static objot.bytecode.Opcode.INVOKEVIRTUAL;
-import static objot.bytecode.Opcode.LDCW;
-import static objot.bytecode.Opcode.LOOKUPSWITCH;
-import static objot.bytecode.Opcode.NEWARRAY;
-import static objot.bytecode.Opcode.NEWARRAY_BOOL;
-import static objot.bytecode.Opcode.NEWARRAY_BYTE;
-import static objot.bytecode.Opcode.NEWARRAY_CHAR;
-import static objot.bytecode.Opcode.NEWARRAY_DOUBLE;
-import static objot.bytecode.Opcode.NEWARRAY_FLOAT;
-import static objot.bytecode.Opcode.NEWARRAY_INT;
-import static objot.bytecode.Opcode.NEWARRAY_LONG;
-import static objot.bytecode.Opcode.NEWARRAY_SHORT;
-import static objot.bytecode.Opcode.TABLESWITCH;
-import static objot.bytecode.Opcode.WIDE;
-
 import objot.util.Bytes;
 import objot.util.Class2;
+
+import static objot.bytecode.Opcode.*;
 
 
 public class Instruction
@@ -146,10 +127,10 @@ public class Instruction
 		addr += 4;
 	}
 
-	public final void insU1WU2(byte op, int u2)
+	public final void insU1wU2(byte op, int u2)
 	{
 		if (u2 >> 8 == 0)
-			insS1(op, (byte)u2);
+			insU1(op, u2);
 		else
 			insWideU2(op, u2);
 	}
