@@ -7,6 +7,7 @@ package objot.bytecode;
 import java.io.PrintStream;
 
 import objot.util.Array2;
+import objot.util.Bytes;
 import objot.util.InvalidValueException;
 
 
@@ -59,6 +60,21 @@ public class Fields
 		return fields[fi];
 	}
 
+	/**
+	 * @param name ignored if null
+	 * @param desc ignored if null
+	 * @return the index (not Ci) of found field, or negative if not found
+	 */
+	public int searchField(Bytes name, Bytes desc)
+	{
+		readFields();
+		for (int i = 0; i < fieldN; i++)
+			if ((name == null || cons.equalsUtf(fields[i].getNameCi(), name))
+				&& (desc == null || cons.equalsUtf(fields[i].getDescCi(), desc)))
+				return i;
+		return -1;
+	}
+
 	@Override
 	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
@@ -87,6 +103,8 @@ public class Fields
 	/** @return field index(not Ci) */
 	public int addField(Field f)
 	{
+		if (cons != f.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		readFields();
 		ensureFieldN(fieldN + 1);
 		fields[fieldN] = f;
@@ -95,9 +113,21 @@ public class Fields
 
 	public void setField(int fi, Field f)
 	{
+		if (cons != f.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		checkIndex(fi);
 		readFields();
 		fields[fi] = f;
+	}
+
+	public Field removeField(int fi)
+	{
+		checkIndex(fi);
+		readFields();
+		Field f = fields[fi];
+		System.arraycopy(fields, fi + 1, fields, fi, fieldN - fi - 1);
+		fields[--fieldN] = null;
+		return f;
 	}
 
 	@Override

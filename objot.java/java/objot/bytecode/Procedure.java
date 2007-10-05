@@ -104,6 +104,12 @@ public class Procedure
 		write0u2(6, attrN);
 		attrBi = 8;
 		int i = attrBi;
+		exceptionsBi = i;
+		write0u2(i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
+		write0u4(i + 2, 2); // attr length
+		i += 6;
+		write0u2(i, 0); // exceptionN
+		i += 2;
 		codeBi = i;
 		write0u2(i, cons.putUtf(Bytecode.CODE)); // attr name ci
 		write0u4(i + 2, 12); // attr length
@@ -114,12 +120,7 @@ public class Procedure
 		write0u2(i + 8, 0); // catchN
 		write0u2(i + 10, 0); // attrN
 		i += 12;
-		exceptionsBi = i;
-		write0u2(i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
-		write0u4(i + 2, 2); // attr length
-		i += 6;
-		write0u2(i, 0); // exceptionN
-		end1Bi = i + 2;
+		end1Bi = i;
 	}
 
 	/** <code>&lt;init&gt;() { super(); }</code> */
@@ -220,7 +221,7 @@ public class Procedure
 	{
 		if (paramN < 0)
 		{
-			Bytes desc = cons.readUtf(descCi);
+			Bytes desc = cons.getUtf(descCi);
 			paramN = getParamN(desc);
 			paramLocalN = getParamLocalN(desc);
 			returnType = getReturnTypeChar(desc);
@@ -431,7 +432,7 @@ public class Procedure
 	public void setNameCi(int v)
 	{
 		nameCi = v;
-		modifier = Mod2.get(modifier, v > 0 ? cons.read0s1(cons.readUtfBegin(v)) : '\0');
+		modifier = Mod2.get(modifier, v > 0 ? cons.read0s1(cons.getUtfBegin(v)) : '\0');
 	}
 
 	public void setDescCi(int v)
@@ -445,6 +446,13 @@ public class Procedure
 		if (signatureBi <= 0)
 			throw new RuntimeException("no signature attribute found");
 		signatureCi = v;
+	}
+
+	public void setCode(Code c)
+	{
+		if (cons != c.cons)
+			throw new IllegalArgumentException("inconsistent constants");
+		code = c;
 	}
 
 	@Override
@@ -494,15 +502,15 @@ public class Procedure
 				begin = annoHideParams.normalizeTo(bs, begin);
 			else if (bi == exceptionsBi && exceptions != null)
 				begin = exceptions.normalizeTo(bs, begin);
-			else if (bi == codeBi && code != null)
-				begin = code.normalizeTo(bs, begin);
-			else
+			else if (bi != codeBi)
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);
 				begin += bn;
 			}
 			bi += bn;
 		}
+		if (code != null)
+			begin = code.normalizeTo(bs, begin);
 		return begin;
 	}
 }

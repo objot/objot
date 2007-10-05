@@ -11,10 +11,10 @@ import objot.bytecode.Bytecode;
 import objot.bytecode.Constants;
 import objot.bytecode.Field;
 import objot.bytecode.Instruction;
-import objot.bytecode.Opcode;
 import objot.bytecode.Procedure;
 import objot.util.Class2;
 import objot.util.Mod2;
+import static objot.bytecode.Opcode.*;
 
 
 public final class Factory
@@ -117,11 +117,11 @@ public final class Factory
 		p.setNameCi(p.cons.addUtf(Container.NAME_index));
 		p.setDescCi(p.cons.addUtf(Container.DESC_index));
 		Instruction s = new Instruction(500);
-		s.ins0(Opcode.ALOAD1); // class
-		s.ins0(Opcode.DUP); // class
-		s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(M_hashCode)); // hash code
-		s.insS1(Opcode.BIPUSH, 15);
-		s.ins0(Opcode.IREM);
+		s.ins0(ALOAD1); // class
+		s.ins0(DUP); // class
+		s.insU2(INVOKEVIRTUAL, p.cons.addProc(M_hashCode)); // hash code
+		s.insS1(BIPUSH, 15);
+		s.ins0(IREM);
 		long sw = s.insSwitchTable(0, 14);
 		for (int i = 0; i <= 14; i++)
 		{
@@ -129,18 +129,18 @@ public final class Factory
 			for (int j = 0; j < bs.length; j++)
 				if (bs[j].c.hashCode() % 15 == i)
 				{
-					s.ins0(Opcode.DUP); // class
-					s.insU2(Opcode.LDCW, p.cons.addClass(bs[j].c));
-					s.insS2(Opcode.IFAN, 7);
-					s.insS2(Opcode.SIPUSH, bind(j));
-					s.ins0(Opcode.IRETURN);
+					s.ins0(DUP); // class
+					s.insU2(LDCW, p.cons.addClass(bs[j].c));
+					s.insS2(IFAN, 7);
+					s.insS2(SIPUSH, bind(j));
+					s.ins0(IRETURN);
 				}
-			s.ins0(Opcode.ICONSTm1);
-			s.ins0(Opcode.IRETURN);
+			s.ins0(ICONSTm1);
+			s.ins0(IRETURN);
 		}
 		s.switchTableFrom(sw, -1);
-		s.ins0(Opcode.ICONSTm1);
-		s.ins0(Opcode.IRETURN);
+		s.ins0(ICONSTm1);
+		s.ins0(IRETURN);
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(2);
 		p.getCode().setStackN(3);
@@ -151,27 +151,27 @@ public final class Factory
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Modifier.FINAL);
-		p.setNameCi(p.cons.readCprocName(get0Ci));
-		p.setDescCi(p.cons.readCprocDesc(get0Ci));
+		p.setNameCi(p.cons.getCprocName(get0Ci));
+		p.setDescCi(p.cons.getCprocDesc(get0Ci));
 		Instruction s = new Instruction(1000);
-		s.ins0(Opcode.ALOAD0); // this
-		s.ins0(Opcode.ILOAD1);
+		s.ins0(ALOAD0); // this
+		s.ins0(ILOAD1);
 		long sw = s.insSwitchTable(0, bs.length - 1);
 		int sw0 = s.addr;
 		s.switchTableFrom(sw, -1);
-		s.ins0(Opcode.ARETURN);
+		s.ins0(ARETURN);
 		int swO = s.addr;
-		s.insU2(Opcode.GETFIELD, ossCi);
-		s.ins0(Opcode.ILOAD1);
-		s.ins0(Opcode.AALOAD);
-		s.ins0(Opcode.ICONST0);
-		s.ins0(Opcode.AALOAD); // oss[i][0]
-		s.ins0(Opcode.ARETURN);
+		s.insU2(GETFIELD, ossCi);
+		s.ins0(ILOAD1);
+		s.ins0(AALOAD);
+		s.ins0(ICONST0);
+		s.ins0(AALOAD); // oss[i][0]
+		s.ins0(ARETURN);
 		int swN = s.addr;
-		s.ins0(Opcode.ILOAD1);
-		s.ins0(Opcode.ICONST0);
-		s.insU2(Opcode.INVOKEVIRTUAL, create0Ci);
-		s.ins0(Opcode.ARETURN);
+		s.ins0(ILOAD1);
+		s.ins0(ICONST0);
+		s.insU2(INVOKEVIRTUAL, create0Ci);
+		s.ins0(ARETURN);
 		for (int i = 0; i < bs.length; i++)
 		{
 			Bind b = bs[i];
@@ -183,53 +183,53 @@ public final class Factory
 				else if (b.mode == Inject.Single.class)
 				{
 					s.switchTableFrom(sw, i);
-					s.insU2(Opcode.GETFIELD, fCis[i]);
-					s.ins0(Opcode.DUP);
-					int j = s.insJump(Opcode.IFNOTNULL);
-					s.ins0(Opcode.POP);
-					s.ins0(Opcode.ALOAD0);
-					s.ins0(Opcode.ILOAD1);
-					s.ins0(Opcode.ICONST1);
-					s.insU2(Opcode.INVOKEVIRTUAL, create0Ci);
+					s.insU2(GETFIELD, fCis[i]);
+					s.ins0(DUP);
+					int j = s.insJump(IFNOTNULL);
+					s.ins0(POP);
+					s.ins0(ALOAD0);
+					s.ins0(ILOAD1);
+					s.ins0(ICONST1);
+					s.insU2(INVOKEVIRTUAL, create0Ci);
 					s.jumpFrom(j);
-					s.ins0(Opcode.ARETURN);
+					s.ins0(ARETURN);
 				}
 				else
 				{
 					s.switchTableFrom(sw, i);
 					int loop = s.addr;
-					s.ins0(Opcode.DUP);
-					s.insU2(Opcode.GETFIELD, fCis[i]); // c, c.field
-					s.ins0(Opcode.DUP);
-					int j1 = s.insJump(Opcode.IFNULL);
-					s.ins0(Opcode.DUP);
-					s.ins0(Opcode.ALOAD0);
-					s.ins0(Opcode.SWAP); // c, c.field, this, c.field
-					s.insU2(Opcode.PUTFIELD, fCis[i]);
-					s.ins0(Opcode.ARETURN);
+					s.ins0(DUP);
+					s.insU2(GETFIELD, fCis[i]); // c, c.field
+					s.ins0(DUP);
+					int j1 = s.insJump(IFNULL);
+					s.ins0(DUP);
+					s.ins0(ALOAD0);
+					s.ins0(SWAP); // c, c.field, this, c.field
+					s.insU2(PUTFIELD, fCis[i]);
+					s.ins0(ARETURN);
 					s.jumpFrom(j1);
-					s.ins0(Opcode.POP);
-					s.ins0(Opcode.DUP);
-					s.insU2(Opcode.GETFIELD, outCi); // c, c.outer
-					int j2 = s.insJump(Opcode.IFNULL);
-					s.insU2(Opcode.GETFIELD, outCi);
-					s.insU2(Opcode.CHECKCAST, y.head.getClassCi());
-					s.jump(s.insJump(Opcode.GOTO), loop);
+					s.ins0(POP);
+					s.ins0(DUP);
+					s.insU2(GETFIELD, outCi); // c, c.outer
+					int j2 = s.insJump(IFNULL);
+					s.insU2(GETFIELD, outCi);
+					s.insU2(CHECKCAST, y.head.getClassCi());
+					s.jump(s.insJump(GOTO), loop);
 					s.jumpFrom(j2);
 					if (b.mode == Inject.Spread.class)
-						s.ins0(Opcode.ALOAD0);
-					s.ins0(Opcode.ILOAD1);
-					s.ins0(Opcode.ICONST1);
-					s.insU2(Opcode.INVOKEVIRTUAL, create0Ci);
+						s.ins0(ALOAD0);
+					s.ins0(ILOAD1);
+					s.ins0(ICONST1);
+					s.insU2(INVOKEVIRTUAL, create0Ci);
 					if (b.mode == Inject.Inherit.class)
 					{
-						s.ins0(Opcode.DUP);
-						s.ins0(Opcode.ALOAD0);
-						s.ins0(Opcode.SWAP); // o, this, o
-						s.insU2(Opcode.CHECKCAST, p.cons.putClass(b.c));
-						s.insU2(Opcode.PUTFIELD, fCis[i]);
+						s.ins0(DUP);
+						s.ins0(ALOAD0);
+						s.ins0(SWAP); // o, this, o
+						s.insU2(CHECKCAST, p.cons.putClass(b.c));
+						s.insU2(PUTFIELD, fCis[i]);
 					}
-					s.ins0(Opcode.ARETURN);
+					s.ins0(ARETURN);
 				}
 			else if (b.b instanceof Bind)
 				s.switchTable(sw, i, sw0); // never happen
@@ -237,8 +237,8 @@ public final class Factory
 				s.switchTable(sw, i, swO);
 			else
 			{
-				s.ins0(Opcode.ACONSTNULL);
-				s.ins0(Opcode.ARETURN);
+				s.ins0(ACONSTNULL);
+				s.ins0(ARETURN);
 			}
 		}
 		p.getCode().setIns(s, false);
@@ -251,15 +251,15 @@ public final class Factory
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Modifier.FINAL);
-		p.setNameCi(p.cons.readCprocName(create0Ci));
-		p.setDescCi(p.cons.readCprocDesc(create0Ci));
+		p.setNameCi(p.cons.getCprocName(create0Ci));
+		p.setDescCi(p.cons.getCprocDesc(create0Ci));
 		Instruction s = new Instruction(250);
-		s.ins0(Opcode.ILOAD1); // index
+		s.ins0(ILOAD1); // index
 		long sw = s.insSwitchTable(0, bs.length - 1);
 		int sw0 = s.addr;
 		s.switchTableFrom(sw, -1);
-		s.ins0(Opcode.ACONSTNULL);
-		s.ins0(Opcode.ARETURN);
+		s.ins0(ACONSTNULL);
+		s.ins0(ARETURN);
 		int maxParamN = 0;
 		for (int i = 0; i < bs.length; i++)
 		{
@@ -269,51 +269,51 @@ public final class Factory
 			if (b.c == Container.class)
 			{
 				s.switchTableFrom(sw, i);
-				s.insU2(Opcode.NEW, y.head.getClassCi());
-				s.ins0(Opcode.DUP);
-				s.insU2(Opcode.INVOKESPECIAL, p.cons.addCproc(y.head.getClassCi(), //
+				s.insU2(NEW, y.head.getClassCi());
+				s.ins0(DUP);
+				s.insU2(INVOKESPECIAL, p.cons.addCproc(y.head.getClassCi(), //
 					p.cons.addNameDesc(y.getProcs().getProc(0).getNameCi(), //
 						y.getProcs().getProc(0).getDescCi())));
-				s.ins0(Opcode.DUP);
-				s.ins0(Opcode.ALOAD0);
-				s.insU2(Opcode.PUTFIELD, outCi);
-				s.ins0(Opcode.DUP);
-				s.ins0(Opcode.ALOAD0);
-				s.insU2(Opcode.GETFIELD, ossCi);
-				s.insU2(Opcode.PUTFIELD, ossCi);
-				s.ins0(Opcode.ARETURN);
+				s.ins0(DUP);
+				s.ins0(ALOAD0);
+				s.insU2(PUTFIELD, outCi);
+				s.ins0(DUP);
+				s.ins0(ALOAD0);
+				s.insU2(GETFIELD, ossCi);
+				s.insU2(PUTFIELD, ossCi);
+				s.ins0(ARETURN);
 			}
 			else if (b.b == b)
 			{
 				s.switchTableFrom(sw, i);
-				s.insU2(Opcode.NEW, p.cons.putClass(b.c));
-				s.ins0(Opcode.DUP);
+				s.insU2(NEW, p.cons.putClass(b.c));
+				s.ins0(DUP);
 				Class<?>[] ps = b.ct.getParameterTypes();
 				for (int cb = 0; cb < b.cbs.length; cb++)
 					o = makeCreate0_bind(p.cons, s, b.cbs[cb], ps[cb], oss[i], o);
-				s.insU2(Opcode.INVOKESPECIAL, p.cons.putProc(b.ct));
-				s.ins0(Opcode.ILOAD2); // save
-				int j = s.insJump(Opcode.IFIE0);
-				s.ins0(Opcode.DUP);
-				s.ins0(Opcode.ALOAD0);
-				s.ins0(Opcode.SWAP);
-				s.insU2(Opcode.PUTFIELD, fCis[i]);
+				s.insU2(INVOKESPECIAL, p.cons.putProc(b.ct));
+				s.ins0(ILOAD2); // save
+				int j = s.insJump(IFIE0);
+				s.ins0(DUP);
+				s.ins0(ALOAD0);
+				s.ins0(SWAP);
+				s.insU2(PUTFIELD, fCis[i]);
 				s.jumpFrom(j);
 				for (int f = 0; f < b.fs.length; f++)
 				{
-					s.ins0(Opcode.DUP);
+					s.ins0(DUP);
 					o = makeCreate0_bind(p.cons, s, b.fbs[f], b.fs[f].getType(), oss[i], o);
-					s.insU2(Opcode.PUTFIELD, p.cons.addField(b.fs[f]));
+					s.insU2(PUTFIELD, p.cons.addField(b.fs[f]));
 				}
 				for (int m = 0; m < b.ms.length; m++)
 				{
 					ps = b.ms[m].getParameterTypes();
-					s.ins0(Opcode.DUP);
+					s.ins0(DUP);
 					for (int mb = 0; mb < b.mbs[m].length; mb++)
 						o = makeCreate0_bind(p.cons, s, b.mbs[m][mb], ps[mb], oss[i], o);
-					s.insU2(Opcode.INVOKEVIRTUAL, p.cons.addProc(b.ms[m]));
+					s.insU2(INVOKEVIRTUAL, p.cons.addProc(b.ms[m]));
 				}
-				s.ins0(Opcode.ARETURN);
+				s.ins0(ARETURN);
 			}
 			else
 				s.switchTable(sw, i, sw0); // never happen
@@ -329,9 +329,9 @@ public final class Factory
 	{
 		if (b instanceof Bind)
 		{
-			s.ins0(Opcode.ALOAD0);
-			s.insU2(Opcode.SIPUSH, bind((Bind)b));
-			s.insU2(Opcode.INVOKEVIRTUAL, get0Ci);
+			s.ins0(ALOAD0);
+			s.insU2(SIPUSH, bind((Bind)b));
+			s.insU2(INVOKEVIRTUAL, get0Ci);
 			s.insUnboxNarrow(cons, c);
 			return o;
 		}
@@ -339,24 +339,24 @@ public final class Factory
 		{
 			int n = (Integer)os[o];
 			if (n << 16 >> 16 == n)
-				s.insS2(Opcode.SIPUSH, n);
+				s.insS2(SIPUSH, n);
 			else
-				s.insU2(Opcode.LDCW, cons.addInt(n));
+				s.insU2(LDCW, cons.addInt(n));
 			s.insNews(cons, c.getComponentType());
 		}
 		else if (os[o] != null)
 		{
-			s.ins0(Opcode.ALOAD0);
-			s.insU2(Opcode.GETFIELD, ossCi);
-			s.ins0(Opcode.ILOAD1);
-			s.ins0(Opcode.AALOAD);
-			s.insU2(Opcode.SIPUSH, o);
-			s.ins0(Opcode.AALOAD); // oss[i][o]
+			s.ins0(ALOAD0);
+			s.insU2(GETFIELD, ossCi);
+			s.ins0(ILOAD1);
+			s.ins0(AALOAD);
+			s.insU2(SIPUSH, o);
+			s.ins0(AALOAD); // oss[i][o]
 			s.insUnboxNarrow(cons, c);
 		}
 		else
 		{
-			s.ins0(Opcode.ACONSTNULL);
+			s.ins0(ACONSTNULL);
 			if (c.isPrimitive())
 				s.insUnboxNarrow(cons, c);
 		}

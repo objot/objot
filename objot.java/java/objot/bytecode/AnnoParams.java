@@ -158,6 +158,8 @@ public class AnnoParams
 
 	public int addAnno(int pi, Annotation a)
 	{
+		if (cons != a.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		checkIndex(pi);
 		readAnnos();
 		ensureAnnoN(pi, annoNs[pi] + 1);
@@ -167,6 +169,8 @@ public class AnnoParams
 
 	public void setAnno(int pi, int ai, Annotation a)
 	{
+		if (cons != a.cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		checkIndex(pi, ai);
 		readAnnos();
 		annos[pi][ai] = a;

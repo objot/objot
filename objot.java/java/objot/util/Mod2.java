@@ -27,9 +27,10 @@ public class Mod2
 
 	/** default visible */
 	public static final int FRIEND = 0x00010000;
+	public static final int PUBLIC_PROTECT = PUBLIC | PROTECTED;
+	public static final int FRIEND_PRIVATE = FRIEND | PRIVATE;
 	public static final int NOT_PRIVATE = PUBLIC | PROTECTED | FRIEND;
 	public static final int NOT_PUBLIC = PROTECTED | FRIEND | PRIVATE;
-	public static final int PUBLIC_PROTECT = PUBLIC | PROTECTED;
 	/** all visible */
 	public static final int VISIBLE = PUBLIC | PROTECTED | FRIEND | PRIVATE;
 
