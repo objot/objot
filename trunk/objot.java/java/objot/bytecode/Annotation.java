@@ -9,15 +9,15 @@ import java.io.PrintStream;
 import objot.util.InvalidValueException;
 
 
-public class Annotation
+public final class Annotation
 	extends Element
 {
 	public final Constants cons;
-	protected int descCi;
-	protected int propN;
-	protected int[] propBis;
+	int descCi;
+	int propN;
+	int[] propBis;
 
-	protected static int readByteN(byte[] bs, int bi)
+	static int readByteN(byte[] bs, int bi)
 	{
 		int nbi = bi + 4;
 		for (int n = readU2(bs, nbi - 2); n > 0; n--)
@@ -29,7 +29,7 @@ public class Annotation
 	}
 
 	/** Including the tag byte. */
-	protected static int readValueByteN(byte[] bs, int bi)
+	static int readValueByteN(byte[] bs, int bi)
 	{
 		switch (readS1(bs, bi))
 		{
@@ -78,13 +78,13 @@ public class Annotation
 		return propN;
 	}
 
-	protected void checkIndex(int pi)
+	void checkIndex(int pi)
 	{
 		if (pi < 0 || pi >= propN)
 			throw new InvalidValueException(pi);
 	}
 
-	protected void readPropBis()
+	void readPropBis()
 	{
 		if (propBis != null)
 			return;
@@ -113,7 +113,7 @@ public class Annotation
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		printIndent(out, indent1st);
 		out.print(" desc ");

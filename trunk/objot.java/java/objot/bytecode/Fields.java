@@ -11,12 +11,12 @@ import objot.util.Bytes;
 import objot.util.InvalidValueException;
 
 
-public class Fields
+public final class Fields
 	extends Element
 {
 	public final Constants cons;
-	protected int fieldN;
-	protected Field[] fields;
+	int fieldN;
+	Field[] fields;
 
 	public Fields(Constants c, byte[] bs, int beginBi_)
 	{
@@ -34,13 +34,13 @@ public class Fields
 		return fieldN;
 	}
 
-	protected void checkIndex(int fi)
+	void checkIndex(int fi)
 	{
 		if (fi < 0 || fi >= fieldN)
 			throw new InvalidValueException(fi);
 	}
 
-	protected void readFields()
+	void readFields()
 	{
 		if (fields != null)
 			return;
@@ -76,7 +76,7 @@ public class Fields
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{

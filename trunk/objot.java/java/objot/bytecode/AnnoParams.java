@@ -11,16 +11,16 @@ import objot.util.Class2;
 import objot.util.InvalidValueException;
 
 
-public class AnnoParams
+public final class AnnoParams
 	extends Element
 {
 	public final Constants cons;
 	public final boolean hided;
-	protected int paramN;
+	int paramN;
 	/** [parameter index] */
-	protected int[] annoNs;
+	int[] annoNs;
 	/** [parameter index][annotation index] */
-	protected Annotation[][] annos;
+	Annotation[][] annos;
 
 	public AnnoParams(Constants c, byte[] bs, int beginBi_, boolean hided_)
 	{
@@ -47,7 +47,7 @@ public class AnnoParams
 		return paramN;
 	}
 
-	protected void checkIndex(int pi)
+	void checkIndex(int pi)
 	{
 		if (pi < 0 || pi >= paramN)
 			throw new InvalidValueException(pi);
@@ -59,14 +59,14 @@ public class AnnoParams
 		return annoNs[pi];
 	}
 
-	protected void checkIndex(int pi, int ai)
+	void checkIndex(int pi, int ai)
 	{
 		checkIndex(pi);
 		if (ai < 0 || ai >= annoNs[pi])
 			throw new InvalidValueException(pi);
 	}
 
-	protected void readAnnos()
+	void readAnnos()
 	{
 		if (annos != null)
 			return;
@@ -128,7 +128,7 @@ public class AnnoParams
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{

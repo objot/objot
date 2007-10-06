@@ -7,7 +7,7 @@ package objot.container;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import objot.bytecode.Element;
+import objot.bytecode.Bytecode;
 import objot.util.Bytes;
 import objot.util.Class2;
 
@@ -46,8 +46,8 @@ public abstract class Container
 		return (T)create0(index(c), false);
 	}
 
-	static final Bytes NAME_index = Element.utf("index");
-	static final Bytes DESC_index = Element.utf(Class2.descript( //
+	static final Bytes NAME_index = Bytecode.utf("index");
+	static final Bytes DESC_index = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod1(Container.class, "index")));
 
 	/**

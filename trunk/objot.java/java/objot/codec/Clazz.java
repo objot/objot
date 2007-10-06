@@ -9,7 +9,6 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 
 import objot.bytecode.Bytecode;
-import objot.bytecode.Element;
 import objot.bytecode.Instruction;
 import objot.bytecode.Procedure;
 import objot.util.Bytes;
@@ -96,8 +95,8 @@ abstract class Clazz
 			.newInstance();
 	}
 
-	static final Bytes NAME_encodeRefs = Element.utf("encodeRefs");
-	static final Bytes DESC_encodeRefs = Element.utf(Class2.descript( //
+	static final Bytes NAME_encodeRefs = Bytecode.utf("encodeRefs");
+	static final Bytes DESC_encodeRefs = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod1(Clazz.class, "encodeRefs")));
 
 	/**
@@ -117,8 +116,8 @@ abstract class Clazz
 	{
 	}
 
-	static final Bytes NAME_encode = Element.utf("encode");
-	static final Bytes DESC_encode = Element.utf(Class2.descript( //
+	static final Bytes NAME_encode = Bytecode.utf("encode");
+	static final Bytes DESC_encode = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod1(Clazz.class, "encode")));
 
 	/**
@@ -241,8 +240,8 @@ abstract class Clazz
 		y.getProcs().addProc(p);
 	}
 
-	static final Bytes NAME_object = Element.utf("object");
-	static final Bytes DESC_object = Element.utf(Class2.descript( //
+	static final Bytes NAME_object = Bytecode.utf("object");
+	static final Bytes DESC_object = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod1(Clazz.class, "object")));
 
 	/** Example: <code>return new A();</code> */
@@ -265,12 +264,12 @@ abstract class Clazz
 		y.getProcs().addProc(p);
 	}
 
-	static final Bytes NAME_decode = Element.utf("decode");
-	static final Bytes DESC_decode = Element.utf(Class2.descript( //
+	static final Bytes NAME_decode = Bytecode.utf("decode");
+	static final Bytes DESC_decode = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, Object.class)));
-	static final Bytes DESC_decodeL = Element.utf(Class2.descript( //
+	static final Bytes DESC_decodeL = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, long.class)));
-	static final Bytes DESC_decodeD = Element.utf(Class2.descript( //
+	static final Bytes DESC_decodeD = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, double.class)));
 
 	/**

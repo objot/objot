@@ -10,33 +10,33 @@ import java.io.PrintStream;
 import objot.util.Bytes;
 
 
-public class Bytecode
+public final class Bytecode
 	extends Element
 {
-	protected static final Bytes SIGNATURE = utf("Signature");
-	protected static final Bytes CONSTANT_VALUE = utf("ConstantValue");
-	protected static final Bytes ANNOS = utf("RuntimeVisibleAnnotations");
-	protected static final Bytes ANNOHIDES = utf("RuntimeInvisibleAnnotations");
-	protected static final Bytes EXCEPTIONS = utf("Exceptions");
-	protected static final Bytes ANNO_PARAMS = utf("RuntimeVisibleParameterAnnotations");
-	protected static final Bytes ANNOHIDE_PARAMS = utf("RuntimeInvisibleParameterAnnotations");
-	protected static final Bytes CODE = utf("Code");
-	protected static final Bytes CODE_LINES = utf("LineNumberTable");
-	protected static final Bytes CODE_VARS = utf("LocalVariableTable");
-	protected static final Bytes CODE_VARSIGNS = utf("LocalVariableTypeTable");
+	static final Bytes SIGNATURE = utf("Signature");
+	static final Bytes CONSTANT_VALUE = utf("ConstantValue");
+	static final Bytes ANNOS = utf("RuntimeVisibleAnnotations");
+	static final Bytes ANNOHIDES = utf("RuntimeInvisibleAnnotations");
+	static final Bytes EXCEPTIONS = utf("Exceptions");
+	static final Bytes ANNO_PARAMS = utf("RuntimeVisibleParameterAnnotations");
+	static final Bytes ANNOHIDE_PARAMS = utf("RuntimeInvisibleParameterAnnotations");
+	static final Bytes CODE = utf("Code");
+	static final Bytes CODE_LINES = utf("LineNumberTable");
+	static final Bytes CODE_VARS = utf("LocalVariableTable");
+	static final Bytes CODE_VARSIGNS = utf("LocalVariableTypeTable");
 
 	public final Constants cons;
 	public final Head head;
-	protected Fields fields;
-	protected Procedures procs;
-	protected int attrN;
-	protected int attrBi;
-	protected int signatureBi;
-	protected int signatureCi;
-	protected int annosBi;
-	protected Annotations annos;
-	protected int annoHidesBi;
-	protected Annotations annoHides;
+	Fields fields;
+	Procedures procs;
+	int attrN;
+	int attrBi;
+	int signatureBi;
+	int signatureCi;
+	int annosBi;
+	Annotations annos;
+	int annoHidesBi;
+	Annotations annoHides;
 
 	/** @param end1Bi_ be lazy checked */
 	public Bytecode(byte[] bs, int beginBi_, int end1Bi_)
@@ -93,7 +93,7 @@ public class Bytecode
 		return procs;
 	}
 
-	protected void readAttrs()
+	void readAttrs()
 	{
 		if (attrBi > 0)
 			return;
@@ -155,7 +155,7 @@ public class Bytecode
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		cons.printTo(out, indent, indent, verbose);

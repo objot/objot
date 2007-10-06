@@ -10,17 +10,17 @@ import objot.util.Array2;
 import objot.util.InvalidValueException;
 
 
-public class CodeCatchs
+public final class CodeCatchs
 	extends Element
 {
 	public final Constants cons;
-	protected int catchN;
-	protected int[] beginAds;
-	protected int[] end1Ads;
-	protected int[] catchAds;
-	protected int[] typeCis;
+	int catchN;
+	int[] beginAds;
+	int[] end1Ads;
+	int[] catchAds;
+	int[] typeCis;
 
-	protected static int readByteN(byte[] bs, int bi)
+	static int readByteN(byte[] bs, int bi)
 	{
 		return 2 + (readU2(bs, bi) << 3);
 	}
@@ -38,7 +38,7 @@ public class CodeCatchs
 		return catchN;
 	}
 
-	protected void reads()
+	void reads()
 	{
 		if (beginAds != null)
 			return;
@@ -57,7 +57,7 @@ public class CodeCatchs
 		}
 	}
 
-	protected void checkIndex(int ti)
+	void checkIndex(int ti)
 	{
 		if (ti < 0 || ti >= catchN)
 			throw new InvalidValueException(ti);
@@ -92,7 +92,7 @@ public class CodeCatchs
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		for (int i = 0; i < catchN; i++)

@@ -11,13 +11,13 @@ import objot.util.Class2;
 import objot.util.InvalidValueException;
 
 
-public class Annotations
+public final class Annotations
 	extends Element
 {
 	public final Constants cons;
 	public final boolean hided;
-	protected int annoN;
-	protected Annotation[] annos;
+	int annoN;
+	Annotation[] annos;
 
 	public Annotations(Constants c, byte[] bs, int beginBi_, boolean hided_)
 	{
@@ -38,13 +38,13 @@ public class Annotations
 		return annoN;
 	}
 
-	protected void checkIndex(int ai)
+	void checkIndex(int ai)
 	{
 		if (ai < 0 || ai >= annoN)
 			throw new InvalidValueException(ai);
 	}
 
-	protected void readAnnos()
+	void readAnnos()
 	{
 		if (annos != null)
 			return;
@@ -117,7 +117,7 @@ public class Annotations
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{

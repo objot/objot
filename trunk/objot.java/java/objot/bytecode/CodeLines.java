@@ -10,12 +10,12 @@ import objot.util.Array2;
 import objot.util.InvalidValueException;
 
 
-public class CodeLines
+public final class CodeLines
 	extends Element
 {
-	protected int lineN;
-	protected int[] beginAds;
-	protected int[] lines;
+	int lineN;
+	int[] beginAds;
+	int[] lines;
 
 	public CodeLines(byte[] bs, int beginBi_)
 	{
@@ -31,7 +31,7 @@ public class CodeLines
 		return lineN;
 	}
 
-	protected void reads()
+	void reads()
 	{
 		if (beginAds != null)
 			return;
@@ -46,7 +46,7 @@ public class CodeLines
 		}
 	}
 
-	protected void checkIndex(int li)
+	void checkIndex(int li)
 	{
 		if (li < 0 || li >= lineN)
 			throw new InvalidValueException(li);
@@ -67,7 +67,7 @@ public class CodeLines
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		for (int i = 0; i < lineN; i++)

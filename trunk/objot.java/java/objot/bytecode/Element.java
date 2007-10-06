@@ -16,10 +16,10 @@ import objot.util.Math2;
  * {@link #end1Bi} and {@link #byteN()} except {@link #beginBi} may reflect some of this
  * element's changes
  */
-public abstract class Element
+abstract class Element
 	extends Bytes
 {
-	protected Element(byte[] bs, int begin)
+	Element(byte[] bs, int begin)
 	{
 		super(bs);
 		beginBi = begin;
@@ -31,7 +31,7 @@ public abstract class Element
 		return byteN();
 	}
 
-	protected int allocN(int n)
+	int allocN(int n)
 	{
 		return Math.max((int)(n * 1.3f), 11);
 	}
@@ -63,8 +63,7 @@ public abstract class Element
 			out.print('\t');
 	}
 
-	protected abstract void printContents(PrintStream out, int indent1st, int indent,
-		int verbose);
+	abstract void printContents(PrintStream out, int indent1st, int indent, int verbose);
 
 	public PrintStream printIdentity(PrintStream out, int indent)
 	{
@@ -98,6 +97,7 @@ public abstract class Element
 
 	// ********************************************************************************
 
+	/** @return modified utf (no \0) */
 	public static Bytes utf(String s)
 	{
 		return utf(s, 0, s.length());

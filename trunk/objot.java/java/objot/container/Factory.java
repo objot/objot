@@ -288,10 +288,10 @@ public final class Factory
 				s.switchTableFrom(sw, i);
 				s.insU2(NEW, p.cons.putClass(b.c));
 				s.ins0(DUP);
-				Class<?>[] ps = b.ct.getParameterTypes();
-				for (int cb = 0; cb < b.cbs.length; cb++)
-					o = makeCreate0_bind(p.cons, s, b.cbs[cb], ps[cb], oss[i], o);
-				s.insU2(INVOKESPECIAL, p.cons.putProc(b.ct));
+				Class<?>[] ps = b.t.getParameterTypes();
+				for (int cb = 0; cb < b.tbs.length; cb++)
+					o = makeCreate0_bind(p.cons, s, b.tbs[cb], ps[cb], oss[i], o);
+				s.insU2(INVOKESPECIAL, p.cons.putProc(b.t));
 				s.ins0(ILOAD2); // save
 				int j = s.insJump(IFIE0);
 				s.ins0(DUP);

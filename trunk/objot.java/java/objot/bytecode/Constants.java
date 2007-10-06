@@ -15,7 +15,7 @@ import objot.util.InvalidValueException;
 
 
 /** All UTFs in this class are no-null-character UTF. All names of class are internal form. */
-public class Constants
+public final class Constants
 	extends Element
 {
 	public static final byte TAG_UTF = 1;
@@ -32,11 +32,11 @@ public class Constants
 	public static final byte TAG_IPROC = 11;
 	public static final byte TAG_NAMEDESC = 12;
 
-	protected int byteN0;
+	int byteN0;
 	/** index [1, N) excluding 0. */
-	protected int conN0;
-	protected int conN;
-	protected int[] bis;
+	int conN0;
+	int conN;
+	int[] bis;
 
 	public Constants(byte[] bs, int beginBi_)
 	{
@@ -71,7 +71,7 @@ public class Constants
 	}
 
 	/** Including the tag byte. */
-	protected int readConByteN(int bi)
+	int readConByteN(int bi)
 	{
 		switch (read0s1(bi))
 		{
@@ -99,7 +99,7 @@ public class Constants
 		throw new ClassFormatError("invalid constant info tag");
 	}
 
-	protected void readBis()
+	void readBis()
 	{
 		if (bis != null)
 			return;
@@ -120,7 +120,7 @@ public class Constants
 	}
 
 	/** @param ci [1, N) excluding 0. */
-	protected void checkIndex(int ci)
+	void checkIndex(int ci)
 	{
 		if (ci <= 0 || ci >= conN)
 			throw new InvalidValueException(ci);
@@ -205,7 +205,7 @@ public class Constants
 		return Double.longBitsToDouble(read0s8(bis[ci] + 1));
 	}
 
-	protected int getUtfRef(byte tag, int ci)
+	int getUtfRef(byte tag, int ci)
 	{
 		getTag(ci, tag);
 		return read0u2(bis[ci] + 1);
@@ -221,19 +221,19 @@ public class Constants
 		return getUtfRef(TAG_STRING, ci);
 	}
 
-	protected int getClassNameDescClass(byte tag, int ci)
+	int getClassNameDescClass(byte tag, int ci)
 	{
 		getTag(ci, tag);
 		return getClass(read0u2(bis[ci] + 1));
 	}
 
-	protected int getClassNameDescName(byte tag, int ci)
+	int getClassNameDescName(byte tag, int ci)
 	{
 		getTag(ci, tag);
 		return getNameDescName(read0u2(bis[ci] + 3));
 	}
 
-	protected int getClassNameDescDesc(byte tag, int ci)
+	int getClassNameDescDesc(byte tag, int ci)
 	{
 		getTag(ci, tag);
 		return getNameDescDesc(read0u2(bis[ci] + 3));
@@ -329,12 +329,12 @@ public class Constants
 		return getTag(ci) == TAG_LONG && Double.longBitsToDouble(read0s8(bis[ci] + 1)) == v;
 	}
 
-	protected boolean equalsRef(byte tag, int ci, int refCi)
+	boolean equalsRef(byte tag, int ci, int refCi)
 	{
 		return getTag(ci) == tag && read0u2(bis[ci] + 1) == refCi;
 	}
 
-	protected boolean equalsRefUtf(byte tag, int ci, Bytes utf)
+	boolean equalsRefUtf(byte tag, int ci, Bytes utf)
 	{
 		return getTag(ci) == tag && equalsUtf(read0u2(bis[ci] + 1), utf);
 	}
@@ -359,21 +359,19 @@ public class Constants
 		return equalsRefUtf(TAG_STRING, ci, str);
 	}
 
-	protected boolean equalsRef2(byte tag, int ci, int ref1Ci, int ref2Ci)
+	boolean equalsRef2(byte tag, int ci, int ref1Ci, int ref2Ci)
 	{
 		return getTag(ci) == tag && read0u2(bis[ci] + 1) == ref1Ci
 			&& read0u2(bis[ci] + 3) == ref2Ci;
 	}
 
-	protected boolean equalsClassNameDesc(byte tag, int ci, int classNameCi, int nameCi,
-		int descCi)
+	boolean equalsClassNameDesc(byte tag, int ci, int classNameCi, int nameCi, int descCi)
 	{
 		return getTag(ci) == tag && equalsClass(read0u2(bis[ci] + 1), classNameCi)
 			&& equalsNameDesc(read0u2(bis[ci] + 3), nameCi, descCi);
 	}
 
-	protected boolean equalsClassNameDesc(byte tag, int ci, Bytes className, Bytes name,
-		Bytes desc)
+	boolean equalsClassNameDesc(byte tag, int ci, Bytes className, Bytes name, Bytes desc)
 	{
 		return getTag(ci) == tag && equalsClass(read0u2(bis[ci] + 1), className)
 			&& equalsNameDesc(read0u2(bis[ci] + 3), name, desc);
@@ -494,7 +492,7 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	protected int searchRef(byte tag, int refCi)
+	int searchRef(byte tag, int refCi)
 	{
 		for (int ci = 1; ci < conN; ci++)
 			if (equalsRef(tag, ci, refCi))
@@ -503,7 +501,7 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	protected int searchRefUtf(byte tag, Bytes utf)
+	int searchRefUtf(byte tag, Bytes utf)
 	{
 		for (int ci = 1; ci < conN; ci++)
 			if (equalsRefUtf(tag, ci, utf))
@@ -536,7 +534,7 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	protected int searchRef2(byte tag, int ref1Ci, int ref2Ci)
+	int searchRef2(byte tag, int ref1Ci, int ref2Ci)
 	{
 		for (int ci = 1; ci < conN; ci++)
 			if (equalsRef2(tag, ci, ref1Ci, ref2Ci))
@@ -545,7 +543,7 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	protected int searchClassNameDesc(byte tag, int classNameCi, int nameCi, int descCi)
+	int searchClassNameDesc(byte tag, int classNameCi, int nameCi, int descCi)
 	{
 		for (int ci = 1; ci < conN; ci++)
 			if (equalsClassNameDesc(tag, ci, classNameCi, nameCi, descCi))
@@ -554,7 +552,7 @@ public class Constants
 	}
 
 	/** @return the constant index, negative if nothing found. */
-	protected int searchClassNameDesc(byte tag, Bytes className, Bytes name, Bytes desc)
+	int searchClassNameDesc(byte tag, Bytes className, Bytes name, Bytes desc)
 	{
 		for (int ci = 1; ci < conN; ci++)
 			if (equalsClassNameDesc(tag, ci, className, name, desc))
@@ -645,7 +643,7 @@ public class Constants
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{
@@ -744,7 +742,7 @@ public class Constants
 	// ********************************************************************************
 
 	/** bytes will be different with the original bytes */
-	protected void ensureN(int cn, int bn)
+	void ensureN(int cn, int bn)
 	{
 		readBis();
 		bis = Array2.ensureN(bis, cn);
@@ -759,7 +757,7 @@ public class Constants
 	}
 
 	/** @return second byte index of added constant */
-	protected int add(byte tag, int bn)
+	int add(byte tag, int bn)
 	{
 		readBis();
 		ensureN(conN + 2, end1Bi + bn);
@@ -924,14 +922,14 @@ public class Constants
 		write0u2(bis[ci] + 1, refCi);
 	}
 
-	protected int addRef(byte tag, int refCi, byte refTag)
+	int addRef(byte tag, int refCi, byte refTag)
 	{
 		getTag(refCi, refTag);
 		write0u2(add(tag, 3) + 1, refCi);
 		return conN - 1;
 	}
 
-	protected int putRef(byte tag, int refCi, byte refTag)
+	int putRef(byte tag, int refCi, byte refTag)
 	{
 		getTag(refCi, refTag);
 		int i = searchRef(tag, refCi);
@@ -1000,7 +998,7 @@ public class Constants
 		write0u2(bis[ci] + 3, ref2Ci);
 	}
 
-	protected int addRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2Ci, byte ref2Tag)
+	int addRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2Ci, byte ref2Tag)
 	{
 		getTag(ref1Ci, ref1Tag);
 		getTag(ref2Ci, ref2Tag);
@@ -1010,7 +1008,7 @@ public class Constants
 		return conN - 1;
 	}
 
-	protected int putRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2Ci, byte ref2Tag)
+	int putRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2Ci, byte ref2Tag)
 	{
 		getTag(ref1Ci, ref1Tag);
 		getTag(ref2Ci, ref2Tag);
