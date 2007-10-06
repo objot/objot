@@ -15,6 +15,7 @@ class A
 	String name;
 	String desc;
 	String nameDesc;
+	X thiz;
 	Class<?> clazz;
 	Throwable except;
 	String Finally;
@@ -44,6 +45,7 @@ class A1
 		a.name = getName();
 		a.desc = getDescript();
 		a.nameDesc = getNameDescript();
+		a.thiz = getThis();
 		a.clazz = getClazz();
 		invoke();
 	}

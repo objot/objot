@@ -4,6 +4,7 @@
 //
 package objot.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
@@ -14,11 +15,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.jar.JarEntry;
 
 
 public class Class2
@@ -442,6 +447,51 @@ public class Class2
 		throws Exception
 	{
 		return load(l, name, bytecode.bytes, bytecode.beginBi, bytecode.end1Bi);
+	}
+
+	/**
+	 * get all classes in a package
+	 * 
+	 * @param c one of classes in the package
+	 */
+	public static ArrayList<Class<?>> packageClasses(Class<?> c) throws Exception
+	{
+		if (c.isPrimitive() || c.isArray())
+			throw new Exception("invalid class " + c);
+		String p = c.getPackage().getName();
+		// find the package directory
+		URL url = c.getResource("/" + c.getName().replace('.', '/') + ".class");
+		url = new URL(url.toString().substring(0, url.toString().lastIndexOf('/') + 1));
+
+		ArrayList<Class<?>> clas = new ArrayList<Class<?>>();
+
+		if (url.getProtocol().equals("file"))
+		{
+			File path = new File(url.getPath());
+			if ( !path.isDirectory())
+				throw new Exception(path + " must be directory");
+			// iterate on all classes in the package
+			for (String _: path.list())
+				if (_.endsWith(".class"))
+					clas.add(Class.forName(p + "." + _.substring(0, _.lastIndexOf('.'))));
+		}
+		else if (url.getProtocol().equals("jar"))
+		{
+			JarURLConnection conn = (JarURLConnection)url.openConnection();
+			JarEntry path = conn.getJarEntry();
+			if ( !path.isDirectory())
+				throw new Exception(path + "must be directory");
+			String name;
+			// iterate on all classes in the package
+			for (Enumeration<JarEntry> es = conn.getJarFile().entries(); es.hasMoreElements();)
+				if ((name = es.nextElement().getName()).startsWith(path.getName())
+					&& name.endsWith(".class"))
+					clas.add(Class.forName(p + "."
+						+ name.substring(path.getName().length(), name.lastIndexOf('.'))));
+		}
+		else
+			throw new Exception(url.getProtocol() + " not supported yet");
+		return clas;
 	}
 
 	// ********************************************************************************

@@ -185,6 +185,8 @@ final class WeaveProc
 			opGetDescript();
 		else if (Target.getNameDescript.utf.equals(name))
 			opGetNameDescript();
+		else if (Target.getThis.utf.equals(name))
+			opGetThis();
 		else if (Target.getClazz.utf.equals(name))
 			opGetClazz();
 		else if (Target.invoke.utf.equals(name))
@@ -243,6 +245,11 @@ final class WeaveProc
 			nameDescStrCi = cons.addString(cons.addUtf(b));
 		}
 		ws.insU2(LDCW, nameDescStrCi);
+	}
+
+	private void opGetThis()
+	{
+		ws.ins0(ALOAD0);
 	}
 
 	private void opGetClazz()
