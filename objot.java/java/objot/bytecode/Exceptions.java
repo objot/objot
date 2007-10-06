@@ -10,12 +10,12 @@ import objot.util.Array2;
 import objot.util.InvalidValueException;
 
 
-public class Exceptions
+public final class Exceptions
 	extends Element
 {
 	public final Constants cons;
-	protected int exceptionN;
-	protected int[] exceptionCis;
+	int exceptionN;
+	int[] exceptionCis;
 
 	public Exceptions(Constants c, byte[] bs, int beginBi_)
 	{
@@ -32,7 +32,7 @@ public class Exceptions
 		return exceptionN;
 	}
 
-	protected void readExceptionCis()
+	void readExceptionCis()
 	{
 		if (exceptionCis != null)
 			return;
@@ -41,7 +41,7 @@ public class Exceptions
 			exceptionCis[i] = read0u2(beginBi + 8 + (i << 1));
 	}
 
-	protected void checkIndex(int ei)
+	void checkIndex(int ei)
 	{
 		if (ei < 0 || ei >= exceptionN)
 			throw new InvalidValueException(ei);
@@ -55,7 +55,7 @@ public class Exceptions
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{

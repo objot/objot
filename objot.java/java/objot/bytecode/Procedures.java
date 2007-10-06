@@ -11,12 +11,12 @@ import objot.util.Bytes;
 import objot.util.InvalidValueException;
 
 
-public class Procedures
+public final class Procedures
 	extends Element
 {
 	public final Constants cons;
-	protected int procN;
-	protected Procedure[] procs;
+	int procN;
+	Procedure[] procs;
 
 	public Procedures(Constants c, byte[] bs, int beginBi_)
 	{
@@ -34,13 +34,13 @@ public class Procedures
 		return procN;
 	}
 
-	protected void checkIndex(int fi)
+	void checkIndex(int fi)
 	{
 		if (fi < 0 || fi >= procN)
 			throw new InvalidValueException(fi);
 	}
 
-	protected void readProcs()
+	void readProcs()
 	{
 		if (procs != null)
 			return;
@@ -76,7 +76,7 @@ public class Procedures
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		if (verbose > 0)
 		{

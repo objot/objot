@@ -4,7 +4,7 @@
 //
 package objot.aspect;
 
-import objot.bytecode.Element;
+import objot.bytecode.Bytecode;
 import objot.util.Bytes;
 import objot.util.Class2;
 
@@ -12,7 +12,7 @@ import objot.util.Class2;
 /** All references to subclass will be replaced to the weaved class (target subclass) */
 public abstract class Aspect
 {
-	static final Bytes NAME_aspect = Element.utf("aspect");
+	static final Bytes NAME_aspect = Bytecode.utf("aspect");
 
 	/**
 	 * keyword "this" is the weaved object (== target object) not this asepct, all fields
@@ -61,6 +61,6 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
-		Bytes utf = Element.utf(Class2.declaredMethod1(Target.class, name()).getName());
+		Bytes utf = Bytecode.utf(Class2.declaredMethod1(Target.class, name()).getName());
 	}
 }

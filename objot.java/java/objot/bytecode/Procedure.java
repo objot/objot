@@ -12,41 +12,42 @@ import objot.util.Class2;
 import objot.util.Mod2;
 
 
-public class Procedure
+public final class Procedure
 	extends Element
 {
 	public static final String CTOR_NAME = "<init>";
 	public static final String CINIT_NAME = "<cinit>";
 	public static final String VOID_DESC = "()V";
-	protected static final Bytes CTOR_NAME_ = utf(CTOR_NAME);
-	protected static final Bytes CINIT_NAME_ = utf(CINIT_NAME);
-	protected static final Bytes VOID_DESC_ = utf(VOID_DESC);
+	static final Bytes CTOR_NAME_ = utf(CTOR_NAME);
+	static final Bytes CINIT_NAME_ = utf(CINIT_NAME);
+	static final Bytes VOID_DESC_ = utf(VOID_DESC);
 
 	public final Constants cons;
-	protected int modifier;
-	protected int nameCi;
-	protected int descCi;
-	protected int paramN;
-	protected int paramLocalN;
-	protected char returnType;
-	protected int attrN;
-	protected int attrBi;
-	protected int signatureBi;
-	protected int signatureCi;
-	protected int annosBi;
-	protected Annotations annos;
-	protected int annoHidesBi;
-	protected Annotations annoHides;
-	protected int annoParamsBi;
-	protected AnnoParams annoParams;
-	protected int annoHideParamsBi;
-	protected AnnoParams annoHideParams;
-	protected int exceptionsBi;
-	protected Exceptions exceptions;
-	protected int codeBi;
-	protected Code code;
+	int modifier;
+	int nameCi;
+	int descCi;
+	int paramN;
+	int paramLocalN;
+	char returnType;
+	int attrN;
+	int attrBi;
+	int signatureBi;
+	int signatureCi;
+	int annosBi;
+	Annotations annos;
+	int annoHidesBi;
+	Annotations annoHides;
+	int annoParamsBi;
+	AnnoParams annoParams;
+	int annoHideParamsBi;
+	AnnoParams annoHideParams;
+	int exceptionsBi;
+	Exceptions exceptions;
+	int codeBi;
+	Code code;
+	int codeByteN0;
 
-	protected static int readEnd1Bi(byte[] bs, int begin)
+	static int readEnd1Bi(byte[] bs, int begin)
 	{
 		begin += 8;
 		for (int an = readU2(bs, begin - 2); an > 0; an--)
@@ -95,12 +96,12 @@ public class Procedure
 	{
 		super(null, 0);
 		cons = c;
-		ensureByteN(128);
+		ensureByteN(60);
 		write0u2(0, 0); // modifier
 		write0u2(2, 0); // nameCi
 		write0u2(4, 0); // descCi
 		paramN = -1;
-		attrN = 2;
+		attrN = 4;
 		write0u2(6, attrN);
 		attrBi = 8;
 		int i = attrBi;
@@ -109,6 +110,18 @@ public class Procedure
 		write0u4(i + 2, 2); // attr length
 		i += 6;
 		write0u2(i, 0); // exceptionN
+		i += 2;
+		annosBi = i;
+		write0u2(i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
+		write0u4(i + 2, 2); // attr length
+		i += 6;
+		write0u2(i, 0); // annoN
+		i += 2;
+		annoHidesBi = i;
+		write0u2(i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
+		write0u4(i + 2, 2); // attr length
+		i += 6;
+		write0u2(i, 0); // annoHideN
 		i += 2;
 		codeBi = i;
 		write0u2(i, cons.putUtf(Bytecode.CODE)); // attr name ci
@@ -141,12 +154,12 @@ public class Procedure
 		if (params == null)
 			params = Array2.CLASSES0;
 		Procedure p = new Procedure(c);
-		int ctorCi = c.addUtf(CTOR_NAME_);
-		int voidCi = params.length == 0 ? c.addUtf(VOID_DESC_) : c.addUcs(Class2.descript(
+		int nameCi = c.addUtf(CTOR_NAME_);
+		int descCi = params.length == 0 ? c.addUtf(VOID_DESC_) : c.addUcs(Class2.descript(
 			params, void.class));
 		p.setModifier(modifier);
-		p.setNameCi(ctorCi);
-		p.setDescCi(voidCi);
+		p.setNameCi(nameCi);
+		p.setDescCi(descCi);
 		Instruction s = new Instruction(5 + params.length * 2);
 		s.ins0(Opcode.ALOAD0);
 		int local = 1;
@@ -157,7 +170,7 @@ public class Procedure
 			s.insU1(Opcode.getLoadOp(d), local);
 			local += Opcode.getLocalStackN(d);
 		}
-		s.insU2(Opcode.INVOKESPECIAL, c.addCproc(superCi, c.addNameDesc(ctorCi, voidCi)));
+		s.insU2(Opcode.INVOKESPECIAL, c.addCproc(superCi, c.addNameDesc(nameCi, descCi)));
 		s.ins0(Opcode.RETURN);
 		p.getCode().setLocalN(local);
 		p.getCode().setStackN(local);
@@ -171,12 +184,12 @@ public class Procedure
 		if (params == null)
 			params = Array2.CLASSES0;
 		Procedure p = new Procedure(c);
-		int ctorCi = c.putUtf(CTOR_NAME_);
-		int voidCi = params.length == 0 ? c.putUtf(VOID_DESC_) : c.putUcs(Class2.descript(
+		int nameCi = c.putUtf(CTOR_NAME_);
+		int descCi = params.length == 0 ? c.putUtf(VOID_DESC_) : c.putUcs(Class2.descript(
 			params, void.class));
 		p.setModifier(modifier);
-		p.setNameCi(ctorCi);
-		p.setDescCi(voidCi);
+		p.setNameCi(nameCi);
+		p.setDescCi(descCi);
 		Instruction s = new Instruction(5 + params.length * 2);
 		s.ins0(Opcode.ALOAD0);
 		int local = 1;
@@ -187,7 +200,7 @@ public class Procedure
 			s.insU1(Opcode.getLoadOp(d), local);
 			local += Opcode.getLocalStackN(d);
 		}
-		s.insU2(Opcode.INVOKESPECIAL, c.putCproc(superCi, c.putNameDesc(ctorCi, voidCi)));
+		s.insU2(Opcode.INVOKESPECIAL, c.putCproc(superCi, c.putNameDesc(nameCi, descCi)));
 		s.ins0(Opcode.RETURN);
 		p.getCode().setLocalN(local);
 		p.getCode().setStackN(local);
@@ -304,12 +317,15 @@ public class Procedure
 	public Code getCode()
 	{
 		if (code == null && codeBi > 0)
+		{
 			code = new Code(cons, bytes, codeBi);
+			codeByteN0 = code.byteN0();
+		}
 		return code;
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);
@@ -448,6 +464,14 @@ public class Procedure
 		signatureCi = v;
 	}
 
+	public void setCode(Code c)
+	{
+		if (c.cons != cons)
+			throw new IllegalArgumentException("inconsistent constants");
+		getCode();
+		code = c;
+	}
+
 	@Override
 	public int normalizeByteN()
 	{
@@ -463,7 +487,7 @@ public class Procedure
 		if (exceptions != null)
 			n += exceptions.normalizeByteN() - exceptions.byteN0();
 		if (code != null)
-			n += code.normalizeByteN() - code.byteN0();
+			n += code.normalizeByteN() - codeByteN0;
 		return n;
 	}
 
@@ -495,7 +519,7 @@ public class Procedure
 				begin = annoHideParams.normalizeTo(bs, begin);
 			else if (bi == exceptionsBi && exceptions != null)
 				begin = exceptions.normalizeTo(bs, begin);
-			else if (bi != codeBi)
+			else if (bi != codeBi || code == null)
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);
 				begin += bn;

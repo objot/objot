@@ -10,17 +10,17 @@ import objot.util.Array2;
 import objot.util.InvalidValueException;
 
 
-public class CodeVars
+public final class CodeVars
 	extends Element
 {
 	public final Constants cons;
-	protected boolean signature;
-	protected int varN;
-	protected int[] beginAds;
-	protected int[] adNs;
-	protected int[] nameCis;
-	protected int[] descCis;
-	protected int[] locals;
+	boolean signature;
+	int varN;
+	int[] beginAds;
+	int[] adNs;
+	int[] nameCis;
+	int[] descCis;
+	int[] locals;
 
 	public CodeVars(Constants c, byte[] bs, int beginBi_, boolean signature_)
 	{
@@ -43,7 +43,7 @@ public class CodeVars
 		return varN;
 	}
 
-	protected void reads()
+	void reads()
 	{
 		if (beginAds != null)
 			return;
@@ -64,7 +64,7 @@ public class CodeVars
 		}
 	}
 
-	protected void checkIndex(int vi)
+	void checkIndex(int vi)
 	{
 		if (vi < 0 || vi >= varN)
 			throw new InvalidValueException(vi);
@@ -113,7 +113,7 @@ public class CodeVars
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		for (int i = 0; i < varN; i++)

@@ -15,11 +15,11 @@ public class Head
 	extends Element
 {
 	public final Constants cons;
-	protected int modifier;
-	protected int classCi;
-	protected int superCi;
-	protected int interfaceN;
-	protected int[] interfaceCis;
+	int modifier;
+	int classCi;
+	int superCi;
+	int interfaceN;
+	int[] interfaceCis;
 
 	public Head(Constants c, byte[] bs, int beginBi_)
 	{
@@ -52,7 +52,7 @@ public class Head
 		return interfaceN;
 	}
 
-	protected void readInterfaceCis()
+	void readInterfaceCis()
 	{
 		if (interfaceCis != null)
 			return;
@@ -61,7 +61,7 @@ public class Head
 			interfaceCis[i] = read0u2(beginBi + 8 + (i << 1));
 	}
 
-	protected void checkIndex(int ii)
+	void checkIndex(int ii)
 	{
 		if (ii < 0 || ii >= interfaceN)
 			throw new InvalidValueException(ii);
@@ -75,7 +75,7 @@ public class Head
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);

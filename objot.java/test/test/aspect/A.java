@@ -1,3 +1,7 @@
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
 package test.aspect;
 
 import objot.aspect.Aspect;
@@ -49,6 +53,9 @@ class A1
 class A2
 	extends Aspect
 {
+	static final String FINALLY = "Final".toLowerCase();
+	final String Finally = FINALLY.concat("ly");
+
 	@Override
 	protected void aspect() throws Throwable
 	{
@@ -64,7 +71,7 @@ class A2
 		}
 		finally
 		{
-			a.Finally = "finally";
+			a.Finally = Finally;
 		}
 	}
 }

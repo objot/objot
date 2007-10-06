@@ -10,28 +10,28 @@ import objot.util.Math2;
 import java.io.PrintStream;
 
 
-public class Code
+public final class Code
 	extends Element
 {
 	public final Constants cons;
-	protected int attrNameCi;
-	protected int stackN;
-	protected int localN;
-	protected int addrN0;
-	protected int addrN;
-	protected int addrBi;
-	protected byte[] ins;
-	protected int catchBi;
-	protected CodeCatchs catchs;
-	protected int catchBn;
-	protected int attrN;
-	protected int attrBi;
-	protected int linesBi;
-	protected CodeLines lines;
-	protected int varsBi;
-	protected CodeVars vars;
-	protected int varSignsBi;
-	protected CodeVars varSigns;
+	int attrNameCi;
+	int stackN;
+	int localN;
+	int addrN0;
+	int addrN;
+	int addrBi;
+	byte[] ins;
+	int catchBi;
+	CodeCatchs catchs;
+	int catchBn;
+	int attrN;
+	int attrBi;
+	int linesBi;
+	CodeLines lines;
+	int varsBi;
+	CodeVars vars;
+	int varSignsBi;
+	CodeVars varSigns;
 
 	public Code(Constants c, byte[] bs, int beginBi_)
 	{
@@ -131,7 +131,7 @@ public class Code
 		System.arraycopy(ins, addr + addrBi, dest, destBi, n);
 	}
 
-	protected byte[] insBytes()
+	byte[] insBytes()
 	{
 		return ins;
 	}
@@ -175,7 +175,7 @@ public class Code
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);

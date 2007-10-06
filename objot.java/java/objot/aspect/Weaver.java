@@ -8,13 +8,11 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import objot.bytecode.Annotation;
 import objot.bytecode.Bytecode;
+import objot.bytecode.Code;
 import objot.bytecode.Constants;
-import objot.bytecode.Element;
 import objot.bytecode.Field;
 import objot.bytecode.Procedure;
-import objot.container.Inject;
 import objot.util.Array2;
 import objot.util.Bytes;
 import objot.util.Class2;
@@ -23,9 +21,10 @@ import objot.util.Mod2;
 
 public abstract class Weaver
 {
-	static final Bytes TARGET_NAME = Element.utf(Class2.pathName(Aspect.Target.class));
-	private static final Bytes CTOR_NAME = Element.utf(Procedure.CTOR_NAME);
-	private static final String OSS_NAME = "$$";
+	static final Bytes ASPECT_NAME = Bytecode.utf(Class2.pathName(Aspect.class));
+	static final Bytes TARGET_NAME = Bytecode.utf(Class2.pathName(Aspect.Target.class));
+	static final Bytes CTOR_NAME = Bytecode.utf(Procedure.CTOR_NAME);
+	private static final String DATAS_NAME = "$$";
 
 	private Class<? extends Aspect>[] acs;
 	private Bytes[] abs;
@@ -69,9 +68,16 @@ public abstract class Weaver
 			|| Mod2.match(target, Mod2.ABSTRACT | Mod2.FINAL))
 			throw new IllegalArgumentException(target + " forbidden");
 
+		ArrayList<Constructor<?>> ats = new ArrayList<Constructor<?>>();
+		for (Constructor<?> t: target.getDeclaredConstructors())
+			if (Mod2.match(t, Mod2.PUBLIC_PROTECT))
+				ats.add(t);
+		if (ats.size() == 0)
+			throw new IllegalArgumentException(target
+				+ " at least one public/protected constructor");
 		Method[] ms = Array2.from(Class2.methods(target, 0, 0, 0), Method.class);
-		Constructor<?>[] ctors = target.getDeclaredConstructors();
 		Class<T> sup = target;
+
 		for (int ax = abs.length - 1; ax >= 0; ax--)
 		{
 			ArrayList<Method> ams = new ArrayList<Method>();
@@ -92,24 +98,9 @@ public abstract class Weaver
 				continue;
 
 			String name = acs[ax].getName() + "$$" + target.getName().replace('.', '$');
-			Bytecode y = new Bytecode(abs[ax]);
-			y.head.setModifier(Mod2.PUBLIC | Mod2.SYNTHETIC);
-			y.head.setSuperCi(y.cons.addClass(sup));
-			int ossCi = makeOss(y);
-
-			y.getProcs().removeProc(y.getProcs().searchProc(CTOR_NAME, null));
-			if (makeCtors(y, ctors) == 0)
-				throw new IllegalArgumentException(target
-					+ " at least one public/protected constructor");
-
-			Procedure ap = y.getProcs().removeProc(
-				y.getProcs().searchProc(Aspect.NAME_aspect, null));
-			for (int i = 0; i < ams.size(); i++)
-				new WeaveProc(y, ap).method(ams.get(i), i, ossCi);
-
-			makeClass(y, y.cons.addClass(name));
-			sup = Class2.<T>load(acs[ax].getClassLoader(), name, y.normalize());
-			Class2.declaredField(sup, OSS_NAME).set(null, aos.toArray());
+			sup = Class2.<T>load(acs[ax].getClassLoader(), name, //
+				make1(abs[ax], name, sup, ats, ams));
+			Class2.declaredField(sup, DATAS_NAME).set(null, aos.toArray());
 		}
 		return sup;
 	}
@@ -117,42 +108,36 @@ public abstract class Weaver
 	/** @return this {@link Weaver} not to weave the method with the aspect, other to weave */
 	protected abstract Object doWeave(Class<? extends Aspect> a, Method m) throws Exception;
 
-	/** @todo copy default aspect ctor code to these ctors to reserve initialization */
-	private int makeCtors(Bytecode y, Constructor<?>[] ctors)
+	private byte[] make1(Bytes ab, String name, Class<?> sup, ArrayList<Constructor<?>> ts,
+		ArrayList<Method> ms)
 	{
-		byte[] inject = new byte[4];
-		Bytes.writeU2(inject, 0, y.cons.addClass(Inject.class));
-		int n = 0;
-		for (Constructor<?> c: ctors)
-			if (Mod2.match(c, Mod2.PUBLIC_PROTECT))
-			{
-				n++;
-				Procedure p = Procedure.addCtor(y.cons, y.head.getSuperCi(), Mod2.PUBLIC,
-					(Object[])c.getParameterTypes());
-				if (c.isAnnotationPresent(Inject.class))
-					p.getAnnos().addAnno(new Annotation(y.cons, inject, 0));
-				y.getProcs().addProc(p);
-			}
-		return n;
-	}
-
-	private int makeOss(Bytecode y)
-	{
-		Field f = new Field(y.cons);
-		f.setModifier(Mod2.PUBLIC | Mod2.STATIC);
-		f.setNameCi(y.cons.addUcs(OSS_NAME));
-		f.setDescCi(y.cons.addUcs(Class2.descript(Object[].class)));
-		y.getFields().addField(f);
-		return y.cons.addField(y.head.getClassCi(), y.cons.addNameDesc(f.getNameCi(), f
-			.getDescCi()));
-	}
-
-	private void makeClass(Bytecode y, int classCi)
-	{
+		Bytecode y = new Bytecode(ab);
 		Constants cs = y.cons;
+		y.head.setModifier(Mod2.PUBLIC | Mod2.SYNTHETIC);
+		int classCi = cs.addClass(name);
+		y.head.setSuperCi(cs.addClass(sup));
+
 		Bytes n = cs.getUtf(cs.getClass(y.head.getClassCi()));
 		for (int i = 1; i < cs.getConN(); i++)
 			if (cs.getTag(i) == Constants.TAG_CLASS && cs.equalsUtf(cs.getClass(i), n))
 				cs.setClass(i, cs.getClass(classCi));
+
+		Field f = new Field(cs);
+		f.setModifier(Mod2.PUBLIC | Mod2.STATIC);
+		f.setNameCi(cs.addUcs(DATAS_NAME));
+		f.setDescCi(cs.addUcs(Class2.descript(Object[].class)));
+		y.getFields().addField(f);
+		int datasCi = cs.addField(y.head.getClassCi(), cs.addNameDesc(f.getNameCi(), f
+			.getDescCi()));
+
+		Code ato = y.getProcs().removeProc(y.getProcs().searchProc(CTOR_NAME, null))
+			.getCode();
+		for (Constructor<?> t: ts)
+			new WeaveProc(y, ato).ctor(t);
+		Code ao = y.getProcs().removeProc(y.getProcs().searchProc(Aspect.NAME_aspect, null))
+			.getCode();
+		for (int i = 0; i < ms.size(); i++)
+			new WeaveProc(y, ao).method(ms.get(i), i, datasCi);
+		return y.normalize();
 	}
 }

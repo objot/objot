@@ -22,9 +22,9 @@ public class Bind
 	Object b;
 
 	/** null iif {@link #b} != this */
-	Constructor<?> ct;
-	/** [param index], empty if {@link #ct} null */
-	Object[] cbs;
+	Constructor<?> t;
+	/** [param index], empty if {@link #t} null */
+	Object[] tbs;
 
 	Field[] fs;
 	Object[] fbs;

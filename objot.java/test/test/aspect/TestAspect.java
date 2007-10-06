@@ -4,10 +4,12 @@
 //
 package test.aspect;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import objot.aspect.Aspect;
 import objot.aspect.Weaver;
+import objot.container.Inject;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,7 +46,17 @@ public class TestAspect
 	@After
 	public void clear()
 	{
-		a.clear();
+		if (a != null)
+			a.clear();
+	}
+
+	@Test
+	public void ctor() throws Exception
+	{
+		Constructor<X> c = weaved.getConstructor(Object.class);
+		X x = c.newInstance("new");
+		assertEquals("new", x.result);
+		assertTrue(c.isAnnotationPresent(Inject.class));
 	}
 
 	@Test

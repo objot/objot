@@ -1,9 +1,10 @@
 //
-// Copyright 2007 The Objot Team
+// Copyright 2007 Qianyan Cai
 // Under the terms of The GNU General Public License version 2
 //
 package test.aspect;
 
+import objot.container.Inject;
 import objot.util.Class2;
 
 
@@ -15,6 +16,16 @@ public class X
 	double d;
 	String e;
 	Object result;
+
+	@Inject
+	public X(Object x)
+	{
+		result = x;
+	}
+
+	protected X()
+	{
+	}
 
 	protected void Void()
 	{

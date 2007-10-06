@@ -4,19 +4,21 @@
 //
 package objot.aspect;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import objot.aspect.Aspect.Target;
+import objot.bytecode.Annotation;
 import objot.bytecode.Bytecode;
 import objot.bytecode.Code;
 import objot.bytecode.CodeCatchs;
 import objot.bytecode.CodeLines;
 import objot.bytecode.CodeVars;
 import objot.bytecode.Constants;
-import objot.bytecode.Element;
 import objot.bytecode.Instruction;
 import objot.bytecode.Opcode;
 import objot.bytecode.Procedure;
+import objot.container.Inject;
 import objot.util.Bytes;
 import objot.util.Class2;
 import objot.util.Mod2;
@@ -28,60 +30,90 @@ final class WeaveProc
 {
 	private Bytecode y;
 	private Constants cons;
-	private Procedure ap;
-	private Code ac;
+	private Code ao;
 	private Procedure wp;
-	private Code wc;
+	private Code wo;
 	private Instruction ws;
 	private int nameStrCi;
 	private int descStrCi;
 	private int nameDescStrCi;
 
-	WeaveProc(Bytecode y_, Procedure ap_)
+	WeaveProc(Bytecode y_, Code ao_)
 	{
 		y = y_;
 		cons = y.cons;
-		ap = ap_;
-		ac = ap.getCode();
+		ao = ao_;
+		wp = new Procedure(cons);
+		wo = new Code(cons, ao.bytes, ao.beginBi);
+		wp.setCode(wo);
 	}
 
-	void method(Method m, int pi, int ossCi)
+	void method(Method m, int pi, int datasCi)
 	{
-		wp = new Procedure(cons, ap.bytes, ap.beginBi);
-		wp.setModifier(Mod2.PUBLIC);
+		wp.setModifier(m.getModifiers() & Mod2.PUBLIC_PROTECT);
 		wp.setNameCi(cons.addUcs(m.getName()));
 		wp.setDescCi(cons.addUcs(Class2.descript(m)));
-		y.getProcs().addProc(wp);
-		wc = wp.getCode();
 
-		int[] ads = new int[ac.getAddrN() + 1];
-		ws = new Instruction(ac.getAddrN() + 200);
-		for (int ad = 0, adn; ad < ac.getAddrN(); ad += adn)
+		int[] ads = new int[ao.getAddrN() + 1];
+		ws = new Instruction(ao.getAddrN() + 200);
+		for (int ad = 0, adn; ad < ao.getAddrN(); ad += adn)
 		{
 			ads[ad] = ws.addr;
-			adn = ac.getInsAddrN(ad);
-			if ( !opLocal(ad) && !opReturn(ad) && !opAspect(ad, pi, ossCi))
+			adn = ao.getInsAddrN(ad);
+			if ( !opLocal(ad) && !opReturn(ad) && !opAspect(ad, pi, datasCi))
 				opCopy(ad, adn);
 		}
-		ads[ac.getAddrN()] = ws.addr;
-		for (int ad = 0; ad < ac.getAddrN(); ad += ac.getInsAddrN(ad))
-			opJump(ad, ads);
-		wc.setIns(ws, false);
-		wc.setLocalN(wc.getLocalN() + wp.getParamLocalN() + 2 /* return value */);
+		ads[ao.getAddrN()] = ws.addr;
+		wo.setLocalN(wo.getLocalN() + wp.getParamLocalN() + 2 /* return value */);
+		post(ads);
+	}
 
-		CodeCatchs cc = wc.getCatchs();
+	void ctor(Constructor<?> t)
+	{
+		wp.setModifier(t.getModifiers() & Mod2.PUBLIC_PROTECT);
+		wp.setNameCi(cons.addUtf(Weaver.CTOR_NAME));
+		wp.setDescCi(cons.addUcs(Class2.descript(t)));
+
+		int[] ads = new int[ao.getAddrN() + 1];
+		ws = new Instruction(ao.getAddrN() + 200);
+		for (int ad = 0, adn; ad < ao.getAddrN(); ad += adn)
+		{
+			ads[ad] = ws.addr;
+			adn = ao.getInsAddrN(ad);
+			if ( !opLocal(ad) && !opCtor(ad))
+				opCopy(ad, adn);
+		}
+		ads[ao.getAddrN()] = ws.addr;
+		wo.setLocalN(wo.getLocalN() + wp.getParamLocalN());
+		post(ads);
+		if (t.isAnnotationPresent(Inject.class))
+		{
+			byte[] inject = new byte[4];
+			Bytes.writeU2(inject, 0, y.cons.addClass(Inject.class));
+			wp.getAnnos().addAnno(new Annotation(y.cons, inject, 0));
+		}
+	}
+
+	void post(int[] ads)
+	{
+		for (int ad = 0; ad < ao.getAddrN(); ad += ao.getInsAddrN(ad))
+			opJump(ad, ads);
+		wo.setIns(ws, false);
+		y.getProcs().addProc(wp);
+
+		CodeCatchs cc = wo.getCatchs();
 		for (int i = 0; cc != null && i < cc.getCatchN(); i++)
 			cc.setInfo(i, ads[cc.getBeginAd(i)], ads[cc.getEnd1Ad(i)], ads[cc.getCatchAd(i)],
 				cc.getTypeCi(i));
-		CodeLines cl = wc.getLines();
+		CodeLines cl = wo.getLines();
 		for (int i = 0; cl != null && i < cl.getLineN(); i++)
 			cl.setInfo(i, ads[cl.getBeginAd(i)], cl.getLine(i));
-		CodeVars cv = wc.getVars();
+		CodeVars cv = wo.getVars();
 		for (int i = 0, b; cv != null && i < cv.getVarN(); i++)
 			cv.setInfo(i, b = ads[cv.getBeginAd(i)], ads[cv.getEnd1Ad(i)] - b, //
 				cv.getNameCi(i), cv.getDescCi(i), //
 				cv.getLocal(i) == 0 ? 0 : cv.getLocal(i) + wp.getParamLocalN());
-		cv = wc.getVarSigns();
+		cv = wo.getVarSigns();
 		for (int i = 0, b; cv != null && i < cv.getVarN(); i++)
 			cv.setInfo(i, b = ads[cv.getBeginAd(i)], ads[cv.getEnd1Ad(i)] - b, //
 				cv.getNameCi(i), cv.getDescCi(i), //
@@ -91,7 +123,7 @@ final class WeaveProc
 	private boolean opLocal(int ad)
 	{
 		int inc = Integer.MAX_VALUE;
-		byte op = Opcode.getNormalLocalOp(ac, ad);
+		byte op = Opcode.getNormalLocalOp(ao, ad);
 		switch (op)
 		{
 		case LLOAD:
@@ -106,13 +138,15 @@ final class WeaveProc
 		case FSTORE:
 			break;
 		case IINC:
-			inc = ac.getInsS1(ad) != WIDE ? ac.getInsS1(ad + 2) : ac.getInsS2(ad + 4);
+			inc = ao.getInsS1(ad) != WIDE ? ao.getInsS1(ad + 2) : ao.getInsS2(ad + 4);
 			break;
 		default:
 			return false;
 		}
-		int i = Opcode.getLocalIndex(ac, ad);
-		if (i > 0)
+		int i = Opcode.getLocalIndex(ao, ad);
+		if (i == 0)
+			ws.ins0(ALOAD0);
+		else
 		{
 			i += wp.getParamLocalN();
 			if (inc != Integer.MAX_VALUE)
@@ -125,26 +159,26 @@ final class WeaveProc
 
 	private boolean opReturn(int ad)
 	{
-		byte op = ac.getInsS1(ad);
+		byte op = ao.getInsS1(ad);
 		if (op != RETURN)
 			return false;
 		if (wp.getReturnTypeChar() != 'V')
-			ws.insU1wU2(Opcode.getLoadOp(wp.getReturnTypeChar()), ac.getLocalN()
+			ws.insU1wU2(Opcode.getLoadOp(wp.getReturnTypeChar()), ao.getLocalN()
 				+ wp.getParamLocalN());
 		ws.ins0(Opcode.getReturnOp(wp.getReturnTypeChar()));
 		return true;
 	}
 
-	private boolean opAspect(int ad, int pi, int ossCi)
+	private boolean opAspect(int ad, int pi, int datasCi)
 	{
-		if (ac.getInsS1(ad) != INVOKESTATIC)
+		if (ao.getInsS1(ad) != INVOKESTATIC)
 			return false;
-		int ci = ac.getInsU2(ad + 1);
+		int ci = ao.getInsU2(ad + 1);
 		if ( !cons.equalsUtf(cons.getCprocClass(ci), Weaver.TARGET_NAME))
 			return false;
 		Bytes name = cons.getUtf(cons.getCprocName(ci));
 		if (Target.getData.utf.equals(name))
-			opGetData(pi, ossCi);
+			opGetData(pi, datasCi);
 		else if (Target.getName.utf.equals(name))
 			opGetName();
 		else if (Target.getDescript.utf.equals(name))
@@ -162,25 +196,25 @@ final class WeaveProc
 
 	private void opCopy(int ad, int adn)
 	{
-		byte op = ac.getInsS1(ad);
+		byte op = ao.getInsS1(ad);
 		if (op == LOOKUPSWITCH || op == TABLESWITCH)
 		{
 			ws.ins0(op);
 			ws.insU2((byte)0, 0);
 			int h = 4 - (ad & 3);
 			ws.addr = ws.addr - (ws.addr & 3);
-			ws.copyFrom(ac, ad + h, ac.getInsAddrN(ad) - h);
+			ws.copyFrom(ao, ad + h, ao.getInsAddrN(ad) - h);
 		}
 		else
-			ws.copyFrom(ac, ad, adn);
+			ws.copyFrom(ao, ad, adn);
 	}
 
-	private void opGetData(int pi, int ossCi)
+	private void opGetData(int pi, int datasCi)
 	{
-		ws.insU2(GETSTATIC, ossCi);
+		ws.insU2(GETSTATIC, datasCi);
 		ws.insS2(SIPUSH, pi);
 		ws.ins0(AALOAD);
-		wc.setStackN(wc.getStackN() + 1);
+		wo.setStackN(wo.getStackN() + 1);
 	}
 
 	private void opGetName()
@@ -224,19 +258,39 @@ final class WeaveProc
 		{
 			ws.insU1wU2(Opcode.getLoadOp((char)desc.bytes[b]), i);
 			i += Opcode.getLocalStackN((char)desc.bytes[b]);
-			b += Element.typeDescByteN(desc, b - desc.beginBi);
+			b += Bytecode.typeDescByteN(desc, b - desc.beginBi);
 		}
 		ws.insU2(INVOKESPECIAL, y.cons.addCproc(y.head.getSuperCi(), y.cons.addNameDesc(wp
 			.getNameCi(), wp.getDescCi())));
 		if (wp.getReturnTypeChar() != 'V')
-			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ac.getLocalN()
+			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ao.getLocalN()
 				+ wp.getParamLocalN());
-		wc.setStackN(wc.getStackN() + 2 /* e.g. return long */+ wp.getParamLocalN());
+		wo.setStackN(wo.getStackN() + 2 /* e.g. return long */+ wp.getParamLocalN());
+	}
+
+	private boolean opCtor(int ad)
+	{
+		if (ao.getInsS1(ad) != INVOKESPECIAL)
+			return false;
+		int ci = ao.getInsU2(ad + 1);
+		if ( !cons.equalsUtf(cons.getCprocClass(ci), Weaver.ASPECT_NAME))
+			return false;
+		Bytes desc = cons.getUtf(wp.getDescCi());
+		for (int i = 1, b = desc.beginBi + 1; desc.bytes[b] != ')';)
+		{
+			ws.insU1wU2(Opcode.getLoadOp((char)desc.bytes[b]), i);
+			i += Opcode.getLocalStackN((char)desc.bytes[b]);
+			b += Bytecode.typeDescByteN(desc, b - desc.beginBi);
+		}
+		ws.insU2(INVOKESPECIAL, y.cons.addCproc(y.head.getSuperCi(), y.cons.addNameDesc(wp
+			.getNameCi(), wp.getDescCi())));
+		wo.setStackN(wo.getStackN() + wp.getParamLocalN());
+		return true;
 	}
 
 	private void opJump(int ad, int[] ads)
 	{
-		switch (ac.getInsS1(ad))
+		switch (ao.getInsS1(ad))
 		{
 		case GOTO:
 		case IFAE:
@@ -256,34 +310,34 @@ final class WeaveProc
 		case IFNOTNULL:
 		case IFNULL:
 		case JSR:
-			ws.writeS2(ads[ad] + 1, ads[ad + ac.getInsS2(ad + 1)] - ads[ad]);
+			ws.writeS2(ads[ad] + 1, ads[ad + ao.getInsS2(ad + 1)] - ads[ad]);
 			break;
 		case GOTO4:
 		case JSR4:
-			ws.writeS4(ads[ad] + 1, ads[ad + ac.getInsS4(ad + 1)] - ads[ad]);
+			ws.writeS4(ads[ad] + 1, ads[ad + ao.getInsS4(ad + 1)] - ads[ad]);
 			break;
 		case LOOKUPSWITCH:
 		{
 			int a = ad + 4 - (ad & 3);
 			int wa = ads[ad] + 4 - (ads[ad] & 3);
-			ws.writeS4(wa, ads[ad + ac.getInsS4(a)] - ads[ad]);
-			int n = ac.getInsU4(a + 4);
+			ws.writeS4(wa, ads[ad + ao.getInsS4(a)] - ads[ad]);
+			int n = ao.getInsU4(a + 4);
 			a += 12;
 			wa += 12;
 			for (; n > 0; n--, a += 8, wa += 8)
-				ws.writeS4(wa, ads[ad + ac.getInsS4(a)] - ads[ad]);
+				ws.writeS4(wa, ads[ad + ao.getInsS4(a)] - ads[ad]);
 			break;
 		}
 		case TABLESWITCH:
 		{
 			int a = ad + 4 - (ad & 3);
 			int wa = ads[ad] + 4 - (ads[ad] & 3);
-			ws.writeS4(wa, ads[ad + ac.getInsS4(a)] - ads[ad]);
-			int n = ac.getInsS4(a + 8) - ac.getInsS4(a + 4) + 1;
+			ws.writeS4(wa, ads[ad + ao.getInsS4(a)] - ads[ad]);
+			int n = ao.getInsS4(a + 8) - ao.getInsS4(a + 4) + 1;
 			a += 12;
 			wa += 12;
 			for (; n > 0; n--, a += 4, wa += 4)
-				ws.writeS4(wa, ads[ad + ac.getInsS4(a)] - ads[ad]);
+				ws.writeS4(wa, ads[ad + ao.getInsS4(a)] - ads[ad]);
 			break;
 		}
 		}

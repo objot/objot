@@ -39,25 +39,25 @@ public class Binder
 		if (c.getSuperclass() != null && c.getSuperclass() != Object.class)
 			bind(c.getSuperclass());
 
-		b.cbs = Array2.OBJECTS0;
+		b.tbs = Array2.OBJECTS0;
 		if (b.b == b)
-			for (Constructor<?> ct: c.getDeclaredConstructors())
-				if (inject(ct, true) != null)
+			for (Constructor<?> t: c.getDeclaredConstructors())
+				if (inject(t, true) != null)
 				{
-					if (b.ct != null)
-						throw new UnsupportedOperationException("binding constructors "
-							+ b.ct + " and " + ct + " forbidden");
-					b.ct = ct;
-					Parameter[] ps = Parameter.gets(ct);
-					b.cbs = new Object[ps.length];
+					if (b.t != null)
+						throw new UnsupportedOperationException("binding constructors " + b.t
+							+ " and " + t + " forbidden");
+					b.t = t;
+					Parameter[] ps = Parameter.gets(t);
+					b.tbs = new Object[ps.length];
 					for (int i = 0; i < ps.length; i++)
-						b.cbs[i] = check(ps[i].cla,
+						b.tbs[i] = check(ps[i].cla,
 							doBind(c, ps[i], ps[i].cla, ps[i].generic));
 				}
-		if (b.b == b && b.ct == null)
+		if (b.b == b && b.t == null)
 			try
 			{
-				b.ct = inject(c.getDeclaredConstructor(), false);
+				b.t = inject(c.getDeclaredConstructor(), false);
 			}
 			catch (Exception e)
 			{
@@ -127,14 +127,14 @@ public class Binder
 				}
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind b: bs)
-			if (b.os == null && b.cbs != null)
+			if (b.os == null && b.tbs != null)
 			{
 				os.add(b.b instanceof Bind ? null : b.b);
-				for (int i = 0; i < b.cbs.length; i++)
-					b.cbs[i] = bound(b.cbs[i], os);
+				for (int i = 0; i < b.tbs.length; i++)
+					b.tbs[i] = bound(b.tbs[i], os);
 				for (int i = 0; i < b.fbs.length; i++)
 					b.fbs[i] = bound(b.fbs[i], os);
-				b.maxParamN = Math.max(b.cbs.length, b.fbs.length > 0 ? 1 : 0);
+				b.maxParamN = Math.max(b.tbs.length, b.fbs.length > 0 ? 1 : 0);
 				for (int i = 0; i < b.mbs.length; i++)
 				{
 					for (int j = 0; j < b.mbs[i].length; j++)

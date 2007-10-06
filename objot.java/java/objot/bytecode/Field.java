@@ -9,25 +9,25 @@ import java.io.PrintStream;
 import objot.util.Mod2;
 
 
-public class Field
+public final class Field
 	extends Element
 {
 	public final Constants cons;
-	protected int modifier;
-	protected int nameCi;
-	protected int descCi;
-	protected int attrN;
-	protected int attrBi;
-	protected int signatureBi;
-	protected int signatureCi;
-	protected int constantBi;
-	protected int constantCi;
-	protected int annosBi;
-	protected Annotations annos;
-	protected int annoHidesBi;
-	protected Annotations annoHides;
+	int modifier;
+	int nameCi;
+	int descCi;
+	int attrN;
+	int attrBi;
+	int signatureBi;
+	int signatureCi;
+	int constantBi;
+	int constantCi;
+	int annosBi;
+	Annotations annos;
+	int annoHidesBi;
+	Annotations annoHides;
 
-	protected static int readEnd1Bi(byte[] bs, int begin)
+	static int readEnd1Bi(byte[] bs, int begin)
 	{
 		begin += 8;
 		for (int an = readU2(bs, begin - 2); an > 0; an--)
@@ -132,7 +132,7 @@ public class Field
 	}
 
 	@Override
-	protected void printContents(PrintStream out, int indent1st, int indent, int verbose)
+	void printContents(PrintStream out, int indent1st, int indent, int verbose)
 	{
 		out.println();
 		printIndent(out, indent);
