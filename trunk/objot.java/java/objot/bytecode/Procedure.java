@@ -448,13 +448,6 @@ public class Procedure
 		signatureCi = v;
 	}
 
-	public void setCode(Code c)
-	{
-		if (cons != c.cons)
-			throw new IllegalArgumentException("inconsistent constants");
-		code = c;
-	}
-
 	@Override
 	public int normalizeByteN()
 	{

@@ -45,7 +45,7 @@ public class Bind
 		if (c.isPrimitive() || Bind.class.isAssignableFrom(c) //
 			|| c != Container.class && Container.class.isAssignableFrom(c))
 			throw new IllegalArgumentException("binding " + c + " forbidden");
-		if ((c.getModifiers() & Mod2.PUBLIC) == 0)
+		if ( !Mod2.match(c, Mod2.PUBLIC))
 			throw new IllegalArgumentException("binding not-public " + c + " forbidden");
 		Annotation a = Class2.annoExclusive(c, MODES);
 		mode = a != null ? a.annotationType() : Inject.Single.class;

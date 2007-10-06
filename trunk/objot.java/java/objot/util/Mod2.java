@@ -4,6 +4,8 @@
 //
 package objot.util;
 
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Member;
 import java.lang.reflect.Modifier;
 
 
@@ -83,6 +85,31 @@ public class Mod2
 		return mod;
 	}
 
+	public static int get(AnnotatedElement e)
+	{
+		if (e instanceof Class)
+			return get(((Class<?>)e).getModifiers(), 0);
+		Member m = (Member)e;
+		return get(m.getModifiers(), m.getName().charAt(0));
+	}
+
+	public static boolean match(AnnotatedElement e, int or)
+	{
+		return (get(e) & or) != 0;
+	}
+
+	public static boolean match(AnnotatedElement e, int or, int no)
+	{
+		int m = get(e);
+		return (m & or) != 0 && (m & no) == 0;
+	}
+
+	public static boolean match(AnnotatedElement e, int and, int or, int no)
+	{
+		int m = get(e);
+		return (m & and) == and && (or == 0 || (m & or) != 0) && (m & no) == 0;
+	}
+
 	public static String toString(int mod)
 	{
 		StringBuilder s = new StringBuilder();
@@ -117,13 +144,16 @@ public class Mod2
 		if ((mod & INTERFACE) != 0)
 			s.append("interface ");
 
-		if ((mod & P.NORMAL) != 0)
-			s.append("() ");
 		if ((mod & P.CTOR) != 0)
-			s.append("<init>() ");
+			s.append("<init> ");
 		if ((mod & P.CINIT) != 0)
-			s.append("<cinit>() ");
+			s.append("<cinit> ");
 
-		return s.length() == 0 ? "" : s.deleteCharAt(s.length() - 1).toString();
+		return s.length() == 0 ? "" : s.toString();
+	}
+
+	public static String toString(AnnotatedElement o)
+	{
+		return toString(get(o));
 	}
 }

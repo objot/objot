@@ -287,19 +287,19 @@ public class Class2
 	 */
 	public static ArrayList<Field> fields(Class<?> c)
 	{
-		return fields(c, 0, Mod2.PRIVATE | Mod2.STATIC);
+		return fields(c, 0, 0, Mod2.PRIVATE | Mod2.STATIC);
 	}
 
 	/**
 	 * find all matched fields including those inherited from super classes. fields in
 	 * super class are before those in sub class.
 	 */
-	public static ArrayList<Field> fields(Class<?> c, int mods, int notMods)
+	public static ArrayList<Field> fields(Class<?> c, int andMods, int orMods, int noMods)
 	{
 		ArrayList<Field> s = c.getSuperclass() == null ? new ArrayList<Field>() //
-			: fields(c.getSuperclass(), mods, notMods);
+			: fields(c.getSuperclass(), andMods, orMods, noMods);
 		for (Field f: c.getDeclaredFields())
-			if ((f.getModifiers() & mods) == mods && (f.getModifiers() & notMods) == 0)
+			if (Mod2.match(f, andMods, orMods, noMods))
 				s.add(f);
 		return s;
 	}
@@ -354,7 +354,7 @@ public class Class2
 	 */
 	public static ArrayList<Method> methods(Class<?> c)
 	{
-		return methods(c, 0, Mod2.PRIVATE | Mod2.STATIC);
+		return methods(c, 0, 0, Mod2.PRIVATE | Mod2.STATIC);
 	}
 
 	/**
@@ -362,15 +362,15 @@ public class Class2
 	 * classes. excludes {@link Mod2.P#INITER}. methods in super class are before those
 	 * in sub class, the overriden methods are replaced in their original position
 	 */
-	public static ArrayList<Method> methods(Class<?> c, int mods, int notMods)
+	public static ArrayList<Method> methods(Class<?> c, int andMods, int orMods, int noMods)
 	{
 		ArrayList<Method> s = c.getSuperclass() == null ? new ArrayList<Method>() //
-			: methods(c.getSuperclass(), mods, notMods);
+			: methods(c.getSuperclass(), andMods, orMods, noMods);
 		int supN = s.size();
 		M: for (Method m: c.getDeclaredMethods())
-			if ((m.getModifiers() & mods) == mods && (m.getModifiers() & notMods) == 0)
+			if (Mod2.match(m, andMods, orMods, noMods))
 			{
-				if ((m.getModifiers() & Mod2.STATIC) == 0)
+				if ( !Mod2.match(m, Mod2.STATIC))
 					for (int i = 0; i < supN; i++)
 						if (override(s.get(i), m))
 						{
