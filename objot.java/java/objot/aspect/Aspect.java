@@ -12,52 +12,55 @@ import objot.util.Class2;
 /** All references to subclass will be replaced to the weaved class (target subclass) */
 public abstract class Aspect
 {
-	/** @return an object specified by {@link Weaver#doWeave} */
-	protected static Object getData()
-	{
-		throw new AbstractMethodError();
-	}
+	static final Bytes NAME_aspect = Element.utf("aspect");
 
 	/**
 	 * keyword "this" is the weaved object (== target object) not this asepct, all fields
 	 * and methods in this aspect will be in the weaved object (== target object)
 	 */
-	protected abstract void aspect() throws Exception;
+	protected abstract void aspect() throws Throwable;
 
-	/** @return name of target */
-	protected static String getName()
+	/** About the target method */
+	public static enum Target
 	{
-		throw new AbstractMethodError();
-	}
+		getData, getName, getDescript, getNameDescript, getClazz, invoke;
 
-	/** @return descriptor of target */
-	protected static String getDescript()
-	{
-		throw new AbstractMethodError();
-	}
+		/** @return an object per target specified by {@link Weaver#doWeave} */
+		public static Object getData()
+		{
+			throw new AbstractMethodError();
+		}
 
-	/** @return name + descriptor of target */
-	protected static String getNameDescript()
-	{
-		throw new AbstractMethodError();
-	}
+		/** @return name of target */
+		public static String getName()
+		{
+			throw new AbstractMethodError();
+		}
 
-	/** @return target class */
-	protected static Class<?> getClazz()
-	{
-		throw new AbstractMethodError();
-	}
+		/** @return descriptor of target */
+		public static String getDescript()
+		{
+			throw new AbstractMethodError();
+		}
 
-	/** Invoke the target method with parameters which may be modified. */
-	protected static void invoke()
-	{
-		throw new AbstractMethodError();
-	}
+		/** @return name + descriptor of target */
+		public static String getNameDescript()
+		{
+			throw new AbstractMethodError();
+		}
 
-	static enum Proc
-	{
-		getData, aspect, getName, getDescript, getNameDescript, getClazz, invoke;
+		/** @return target class */
+		public static Class<?> getClazz()
+		{
+			throw new AbstractMethodError();
+		}
 
-		Bytes utf = Element.utf(Class2.declaredMethod1(Aspect.class, name()).getName());
+		/** Invoke target with parameters which may be modified. */
+		public static void invoke()
+		{
+			throw new AbstractMethodError();
+		}
+
+		Bytes utf = Element.utf(Class2.declaredMethod1(Target.class, name()).getName());
 	}
 }

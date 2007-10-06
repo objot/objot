@@ -23,63 +23,69 @@ public class Instruction
 		super(null);
 	}
 
-	public Instruction(int ensureAddrN)
+	public Instruction(int ensureCapacity)
 	{
 		super(null);
-		ensureByteN(ensureAddrN);
+		ensureByteN(ensureCapacity);
+	}
+
+	public final void reserveAddr(int add)
+	{
+		ensureByteN(addr + add);
+		end1Bi = Math.max(end1Bi, addr + add);
 	}
 
 	public final void copyFrom(byte[] ins, int ad, int adN)
 	{
-		ensureByteN(addr + adN);
+		reserveAddr(adN);
 		System.arraycopy(ins, ad, bytes, addr, adN);
 		addr += adN;
 	}
 
 	public final void copyFrom(Bytes ins, int ad, int adN)
 	{
-		ensureByteN(addr + adN);
+		reserveAddr(adN);
 		ins.copyTo(ad, bytes, addr, adN);
 		addr += adN;
 	}
 
 	public final void copyFrom(Code code, int ad, int adN)
 	{
-		ensureByteN(addr + adN);
+		reserveAddr(adN);
 		code.copyInsTo(ad, bytes, addr, adN);
 		addr += adN;
 	}
 
 	public final void ins0(byte op)
 	{
-		ensureByteN(addr + 1);
+		reserveAddr(1);
 		write0s1(addr++, op);
 	}
 
 	public final void insS1(byte op, byte s1)
 	{
-		ensureByteN(addr + 2);
+		reserveAddr(2);
 		write0s1(addr++, op);
 		write0s1(addr++, s1);
 	}
 
 	public final void insS1(byte op, int s1)
 	{
-		ensureByteN(addr + 2);
+		reserveAddr(2);
 		write0s1(addr++, op);
 		write0s1(addr++, s1);
 	}
 
 	public final void insU1(byte op, int u1)
 	{
-		ensureByteN(addr + 2);
+		reserveAddr(2);
 		write0s1(addr++, op);
 		write0u1(addr++, u1);
 	}
 
 	public final void insU2(byte op, int u2)
 	{
-		ensureByteN(addr + 3);
+		reserveAddr(3);
 		write0s1(addr, op);
 		write0u2(addr + 1, u2);
 		addr += 3;
@@ -87,7 +93,7 @@ public class Instruction
 
 	public final void insS2(byte op, short s2)
 	{
-		ensureByteN(addr + 3);
+		reserveAddr(3);
 		write0s1(addr, op);
 		write0s2(addr + 1, s2);
 		addr += 3;
@@ -95,7 +101,7 @@ public class Instruction
 
 	public final void insS2(byte op, int s2)
 	{
-		ensureByteN(addr + 3);
+		reserveAddr(3);
 		write0s1(addr, op);
 		write0s2(addr + 1, s2);
 		addr += 3;
@@ -103,7 +109,7 @@ public class Instruction
 
 	public final void insS4(byte op, int s4)
 	{
-		ensureByteN(addr + 5);
+		reserveAddr(5);
 		write0s1(addr, op);
 		write0s4(addr + 1, s4);
 		addr += 5;
@@ -111,7 +117,7 @@ public class Instruction
 
 	public final void insS1U2(byte op, byte s1, int u2)
 	{
-		ensureByteN(addr + 4);
+		reserveAddr(4);
 		write0s1(addr, op);
 		write0s1(addr + 1, s1);
 		write0u2(addr + 2, u2);
@@ -120,7 +126,7 @@ public class Instruction
 
 	public final void insS1U2(byte op, int s1, int u2)
 	{
-		ensureByteN(addr + 4);
+		reserveAddr(4);
 		write0s1(addr, op);
 		write0s1(addr + 1, s1);
 		write0u2(addr + 2, u2);
@@ -137,7 +143,7 @@ public class Instruction
 
 	public final void insU1S1(byte op, int u1, byte s1)
 	{
-		ensureByteN(addr + 3);
+		reserveAddr(3);
 		write0s1(addr, op);
 		write0u1(addr + 1, u1);
 		write0s1(addr + 2, s1);
@@ -146,7 +152,7 @@ public class Instruction
 
 	public final void insU1S1(byte op, int u1, int s1)
 	{
-		ensureByteN(addr + 3);
+		reserveAddr(3);
 		write0s1(addr, op);
 		write0u1(addr + 1, u1);
 		write0s1(addr + 2, s1);
@@ -155,7 +161,7 @@ public class Instruction
 
 	public final void insIproc(int iProcCi, int needStackN)
 	{
-		ensureByteN(addr + 5);
+		reserveAddr(5);
 		write0s1(addr, INVOKEINTERFACE);
 		write0u2(addr + 1, iProcCi);
 		write0u1(addr + 3, needStackN);
@@ -165,7 +171,7 @@ public class Instruction
 
 	public final void insWideU2(byte op, int u2)
 	{
-		ensureByteN(addr + 4);
+		reserveAddr(4);
 		write0s1(addr, WIDE);
 		write0s1(addr + 1, op);
 		write0u2(addr + 2, u2);
@@ -174,7 +180,7 @@ public class Instruction
 
 	public final void insWideInc(int localI, int incValue)
 	{
-		ensureByteN(addr + 6);
+		reserveAddr(6);
 		write0s1(addr, WIDE);
 		write0s1(addr + 1, IINC);
 		write0u2(addr + 2, localI);
@@ -187,12 +193,12 @@ public class Instruction
 	{
 		if (op == Opcode.GOTO4 || op == Opcode.JSR4)
 		{
-			ensureByteN(addr + 5);
+			reserveAddr(5);
 			write0s1(addr, op);
 			write0s4(addr + 1, 0);
 			return -((addr += 5) - 5) - 1;
 		}
-		ensureByteN(addr + 3);
+		reserveAddr(3);
 		write0s1(addr, op);
 		write0s2(addr + 1, 0);
 		return (addr += 3) - 3;
@@ -226,7 +232,7 @@ public class Instruction
 				+ high0);
 		int h = 4 - (addr & 3);
 		int bn = h + 12 + (n << 2);
-		ensureByteN(addr + bn);
+		reserveAddr(bn);
 		write0s4(addr, 0);
 		write0s1(addr, TABLESWITCH);
 		write0s4(addr + h + 4, low);
@@ -264,7 +270,7 @@ public class Instruction
 			throw new ClassFormatError("invalid lookup switch valueN " + n);
 		int h = 4 - (addr & 3);
 		int bn = h + 8 + (n << 3);
-		ensureByteN(addr + bn);
+		reserveAddr(bn);
 		write0s4(addr, 0);
 		write0s1(addr, LOOKUPSWITCH);
 		write0s4(addr + h + 4, n);

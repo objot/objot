@@ -185,8 +185,7 @@ public class Bytecode
 	public int normalizeByteN()
 	{
 		int n = byteN0() + cons.normalizeByteN() - cons.byteN0();
-		if (head != null)
-			n += head.normalizeByteN() - head.byteN0();
+		n += head.normalizeByteN() - head.byteN0();
 		if (fields != null)
 			n += fields.normalizeByteN() - fields.byteN0();
 		if (procs != null)

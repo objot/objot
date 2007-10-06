@@ -4,10 +4,10 @@
 //
 package chat;
 
+import org.hibernate.SessionFactory;
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;
 import static com.google.inject.matcher.Matchers.not;
-import org.hibernate.SessionFactory;
 
 import chat.service.Do;
 

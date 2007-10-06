@@ -241,7 +241,7 @@ public class Code
 	{
 		if (i.addr > 65535)
 			throw new ClassFormatError("too large code");
-		ins = clone ? Array2.subClone(i.bytes, 0, i.addr) : i.bytes;
+		ins = clone ? Array2.subClone(i.bytes, 0, i.end1Bi) : i.bytes;
 		addrN = i.addr;
 		addrBi = 0;
 	}

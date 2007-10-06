@@ -67,7 +67,7 @@ public class Binder
 
 		ArrayList<Field> fs = new ArrayList<Field>();
 		ArrayList<Object> fbs = new ArrayList<Object>();
-		for (Field f: Class2.fields(c, 0, 0))
+		for (Field f: Class2.fields(c, 0, 0, 0))
 			if (inject(f, true) != null)
 			{
 				fs.add(f);
@@ -78,7 +78,7 @@ public class Binder
 
 		ArrayList<Method> ms = new ArrayList<Method>();
 		ArrayList<Object[]> mbs = new ArrayList<Object[]>();
-		for (Method m: Class2.methods(c, 0, 0))
+		for (Method m: Class2.methods(c, 0, 0, 0))
 			if (inject(m, true) != null)
 			{
 				Parameter[] ps = Parameter.gets(m);
@@ -161,10 +161,9 @@ public class Binder
 	{
 		if (needAnno && !o.isAnnotationPresent(Inject.class))
 			return null;
-		if ((o.getModifiers() & Mod2.STATIC) != 0 || (o.getModifiers() & Mod2.PUBLIC) == 0)
-			throw new IllegalArgumentException("injecting "
-				+ Mod2.toString(Mod2.get(o.getModifiers(), 0)) + " " + o + " forbidden");
-		o.setAccessible(true); // @todo
+		if ( !Mod2.match(o, Mod2.PUBLIC, Mod2.STATIC))
+			throw new IllegalArgumentException("injecting " + Mod2.toString(o) + o
+				+ " forbidden");
 		return o;
 	}
 

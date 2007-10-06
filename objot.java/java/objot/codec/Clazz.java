@@ -28,39 +28,34 @@ abstract class Clazz
 	static Clazz clazz(Class<?> c) throws Exception
 	{
 		HashMap<String, Property> es_ = new HashMap<String, Property>();
-		for (Field f: c.getFields())
-			if ((f.getModifiers() & Mod2.STATIC) == 0)
-			{
-				Enc e = f.getAnnotation(Enc.class);
-				EncDec gs = f.getAnnotation(EncDec.class);
-				if (e != null || gs != null)
-					new Property(f, e, null, gs, true).into(es_);
-			}
-		for (Method m: c.getMethods())
-			if ((m.getModifiers() & Mod2.STATIC) == 0)
-			{
-				Enc e = m.getAnnotation(Enc.class);
-				if (e != null)
-					new Property(m, e, null, true).into(es_);
-			}
-		Property[] es = es_.values().toArray(new Property[es_.size()]);
-
 		HashMap<String, Property> ds_ = new HashMap<String, Property>();
-		for (Field f: c.getFields())
-			if ((f.getModifiers() & Mod2.STATIC) == 0)
-			{
-				Dec d = f.getAnnotation(Dec.class);
-				EncDec gs = f.getAnnotation(EncDec.class);
-				if (d != null || gs != null)
-					new Property(f, null, d, gs, false).into(ds_);
-			}
-		for (Method m: c.getMethods())
-			if ((m.getModifiers() & Mod2.STATIC) == 0)
-			{
-				Dec d = m.getAnnotation(Dec.class);
-				if (d != null)
-					new Property(m, null, d, false).into(ds_);
-			}
+		for (Field f: Class2.fields(c, 0, 0, 0))
+		{
+			Enc e = f.getAnnotation(Enc.class);
+			Dec d = f.getAnnotation(Dec.class);
+			EncDec gs = f.getAnnotation(EncDec.class);
+			if ((e != null || d != null || gs != null)
+				&& Mod2.match(f, Mod2.STATIC | Mod2.NOT_PUBLIC))
+				throw new IllegalArgumentException("encoding/decoding " + Mod2.toString(f)
+					+ f + " forbidden");
+			if (e != null || gs != null)
+				new Property(f, e, null, gs, true).into(es_);
+			if (d != null || gs != null)
+				new Property(f, null, d, gs, false).into(ds_);
+		}
+		for (Method m: Class2.methods(c, 0, 0, 0))
+		{
+			Enc e = m.getAnnotation(Enc.class);
+			Dec d = m.getAnnotation(Dec.class);
+			if ((e != null || d != null) && Mod2.match(m, Mod2.STATIC | Mod2.NOT_PUBLIC))
+				throw new IllegalArgumentException("encoding/decoding " + Mod2.toString(m)
+					+ m + " forbidden");
+			if (e != null)
+				new Property(m, e, null, true).into(es_);
+			if (d != null)
+				new Property(m, null, d, false).into(ds_);
+		}
+		Property[] es = es_.values().toArray(new Property[es_.size()]);
 		Property[] ds = ds_.values().toArray(new Property[ds_.size()]);
 		for (int i = 0; i < ds.length; i++)
 			ds[i].index = i;
