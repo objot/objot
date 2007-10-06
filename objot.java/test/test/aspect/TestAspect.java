@@ -68,6 +68,7 @@ public class TestAspect
 		assertEquals(a.name0, a.name);
 		assertEquals(a.desc0, a.desc);
 		assertEquals(a.name0 + a.desc0, a.nameDesc);
+		assertSame(x, a.thiz);
 		assertEquals(X.class, a.clazz);
 		assertNull(a.except);
 		assertNull(a.Finally);
@@ -83,6 +84,7 @@ public class TestAspect
 		assertEquals(a.name0, a.name);
 		assertEquals(a.desc0, a.desc);
 		assertEquals(a.name0 + a.desc0, a.nameDesc);
+		assertSame(x, a.thiz);
 		assertEquals(X.class, a.clazz);
 		assertNull(a.except);
 		assertNull(a.Finally);

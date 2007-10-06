@@ -23,7 +23,7 @@ public abstract class Aspect
 	/** About the target method */
 	public static enum Target
 	{
-		getData, getName, getDescript, getNameDescript, getClazz, invoke;
+		getData, getName, getDescript, getNameDescript, getThis, getClazz, invoke;
 
 		/** @return an object per target specified by {@link Weaver#doWeave} */
 		public static Object getData()
@@ -49,8 +49,14 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
+		/** @return same as "this" in {@link Aspect#aspect}, weaved and target object */
+		public static <T>T getThis()
+		{
+			throw new AbstractMethodError();
+		}
+
 		/** @return target class */
-		public static Class<?> getClazz()
+		public static <T>Class<T> getClazz()
 		{
 			throw new AbstractMethodError();
 		}
