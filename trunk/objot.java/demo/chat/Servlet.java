@@ -12,6 +12,8 @@ import objot.codec.Codec;
 import objot.codec.Err;
 import objot.codec.ErrThrow;
 import objot.codec.Errs;
+import objot.container.Container;
+import objot.container.Factory;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
@@ -26,14 +28,12 @@ import chat.model.Ok;
 import chat.service.Do;
 import chat.service.Session;
 
-import com.google.inject.Injector;
-
 
 public final class Servlet
 	extends ObjotServlet
 {
 	boolean dataTest;
-	Injector container;
+	Factory conFactory;
 	SessionFactory dataFactory;
 
 	@Override
@@ -59,7 +59,7 @@ public final class Servlet
 			new ModelsCreate(true, -1, true);
 
 		dataFactory = Models.build(dataTest).buildSessionFactory();
-		container = Services.build(dataFactory, false);
+		conFactory = Services.build(dataFactory, false);
 		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";
@@ -116,22 +116,16 @@ public final class Servlet
 					return codec.enc(Ok.OK, Object.class);
 				}
 
-			Session sess = (Session)hReq.getSession().getAttribute("scope");
-			if (sess != null)
-				Scopes.session(sess);
-			else
+			Container con = (Container)hReq.getSession().getAttribute("container");
+			if (con == null)
 				synchronized (hReq.getSession()) // double check
 				{
-					sess = (Session)hReq.getSession().getAttribute("scope");
-					if (sess != null)
-						Scopes.session(sess);
-					else
-						hReq.getSession().setAttribute("scope", sess = Scopes.session(sess));
+					con = (Container)hReq.getSession().getAttribute("container");
+					if (con == null)
+						hReq.getSession().setAttribute("container",
+							con = conFactory.container());
 				}
-			Scopes.request();
-			Do s = (Do)container.getInstance(cla);
-			int me = sess.me;
-
+			Do s = (Do)con.create(Container.class).get(cla);
 			boolean ok = false;
 			try
 			{
@@ -149,10 +143,10 @@ public final class Servlet
 			}
 			finally
 			{
-				if (me != 0 && sess.me == 0)
+				if (con.get(Session.class).me < 0)
 					hReq.getSession().invalidate();
 				// like open session in view
-				Transac.Aspect.invokeFinally(s.data, ok);
+				Transac.Config.invokeFinally(s.data, ok);
 			}
 		}
 	}

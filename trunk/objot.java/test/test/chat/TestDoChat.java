@@ -25,7 +25,7 @@ public class TestDoChat
 	User u2;
 
 	{
-		doChat = container.getInstance(DoChat.class);
+		doChat = container.get(DoChat.class);
 	}
 
 	void signIn() throws Exception

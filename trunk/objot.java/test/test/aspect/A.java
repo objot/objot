@@ -12,23 +12,25 @@ class A
 {
 	String name0;
 	String desc0;
+	String target0;
 	String name;
 	String desc;
-	String nameDesc;
+	String target;
 	X thiz;
 	Class<?> clazz;
 	Throwable except;
 	String Finally;
 
-	A(String name_, String desc_)
+	A(Class<?> clazz_, String name_, String desc_)
 	{
 		name0 = name_;
 		desc0 = desc_;
+		target0 = clazz_.getName() + '.' + name0 + desc0;
 	}
 
 	void clear()
 	{
-		name = desc = nameDesc = Finally = null;
+		name = desc = target = Finally = null;
 		clazz = null;
 		except = null;
 	}
@@ -44,7 +46,7 @@ class A1
 		A a = (A)getData();
 		a.name = getName();
 		a.desc = getDescript();
-		a.nameDesc = getNameDescript();
+		a.target = getTarget();
 		a.thiz = getThis();
 		a.clazz = getClazz();
 		invoke();

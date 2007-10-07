@@ -95,10 +95,6 @@ abstract class Clazz
 			.newInstance();
 	}
 
-	static final Bytes NAME_encodeRefs = Bytecode.utf("encodeRefs");
-	static final Bytes DESC_encodeRefs = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod1(Clazz.class, "encodeRefs")));
-
 	/**
 	 * Example:
 	 * 
@@ -116,9 +112,9 @@ abstract class Clazz
 	{
 	}
 
-	static final Bytes NAME_encode = Bytecode.utf("encode");
-	static final Bytes DESC_encode = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod1(Clazz.class, "encode")));
+	static final Bytes NAME_encodeRefs = Bytecode.utf("encodeRefs");
+	static final Bytes DESC_encodeRefs = Bytecode.utf(Class2.descript( //
+		Class2.declaredMethod1(Clazz.class, "encodeRefs")));
 
 	/**
 	 * Example:
@@ -136,6 +132,10 @@ abstract class Clazz
 	void encode(Encoder e, Object o, Class<?> forClass) throws Exception
 	{
 	}
+
+	static final Bytes NAME_encode = Bytecode.utf("encode");
+	static final Bytes DESC_encode = Bytecode.utf(Class2.descript( //
+		Class2.declaredMethod1(Clazz.class, "encode")));
 
 	private static void makeEncodeRefs(Bytecode y, Property[] es, int classCi, int encsCi,
 		int allowCi)
@@ -240,12 +240,12 @@ abstract class Clazz
 		y.getProcs().addProc(p);
 	}
 
+	/** Example: <code>return new A();</code> */
+	abstract Object object() throws Exception;
+
 	static final Bytes NAME_object = Bytecode.utf("object");
 	static final Bytes DESC_object = Bytecode.utf(Class2.descript( //
 		Class2.declaredMethod1(Clazz.class, "object")));
-
-	/** Example: <code>return new A();</code> */
-	abstract Object object() throws Exception;
 
 	private static void makeObject(Bytecode y, int classCi)
 	{
@@ -263,14 +263,6 @@ abstract class Clazz
 		p.getCode().setStackN(2);
 		y.getProcs().addProc(p);
 	}
-
-	static final Bytes NAME_decode = Bytecode.utf("decode");
-	static final Bytes DESC_decode = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, Object.class)));
-	static final Bytes DESC_decodeL = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, long.class)));
-	static final Bytes DESC_decodeD = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, double.class)));
 
 	/**
 	 * Example:
@@ -290,6 +282,14 @@ abstract class Clazz
 
 	/** includes floats */
 	abstract void decode(Object o, int x, double v) throws Exception;
+
+	static final Bytes NAME_decode = Bytecode.utf("decode");
+	static final Bytes DESC_decode = Bytecode.utf(Class2.descript( //
+		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, Object.class)));
+	static final Bytes DESC_decodeL = Bytecode.utf(Class2.descript( //
+		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, long.class)));
+	static final Bytes DESC_decodeD = Bytecode.utf(Class2.descript( //
+		Class2.declaredMethod(Clazz.class, "decode", Object.class, int.class, double.class)));
 
 	private static void makeDecode(Bytecode y, Property[] ds, int classCi, int type)
 	{

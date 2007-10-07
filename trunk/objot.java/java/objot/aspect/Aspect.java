@@ -12,7 +12,6 @@ import objot.util.Class2;
 /** All references to subclass will be replaced to the weaved class (target subclass) */
 public abstract class Aspect
 {
-	static final Bytes NAME_aspect = Bytecode.utf("aspect");
 
 	/**
 	 * keyword "this" is the weaved object (== target object) not this asepct, all fields
@@ -20,13 +19,15 @@ public abstract class Aspect
 	 */
 	protected abstract void aspect() throws Throwable;
 
+	static final Bytes NAME_aspect = Bytecode.utf("aspect");
+
 	/** About the target method */
 	public static enum Target
 	{
-		getData, getName, getDescript, getNameDescript, getThis, getClazz, invoke;
+		getData, getName, getDescript, getTarget, getThis, getClazz, invoke;
 
 		/** @return an object per target specified by {@link Weaver#doWeave} */
-		public static Object getData()
+		public static <T>T getData()
 		{
 			throw new AbstractMethodError();
 		}
@@ -43,8 +44,8 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
-		/** @return name + descriptor of target */
-		public static String getNameDescript()
+		/** @return class name + '.' + name + descriptor of target */
+		public static String getTarget()
 		{
 			throw new AbstractMethodError();
 		}

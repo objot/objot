@@ -8,32 +8,31 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
-import objot.container.Binder;
 import objot.container.Container;
-import objot.container.Factory;
+import objot.container.Binder;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import test.container.X.Inherit;
+import test.container.X.Inherit2;
 import test.container.X.New;
 import test.container.X.New2;
 import test.container.X.Single;
 import test.container.X.Single2;
 import test.container.X.Spread;
 import test.container.X.Spread2;
-import test.container.X.Inherit;
-import test.container.X.Inherit2;
 
 
 public class TestContainer
 	extends Assert
 {
-	static Factory factory;
+	static Container con0;
 
 	@BeforeClass
 	public static void init() throws Exception
 	{
-		factory = new Factory(new Binder()
+		con0 = new Binder()
 		{
 			{
 				bind(New2.class);
@@ -71,11 +70,11 @@ public class TestContainer
 
 				return bind(c);
 			}
-		});
+		}.createOutest(null);
 	}
 
-	Container con = factory.container();
-	Container con2 = factory.container();
+	Container con = con0.createOutest(null);
+	Container con2 = con0.createOutest(null);
 
 	@Test(expected = ClassCastException.class)
 	public void unbound() throws Exception
@@ -84,7 +83,7 @@ public class TestContainer
 	}
 
 	@Test
-	public void new_() throws Exception
+	public void new_()
 	{
 		New o = con.get(New.class);
 		assertSame(New.class, o.getClass());
@@ -117,7 +116,7 @@ public class TestContainer
 	}
 
 	@Test
-	public void single() throws Exception
+	public void single()
 	{
 		Single o0 = con.create(Single.class);
 		assertNotSame(o0, o0.s);
@@ -145,7 +144,7 @@ public class TestContainer
 	}
 
 	@Test
-	public void containers() throws Exception
+	public void containers()
 	{
 		assertSame(con, con.get(Container.class));
 		Container con11 = con.create(Container.class);
@@ -158,7 +157,7 @@ public class TestContainer
 	}
 
 	@Test
-	public void spread() throws Exception
+	public void spread()
 	{
 		Spread o0 = con.create(Spread.class);
 		assertNotSame(o0, o0.x);
@@ -183,7 +182,7 @@ public class TestContainer
 	}
 
 	@Test
-	public void spreadCreate() throws Exception
+	public void spreadCreate()
 	{
 		Inherit o0 = con.create(Inherit.class);
 		assertNotSame(o0, o0.i);

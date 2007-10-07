@@ -28,6 +28,7 @@ import static objot.bytecode.Opcode.*;
 
 final class WeaveProc
 {
+	private Bytes targetName;
 	private Bytecode y;
 	private Constants cons;
 	private Code ao;
@@ -36,10 +37,11 @@ final class WeaveProc
 	private Instruction ws;
 	private int nameStrCi;
 	private int descStrCi;
-	private int nameDescStrCi;
+	private int targetStrCi;
 
-	WeaveProc(Bytecode y_, Code ao_)
+	WeaveProc(Class<?> target, Bytecode y_, Code ao_)
 	{
+		targetName = Bytecode.utf(target.getName() + ".");
 		y = y_;
 		cons = y.cons;
 		ao = ao_;
@@ -183,8 +185,8 @@ final class WeaveProc
 			opGetName();
 		else if (Target.getDescript.utf.equals(name))
 			opGetDescript();
-		else if (Target.getNameDescript.utf.equals(name))
-			opGetNameDescript();
+		else if (Target.getTarget.utf.equals(name))
+			opGetTarget();
 		else if (Target.getThis.utf.equals(name))
 			opGetThis();
 		else if (Target.getClazz.utf.equals(name))
@@ -233,18 +235,19 @@ final class WeaveProc
 		ws.insU2(LDCW, descStrCi);
 	}
 
-	private void opGetNameDescript()
+	private void opGetTarget()
 	{
-		if (nameDescStrCi <= 0)
+		if (targetStrCi <= 0)
 		{
+			Bytes b = new Bytes(targetName);
 			int n = wp.getNameCi();
 			int d = wp.getDescCi();
-			Bytes b = new Bytes(new byte[cons.getUtfByteN(n) + cons.getUtfByteN(d)]);
-			cons.getUtfTo(n, b, 0);
-			cons.getUtfTo(d, b, cons.getUtfByteN(n));
-			nameDescStrCi = cons.addString(cons.addUtf(b));
+			b.addByteN(cons.getUtfByteN(n) + cons.getUtfByteN(d));
+			cons.getUtfTo(n, b, targetName.byteN());
+			cons.getUtfTo(d, b, targetName.byteN() + cons.getUtfByteN(n));
+			targetStrCi = cons.addString(cons.addUtf(b));
 		}
-		ws.insU2(LDCW, nameDescStrCi);
+		ws.insU2(LDCW, targetStrCi);
 	}
 
 	private void opGetThis()

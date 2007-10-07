@@ -10,9 +10,13 @@ import java.io.InputStream;
 
 public class Bytes
 {
-	public byte[] bytes;
+	public byte[] bytes = Array2.BYTES0;
 	public int beginBi;
 	public int end1Bi;
+
+	public Bytes()
+	{
+	}
 
 	public Bytes(byte[] bs)
 	{
@@ -27,6 +31,11 @@ public class Bytes
 		end1Bi = end1;
 	}
 
+	public Bytes(Bytes bs)
+	{
+		this(bs, 0, bs.byteN());
+	}
+
 	public Bytes(Bytes bs, int begin, int end1)
 	{
 		bytes = bs.bytes;
@@ -37,7 +46,6 @@ public class Bytes
 
 	public Bytes(InputStream i, boolean close) throws IOException
 	{
-		this(null);
 		int len = 0;
 		do
 			ensureByteN((end1Bi += len) + i.available() + 1);
@@ -68,7 +76,7 @@ public class Bytes
 
 	public int copyFrom(int bi, byte[] src, int srcBi, int bn)
 	{
-		Math2.checkRange(bi + bn, end1Bi - beginBi);
+		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);
 		System.arraycopy(src, srcBi, bytes, bi + beginBi, bn);
 		return bi + bn;
 	}
@@ -272,6 +280,13 @@ public class Bytes
 	public Bytes ensureByteN(int n)
 	{
 		bytes = Array2.ensureN(bytes, beginBi + n);
+		return this;
+	}
+
+	public Bytes addByteN(int n)
+	{
+		bytes = Array2.ensureN(bytes, end1Bi + n);
+		end1Bi += n;
 		return this;
 	}
 

@@ -20,12 +20,10 @@ public class Instruction
 
 	public Instruction()
 	{
-		super(null);
 	}
 
 	public Instruction(int ensureCapacity)
 	{
-		super(null);
 		ensureByteN(ensureCapacity);
 	}
 
