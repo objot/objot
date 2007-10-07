@@ -6,15 +6,15 @@ package chat.service;
 
 import java.io.Serializable;
 
-import chat.Scope;
+import objot.container.Inject;
 
 
-@Scope.Session
+@Inject.Inherit
 public class Session
 	implements Serializable
 {
 	private static final long serialVersionUID = 7410743024790602503L;
 
-	/** if changed from not 0 to 0, close service session */
+	/** close service session if <0 */
 	public int me;
 }

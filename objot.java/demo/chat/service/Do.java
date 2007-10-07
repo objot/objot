@@ -15,14 +15,10 @@ import objot.codec.Errs;
 
 import org.hibernate.validator.ClassValidator;
 import org.hibernate.validator.InvalidValue;
-
-import chat.Scope;
-
-import com.google.inject.Inject;
+import objot.container.Inject;
 
 
 /** common utilities */
-@Scope.Request
 public abstract class Do
 {
 	private static final Map<Class<?>, ClassValidator<?>> VS //

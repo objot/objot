@@ -19,7 +19,7 @@ public class TestDoSign
 	DoSign doSign;
 
 	{
-		doSign = container.getInstance(DoSign.class);
+		doSign = container.get(DoSign.class);
 	}
 
 	@Test

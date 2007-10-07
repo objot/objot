@@ -4,6 +4,9 @@
 //
 package chat;
 
+import objot.container.Factory;
+import objot.util.Class2;
+
 import org.hibernate.SessionFactory;
 import static com.google.inject.matcher.Matchers.annotatedWith;
 import static com.google.inject.matcher.Matchers.any;
@@ -19,7 +22,7 @@ import com.google.inject.Injector;
 public class Services
 {
 	/** @param subRequest sequent sub requests in a request */
-	public static Injector build(final SessionFactory d, final boolean subRequest)
+	public static Factory build(final SessionFactory d, final boolean subRequest)
 		throws Exception
 	{
 		return Guice.createInjector(new AbstractModule()
@@ -68,7 +71,7 @@ public class Services
 
 				try
 				{
-					for (Class<?> c: Models.getPackageClasses(Do.class))
+					for (Class<?> c: Class2.packageClasses(Do.class))
 						bind(c);
 				}
 				catch (RuntimeException e)

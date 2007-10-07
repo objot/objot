@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.sql.rowset.serial.SerialClob;
+
+import objot.container.Container;
+import objot.container.Factory;
+
 import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,14 +24,11 @@ import org.junit.BeforeClass;
 
 import chat.Models;
 import chat.ModelsCreate;
-import chat.Scopes;
 import chat.Services;
 import chat.Transac;
 import chat.model.Id;
 import chat.service.Data;
 import chat.service.Session;
-
-import com.google.inject.Injector;
 
 
 /** every test cases in its own service session and service request */
@@ -35,9 +36,10 @@ public class TestDo
 	extends Assert
 {
 	private static SessionFactory dataFactory;
-	protected static Injector container;
-	protected Session sess;
-	protected Data data;
+	protected static Factory conFactory;
+	protected final Container container;
+	protected final Session sess;
+	protected final Data data;
 
 	@BeforeClass
 	public static void beforeAll() throws Exception
@@ -45,20 +47,20 @@ public class TestDo
 		Locale.setDefault(Locale.ENGLISH);
 		new ModelsCreate(true, 1, true);
 		dataFactory = Models.build(true).buildSessionFactory();
-		container = Services.build(dataFactory, true);
+		conFactory = Services.build(dataFactory, true);
 	}
 
 	{
-		sess = Scopes.session(null);
-		Scopes.request();
-		data = container.getInstance(Data.class);
+		container = conFactory.container().create(Container.class);
+		sess = container.outer().get(Session.class);
+		data = container.get(Data.class);
 		System.err.println("\n\n************************************************\n");
 	}
 
 	@After
 	public void afterTest() throws Exception
 	{
-		Transac.Aspect.invokeFinally(data, false);
+		Transac.Config.invokeFinally(data, false);
 	}
 
 	// ********************************************************************************

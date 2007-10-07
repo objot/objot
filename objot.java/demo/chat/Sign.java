@@ -8,14 +8,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+
+import objot.aspect.Aspect;
 
 import chat.model.ErrUnsigned;
 import chat.service.Do;
 
 
-@Target(ElementType.PACKAGE /* just for eclipse auto completion */)
 public @interface Sign
 {
 	/** service in signed or unsigned session, and in signed session if no this annotation */
@@ -25,15 +24,16 @@ public @interface Sign
 	{
 	}
 
-	public static class Aspect
-		implements MethodInterceptor
+	public static final class As
+		extends Aspect
 	{
-		public Object invoke(MethodInvocation meth) throws Throwable
+		@Override
+		protected void aspect() throws Throwable
 		{
-			Do s = (Do)meth.getThis();
-			if (s.sess.me == 0)
+			Do s = Target.getThis();
+			if (s.sess.me <= 0)
 				throw Do.err(new ErrUnsigned("not signed in"));
-			return meth.proceed();
+			Target.invoke();
 		}
 	}
 }

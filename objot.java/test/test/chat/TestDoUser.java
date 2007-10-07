@@ -19,7 +19,7 @@ public class TestDoUser
 	User u2;
 
 	{
-		doUser = container.getInstance(DoUser.class);
+		doUser = container.get(DoUser.class);
 	}
 
 	void signIn() throws Exception

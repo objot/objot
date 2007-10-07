@@ -92,6 +92,7 @@ public class X
 	{
 		Void, Int, Long, Char, Double, Str, Throw1, Throw2, Throw3;
 
-		final A a = new A(name(), Class2.descript(Class2.declaredMethod1(X.class, name())));
+		final A a = new A(X.class, name(), Class2.descript(Class2.declaredMethod1(X.class,
+			name())));
 	}
 }

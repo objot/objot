@@ -17,11 +17,8 @@ import org.hibernate.TransientObjectException;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import chat.Scope;
-
 
 /** Delegated {@link org.hibernate.Session} */
-@Scope.Request
 public class Data
 {
 	public Session hib;
