@@ -17,18 +17,18 @@ import objot.util.Mod2;
 import static objot.bytecode.Opcode.*;
 
 
-public final class Factory
+final class Factoring
 {
-	final Container con;
 	Bind[] bs;
 	int get0Ci;
 	int create0Ci;
+	int upCi;
 	int outCi;
 	int ossCi;
 
-	public Factory(Binder ber) throws Exception
+	Container create(Bind[] bs_) throws Exception
 	{
-		bs = ber.toArray();
+		bs = bs_;
 		Object[][] oss = new Object[bs.length][];
 		for (int i = 0; i < bs.length; i++)
 			oss[i] = bs[i].os;
@@ -43,6 +43,7 @@ public final class Factory
 
 		get0Ci = y.cons.addProc(Container.M_get0);
 		create0Ci = y.cons.addProc(Container.M_create0);
+		upCi = y.cons.addField(Container.F_upper);
 		outCi = y.cons.addField(Container.F_outer);
 		ossCi = y.cons.addField(Container.F_objss);
 		int[] fCis = new int[bs.length];
@@ -51,23 +52,10 @@ public final class Factory
 		makeGet0(y, oss, fCis);
 		makeCreate0(y, oss, fCis);
 
-		con = Class2.<Container>load(Container.class.getClassLoader(), name, y.normalize())
-			.newInstance();
-		con.objss = oss;
-	}
-
-	public Container container()
-	{
-		try
-		{
-			Container c = con.create(Container.class);
-			c.outer = null;
-			return c;
-		}
-		catch (Exception e)
-		{
-			throw new AssertionError(e);
-		}
+		Container c = Class2.<Container>load(Container.class.getClassLoader(), name,
+			y.normalize()).newInstance();
+		c.objss = oss;
+		return c;
 	}
 
 	/** @return index of a {@link Bind} which {@link Bind#b} is self or object */
@@ -274,6 +262,10 @@ public final class Factory
 				s.insU2(INVOKESPECIAL, p.cons.addCproc(y.head.getClassCi(), //
 					p.cons.addNameDesc(y.getProcs().getProc(0).getNameCi(), //
 						y.getProcs().getProc(0).getDescCi())));
+				s.ins0(DUP);
+				s.ins0(ALOAD0);
+				s.insU2(GETFIELD, upCi);
+				s.insU2(PUTFIELD, upCi);
 				s.ins0(DUP);
 				s.ins0(ALOAD0);
 				s.insU2(PUTFIELD, outCi);
