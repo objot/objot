@@ -15,40 +15,84 @@ import objot.util.Class2;
 @Inject.Single
 public abstract class Container
 {
-	static final Field F_outer = Class2.declaredField(Container.class, "outer");
-	Container outer;
+	/** thread-safe */
+	public final Container upper()
+	{
+		return upper;
+	}
 
-	static final Field F_objss = Class2.declaredField(Container.class, "objss");
-	Object[][] objss;
+	/** thread-safe */
+	public final Container uppest()
+	{
+		Container c = this;
+		while (c.upper != null)
+			c = c.upper;
+		return c;
+	}
 
+	/** thread-safe */
 	public final Container outer()
 	{
 		return outer;
 	}
 
-	/** not thread-safe */
-	@SuppressWarnings("unchecked")
-	public final <T>T get(Class<T> c) throws Exception
+	/** thread-safe */
+	public final Container outest()
+	{
+		Container c = this;
+		while (c.outer != null)
+			c = c.outer;
+		return c;
+	}
+
+	/** create outest container of specified upper, thread-safe. */
+	public final Container createOutest(Container upper_)
+	{
+		Container c = create0(index(Container.class), false);
+		c.upper = upper_;
+		c.outer = null;
+		return c;
+	}
+
+	/**
+	 * create inner container, same as <code>create(Container.class)</code>,
+	 * thread-safe.
+	 */
+	public final Container createInner()
+	{
+		return create0(index(Container.class), false);
+	}
+
+	/** mostly not thread-safe except for some class */
+	public final <T>T get(Class<T> c)
 	{
 		int i = index(c);
 		if (i < 0)
-			throw new ClassCastException(c + " unbound");
-		return (T)get0(i);
+			if (upper != null)
+				return upper.get(c);
+			else
+				throw new ClassCastException(c + " unbound");
+		return get0(i);
 	}
 
-	/** not thread-safe */
-	@SuppressWarnings("unchecked")
-	public final <T>T create(Class<T> c) throws Exception
+	/** mostly not thread-safe except for some class */
+	public final <T>T create(Class<T> c)
 	{
 		int i = index(c);
 		if (i < 0)
-			throw new ClassCastException(c + " unbound");
-		return (T)create0(index(c), false);
+			if (upper != null)
+				return upper.create(c);
+			else
+				throw new ClassCastException(c + " unbound");
+		return create0(index(c), false);
 	}
 
-	static final Bytes NAME_index = Bytecode.utf("index");
-	static final Bytes DESC_index = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod1(Container.class, "index")));
+	Container upper;
+	Container outer;
+	Object[][] objss;
+	static final Field F_upper = Class2.declaredField(Container.class, "upper");
+	static final Field F_outer = Class2.declaredField(Container.class, "outer");
+	static final Field F_objss = Class2.declaredField(Container.class, "objss");
 
 	/**
 	 * Example:
@@ -66,7 +110,9 @@ public abstract class Container
 	 */
 	abstract int index(Class<?> c);
 
-	static final Method M_get0 = Class2.declaredMethod1(Container.class, "get0");
+	static final Bytes NAME_index = Bytecode.utf("index");
+	static final Bytes DESC_index = Bytecode.utf(Class2.descript( //
+		Class2.declaredMethod1(Container.class, "index")));
 
 	/**
 	 * Example:
@@ -86,9 +132,9 @@ public abstract class Container
 	 *   default: return this; // never happen
 	 * }</pre>
 	 */
-	abstract Object get0(int index) throws Exception;
+	abstract <T>T get0(int index);
 
-	static final Method M_create0 = Class2.declaredMethod1(Container.class, "create0");
+	static final Method M_get0 = Class2.declaredMethod1(Container.class, "get0");
 
 	/**
 	 * Example:
@@ -96,6 +142,7 @@ public abstract class Container
 	 * <pre>
 	 * switch(i) {
 	 *   1: Container123 o = new Container123();
+	 *      o.upper = upper;
 	 *      o.outer = this;
 	 *      o.objss = objss;
 	 *      return o;
@@ -110,5 +157,7 @@ public abstract class Container
 	 *   default: return null; // never happen
 	 * }</pre>
 	 */
-	abstract Object create0(int index, boolean save) throws Exception;
+	abstract <T>T create0(int index, boolean save);
+
+	static final Method M_create0 = Class2.declaredMethod1(Container.class, "create0");
 }
