@@ -19,14 +19,12 @@ import objot.util.Mod2;
 import objot.util.Parameter;
 
 
-public class Binder
+public class Factory
 {
-	private HashMap<Class<?>, Bind> binds = new HashMap<Class<?>, Bind>();
-
 	{
 		Bind b = new Bind(Container.class);
 		b.b = b;
-		binds.put(b.c, b);
+		(binds = new HashMap<Class<?>, Bind>()).put(b.c, b);
 	}
 
 	public final synchronized Bind bind(Class<?> c) throws Exception
@@ -115,8 +113,10 @@ public class Binder
 	 * {@link Bind#b}.{@link Bind#b b} == ({@link Bind#b} | object) if {@link Bind#b}
 	 * is {@link Bind}, {@link Bind#os} generated
 	 */
-	public final synchronized Bind[] toArray()
+	public final synchronized Container createOutest(Container upper) throws Exception
 	{
+		if (con != null && binds.size() == bindN)
+			return con.createOutest(upper);
 		Bind[] bs = Array2.from(binds.values(), Bind.class);
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind b: bs)
@@ -144,8 +144,14 @@ public class Binder
 				b.os = os.toArray();
 				os.clear();
 			}
-		return bs;
+		con = new Factoring().create(bs);
+		bindN = bs.length;
+		return con.createOutest(upper);
 	}
+
+	private HashMap<Class<?>, Bind> binds;
+	private int bindN;
+	private Container con;
 
 	private Object check(Class<?> c, Object o)
 	{
