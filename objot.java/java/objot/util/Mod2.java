@@ -143,6 +143,10 @@ public class Mod2
 			s.append("strictfp ");
 		if ((mod & INTERFACE) != 0)
 			s.append("interface ");
+		if ((mod & SYNTHETIC) != 0)
+			s.append("synthetic ");
+		if ((mod & ENUM) != 0)
+			s.append("enum ");
 
 		if ((mod & P.CTOR) != 0)
 			s.append("<init> ");

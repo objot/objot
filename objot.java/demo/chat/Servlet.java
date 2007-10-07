@@ -13,7 +13,6 @@ import objot.codec.Err;
 import objot.codec.ErrThrow;
 import objot.codec.Errs;
 import objot.container.Container;
-import objot.container.Factory;
 import objot.servlet.ObjotServlet;
 import objot.servlet.Serve;
 
@@ -33,7 +32,7 @@ public final class Servlet
 	extends ObjotServlet
 {
 	boolean dataTest;
-	Factory conFactory;
+	Container container0;
 	SessionFactory dataFactory;
 
 	@Override
@@ -59,7 +58,7 @@ public final class Servlet
 			new ModelsCreate(true, -1, true);
 
 		dataFactory = Models.build(dataTest).buildSessionFactory();
-		conFactory = Services.build(dataFactory, false);
+		container0 = Services.build(dataFactory, false);
 		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";
@@ -123,9 +122,9 @@ public final class Servlet
 					con = (Container)hReq.getSession().getAttribute("container");
 					if (con == null)
 						hReq.getSession().setAttribute("container",
-							con = conFactory.container());
+							con = container0.createOutest(null));
 				}
-			Do s = (Do)con.create(Container.class).get(cla);
+			Do s = (Do)con.createInner().get(cla);
 			boolean ok = false;
 			try
 			{

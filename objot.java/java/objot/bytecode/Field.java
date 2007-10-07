@@ -48,19 +48,19 @@ public final class Field
 		for (int an = attrN; an > 0; an--)
 		{
 			int name = read0u2(bi);
-			if (signatureBi <= 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
+			if (signatureBi == 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
 			{
 				signatureBi = bi;
 				signatureCi = read0u2(bi + 6);
 			}
-			else if (constantBi <= 0 && cons.equalsUtf(name, Bytecode.CONSTANT_VALUE))
+			else if (constantBi == 0 && cons.equalsUtf(name, Bytecode.CONSTANT_VALUE))
 			{
 				constantBi = bi;
 				constantCi = read0u2(bi + 6);
 			}
-			else if (annosBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOS))
+			else if (annosBi == 0 && cons.equalsUtf(name, Bytecode.ANNOS))
 				annosBi = bi;
-			else if (annoHidesBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
+			else if (annoHidesBi == 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
 				annoHidesBi = bi;
 			bi += 6 + read0u4(bi + 2);
 		}
@@ -184,14 +184,14 @@ public final class Field
 
 	public void setSignatureCi(int v)
 	{
-		if (signatureBi <= 0)
+		if (signatureBi == 0)
 			throw new RuntimeException("no signature attribute found");
 		signatureCi = v;
 	}
 
 	public void setConstantCi(int v)
 	{
-		if (constantBi <= 0)
+		if (constantBi == 0)
 			throw new RuntimeException("no constant attribute found");
 		constantCi = v;
 	}

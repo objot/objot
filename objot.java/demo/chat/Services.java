@@ -4,85 +4,53 @@
 //
 package chat;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+
+import objot.aspect.Aspect;
+import objot.aspect.Weaver;
+import objot.container.Container;
 import objot.container.Factory;
 import objot.util.Class2;
+import objot.util.Mod2;
 
 import org.hibernate.SessionFactory;
-import static com.google.inject.matcher.Matchers.annotatedWith;
-import static com.google.inject.matcher.Matchers.any;
-import static com.google.inject.matcher.Matchers.not;
 
 import chat.service.Do;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
+import chat.service.Do.Service;
 
 
 public class Services
 {
 	/** @param subRequest sequent sub requests in a request */
-	public static Factory build(final SessionFactory d, final boolean subRequest)
+	public static Container build(final SessionFactory d, final boolean subRequest)
 		throws Exception
 	{
-		return Guice.createInjector(new AbstractModule()
+		final Weaver w = new Weaver(Sign.As.class, Transac.As.class)
 		{
 			@Override
-			protected void configure()
+			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
-				bindScope(Scope.Session.class, Scopes.SESSION);
-				bindScope(Scope.Request.class, Scopes.REQUEST);
-
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					not(annotatedWith(Sign.Any.class))), //
-					new Sign.Aspect());
-
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					annotatedWith(Transac.Readonly.class)).and(
-					annotatedWith(Transac.Serial.class)), //
-					new Transac.Aspect(true, false, true, subRequest, d));
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					annotatedWith(Transac.Serial.class)), //
-					new Transac.Aspect(false, false, true, subRequest, d));
-
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					annotatedWith(Transac.Readonly.class)).and(
-					annotatedWith(Transac.Commit.class)).and(
-					not(annotatedWith(Transac.Repeat.class))).and(
-					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(true, true, false, subRequest, d));
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					annotatedWith(Transac.Commit.class)).and(
-					not(annotatedWith(Transac.Repeat.class))).and(
-					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(false, true, false, subRequest, d));
-
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					annotatedWith(Transac.Readonly.class)).and(
-					not(annotatedWith(Transac.Commit.class))).and(
-					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(true, false, false, subRequest, d));
-				bindInterceptor(any(), annotatedWith(Do.Service.class).and(
-					not(annotatedWith(Transac.Any.class))).and(
-					not(annotatedWith(Transac.Readonly.class))).and(
-					not(annotatedWith(Transac.Commit.class))).and(
-					not(annotatedWith(Transac.Serial.class))), //
-					new Transac.Aspect(false, false, false, subRequest, d));
-
-				try
-				{
-					for (Class<?> c: Class2.packageClasses(Do.class))
-						bind(c);
-				}
-				catch (RuntimeException e)
-				{
-					throw e;
-				}
-				catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
+				if ( !m.isAnnotationPresent(Service.class))
+					return this;
+				if (ac == Sign.As.class)
+					return m.isAnnotationPresent(Sign.Any.class) ? this : null;
+				Annotation t = Class2.annoExclusive(m, Transac.class);
+				Transac.Config c = Transac.Config.config(t, subRequest, d);
+				return c != null ? c : this;
 			}
-		});
+		};
+		Factory f = new Factory()
+		{
+			@Override
+			protected Object doBind(Class<?> c) throws Exception
+			{
+				return bind(c.isSynthetic() ? c : w.weave(c));
+			}
+		};
+		for (Class<?> c: Class2.packageClasses(Do.class))
+			if ( !Mod2.match(c, Mod2.ABSTRACT))
+				f.bind(c);
+		return f.createOutest(null);
 	}
 }

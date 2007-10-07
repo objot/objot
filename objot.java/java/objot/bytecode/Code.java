@@ -53,11 +53,11 @@ public final class Code
 		for (int an = attrN; an > 0; an--)
 		{
 			int name = read0u2(bi);
-			if (linesBi <= 0 && cons.equalsUtf(name, Bytecode.CODE_LINES))
+			if (linesBi == 0 && cons.equalsUtf(name, Bytecode.CODE_LINES))
 				linesBi = bi;
-			else if (varsBi <= 0 && cons.equalsUtf(name, Bytecode.CODE_VARS))
+			else if (varsBi == 0 && cons.equalsUtf(name, Bytecode.CODE_VARS))
 				varsBi = bi;
-			else if (varSignsBi <= 0 && cons.equalsUtf(name, Bytecode.CODE_VARSIGNS))
+			else if (varSignsBi == 0 && cons.equalsUtf(name, Bytecode.CODE_VARSIGNS))
 				varSignsBi = bi;
 			bi += 6 + read0u4(bi + 2);
 		}

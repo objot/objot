@@ -69,22 +69,22 @@ public final class Procedure
 		for (int an = attrN; an > 0; an--)
 		{
 			int name = read0u2(bi);
-			if (signatureBi <= 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
+			if (signatureBi == 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
 			{
 				signatureBi = bi;
 				signatureCi = read0u2(bi + 6);
 			}
-			else if (annosBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOS))
+			else if (annosBi == 0 && cons.equalsUtf(name, Bytecode.ANNOS))
 				annosBi = bi;
-			else if (annoHidesBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
+			else if (annoHidesBi == 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
 				annoHidesBi = bi;
-			else if (annoParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNO_PARAMS))
+			else if (annoParamsBi == 0 && cons.equalsUtf(name, Bytecode.ANNO_PARAMS))
 				annoParamsBi = bi;
-			else if (annoHideParamsBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDE_PARAMS))
+			else if (annoHideParamsBi == 0 && cons.equalsUtf(name, Bytecode.ANNOHIDE_PARAMS))
 				annoHideParamsBi = bi;
-			else if (exceptionsBi <= 0 && cons.equalsUtf(name, Bytecode.EXCEPTIONS))
+			else if (exceptionsBi == 0 && cons.equalsUtf(name, Bytecode.EXCEPTIONS))
 				exceptionsBi = bi;
-			else if (codeBi <= 0 && cons.equalsUtf(name, Bytecode.CODE))
+			else if (codeBi == 0 && cons.equalsUtf(name, Bytecode.CODE))
 				codeBi = bi;
 			bi += 6 + read0u4(bi + 2);
 		}
@@ -459,7 +459,7 @@ public final class Procedure
 
 	public void setSignatureCi(int v)
 	{
-		if (signatureBi <= 0)
+		if (signatureBi == 0)
 			throw new RuntimeException("no signature attribute found");
 		signatureCi = v;
 	}

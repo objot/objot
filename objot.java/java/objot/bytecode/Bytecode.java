@@ -24,6 +24,7 @@ public final class Bytecode
 	static final Bytes CODE_LINES = utf("LineNumberTable");
 	static final Bytes CODE_VARS = utf("LocalVariableTable");
 	static final Bytes CODE_VARSIGNS = utf("LocalVariableTypeTable");
+	static final Bytes INNER_CLASS = utf("InnerClasses");
 
 	public final Constants cons;
 	public final Head head;
@@ -37,6 +38,8 @@ public final class Bytecode
 	Annotations annos;
 	int annoHidesBi;
 	Annotations annoHides;
+	/** negative to remove */
+	int innerClassBi;
 
 	/** @param end1Bi_ be lazy checked */
 	public Bytecode(byte[] bs, int beginBi_, int end1Bi_)
@@ -103,15 +106,17 @@ public final class Bytecode
 		for (int an = attrN; an > 0; an--)
 		{
 			int name = read0u2(bi);
-			if (signatureBi <= 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
+			if (signatureBi == 0 && cons.equalsUtf(name, SIGNATURE))
 			{
 				signatureBi = bi;
 				signatureCi = read0u2(bi + 6);
 			}
-			else if (annosBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOS))
+			else if (annosBi == 0 && cons.equalsUtf(name, ANNOS))
 				annosBi = bi;
-			else if (annoHidesBi <= 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
+			else if (annoHidesBi == 0 && cons.equalsUtf(name, ANNOHIDES))
 				annoHidesBi = bi;
+			else if (innerClassBi == 0 && cons.equalsUtf(name, INNER_CLASS))
+				innerClassBi = bi;
 			bi += 6 + read0u4(bi + 2);
 		}
 		if (bi != end1Bi)
@@ -174,6 +179,12 @@ public final class Bytecode
 		out.flush();
 	}
 
+	public void removeInnerClasses()
+	{
+		readAttrs();
+		innerClassBi = -innerClassBi;
+	}
+
 	public byte[] normalize()
 	{
 		byte[] bs = new byte[normalizeByteN()];
@@ -194,6 +205,8 @@ public final class Bytecode
 			n += annos.normalizeByteN() - annos.byteN0();
 		if (annoHides != null)
 			n += annoHides.normalizeByteN() - annoHides.byteN0();
+		if (innerClassBi < 0)
+			n -= 6 + read0u4(2 - innerClassBi);
 		return n;
 	}
 
@@ -223,12 +236,12 @@ public final class Bytecode
 		bi = procs.end1Bi;
 		begin = procs.normalizeTo(bs, begin);
 
-		if (attrBi <= 0)
+		if (attrBi == 0)
 		{
 			System.arraycopy(bytes, bi, bs, begin, end1Bi - bi);
 			return begin + end1Bi - bi;
 		}
-		writeU2(bs, begin, attrN);
+		writeU2(bs, begin, innerClassBi >= 0 ? attrN : attrN - 1);
 		bi = attrBi;
 		begin += 2;
 		for (int an = attrN; an > 0; an--)
@@ -238,7 +251,7 @@ public final class Bytecode
 				begin = annos.normalizeTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
 				begin = annoHides.normalizeTo(bs, begin);
-			else
+			else if (bi != -innerClassBi)
 			{
 				System.arraycopy(bytes, bi, bs, begin, bn);
 				begin += bn;

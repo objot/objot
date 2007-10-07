@@ -66,7 +66,7 @@ public abstract class Weaver
 				+ " as target forbidden");
 		if (target.isPrimitive() || target.isInterface()
 			|| Mod2.match(target, Mod2.ABSTRACT | Mod2.FINAL))
-			throw new IllegalArgumentException(target + " forbidden");
+			throw new IllegalArgumentException(Mod2.toString(target) + target + " forbidden");
 
 		ArrayList<Constructor<?>> ats = new ArrayList<Constructor<?>>();
 		for (Constructor<?> t: target.getDeclaredConstructors())
@@ -97,7 +97,8 @@ public abstract class Weaver
 			if (ams.size() == 0)
 				continue;
 
-			String name = acs[ax].getName() + "$$" + target.getName().replace('.', '$');
+			String name = acs[ax].getName() + "$$" + hashCode() + '$'
+				+ target.getName().replace('.', '$');
 			sup = Class2.<T>load(acs[ax].getClassLoader(), name, //
 				make1(target, abs[ax], name, sup, ats, ams));
 			Class2.declaredField(sup, DATAS_NAME).set(null, aos.toArray());
@@ -106,7 +107,7 @@ public abstract class Weaver
 	}
 
 	/** @return this {@link Weaver} not to weave the method with the aspect, other to weave */
-	protected abstract Object doWeave(Class<? extends Aspect> a, Method m) throws Exception;
+	protected abstract Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception;
 
 	private byte[] make1(Class<?> target, Bytes ab, String name, Class<?> sup,
 		ArrayList<Constructor<?>> ts, ArrayList<Method> ms)
@@ -138,6 +139,7 @@ public abstract class Weaver
 			.getCode();
 		for (int i = 0; i < ms.size(); i++)
 			new WeaveProc(target, y, ao).method(ms.get(i), i, datasCi);
+		y.removeInnerClasses();
 		return y.normalize();
 	}
 }

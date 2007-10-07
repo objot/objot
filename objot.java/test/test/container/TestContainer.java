@@ -150,7 +150,7 @@ public class TestContainer
 		Container con11 = con.create(Container.class);
 		assertNotSame(con, con11);
 		assertSame(con, con11.outer());
-		Container con12 = con11.create(Container.class);
+		Container con12 = con11.createInner();
 		assertNotSame(con, con12);
 		assertNotSame(con11, con12);
 		assertSame(con11, con12.outer());
@@ -168,7 +168,7 @@ public class TestContainer
 		Spread o2 = con.get(Spread.class);
 		assertSame(o, o2);
 
-		Container con11 = con.create(Container.class);
+		Container con11 = con.createInner();
 		Container con12 = con11.create(Container.class);
 
 		assertSame(o, con11.get(Spread.class));
@@ -182,7 +182,7 @@ public class TestContainer
 	}
 
 	@Test
-	public void spreadCreate()
+	public void inherit()
 	{
 		Inherit o0 = con.create(Inherit.class);
 		assertNotSame(o0, o0.i);
@@ -195,7 +195,7 @@ public class TestContainer
 		assertSame(o, o2);
 
 		Container con11 = con.create(Container.class);
-		Container con12 = con11.create(Container.class);
+		Container con12 = con11.createInner();
 
 		assertSame(o, con11.get(Inherit.class));
 		assertSame(o, con12.get(Inherit.class));
@@ -205,5 +205,16 @@ public class TestContainer
 		Inherit o11 = con11.get(Inherit2.class);
 		assertSame(o1, o11);
 		assertSame(o1, o12);
+	}
+
+	@Test
+	public void upper()
+	{
+		Container con9 = con.createOutest(con);
+		Inherit o = con.get(Inherit.class);
+		assertSame(o, o.i);
+		Inherit o9 = con9.get(Inherit.class);
+		assertSame(o9, o9.i);
+		assertNotSame(o, o9);
 	}
 }
