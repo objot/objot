@@ -9,7 +9,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
 import objot.container.Container;
-import objot.container.Binder;
+import objot.container.Factory;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -32,7 +32,7 @@ public class TestContainer
 	@BeforeClass
 	public static void init() throws Exception
 	{
-		con0 = new Binder()
+		con0 = new Factory()
 		{
 			{
 				bind(New2.class);
