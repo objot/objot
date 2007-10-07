@@ -15,7 +15,6 @@ import java.util.Set;
 import javax.sql.rowset.serial.SerialClob;
 
 import objot.container.Container;
-import objot.container.Factory;
 
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -36,7 +35,7 @@ public class TestDo
 	extends Assert
 {
 	private static SessionFactory dataFactory;
-	protected static Factory conFactory;
+	private static Container container0;
 	protected final Container container;
 	protected final Session sess;
 	protected final Data data;
@@ -45,13 +44,13 @@ public class TestDo
 	public static void beforeAll() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		new ModelsCreate(true, 1, true);
 		dataFactory = Models.build(true).buildSessionFactory();
-		conFactory = Services.build(dataFactory, true);
+		container0 = Services.build(dataFactory, true);
+		new ModelsCreate(true, 1, true);
 	}
 
 	{
-		container = conFactory.container().create(Container.class);
+		container = container0.createOutest(null).createInner();
 		sess = container.outer().get(Session.class);
 		data = container.get(Data.class);
 		System.err.println("\n\n************************************************\n");

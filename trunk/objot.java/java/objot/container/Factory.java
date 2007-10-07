@@ -34,8 +34,9 @@ public class Factory
 			return b;
 		binds.put(c, b = new Bind(c));
 		b.b = check(c, doBind(c));
-		if (c.getSuperclass() != null && c.getSuperclass() != Object.class)
-			bind(c.getSuperclass());
+		if (b.b == b && Mod2.match(c, Mod2.ABSTRACT))
+			throw new IllegalArgumentException("binding to abstract " + c.getName()
+				+ " forbidden");
 
 		b.tbs = Array2.OBJECTS0;
 		if (b.b == b)
@@ -43,7 +44,7 @@ public class Factory
 				if (inject(t, true) != null)
 				{
 					if (b.t != null)
-						throw new UnsupportedOperationException("binding constructors " + b.t
+						throw new IllegalArgumentException("binding constructors " + b.t
 							+ " and " + t + " forbidden");
 					b.t = t;
 					Parameter[] ps = Parameter.gets(t);
@@ -59,7 +60,7 @@ public class Factory
 			}
 			catch (Exception e)
 			{
-				throw new UnsupportedOperationException(c
+				throw new IllegalArgumentException(c
 					+ ": exact one constructor() or @Inject constructor expected", e);
 			}
 

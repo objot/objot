@@ -28,13 +28,13 @@ public class TestAspect
 		weaved = new Weaver(A2.class, A1.class)
 		{
 			@Override
-			protected Object doWeave(Class<? extends Aspect> a, Method m) throws Exception
+			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
 				if (m.getDeclaringClass() == Object.class)
 					return this;
 				X.P p = X.P.valueOf(m.getName());
-				if (a == A1.class && p == X.P.Throw2 //
-					|| a == A2.class && p != X.P.Throw2 && p != X.P.Throw3)
+				if (ac == A1.class && p == X.P.Throw2 //
+					|| ac == A2.class && p != X.P.Throw2 && p != X.P.Throw3)
 					return this;
 				return p.a;
 			}

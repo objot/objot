@@ -81,6 +81,6 @@ public class TestDoSign
 		a.name = a.password = "a";
 		doSign.inUp(a);
 		doSign.out();
-		assertEquals(0, sess.me);
+		assertTrue(sess.me < 0);
 	}
 }
