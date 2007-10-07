@@ -110,15 +110,12 @@ public class Factory
 		return bind(c);
 	}
 
-	/**
-	 * {@link Bind#b}.{@link Bind#b b} == ({@link Bind#b} | object) if {@link Bind#b}
-	 * is {@link Bind}, {@link Bind#os} generated
-	 */
 	public final synchronized Container createOutest(Container upper) throws Exception
 	{
 		if (con != null && binds.size() == bindN)
 			return con.createOutest(upper);
 		Bind[] bs = Array2.from(binds.values(), Bind.class);
+		// let b.b = b or object if b is Bind
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind b: bs)
 				if (b.b != b && b.b instanceof Bind && b.b != ((Bind)b.b).b)

@@ -72,7 +72,7 @@ public abstract class Container
 				return upper.get(c);
 			else
 				throw new ClassCastException(c + " unbound");
-		return get0(i);
+		return this.<T>get0(i);
 	}
 
 	/** mostly not thread-safe except for some class */
@@ -84,7 +84,7 @@ public abstract class Container
 				return upper.create(c);
 			else
 				throw new ClassCastException(c + " unbound");
-		return create0(index(c), false);
+		return this.<T>create0(index(c), false);
 	}
 
 	Container upper;
