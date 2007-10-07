@@ -42,7 +42,7 @@ public final class Bind
 	Bind(Class<?> c_)
 	{
 		c = c_;
-		if (c.isPrimitive() || Bind.class.isAssignableFrom(c) //
+		if (c.isPrimitive() || c == Bind.class //
 			|| c != Container.class && Container.class.isAssignableFrom(c))
 			throw new IllegalArgumentException("binding " + c + " forbidden");
 		if ( !Mod2.match(c, Mod2.PUBLIC))

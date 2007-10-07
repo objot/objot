@@ -1,0 +1,91 @@
+<?xml version="1.0" ?>
+
+<project name="objot.java" default="all">
+
+	<property name=".version" value="20" />
+
+	<property name=":" value="${path.separator}" />
+	<property name=".dir.source.java" value="java" />
+	<property name=".dir.source.demo" value="demo" />
+	<property name=".dir.source.test" value="test" />
+	<property name=".dir.lib" value="WEB-INF" />
+	<property name=".dir.compile" value="WEB-INF/classes" />
+	<property name=".dir.doc.api" value="doc/api" />
+	<property name=".archive" value="objot-java-${.version}.jar" />
+
+	<target name="java.compile">
+		<delete dir="${.dir.compile}" />
+		<mkdir dir="${.dir.compile}" />
+		<javac srcdir="${.dir.source.java}"
+		       destdir="${.dir.compile}"
+		       fork="true"
+		       target="1.5"
+		       source="1.5"
+		       debug="true"
+		       optimize="true"
+		       debuglevel="lines,vars,source"
+		       deprecation="true"
+		       failonerror="true">
+			<compilerarg value="-Xlint:unchecked" />
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.dir.lib}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="java" depends="java.compile">
+		<delete file="${.archive}" />
+		<jar jarfile="${.archive}" compress="true" basedir="${.dir.compile}">
+			<include name="objot/**/*.class" />
+		</jar>
+	</target>
+
+	<target name="demo" depends="java.compile">
+		<javac srcdir="${.dir.source.demo}"
+		       destdir="${.dir.compile}"
+		       fork="true"
+		       target="1.5"
+		       source="1.5"
+		       debug="true"
+		       debuglevel="lines,vars,source"
+		       optimize="true"
+		       deprecation="true"
+		       failonerror="true">
+			<compilerarg value="-Xlint:unchecked" />
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.dir.lib}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="test" depends="demo">
+		<!-- junit 4 library is in eclipse -->
+	</target>
+
+	<target name="doc" depends="java.compile">
+		<delete dir="${.dir.doc.api}" />
+		<mkdir dir="${.dir.doc.api}" />
+		<javadoc sourcepath="${.dir.source.java}"
+                 access="protected"
+		         author="true"
+		         destdir="${.dir.doc.api}"
+		         locale="en"
+		         nodeprecated="false"
+		         nodeprecatedlist="false"
+		         noindex="false"
+		         nonavbar="false"
+		         notree="false"
+		         packagenames="objot.**.**.**.**,java.**.**.**.**,javax.**.**.**.**"
+		         splitindex="true"
+		         use="true"
+		         verbose="false"
+		         version="true">
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.dir.lib}" />
+			</classpath>
+		</javadoc>
+	</target>
+
+	<target name="all" depends="java,demo,test,doc" />
+
+</project>

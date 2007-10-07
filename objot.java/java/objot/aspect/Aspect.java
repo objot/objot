@@ -68,6 +68,6 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
-		Bytes utf = Bytecode.utf(Class2.declaredMethod1(Target.class, name()).getName());
+		Bytes utf = Bytecode.utf(Class2.declaredMethod1(getClass(), name()).getName());
 	}
 }

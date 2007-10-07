@@ -29,7 +29,7 @@ public class ObjotServlet
 	protected ServletConfig config;
 	protected Codec codec;
 
-	/** @set {@link #codec} */
+	/** set {@link #codec} */
 	protected void init() throws Exception
 	{
 		codec = new Codec();
