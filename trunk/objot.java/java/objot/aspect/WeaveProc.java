@@ -57,7 +57,7 @@ final class WeaveProc
 		wp.setDescCi(cons.addUcs(Class2.descript(m)));
 
 		int[] ads = new int[ao.getAddrN() + 1];
-		ws = new Instruction(ao.getAddrN() + 200);
+		ws = new Instruction(cons, ao.getAddrN() + 200);
 		for (int ad = 0, adn; ad < ao.getAddrN(); ad += adn)
 		{
 			ads[ad] = ws.addr;
@@ -77,7 +77,7 @@ final class WeaveProc
 		wp.setDescCi(cons.addUcs(Class2.descript(t)));
 
 		int[] ads = new int[ao.getAddrN() + 1];
-		ws = new Instruction(ao.getAddrN() + 200);
+		ws = new Instruction(cons, ao.getAddrN() + 200);
 		for (int ad = 0, adn; ad < ao.getAddrN(); ad += adn)
 		{
 			ads[ad] = ws.addr;
@@ -91,8 +91,8 @@ final class WeaveProc
 		if (t.isAnnotationPresent(Inject.class))
 		{
 			byte[] inject = new byte[4];
-			Bytes.writeU2(inject, 0, y.cons.addClass(Inject.class));
-			wp.getAnnos().addAnno(new Annotation(y.cons, inject, 0));
+			Bytes.writeU2(inject, 0, cons.addClass(Inject.class));
+			wp.getAnnos().addAnno(new Annotation(cons, inject, 0));
 		}
 	}
 
@@ -270,7 +270,7 @@ final class WeaveProc
 			i += Opcode.getLocalStackN((char)desc.bytes[b]);
 			b += Bytecode.typeDescByteN(desc, b - desc.beginBi);
 		}
-		ws.insU2(INVOKESPECIAL, y.cons.addCproc(y.head.getSuperCi(), y.cons.addNameDesc(wp
+		ws.insU2(INVOKESPECIAL, cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(wp
 			.getNameCi(), wp.getDescCi())));
 		if (wp.getReturnTypeChar() != 'V')
 			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ao.getLocalN()
@@ -292,7 +292,7 @@ final class WeaveProc
 			i += Opcode.getLocalStackN((char)desc.bytes[b]);
 			b += Bytecode.typeDescByteN(desc, b - desc.beginBi);
 		}
-		ws.insU2(INVOKESPECIAL, y.cons.addCproc(y.head.getSuperCi(), y.cons.addNameDesc(wp
+		ws.insU2(INVOKESPECIAL, cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(wp
 			.getNameCi(), wp.getDescCi())));
 		wo.setStackN(wo.getStackN() + wp.getParamLocalN());
 		return true;

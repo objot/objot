@@ -239,6 +239,8 @@ public final class Code
 
 	public void setIns(Instruction i, boolean clone)
 	{
+		if (i.cons != null && i.cons != cons)
+			throw new IllegalArgumentException("inconsistent constants");
 		if (i.addr > 65535)
 			throw new ClassFormatError("too large code");
 		ins = clone ? Array2.subClone(i.bytes, 0, i.end1Bi) : i.bytes;
