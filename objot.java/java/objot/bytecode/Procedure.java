@@ -160,7 +160,7 @@ public final class Procedure
 		p.setModifier(modifier);
 		p.setNameCi(nameCi);
 		p.setDescCi(descCi);
-		Instruction s = new Instruction(5 + params.length * 2);
+		Instruction s = new Instruction(c, 5 + params.length * 2);
 		s.ins0(Opcode.ALOAD0);
 		int local = 1;
 		for (Object a: params)
@@ -190,7 +190,7 @@ public final class Procedure
 		p.setModifier(modifier);
 		p.setNameCi(nameCi);
 		p.setDescCi(descCi);
-		Instruction s = new Instruction(5 + params.length * 2);
+		Instruction s = new Instruction(c, 5 + params.length * 2);
 		s.ins0(Opcode.ALOAD0);
 		int local = 1;
 		for (Object a: params)

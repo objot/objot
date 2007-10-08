@@ -16,14 +16,17 @@ public class Instruction
 	private static final Bytes VALUEOF_NAME = Element.utf("valueOf");
 	private static final Bytes TYPE_NAME = Element.utf("TYPE");
 
+	public final Constants cons;
 	public int addr;
 
-	public Instruction()
+	public Instruction(Constants c)
 	{
+		cons = c;
 	}
 
-	public Instruction(int ensureCapacity)
+	public Instruction(Constants c, int ensureCapacity)
 	{
+		cons = c;
 		ensureByteN(ensureCapacity);
 	}
 
@@ -296,7 +299,7 @@ public class Instruction
 			write0s4(adOp + h + 8 + (index << 3) + 4, addrTo - adOp);
 	}
 
-	public final void insLoad(Constants cons, Class<?> c)
+	public final void insLoad(Class<?> c)
 	{
 		if (c.isPrimitive())
 			insU2(GETSTATIC, cons.putField(cons.putClass(Class2.box(c, false)), //
@@ -307,7 +310,7 @@ public class Instruction
 	}
 
 	/** Stack: primitive value(s) or object --> object */
-	public final void insBox(Constants cons, Class<?> c)
+	public final void insBox(Class<?> c)
 	{
 		if ( !c.isPrimitive())
 			return;
@@ -318,7 +321,7 @@ public class Instruction
 	}
 
 	/** Stack: object --> primitive value(s) or narrowed object */
-	public final void insUnboxNarrow(Constants cons, Class<?> c)
+	public final void insUnboxNarrow(Class<?> c)
 	{
 		if (c.isPrimitive())
 		{
@@ -334,7 +337,7 @@ public class Instruction
 	}
 
 	/** Stack: length --> elem[length] */
-	public final void insNews(Constants cons, Class<?> elem)
+	public final void insNews(Class<?> elem)
 	{
 		if ( !elem.isPrimitive())
 			insU2(ANEWARRAY, cons.putClass(elem));

@@ -144,7 +144,7 @@ abstract class Clazz
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encodeRefs));
 		p.setDescCi(p.cons.addUtf(DESC_encodeRefs));
-		Instruction s = new Instruction(250);
+		Instruction s = new Instruction(p.cons, 250);
 		s.ins0(ALOAD2);
 		s.insU2(CHECKCAST, classCi);
 		s.insU1(ASTORE, 4); // object
@@ -185,7 +185,7 @@ abstract class Clazz
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encode));
 		p.setDescCi(p.cons.addUtf(DESC_encode));
-		Instruction s = new Instruction(250);
+		Instruction s = new Instruction(y.cons, 250);
 		s.ins0(ALOAD2);
 		s.insU2(CHECKCAST, classCi);
 		s.insU1(ASTORE, 4); // object
@@ -228,7 +228,7 @@ abstract class Clazz
 				s.insU2(INVOKEVIRTUAL, doubleCi);
 			else
 			{
-				s.insBox(p.cons, e.cla);
+				s.insBox(e.cla);
 				s.insU2(INVOKEVIRTUAL, objCi);
 			}
 			s.jumpFrom(if0);
@@ -253,7 +253,7 @@ abstract class Clazz
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_object));
 		p.setDescCi(p.cons.addUtf(DESC_object));
-		Instruction s = new Instruction(250);
+		Instruction s = new Instruction(p.cons, 250);
 		s.insU2(NEW, classCi);
 		s.ins0(DUP);
 		s.insU2(INVOKESPECIAL, p.cons.addCtor0(classCi));
@@ -298,7 +298,7 @@ abstract class Clazz
 		p.setNameCi(p.cons.addUtf(NAME_decode));
 		p.setDescCi(p.cons.addUtf(type == 0 ? DESC_decode : type == 1 ? DESC_decodeL
 			: DESC_decodeD));
-		Instruction s = new Instruction(250);
+		Instruction s = new Instruction(p.cons, 250);
 		s.ins0(ALOAD1);
 		s.insU2(CHECKCAST, classCi); // object
 		s.ins0(type == 0 ? ALOAD3 : type == 1 ? LLOAD3 : DLOAD3);
@@ -322,7 +322,7 @@ abstract class Clazz
 				s.switchTableFrom(sw, i);
 				if (type == 0)
 					if (d.cla == boolean.class)
-						s.insUnboxNarrow(p.cons, d.cla);
+						s.insUnboxNarrow(d.cla);
 					else
 						s.insU2(CHECKCAST, p.cons.addClass(d.cla));
 				else if (type == 1 && d.cla == int.class)
