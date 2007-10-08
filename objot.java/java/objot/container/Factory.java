@@ -22,77 +22,82 @@ import objot.util.Parameter;
 public class Factory
 {
 	{
-		Bind b = new Bind(Container.class);
-		b.b = b;
-		(binds = new HashMap<Class<?>, Bind>()).put(b.c, b);
+		Bind.Clazz c = new Bind.Clazz(this, Container.class);
+		c.b = c;
+		(classes = new HashMap<Class<?>, Bind.Clazz>()).put(c.c, c);
 	}
 
-	public final synchronized Bind bind(Class<?> c) throws Exception
+	public final synchronized Bind.Clazz bind(Class<?> cla) throws Exception
 	{
-		Bind b = binds.get(c);
-		if (b != null)
-			return b;
-		binds.put(c, b = new Bind(c));
-		b.b = check(c, doBind(c));
-		if (b.b == b && Mod2.match(c, Mod2.ABSTRACT))
-			throw new IllegalArgumentException("binding to abstract " + c.getName()
+		Bind.Clazz c = classes.get(cla);
+		if (c != null)
+			return c;
+		classes.put(cla, c = new Bind.Clazz(this, cla));
+		c.b = check(cla, doBind(cla));
+		if (c.b == c && Mod2.match(cla, Mod2.ABSTRACT))
+			throw new IllegalArgumentException("binding to abstract " + cla.getName()
 				+ " forbidden");
 
-		b.tbs = Array2.OBJECTS0;
-		if (b.b == b)
-			for (Constructor<?> t: c.getDeclaredConstructors())
+		c.tbs = Array2.OBJECTS0;
+		if (c.b == c)
+			for (Constructor<?> t: cla.getDeclaredConstructors())
 				if (inject(t, true) != null)
 				{
-					if (b.t != null)
-						throw new IllegalArgumentException("binding constructors " + b.t
+					if (c.t != null)
+						throw new IllegalArgumentException("binding constructors " + c.t
 							+ " and " + t + " forbidden");
-					b.t = t;
+					c.t = t;
 					Parameter[] ps = Parameter.gets(t);
-					b.tbs = new Object[ps.length];
+					c.tbs = new Object[ps.length];
 					for (int i = 0; i < ps.length; i++)
-						b.tbs[i] = check(ps[i].cla,
-							doBind(c, ps[i], ps[i].cla, ps[i].generic));
+						c.tbs[i] = check(ps[i].cla, doBind(cla, ps[i], ps[i].cla,
+							ps[i].generic));
 				}
-		if (b.b == b && b.t == null)
+		if (c.b == c && c.t == null)
 			try
 			{
-				b.t = inject(c.getDeclaredConstructor(), false);
+				c.t = inject(cla.getDeclaredConstructor(), false);
 			}
 			catch (Exception e)
 			{
-				throw new IllegalArgumentException(c
+				throw new IllegalArgumentException(cla
 					+ ": exact one constructor() or @Inject constructor expected", e);
 			}
 
 		ArrayList<Field> fs = new ArrayList<Field>();
 		ArrayList<Object> fbs = new ArrayList<Object>();
-		for (Field f: Class2.fields(c, 0, 0, 0))
-			if (inject(f, true) != null)
-			{
-				fs.add(f);
-				fbs.add(check(f.getType(), doBind(c, f, f.getType(), f.getGenericType())));
-			}
-		b.fs = Array2.from(fs, Field.class);
-		b.fbs = fbs.toArray();
+		if (c.b == c)
+			for (Field f: Class2.fields(cla, 0, 0, 0))
+				if (inject(f, true) != null)
+				{
+					fs.add(f);
+					fbs.add(check(f.getType(), //
+						doBind(cla, f, f.getType(), f.getGenericType())));
+				}
+		c.fs = Array2.from(fs, Field.class);
+		c.fbs = fbs.toArray();
 
 		ArrayList<Method> ms = new ArrayList<Method>();
 		ArrayList<Object[]> mbs = new ArrayList<Object[]>();
-		for (Method m: Class2.methods(c, 0, 0, 0))
-			if (inject(m, true) != null)
-			{
-				Parameter[] ps = Parameter.gets(m);
-				Object[] bs = new Object[ps.length];
-				for (int j = 0; j < ps.length; j++)
-					bs[j] = check(ps[j].cla, doBind(c, ps[j], ps[j].cla, ps[j].generic));
-				ms.add(m);
-				mbs.add(bs);
-			}
-		b.ms = Array2.from(ms, Method.class);
-		b.mbs = Array2.from(mbs, Object[].class);
-		return b;
+		if (c.b == c)
+			for (Method m: Class2.methods(cla, 0, 0, 0))
+				if (inject(m, true) != null)
+				{
+					Parameter[] ps = Parameter.gets(m);
+					Object[] bs = new Object[ps.length];
+					for (int j = 0; j < ps.length; j++)
+						bs[j] = check(ps[j].cla, doBind(cla, ps[j], ps[j].cla, ps[j].generic));
+					ms.add(m);
+					mbs.add(bs);
+				}
+		c.ms = Array2.from(ms, Method.class);
+		c.mbs = Array2.from(mbs, Object[].class);
+		return c;
 	}
 
-	/** @return {@link Bind}, or object, or null */
+	public static final Object BIND_OUTER = new Object();
+
+	/** @return {@link Bind}, or {@link #BIND_OUTER} or object, or null */
 	protected Object doBind(Class<?> c) throws Exception
 	{
 		return bind(c);
@@ -110,44 +115,44 @@ public class Factory
 		return bind(c);
 	}
 
-	public final synchronized Container createOutest(Container upper) throws Exception
+	public final synchronized Container create(Container outer) throws Exception
 	{
-		if (con != null && binds.size() == bindN)
-			return con.createOutest(upper);
-		Bind[] bs = Array2.from(binds.values(), Bind.class);
-		// let b.b = b or object if b is Bind
+		if (con != null && classes.size() == bindN)
+			return con.create(outer);
+		Bind.Clazz[] cs = Array2.from(classes.values(), Bind.Clazz.class);
 		for (boolean ok = true; !(ok = !ok);)
-			for (Bind b: bs)
-				if (b.b != b && b.b instanceof Bind && b.b != ((Bind)b.b).b)
+			for (Bind.Clazz c: cs)
+				if (c.b != c && c.b != null && c.b.b != c.b)
 				{
-					b.b = ((Bind)b.b).b;
+					c.b = c.b.b;
 					ok = true;
 				}
 		ArrayList<Object> os = new ArrayList<Object>();
-		for (Bind b: bs)
-			if (b.os == null && b.tbs != null)
+		for (Bind.Clazz c: cs)
+			if (c.os == null)
 			{
-				os.add(b.b instanceof Bind ? null : b.b);
-				for (int i = 0; i < b.tbs.length; i++)
-					b.tbs[i] = bound(b.tbs[i], os);
-				for (int i = 0; i < b.fbs.length; i++)
-					b.fbs[i] = bound(b.fbs[i], os);
-				b.maxParamN = Math.max(b.tbs.length, b.fbs.length > 0 ? 1 : 0);
-				for (int i = 0; i < b.mbs.length; i++)
+				os.add(c.o);
+				if (c.t != null)
+					for (int i = 0; i < c.tbs.length; i++)
+						c.tbs[i] = bound(c.tbs[i], os);
+				for (int i = 0; i < c.fbs.length; i++)
+					c.fbs[i] = bound(c.fbs[i], os);
+				c.maxParamN = Math.max(c.tbs.length, c.fbs.length > 0 ? 1 : 0);
+				for (int i = 0; i < c.mbs.length; i++)
 				{
-					for (int j = 0; j < b.mbs[i].length; j++)
-						b.mbs[i][j] = bound(b.mbs[i][j], os);
-					b.maxParamN = Math.max(b.maxParamN, b.mbs[i].length);
+					for (int j = 0; j < c.mbs[i].length; j++)
+						c.mbs[i][j] = bound(c.mbs[i][j], os);
+					c.maxParamN = Math.max(c.maxParamN, c.mbs[i].length);
 				}
-				b.os = os.toArray();
+				c.os = os.toArray();
 				os.clear();
 			}
-		con = new Factoring().create(bs);
-		bindN = bs.length;
-		return con.createOutest(upper);
+		con = new Factoring().create(cs);
+		bindN = cs.length;
+		return con.create(outer);
 	}
 
-	private HashMap<Class<?>, Bind> binds;
+	private HashMap<Class<?>, Bind.Clazz> classes;
 	private int bindN;
 	private Container con;
 
@@ -155,7 +160,10 @@ public class Factory
 	{
 		if (c.isPrimitive())
 			c = Class2.box(c, true);
-		Class<?> oc = o instanceof Bind ? ((Bind)o).c : o != null ? o.getClass() : c;
+		if (o instanceof Bind && ((Bind)o).fact != this)
+			throw new IllegalArgumentException("bind in other " + getClass().getName()
+				+ " forbidden");
+		Class<?> oc = o instanceof Bind ? oc = ((Bind)o).c : o != null ? o.getClass() : c;
 		if (c.isAssignableFrom(oc) || c.isArray() && oc == Integer.class)
 			return o;
 		throw new ClassCastException("binding " + c + " to " + o + " forbidden");

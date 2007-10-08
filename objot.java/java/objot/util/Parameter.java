@@ -97,4 +97,14 @@ public class Parameter
 	{
 		return false;
 	}
+
+	public Class<?> getType()
+	{
+		return cla;
+	}
+
+	public Type getGenericType()
+	{
+		return generic;
+	}
 }

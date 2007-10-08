@@ -5,106 +5,161 @@
 package objot.container;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 import objot.util.Class2;
 import objot.util.Mod2;
+import objot.util.Parameter;
 
 
-public final class Bind
+public class Bind
 {
-	/** not primitive */
-	final Class<?> c;
+	Clazz b;
+	Object o;
+	/** null for binding {@link Clazz} to outer container */
 	Class<? extends Annotation> mode;
-	/** {@link Bind} of {@link #c}, or object of {@link #c} */
-	Object b;
 
-	/** null iif {@link #b} != this */
-	Constructor<?> t;
-	/** [param index], empty if {@link #t} null */
-	Object[] tbs;
-
-	Field[] fs;
-	Object[] fbs;
-
-	Method[] ms;
-	/** [][param index] */
-	Object[][] mbs;
-
-	/** array of object or null(for {@link Bind}) */
-	Object[] os;
-	int maxParamN;
-
-	private static final Class<?>[] MODES = Inject.class.getDeclaredClasses();
-
-	Bind(Class<?> c_)
-	{
-		c = c_;
-		if (c.isPrimitive() || c == Bind.class //
-			|| c != Container.class && Container.class.isAssignableFrom(c))
-			throw new IllegalArgumentException("binding " + c + " forbidden");
-		if ( !Mod2.match(c, Mod2.PUBLIC))
-			throw new IllegalArgumentException("binding not-public " + c + " forbidden");
-		Annotation a = Class2.annoExclusive(c, MODES);
-		mode = a != null ? a.annotationType() : Inject.Single.class;
-	}
-
-	public final Class<?> clazz()
-	{
-		return c;
-	}
-
-	public final Class<? extends Annotation> injectMode()
-	{
-		return mode;
-	}
-
-	public final Object clazzBind()
+	public final Clazz bind()
 	{
 		return b;
 	}
 
-	/** null if {@link #clazzBind} is not self */
-	public final Constructor<?> ctor()
+	public final Object object()
 	{
-		return t;
+		return o;
 	}
 
-	public final Object[] ctorParamBinds()
+	/** null for binding {@link Clazz} to outer container */
+	public final Class<? extends Annotation> mode()
 	{
-		return tbs.length == 0 ? tbs : tbs.clone();
+		return mode;
 	}
 
-	public final Field[] fields()
+	public static final class Clazz
+		extends Bind
 	{
-		return fs.length == 0 ? fs : fs.clone();
+		Factory fac;
+		/** not primitive */
+		Class<?> c;
+
+		/** null iif {@link #b} != this */
+		Proc t;
+		Value[] fs;
+		Proc[] ms;
+
+		/** array of {@link #o} */
+		Object[] os;
+		int maxParamN;
+
+		Clazz(Factory f, Class<?> c_)
+		{
+			fac = f;
+			c = c_;
+			if (c.isPrimitive() || Bind.class.isAssignableFrom(c) //
+				|| c != Container.class && Container.class.isAssignableFrom(c))
+				throw new IllegalArgumentException("binding " + c + " forbidden");
+			if ( !Mod2.match(c, Mod2.PUBLIC))
+				throw new IllegalArgumentException("binding not-public " + c + " forbidden");
+			Annotation a = Class2.annoExclusive(c, MODES);
+			mode = a != null ? a.annotationType() : Inject.Single.class;
+		}
+
+		public Factory factory()
+		{
+			return fac;
+		}
+
+		/** not primitive */
+		public Class<?> clazz()
+		{
+			return c;
+		}
+
+		/** null iif {@link #bind()} is not self */
+		public Proc ctor()
+		{
+			return t;
+		}
+
+		public Value[] fields()
+		{
+			return fs.length == 0 ? fs : fs.clone();
+		}
+
+		public Proc[] methods()
+		{
+			return ms.length == 0 ? ms : ms.clone();
+		}
+
+		@Override
+		public String toString()
+		{
+			return "binding of " + c;
+		}
+
+		private static final Class<?>[] MODES = Inject.class.getDeclaredClasses();
 	}
 
-	public final Object[] fieldBinds()
+	public static final class Proc
 	{
-		return fbs.length == 0 ? fbs : fbs.clone();
+		AccessibleObject tm;
+		Value[] ps;
+
+		public AccessibleObject member()
+		{
+			return tm;
+		}
+
+		public Constructor<?> ctor()
+		{
+			return (Constructor<?>)tm;
+		}
+
+		public Method method()
+		{
+			return (Method)tm;
+		}
+
+		public Value[] params()
+		{
+			return ps.length == 0 ? ps : ps.clone();
+		}
 	}
 
-	public final Method[] methods()
+	public static final class Value
+		extends Bind
 	{
-		return ms.length == 0 ? ms : ms.clone();
-	}
+		AccessibleObject fp;
+		Class<?> cla;
+		Type generic;
 
-	public final Object[][] methodParamBinds()
-	{
-		if (mbs.length == 0)
-			return mbs;
-		Object[][] s = mbs.clone();
-		for (int i = 0; i < s.length; i++)
-			s[i] = s[i].clone();
-		return s;
-	}
+		public AccessibleObject member()
+		{
+			return fp;
+		}
 
-	@Override
-	public String toString()
-	{
-		return "binding of " + c;
+		public Field field()
+		{
+			return (Field)fp;
+		}
+
+		public Parameter param()
+		{
+			return (Parameter)fp;
+		}
+
+		public Class<?> type()
+		{
+			return cla;
+		}
+
+		public Type genericType()
+		{
+			return generic;
+		}
 	}
 }
