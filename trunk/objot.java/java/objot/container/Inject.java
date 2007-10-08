@@ -36,22 +36,4 @@ public @interface Inject
 	public @interface Single
 	{
 	}
-
-	/** inject and save object in this container if not found from this to top container */
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Inherited
-	@Documented
-	public @interface Spread
-	{
-	}
-
-	/** inject and save object in top container if not found from this to top container */
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	@Inherited
-	@Documented
-	public @interface Inherit
-	{
-	}
 }

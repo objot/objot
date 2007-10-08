@@ -19,22 +19,26 @@ import static objot.bytecode.Opcode.*;
 
 final class Factoring
 {
-	Bind[] bs;
+	Bind.Clazz[] cs;
+	Object[][] oss;
+	Bytecode y;
+	int indexCi;
 	int get0Ci;
 	int create0Ci;
-	int upCi;
 	int outCi;
 	int ossCi;
+	int[] fCis;
+	int[] cCis;
 
-	Container create(Bind[] bs_) throws Exception
+	Container create(Bind.Clazz[] bs_) throws Exception
 	{
-		bs = bs_;
-		Object[][] oss = new Object[bs.length][];
-		for (int i = 0; i < bs.length; i++)
-			oss[i] = bs[i].os;
+		cs = bs_;
+		oss = new Object[cs.length][];
+		for (int i = 0; i < cs.length; i++)
+			oss[i] = cs[i].os;
 
 		String name = Container.class.getName() + "$$" + hashCode();
-		Bytecode y = new Bytecode();
+		y = new Bytecode();
 		int superCi = y.cons.addClass(Container.class);
 		y.head.setModifier(Mod2.FINAL | Mod2.SYNTHETIC);
 		y.head.setClassCi(y.cons.addClass(name));
@@ -43,14 +47,14 @@ final class Factoring
 
 		get0Ci = y.cons.addProc(Container.M_get0);
 		create0Ci = y.cons.addProc(Container.M_create0);
-		upCi = y.cons.addField(Container.F_upper);
 		outCi = y.cons.addField(Container.F_outer);
 		ossCi = y.cons.addField(Container.F_objss);
-		int[] fCis = new int[bs.length];
-		makeFields(y, fCis);
-		makeIndex(y);
-		makeGet0(y, oss, fCis);
-		makeCreate0(y, oss, fCis);
+		fCis = new int[cs.length];
+		cCis = new int[cs.length];
+		makeFields();
+		makeIndex();
+		makeGet0();
+		makeCreate0();
 
 		Container c = Class2.<Container>load(Container.class.getClassLoader(), name,
 			y.normalize()).newInstance();
@@ -58,38 +62,38 @@ final class Factoring
 		return c;
 	}
 
-	/** @return index of a {@link Bind} which {@link Bind#b} is self or object */
-	private int bind(int bx)
+	/** @return index or -index of actual bind or object */
+	private int bind(int i0)
 	{
-		Bind b = bs[bx];
-		if (b.b != b && b.b instanceof Bind)
-			for (int i = bs.length - 1; i >= 0; i--)
-				if (bs[i] == b.b)
-					return i;
-		return bx;
+		Bind.Clazz c = cs[i0];
+		if (c.b != c && c.b != null)
+			for (int i = cs.length - 1; i >= 0; i--)
+				if (cs[i] == c.b)
+					return cs[i].mode == Inject.New.class ? -i - 1 : i + 1;
+		return c.mode == Inject.New.class ? -i0 - 1 : i0 + 1;
 	}
 
-	/** @return index of a {@link Bind} which {@link Bind#b} is self or object */
-	private int bind(Bind b)
+	/** @return index or -index of actual bind or object */
+	private int bind(Bind.Clazz c)
 	{
-		if (b.b != b && b.b instanceof Bind)
-			for (int i = bs.length - 1; i >= 0; i--)
-				if (bs[i] == b.b)
-					return i;
-		for (int i = bs.length - 1; i >= 0; i--)
-			if (bs[i] == b)
-				return i;
+		if (c.b != c && c.b != null)
+			for (int i = cs.length - 1; i >= 0; i--)
+				if (cs[i] == c.b)
+					return cs[i].mode == Inject.New.class ? -i - 1 : i + 1;
+		for (int i = cs.length - 1; i >= 0; i--)
+			if (cs[i] == c)
+				return cs[i].mode == Inject.New.class ? -i - 1 : i + 1;
 		throw new AssertionError();
 	}
 
-	private void makeFields(Bytecode y, int[] fCis)
+	private void makeFields()
 	{
-		for (int i = 0; i < bs.length; i++)
-			if (bs[i].b == bs[i])
+		for (int i = 0; i < cs.length; i++)
+			if (cs[i].b == cs[i] && cs[i].mode != Inject.New.class)
 			{
 				Field f = new Field(y.cons);
-				f.setNameCi(y.cons.addUcs("o" + i));
-				f.setDescCi(y.cons.addUcs(Class2.descript(bs[i].c)));
+				f.setNameCi(y.cons.addUcs("o" + (i + 1)));
+				f.setDescCi(y.cons.addUcs(Class2.descript(cs[i].c)));
 				y.getFields().addField(f);
 				fCis[i] = y.cons.addField(y.head.getClassCi(), y.cons.addNameDesc(f
 					.getNameCi(), f.getDescCi()));
@@ -98,7 +102,7 @@ final class Factoring
 
 	private static final Method M_hashCode = Class2.declaredMethod1(Object.class, "hashCode");
 
-	private void makeIndex(Bytecode y)
+	private void makeIndex()
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Mod2.FINAL);
@@ -114,28 +118,30 @@ final class Factoring
 		for (int i = 0; i <= 14; i++)
 		{
 			s.switchTableFrom(sw, i);
-			for (int j = 0; j < bs.length; j++)
-				if (bs[j].c.hashCode() % 15 == i)
+			for (int j = 0; j < cs.length; j++)
+				if (cs[j].c.hashCode() % 15 == i)
 				{
 					s.ins0(DUP); // class
-					s.insU2(LDCW, p.cons.addClass(bs[j].c));
+					s.insU2(LDCW, cCis[j] = p.cons.addClass(cs[j].c));
 					s.insS2(IFAN, 7);
 					s.insS2(SIPUSH, bind(j));
 					s.ins0(IRETURN);
 				}
-			s.ins0(ICONSTm1);
+			s.ins0(ICONST0);
 			s.ins0(IRETURN);
 		}
 		s.switchTableFrom(sw, -1);
-		s.ins0(ICONSTm1);
+		s.ins0(ICONST0);
 		s.ins0(IRETURN);
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(2);
 		p.getCode().setStackN(3);
 		y.getProcs().addProc(p);
+		indexCi = y.cons.addCproc(y.head.getSuperCi(), y.cons.addNameDesc(p.getNameCi(), p
+			.getDescCi()));
 	}
 
-	private void makeGet0(Bytecode y, Object[][] oss, int[] fCis)
+	private void makeGet0()
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Mod2.FINAL);
@@ -144,9 +150,10 @@ final class Factoring
 		Instruction s = new Instruction(1000);
 		s.ins0(ALOAD0); // this
 		s.ins0(ILOAD1);
-		long sw = s.insSwitchTable(0, bs.length - 1);
-		int sw0 = s.addr;
+		long sw = s.insSwitchTable(1, cs.length);
 		s.switchTableFrom(sw, -1);
+		int sw0 = s.addr;
+		s.ins0(ACONSTNULL);
 		s.ins0(ARETURN);
 		int swO = s.addr;
 		s.insU2(GETFIELD, ossCi);
@@ -155,22 +162,15 @@ final class Factoring
 		s.ins0(ICONST0);
 		s.ins0(AALOAD); // oss[i][0]
 		s.ins0(ARETURN);
-		int swN = s.addr;
-		s.ins0(ILOAD1);
-		s.ins0(ICONST0);
-		s.insU2(INVOKEVIRTUAL, create0Ci);
-		s.ins0(ARETURN);
-		for (int i = 0; i < bs.length; i++)
+		for (int i = 0; i < cs.length; i++)
 		{
-			Bind b = bs[i];
-			if (b.c == Container.class)
-				s.switchTable(sw, i, sw0); // return this
-			else if (b.b == b)
-				if (b.mode == Inject.New.class)
-					s.switchTable(sw, i, swN);
-				else if (b.mode == Inject.Single.class)
+			Bind.Clazz c = cs[i];
+			if (c.c == Container.class)
+				s.ins0(ARETURN); // return this;
+			else if (c.b == c)
+				if (c.mode == Inject.Single.class)
 				{
-					s.switchTableFrom(sw, i);
+					s.switchTableFrom(sw, i + 1);
 					s.insU2(GETFIELD, fCis[i]);
 					s.ins0(DUP);
 					int j = s.insJump(IFNOTNULL);
@@ -183,59 +183,48 @@ final class Factoring
 					s.ins0(ARETURN);
 				}
 				else
-				{
-					s.switchTableFrom(sw, i);
-					int loop = s.addr;
+				{ // bind to outer
+					s.switchTableFrom(sw, i + 1);
 					s.ins0(DUP);
-					s.insU2(GETFIELD, fCis[i]); // c, c.field
+					s.insU2(GETFIELD, fCis[i]); // this, field
 					s.ins0(DUP);
-					int j1 = s.insJump(IFNULL);
+					int cache = s.insJump(IFNULL);
+					s.ins0(ARETURN);
+					s.jumpFrom(cache);
+					s.ins0(SWAP); // field, this
+					int out = s.addr;
+					s.insU2(GETFIELD, outCi); // c
+					s.ins0(DUP);
+					s.insU2(LDCW, cCis[i]);
+					s.insU2(INVOKEVIRTUAL, indexCi); // c, i
+					s.ins0(DUPI);
+					s.jump(s.insJump(IFIE0), out); // i, c
+					s.ins0(SWAP); // c, i
+					s.ins0(DUP);
+					int create = s.insJump(IFIL0);
+					s.insU2(INVOKEVIRTUAL, get0Ci); // o
 					s.ins0(DUP);
 					s.ins0(ALOAD0);
-					s.ins0(SWAP); // c, c.field, this, c.field
+					s.ins0(SWAP); // o, c, o
 					s.insU2(PUTFIELD, fCis[i]);
 					s.ins0(ARETURN);
-					s.jumpFrom(j1);
-					s.ins0(POP);
-					s.ins0(DUP);
-					s.insU2(GETFIELD, outCi); // c, c.outer
-					int j2 = s.insJump(IFNULL);
-					s.insU2(GETFIELD, outCi);
-					s.insU2(CHECKCAST, y.head.getClassCi());
-					s.jump(s.insJump(GOTO), loop);
-					s.jumpFrom(j2);
-					if (b.mode == Inject.Spread.class)
-						s.ins0(ALOAD0);
-					s.ins0(ILOAD1);
-					s.ins0(ICONST1);
-					s.insU2(INVOKEVIRTUAL, create0Ci);
-					if (b.mode == Inject.Inherit.class)
-					{
-						s.ins0(DUP);
-						s.ins0(ALOAD0);
-						s.ins0(SWAP); // o, this, o
-						s.insU2(CHECKCAST, p.cons.putClass(b.c));
-						s.insU2(PUTFIELD, fCis[i]);
-					}
+					s.jumpFrom(create);
+					s.ins0(ICONST0);
+					s.insU2(INVOKEVIRTUAL, create0Ci); // o
 					s.ins0(ARETURN);
 				}
-			else if (b.b instanceof Bind)
-				s.switchTable(sw, i, sw0); // never happen
-			else if (oss[i][0] != null)
-				s.switchTable(sw, i, swO);
+			else if (oss[i][0] != null) // never be another bind
+				s.switchTable(sw, i + 1, swO);
 			else
-			{
-				s.ins0(ACONSTNULL);
-				s.ins0(ARETURN);
-			}
+				s.switchTable(sw, i + 1, sw0);
 		}
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(3);
-		p.getCode().setStackN(30);
+		p.getCode().setStackN(4);
 		y.getProcs().addProc(p);
 	}
 
-	private void makeCreate0(Bytecode y, Object[][] oss, int[] fCis)
+	private void makeCreate0()
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Mod2.FINAL);
@@ -243,20 +232,21 @@ final class Factoring
 		p.setDescCi(p.cons.getCprocDesc(create0Ci));
 		Instruction s = new Instruction(250);
 		s.ins0(ILOAD1); // index
-		long sw = s.insSwitchTable(0, bs.length - 1);
-		int sw0 = s.addr;
+		long sw = s.insSwitchTable( -cs.length, cs.length);
 		s.switchTableFrom(sw, -1);
+		int sw0 = s.addr;
 		s.ins0(ACONSTNULL);
 		s.ins0(ARETURN);
 		int maxParamN = 0;
-		for (int i = 0; i < bs.length; i++)
+		for (int i = 0; i < cs.length; i++)
 		{
-			Bind b = bs[i];
-			maxParamN = Math.max(maxParamN, b.maxParamN);
+			Bind.Clazz c = cs[i];
+			maxParamN = Math.max(maxParamN, c.maxParamN);
 			int o = 1;
-			if (b.c == Container.class)
+			if (c.c == Container.class)
 			{
-				s.switchTableFrom(sw, i);
+				s.switchTableFrom(sw, i + 1);
+				s.switchTableFrom(sw, -i - 1);
 				s.insU2(NEW, y.head.getClassCi());
 				s.ins0(DUP);
 				s.insU2(INVOKESPECIAL, p.cons.addCproc(y.head.getClassCi(), //
@@ -264,10 +254,7 @@ final class Factoring
 						y.getProcs().getProc(0).getDescCi())));
 				s.ins0(DUP);
 				s.ins0(ALOAD0);
-				s.insU2(GETFIELD, upCi);
-				s.insU2(PUTFIELD, upCi);
-				s.ins0(DUP);
-				s.ins0(ALOAD0);
+				s.insU2(GETFIELD, outCi);
 				s.insU2(PUTFIELD, outCi);
 				s.ins0(DUP);
 				s.ins0(ALOAD0);
@@ -275,15 +262,15 @@ final class Factoring
 				s.insU2(PUTFIELD, ossCi);
 				s.ins0(ARETURN);
 			}
-			else if (b.b == b)
+			else if (c.b == c)
 			{
-				s.switchTableFrom(sw, i);
-				s.insU2(NEW, p.cons.putClass(b.c));
+				s.switchTableFrom(sw, i + 1);
+				s.switchTableFrom(sw, -i - 1);
+				s.insU2(NEW, p.cons.putClass(c.c));
 				s.ins0(DUP);
-				Class<?>[] ps = b.t.getParameterTypes();
-				for (int cb = 0; cb < b.tbs.length; cb++)
-					o = makeCreate0_bind(p.cons, s, b.tbs[cb], ps[cb], oss[i], o);
-				s.insU2(INVOKESPECIAL, p.cons.putProc(b.t));
+				for (int cb = 0; cb < c.t.ps.length; cb++)
+					o = makeCreate0_bind(i, p.cons, s, c.t.ps[cb], oss[i], o);
+				s.insU2(INVOKESPECIAL, p.cons.putProc(c.t.ctor()));
 				s.ins0(ILOAD2); // save
 				int j = s.insJump(IFIE0);
 				s.ins0(DUP);
@@ -291,24 +278,26 @@ final class Factoring
 				s.ins0(SWAP);
 				s.insU2(PUTFIELD, fCis[i]);
 				s.jumpFrom(j);
-				for (int f = 0; f < b.fs.length; f++)
+				for (Bind.Value f: c.fs)
 				{
 					s.ins0(DUP);
-					o = makeCreate0_bind(p.cons, s, b.fbs[f], b.fs[f].getType(), oss[i], o);
-					s.insU2(PUTFIELD, p.cons.addField(b.fs[f]));
+					o = makeCreate0_bind(i, p.cons, s, f, oss[i], o);
+					s.insU2(PUTFIELD, p.cons.addField(f.field()));
 				}
-				for (int m = 0; m < b.ms.length; m++)
+				for (Bind.Proc m: c.ms)
 				{
-					ps = b.ms[m].getParameterTypes();
 					s.ins0(DUP);
-					for (int mb = 0; mb < b.mbs[m].length; mb++)
-						o = makeCreate0_bind(p.cons, s, b.mbs[m][mb], ps[mb], oss[i], o);
-					s.insU2(INVOKEVIRTUAL, p.cons.addProc(b.ms[m]));
+					for (Bind.Value mp: m.ps)
+						o = makeCreate0_bind(i, p.cons, s, mp, oss[i], o);
+					s.insU2(INVOKEVIRTUAL, p.cons.addProc(m.method()));
 				}
 				s.ins0(ARETURN);
 			}
 			else
-				s.switchTable(sw, i, sw0); // never happen
+			{ // never happen
+				s.switchTable(sw, i + 1, sw0);
+				s.switchTable(sw, -i - 1, sw0);
+			}
 		}
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(3);
@@ -316,41 +305,44 @@ final class Factoring
 		y.getProcs().addProc(p);
 	}
 
-	private int makeCreate0_bind(Constants cons, Instruction s, Object b, Class<?> c,
+	private int makeCreate0_bind(int i0, Constants cons, Instruction s, Bind.Value v,
 		Object[] os, int o)
 	{
-		if (b instanceof Bind)
+		if (v.b != null)
 		{
 			s.ins0(ALOAD0);
-			s.insU2(SIPUSH, bind((Bind)b));
-			s.insU2(INVOKEVIRTUAL, get0Ci);
-			s.insUnboxNarrow(cons, c);
+			int i = bind(v.b);
+			s.insU2(SIPUSH, i);
+			if (i < 0)
+				s.ins0(ICONST0);
+			s.insU2(INVOKEVIRTUAL, i > 0 ? get0Ci : create0Ci);
+			s.insUnboxNarrow(cons, v.cla);
 			return o;
 		}
-		if (c.isArray() && os[o] instanceof Integer)
+		if (v.cla.isArray() && os[o] instanceof Integer)
 		{
 			int n = (Integer)os[o];
 			if (n << 16 >> 16 == n)
 				s.insS2(SIPUSH, n);
 			else
 				s.insU2(LDCW, cons.addInt(n));
-			s.insNews(cons, c.getComponentType());
+			s.insNews(cons, v.cla.getComponentType());
 		}
 		else if (os[o] != null)
 		{
 			s.ins0(ALOAD0);
 			s.insU2(GETFIELD, ossCi);
-			s.ins0(ILOAD1);
+			s.insS2(SIPUSH, i0);
 			s.ins0(AALOAD);
 			s.insU2(SIPUSH, o);
-			s.ins0(AALOAD); // oss[i][o]
-			s.insUnboxNarrow(cons, c);
+			s.ins0(AALOAD); // oss[i0][o]
+			s.insUnboxNarrow(cons, v.cla);
 		}
 		else
 		{
 			s.ins0(ACONSTNULL);
-			if (c.isPrimitive())
-				s.insUnboxNarrow(cons, c);
+			if (v.cla.isPrimitive())
+				s.insUnboxNarrow(cons, v.cla);
 		}
 		return ++o;
 	}

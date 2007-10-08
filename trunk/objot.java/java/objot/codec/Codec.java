@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Codec
 {
-	public static final char S = '\20';
+	public static final char S = '\20'; // Ctrl-P in vim
 
 	/**
 	 * @param o the whole gettable object graph must keep unchanged since the references
