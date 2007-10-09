@@ -4,19 +4,23 @@
 //
 package chat;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import objot.aspect.Aspect;
 import objot.aspect.Weaver;
+import objot.codec.Codec;
+import objot.codec.Err;
+import objot.codec.Errs;
 import objot.container.Bind;
 import objot.container.Container;
 import objot.container.Factory;
+import objot.container.Inject;
 import objot.util.Class2;
 import objot.util.Mod2;
 
 import org.hibernate.SessionFactory;
 
+import chat.model.Id;
 import chat.service.Do;
 import chat.service.Session;
 import chat.service.Do.Service;
@@ -24,10 +28,28 @@ import chat.service.Do.Service;
 
 public class Services
 {
-	/** @return container for service inside container for session */
-	public static Container build(final SessionFactory d) throws Exception
+	public static final Codec CODEC = new Codec()
 	{
-		final Weaver w = new Weaver(Sign.As.class, Transac.As.class)
+		String modelPrefix = Id.class.getPackage().getName() + ".";
+
+		@Override
+		protected Class<?> classByName(String name) throws Exception
+		{
+			return Class.forName(modelPrefix.concat(name));
+		}
+
+		/** include {@link Err} and {@link Errs} */
+		@Override
+		protected String className(Class<?> c) throws Exception
+		{
+			return c.getName().substring(c.getName().lastIndexOf('.') + 1);
+		}
+	};
+
+	/** @return container for service inside container for session */
+	public static Container build(final SessionFactory d, final Codec codec) throws Exception
+	{
+		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, As.class)
 		{
 			@Override
 			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
@@ -36,9 +58,9 @@ public class Services
 					return this;
 				if (ac == Sign.As.class)
 					return m.isAnnotationPresent(Sign.Any.class) ? this : null;
-				Annotation t = Class2.annoExclusive(m, Transac.class);
-				Transac.Config c = Transac.Config.config(t);
-				return c != null ? c : this;
+				if (ac == Transac.As.class)
+					return Transac.Config.config(m);
+				return codec == null ? this : codec;
 			}
 		};
 		final Container sess = new Factory()
@@ -63,12 +85,30 @@ public class Services
 			{
 				if (sess.bound(c))
 					return b.mode(null);
+				if (c == Codec.class)
+					return b.obj(codec);
 				return b.cla(c.isSynthetic() ? b.cla : w.weave(c));
 			}
 		};
 		for (Class<?> c: Class2.packageClasses(Do.class))
 			if ( !Mod2.match(c, Mod2.ABSTRACT) && !Session.class.isAssignableFrom(c))
 				f.bind(c);
+		f.bind(Codec.class);
 		return f.create(sess);
+	}
+
+	static final class As
+		extends Aspect
+	{
+		@Inject
+		public Codec codec;
+
+		@Override
+		protected void aspect() throws Throwable
+		{
+			Target.invoke();
+			if (Target.<Do>getThis().data.deep == 1)
+				codec.enc(Target.getReturn(), Target.getClazz());
+		}
 	}
 }

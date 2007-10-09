@@ -9,9 +9,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.AnnotatedElement;
 
 import objot.aspect.Aspect;
 import objot.container.Inject;
+import objot.util.Class2;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,7 +24,6 @@ import static java.sql.Connection.TRANSACTION_REPEATABLE_READ;
 import static java.sql.Connection.TRANSACTION_SERIALIZABLE;
 
 import chat.service.Data;
-import chat.service.Do;
 
 
 public @interface Transac
@@ -70,25 +71,24 @@ public @interface Transac
 		boolean read;
 		int iso;
 
-		public static Config config(Annotation t)
+		public static Config config(AnnotatedElement o)
 		{
-			if (t instanceof Any)
-				return null;
+			Annotation a = Class2.annoExclusive(o, Transac.class);
 			Config con = new Config();
-			if (t instanceof Commit)
+			if (a instanceof Commit)
 			{
 				con.iso = TRANSACTION_READ_COMMITTED;
-				con.read = ((Commit)t).readonly();
+				con.read = ((Commit)a).readonly();
 			}
-			else if (t instanceof Serial)
+			else if (a instanceof Serial)
 			{
 				con.iso = TRANSACTION_SERIALIZABLE;
-				con.read = ((Serial)t).readonly();
+				con.read = ((Serial)a).readonly();
 			}
-			else
+			else if ( !(a instanceof Any))
 			{
 				con.iso = TRANSACTION_REPEATABLE_READ;
-				con.read = t == null ? false : t instanceof Readonly ? true : ((Repeat)t)
+				con.read = a == null ? false : a instanceof Readonly ? true : ((Repeat)a)
 					.readonly();
 			}
 			return con;
@@ -102,14 +102,14 @@ public @interface Transac
 
 		@Inject
 		public SessionFactory factory;
+		@Inject
+		public Data data;
 
 		/** open hibernate session, begin transaction */
 		@Override
 		protected void aspect() throws Throwable
 		{
 			boolean ok = false;
-			Config con = Target.getData();
-			Data data = Target.<Do>getThis().data;
 			data.deep++;
 			try
 			{
@@ -121,10 +121,8 @@ public @interface Transac
 						LOG.debug("---------------- " + Target.getClazz().getName() + "-"
 							+ Target.getName() + " ----------------");
 				if (data.deep == 1)
-					close(data, true);
-				if (data.hib == null)
 					data.hib = factory.openSession();
-				begin((SessionImpl)data.hib, con);
+				begin((SessionImpl)data.hib, Target.<Config>getData());
 				Target.invoke();
 				data.flush();
 				ok = true;
@@ -132,8 +130,33 @@ public @interface Transac
 			finally
 			{
 				data.deep--;
-				if (data.deep <= 0 && !data.lazyClose)
-					close(data, ok);
+				if (data.deep <= 0)
+				{
+					if (data.hib.getTransaction().isActive())
+						try
+						{
+							if (ok)
+								data.hib.getTransaction().commit();
+							else
+								data.hib.getTransaction().rollback();
+						}
+						catch (Throwable e)
+						{
+							if (LOG.isWarnEnabled())
+								LOG.warn(e);
+						}
+					if (data.hib.isOpen())
+						try
+						{
+							data.hib.close();
+						}
+						catch (Throwable e)
+						{
+							if (LOG.isWarnEnabled())
+								LOG.warn(e);
+						}
+					data.hib = null;
+				}
 			}
 		}
 
@@ -155,36 +178,6 @@ public @interface Transac
 					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
 						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
 							: "read committed"));
-		}
-
-		private static void close(Data data, boolean commit)
-		{
-			if (data.hib == null)
-				return;
-			if (data.hib.getTransaction().isActive())
-				try
-				{
-					if (commit)
-						data.hib.getTransaction().commit();
-					else
-						data.hib.getTransaction().rollback();
-				}
-				catch (Throwable e)
-				{
-					if (LOG.isWarnEnabled())
-						LOG.warn(e);
-				}
-			if (data.hib.isOpen())
-				try
-				{
-					data.hib.close();
-				}
-				catch (Throwable e)
-				{
-					if (LOG.isWarnEnabled())
-						LOG.warn(e);
-				}
-			data.hib = null;
 		}
 	}
 }

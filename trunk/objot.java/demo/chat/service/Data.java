@@ -23,7 +23,6 @@ public class Data
 {
 	public Session hib;
 	public int deep;
-	public boolean lazyClose;
 
 	/** @see Hibernate#initialize */
 	public <T>T fetch(T o)

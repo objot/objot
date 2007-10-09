@@ -20,27 +20,20 @@ public class TestDoChat
 	extends TestDo
 {
 	static final Date DATE0 = new Date(0);
-	DoChat doChat;
+
+	DoChat doChat = container.get(DoChat.class);
 	User u1;
 	User u2;
-
-	{
-		doChat = container.get(DoChat.class);
-	}
 
 	void signIn() throws Exception
 	{
 		User u = new User();
 		u.name = u.password = "b";
 		u2 = doChat.doSign.inUp(u);
-		// just for sub requests, since PersistentBag/List/Set won't be evicted
-		u2.friends = copy(u2.friends);
 		u = new User();
 		u.name = u.password = "a";
 		doChat.doSign.inUp(u);
 		u1 = doChat.doUser.me();
-		// just for sub requests, since PersistentBag/List/Set won't be evicted
-		u1.friends = copy(u1.friends);
 		u1.friends_ = null;
 	}
 

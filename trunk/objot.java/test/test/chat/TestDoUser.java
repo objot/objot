@@ -14,25 +14,19 @@ import chat.service.DoUser;
 public class TestDoUser
 	extends TestDo
 {
-	DoUser doUser;
+	DoUser doUser = container.get(DoUser.class);
 	User u1;
 	User u2;
-
-	{
-		doUser = container.get(DoUser.class);
-	}
 
 	void signIn() throws Exception
 	{
 		User u = new User();
 		u.name = u.password = "b";
 		u2 = doUser.doSign.inUp(u);
-		data.fetch(u2.friends);
 		u = new User();
 		u.name = u.password = "a";
 		doUser.doSign.inUp(u);
 		u1 = doUser.doUser.me();
-		data.fetch(u1.friends);
 		u1.friends_ = null;
 	}
 
@@ -51,7 +45,7 @@ public class TestDoUser
 		(u1.friends_ = u1.friends).add(u2);
 		doUser.update(u1);
 		asserts(new User[] { u1, u2 }, doUser.me().friends);
-		(u1.friends_ = u1.friends).remove(u1);
+		u1.friends_.remove(u1);
 		doUser.update(u1);
 		asserts(new User[] { u2 }, doUser.me().friends);
 	}

@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import objot.codec.Codec;
 import objot.codec.ErrThrow;
+import objot.util.Class2;
+import objot.util.Mod2;
 
 
 public class Serve
@@ -37,13 +39,16 @@ public class Serve
 	public Serve init(String claName, String methName) throws Exception
 	{
 		cla = Class.forName(claName);
-		for (Method m: cla.getMethods())
-			if (m.getName().equals(methName) && m.isAnnotationPresent(serviceAnno))
+		if (Mod2.match(cla, Mod2.PUBLIC))
+		{
+			Method m = Class2.method1(cla, methName);
+			if (m.isAnnotationPresent(serviceAnno))
 			{
 				meth = m;
 				reqClas = m.getParameterTypes();
 				return this;
 			}
+		}
 		throw new Exception("service not found : ".concat(name));
 	}
 

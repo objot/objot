@@ -1,5 +1,10 @@
 <?xml version="1.0" ?>
-
+<!--
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
+-->
 <project name="objot.java" default="all">
 
 	<property name=".version" value="20" />
@@ -66,7 +71,7 @@
 		<delete dir="${.dir.doc.api}" />
 		<mkdir dir="${.dir.doc.api}" />
 		<javadoc sourcepath="${.dir.source.java}"
-                 access="protected"
+		         access="protected"
 		         author="true"
 		         destdir="${.dir.doc.api}"
 		         locale="en"

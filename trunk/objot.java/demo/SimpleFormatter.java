@@ -3,6 +3,8 @@
 // Under the terms of The GNU General Public License version 2
 //
 
+import java.io.CharArrayWriter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
@@ -26,17 +28,26 @@ public class SimpleFormatter
 	@Override
 	public String format(LogRecord log)
 	{
-		if ("log".equals(log.getSourceMethodName()) && //
-			"org.apache.catalina.core.ApplicationContext".equals(log.getSourceClassName()))
-			return DATE_FORMAT.format(new Date(log.getMillis())) + "\t" + log.getMessage()
-				+ "\n";
+		String m = log.getMessage() != null ? log.getMessage() : "";
+		boolean sys = m.length() == 0
+			|| !"log".equals(log.getSourceMethodName())
+			|| !"org.apache.catalina.core.ApplicationContext"
+				.equals(log.getSourceClassName());
 		StringBuilder s = new StringBuilder();
-		s.append(log.getLevel().getName()).append(' ').append(
-			DATE_FORMAT.format(new Date(log.getMillis())));
-		s.append("\t").append(log.getMessage());
-		if (log.getSourceClassName() != null)
+		if (sys)
+			s.append(log.getLevel().getName()).append(' ');
+		s.append(DATE_FORMAT.format(new Date(log.getMillis()))).append("\t");
+		s.append(m.length() > 0 || log.getThrown() == null ? m : log.getThrown());
+		if (sys && log.getSourceClassName() != null)
 			s.append("\t---- ").append(log.getSourceClassName()).append('-').append(
 				log.getSourceMethodName());
-		return s.append("\n").toString();
+		s.append("\n");
+		if (log.getThrown() != null)
+		{
+			CharArrayWriter w = new CharArrayWriter();
+			log.getThrown().printStackTrace(new PrintWriter(w));
+			s.append(w.toCharArray()).append("\n");
+		}
+		return s.toString();
 	}
 }
