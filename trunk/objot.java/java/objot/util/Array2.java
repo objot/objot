@@ -521,7 +521,7 @@ public class Array2
 		return a;
 	}
 
-	public static <T>T[] from(Collection<? extends T> s, Class<T> c)
+	public static <T>T[] from(Collection<?> s, Class<T> c)
 	{
 		return s.toArray(news(c, s.size()));
 	}

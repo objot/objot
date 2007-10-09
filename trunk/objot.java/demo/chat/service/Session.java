@@ -6,10 +6,7 @@ package chat.service;
 
 import java.io.Serializable;
 
-import objot.container.Inject;
 
-
-@Inject.Inherit
 public class Session
 	implements Serializable
 {

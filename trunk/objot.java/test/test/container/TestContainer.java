@@ -8,20 +8,20 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
+import objot.container.Bind;
 import objot.container.Container;
 import objot.container.Factory;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import test.container.X.Inherit;
-import test.container.X.Inherit2;
+import test.container.X.Inner;
 import test.container.X.New;
 import test.container.X.New2;
+import test.container.X.OuterNew;
+import test.container.X.OuterSingle;
 import test.container.X.Single;
 import test.container.X.Single2;
-import test.container.X.Spread;
-import test.container.X.Spread2;
 
 
 public class TestContainer
@@ -32,49 +32,59 @@ public class TestContainer
 	@BeforeClass
 	public static void init() throws Exception
 	{
+		final Container outest = new Factory()
+		{
+			{
+				bind(OuterNew.class);
+				bind(OuterSingle.class);
+			}
+
+			@Override
+			protected Object doBind(Class<?> c, Bind b) throws Exception
+			{
+				return b.cla(c == X.class ? OuterSingle.class : b.cla);
+			}
+		}.create(null);
 		con0 = new Factory()
 		{
 			{
+				bind(Object.class);
 				bind(New2.class);
 				bind(Single2.class);
-				bind(Spread2.class);
-				bind(Inherit.class);
-				bind(Inherit2.class);
-				bind(Object.class);
+				bind(Inner.class);
 			}
 
 			@Override
-			protected Object doBind(Class<?> c) throws Exception
+			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return bind(c == X.class ? Spread.class : c);
+				return b.mode(outest.bound(c) ? null : b.mode);
 			}
 
 			@Override
-			protected Object doBind(Class<?> out, AccessibleObject a, Class<?> c, Type t)
-				throws Exception
+			protected Object doBind(Class<?> cc, AccessibleObject fp, Class<?> c,
+				Type generic, Bind b) throws Exception
 			{
-				if (c == int.class)
-					return -1;
-				if (c == String.class && a.isAnnotationPresent(Deprecated.class))
-					return Deprecated.class.getName();
+				if (c == Integer.class)
+					return b.obj( -1);
+				if (c == String.class && fp.isAnnotationPresent(Deprecated.class))
+					return b.obj(Deprecated.class.getName());
 				if (c == int[].class)
-					return null;
+					return b.obj(null);
 				if (c == long[].class)
-					return 65536;
+					return b.obj(65536);
 
-				if (out == Single2.class)
+				if (cc == Single2.class)
 					if (c == Single.class)
-						return bind(Single2.class);
-					else if (((Member)a).getName().equals("n"))
-						return bind(New2.class);
-
-				return bind(c);
+						return b.cla(Single2.class);
+					else if (((Member)fp).getName().equals("n"))
+						return b.cla(New2.class);
+				return b;
 			}
-		}.createOutest(null);
+		}.create(outest);
 	}
 
-	Container con = con0.createOutest(null);
-	Container con2 = con0.createOutest(null);
+	Container con = con0.createAll();
+	Container con2 = con.create(Container.class);
 
 	@Test(expected = ClassCastException.class)
 	public void unbound() throws Exception
@@ -113,6 +123,8 @@ public class TestContainer
 		assertSame(o.name, o3.name);
 		assertEquals(o.new_, o3.new_);
 		assertSame(p, o3.p);
+		New2 o4 = con.get(New2.class);
+		assertNotSame(o3, o4);
 	}
 
 	@Test
@@ -144,77 +156,27 @@ public class TestContainer
 	}
 
 	@Test
-	public void containers()
+	public void outer()
 	{
+		assertNull(con.create().outer());
 		assertSame(con, con.get(Container.class));
-		Container con11 = con.create(Container.class);
-		assertNotSame(con, con11);
-		assertSame(con, con11.outer());
-		Container con12 = con11.createInner();
-		assertNotSame(con, con12);
-		assertNotSame(con11, con12);
-		assertSame(con11, con12.outer());
-	}
+		assertSame(con0.getClass(), con.getClass());
+		assertSame(con0.outer().getClass(), con.outer().getClass());
+		assertSame(con.outer(), con.outest());
 
-	@Test
-	public void spread()
-	{
-		Spread o0 = con.create(Spread.class);
-		assertNotSame(o0, o0.x);
+		Inner o = con.get(Inner.class);
+		assertNotNull(o.on);
+		assertNotSame(con.outer().get(OuterNew.class), o.on);
+		assertSame(con.outer().get(OuterSingle.class), o.os);
+		assertSame(o.os, o.on.x);
+		assertSame(o.os, o.os.x);
 
-		Spread o = con.get(Spread.class);
-		assertSame(o0.x, o);
-		assertSame(o, o.x);
-		Spread o2 = con.get(Spread.class);
-		assertSame(o, o2);
-
-		Container con11 = con.createInner();
-		Container con12 = con11.create(Container.class);
-
-		assertSame(o, con11.get(Spread.class));
-		assertSame(o, con12.get(Spread.class));
-
-		Spread o12 = con12.get(Spread2.class);
-		Spread o1 = con.get(Spread2.class);
-		Spread o11 = con11.get(Spread2.class);
-		assertSame(o1, o11);
-		assertNotSame(o1, o12);
-	}
-
-	@Test
-	public void inherit()
-	{
-		Inherit o0 = con.create(Inherit.class);
-		assertNotSame(o0, o0.i);
-
-		Inherit o = con.get(Inherit.class);
-		assertSame(o0.i, o);
-		assertSame(o, o.i);
-		assertSame(con.get(Spread.class), o.x);
-		Inherit o2 = con.get(Inherit.class);
-		assertSame(o, o2);
-
-		Container con11 = con.create(Container.class);
-		Container con12 = con11.createInner();
-
-		assertSame(o, con11.get(Inherit.class));
-		assertSame(o, con12.get(Inherit.class));
-
-		Inherit o12 = con12.get(Inherit2.class);
-		Inherit o1 = con.get(Inherit2.class);
-		Inherit o11 = con11.get(Inherit2.class);
-		assertSame(o1, o11);
-		assertSame(o1, o12);
-	}
-
-	@Test
-	public void upper()
-	{
-		Container con9 = con.createOutest(con);
-		Inherit o = con.get(Inherit.class);
-		assertSame(o, o.i);
-		Inherit o9 = con9.get(Inherit.class);
-		assertSame(o9, o9.i);
-		assertNotSame(o, o9);
+		Inner o2 = con.create(Inner.class);
+		assertNotSame(o.on, o2.on);
+		assertSame(o.os, o2.os);
+		Inner o3 = con2.get(Inner.class);
+		assertNotSame(o.on, o3.on);
+		assertNotSame(o2.on, o3.on);
+		assertSame(o.os, o3.os);
 	}
 }

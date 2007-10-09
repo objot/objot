@@ -39,12 +39,18 @@ public abstract class Container
 	}
 
 	/**
-	 * create container of same outer, same as <code>create(Container.class)</code>,
+	 * create outest container, same as <code>create((Container)null)</code>,
 	 * thread-safe.
 	 */
 	public final Container create()
 	{
-		return create0(index(Container.class), false);
+		return create((Container)null);
+	}
+
+	/** create container of all outers created, thread-safe */
+	public final Container createAll()
+	{
+		return create(outer != NULL ? outer.createAll() : null);
 	}
 
 	/** mostly not thread-safe except for some class */
@@ -59,6 +65,19 @@ public abstract class Container
 	{
 		int i = index(c);
 		return i != 0 ? this.<T>create0(i, false) : outer.create(c);
+	}
+
+	/** @return whether class is bound in this container */
+	public boolean bound(Class<?> c)
+	{
+		return index(c) != 0;
+	}
+
+	/** @return which container bind the class, null if no one */
+	public Container boundIn(Class<?> c)
+	{
+		int i = index(c);
+		return i != 0 ? this : outer.boundIn(c);
 	}
 
 	Container outer;
@@ -136,12 +155,6 @@ public abstract class Container
 	private static final Container NULL = new Container()
 	{
 		@Override
-		int index(Class<?> c)
-		{
-			throw new ClassCastException(c + " unbound");
-		}
-
-		@Override
 		<T>T get0(int index)
 		{
 			throw new UnsupportedOperationException();
@@ -151,6 +164,24 @@ public abstract class Container
 		<T>T create0(int index, boolean save)
 		{
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean bound(Class<?> c)
+		{
+			return false;
+		}
+
+		@Override
+		public Container boundIn(Class<?> c)
+		{
+			return null;
+		}
+
+		@Override
+		int index(Class<?> c)
+		{
+			throw new ClassCastException(c + " unbound");
 		}
 	};
 }
