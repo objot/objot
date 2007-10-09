@@ -282,7 +282,7 @@ public class Instruction
 	/** @param index negative for default, 0 for first value ... */
 	public final void switchLookupFrom(long lookupTag, int index)
 	{
-		switchTable(lookupTag, index, addr);
+		switchLookup(lookupTag, index, addr);
 	}
 
 	/** @param index negative for default, 0 for low-value ... */

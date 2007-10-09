@@ -9,26 +9,34 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import objot.util.Class2;
+
 
 public class Bind
 {
-	/** primitive boxed, except for {@link T#ps}, {@link F} and {@link M#ps} */
+	/** primitive boxed */
 	public Class<?> cla;
 	Clazz b;
 	public Object obj;
-	/** null to bind class to outer container */
+	/** bind class to outer container if {@link #mode} is null and {@link #cla} not changed */
 	public Class<? extends Annotation> mode;
 
-	public Bind set(Object o)
+	public Bind obj(Object o)
 	{
 		cla = null;
 		obj = o;
 		return this;
 	}
 
-	public Bind set(Class<?> c, Class<? extends Annotation> m)
+	/** @param c may be boxed */
+	public Bind cla(Class<?> c)
 	{
-		cla = c;
+		cla = c.isPrimitive() ? Class2.box(c, false) : c;
+		return this;
+	}
+
+	public Bind mode(Class<? extends Annotation> m)
+	{
 		mode = m;
 		return this;
 	}
@@ -38,8 +46,7 @@ public class Bind
 	{
 		/** null iif {@link #b} != this */
 		T t;
-		F[] fs;
-		M[] ms;
+		FM[] fms;
 
 		/** array of {@link #obj} */
 		Object[] os;
@@ -55,18 +62,17 @@ public class Bind
 	static final class T
 	{
 		Constructor<?> t;
+		/** {@link #cla} should be original one for {@link Factoring} */
 		Bind[] ps;
 	}
 
-	static final class F
+	/** {@link #cla} should be original one for {@link Factoring} */
+	static final class FM
 		extends Bind
 	{
 		Field f;
-	}
-
-	static final class M
-	{
 		Method m;
+		/** {@link #cla} should be original one for {@link Factoring} */
 		Bind[] ps;
 	}
 }

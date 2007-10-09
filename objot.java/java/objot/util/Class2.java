@@ -33,6 +33,11 @@ public class Class2
 		throw new AbstractMethodError();
 	}
 
+	public static String systemIdentity(Object o)
+	{
+		return o == null ? "null" : o.getClass().getName() + '@' + System.identityHashCode(o);
+	}
+
 	/**
 	 * Primitive class to box class.
 	 * 

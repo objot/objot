@@ -24,7 +24,6 @@ import org.junit.BeforeClass;
 import chat.Models;
 import chat.ModelsCreate;
 import chat.Services;
-import chat.Transac;
 import chat.model.Id;
 import chat.service.Data;
 import chat.service.Session;
@@ -45,21 +44,22 @@ public class TestDo
 	{
 		Locale.setDefault(Locale.ENGLISH);
 		dataFactory = Models.build(true).buildSessionFactory();
-		container0 = Services.build(dataFactory, true);
+		container0 = Services.build(dataFactory);
 		new ModelsCreate(true, 1, true);
 	}
 
 	{
-		container = container0.createOutest(null).createInner();
-		sess = container.outer().get(Session.class);
+		container = container0.createAll();
+		sess = container.get(Session.class);
 		data = container.get(Data.class);
 		System.err.println("\n\n************************************************\n");
 	}
 
 	@After
-	public void afterTest() throws Exception
+	public void afterTest()
 	{
-		Transac.Config.invokeFinally(data, false);
+		data.hib.getTransaction().rollback();
+		data.hib.close();
 	}
 
 	// ********************************************************************************

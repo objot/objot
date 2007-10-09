@@ -90,15 +90,16 @@ final class Factoring
 
 	private void makeFields()
 	{
+		int descCi = cons.addUcs(Class2.descript(Object.class));
 		for (int i = 0; i < cs.length; i++)
 			if (cs[i].b == cs[i] && cs[i].mode != Inject.New.class)
 			{
 				Field f = new Field(cons);
 				f.setNameCi(cons.addUcs("o" + (i + 1)));
-				f.setDescCi(cons.addUcs(Class2.descript(cs[i].cla)));
+				f.setDescCi(descCi);
 				y.getFields().addField(f);
 				fCis[i] = cons.addField(y.head.getClassCi(), cons.addNameDesc(f.getNameCi(),
-					f.getDescCi()));
+					descCi));
 			}
 	}
 
@@ -168,57 +169,64 @@ final class Factoring
 		{
 			Bind.Clazz c = cs[i];
 			if (c.cla == Container.class)
+			{
+				s.switchTableFrom(sw, i);
 				s.ins0(ARETURN); // return this;
-			else if (c.b == c)
-				if (c.mode == Inject.Single.class)
-				{
-					s.switchTableFrom(sw, i + 1);
-					s.insU2(GETFIELD, fCis[i]);
-					s.ins0(DUP);
-					int j = s.insJump(IFNOTNULL);
-					s.ins0(POP);
-					s.ins0(ALOAD0);
-					s.ins0(ILOAD1);
-					s.ins0(ICONST1);
-					s.insU2(INVOKEVIRTUAL, create0Ci);
-					s.jumpFrom(j);
-					s.ins0(ARETURN);
-				}
+			}
+			else if (c.b == null)
+				if (oss[i][0] != null)
+					s.switchTable(sw, i, swO);
 				else
-				{ // bind to outer
-					s.switchTableFrom(sw, i + 1);
-					s.ins0(DUP);
-					s.insU2(GETFIELD, fCis[i]); // this, field
-					s.ins0(DUP);
-					int cache = s.insJump(IFNULL);
-					s.ins0(ARETURN);
-					s.jumpFrom(cache);
-					s.ins0(SWAP); // field, this
-					int out = s.addr;
-					s.insU2(GETFIELD, outCi); // c
-					s.ins0(DUP);
-					s.insU2(LDCW, cCis[i]);
-					s.insU2(INVOKEVIRTUAL, indexCi); // c, i
-					s.ins0(DUPI);
-					s.jump(s.insJump(IFIE0), out); // i, c
-					s.ins0(SWAP); // c, i
-					s.ins0(DUP);
-					int create = s.insJump(IFIL0);
-					s.insU2(INVOKEVIRTUAL, get0Ci); // o
-					s.ins0(DUP);
-					s.ins0(ALOAD0);
-					s.ins0(SWAP); // o, c, o
-					s.insU2(PUTFIELD, fCis[i]);
-					s.ins0(ARETURN);
-					s.jumpFrom(create);
-					s.ins0(ICONST0);
-					s.insU2(INVOKEVIRTUAL, create0Ci); // o
-					s.ins0(ARETURN);
-				}
-			else if (oss[i][0] != null) // never be another bind
-				s.switchTable(sw, i + 1, swO);
+					s.switchTable(sw, i, sw0);
+			else if (c.b == c && c.mode == Inject.Single.class)
+			{
+				s.switchTableFrom(sw, i);
+				s.insU2(GETFIELD, fCis[i]);
+				s.ins0(DUP);
+				int j = s.insJump(IFNOTNULL);
+				s.ins0(POP);
+				s.ins0(ALOAD0);
+				s.ins0(ILOAD1);
+				s.ins0(ICONST1);
+				s.insU2(INVOKEVIRTUAL, create0Ci);
+				s.jumpFrom(j);
+				s.ins0(ARETURN);
+			}
+			else if (c.b == c && c.mode == null)
+			{
+				s.switchTableFrom(sw, i);
+				s.ins0(DUP);
+				s.insU2(GETFIELD, fCis[i]); // this, field
+				s.ins0(DUP);
+				int cache = s.insJump(IFNULL);
+				s.ins0(ARETURN);
+				s.jumpFrom(cache);
+				s.ins0(POP);
+				int out = s.addr; // c
+				s.insU2(GETFIELD, outCi); // c
+				s.ins0(DUP);
+				s.insU2(LDCW, cCis[i]);
+				s.insU2(INVOKEVIRTUAL, indexCi); // c, i
+				s.ins0(DUP);
+				int ge0 = s.insJump(IFIGE0);
+				s.ins0(ICONST0);
+				s.insU2(INVOKEVIRTUAL, create0Ci); // o
+				s.ins0(ARETURN);
+				s.jumpFrom(ge0);
+				s.ins0(DUP);
+				int e0 = s.insJump(IFIE0);
+				s.insU2(INVOKEVIRTUAL, get0Ci); // o
+				s.ins0(DUP);
+				s.ins0(ALOAD0);
+				s.ins0(SWAP); // o, this, o
+				s.insU2(PUTFIELD, fCis[i]);
+				s.ins0(ARETURN);
+				s.jumpFrom(e0);
+				s.ins0(POP);
+				s.jump(s.insJump(GOTO), out);
+			}
 			else
-				s.switchTable(sw, i + 1, sw0);
+				s.switchTable(sw, i, sw0);
 		}
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(3);
@@ -236,6 +244,7 @@ final class Factoring
 		s.ins0(ILOAD1); // index
 		long sw = s.insSwitchTable( -cs.length, cs.length);
 		s.switchTableFrom(sw, -1);
+		s.switchTableFrom(sw, cs.length);
 		int sw0 = s.addr;
 		s.ins0(ACONSTNULL);
 		s.ins0(ARETURN);
@@ -244,11 +253,10 @@ final class Factoring
 		{
 			Bind.Clazz c = cs[i];
 			maxParamN = Math.max(maxParamN, c.maxParamN);
-			int o = 1;
 			if (c.cla == Container.class)
 			{
-				s.switchTableFrom(sw, i + 1);
-				s.switchTableFrom(sw, -i - 1);
+				s.switchTableFrom(sw, i + 1 + cs.length);
+				s.switchTableFrom(sw, -i - 1 + cs.length);
 				s.insU2(NEW, y.head.getClassCi());
 				s.ins0(DUP);
 				s.insU2(INVOKESPECIAL, cons.addCproc(y.head.getClassCi(), //
@@ -264,46 +272,51 @@ final class Factoring
 				s.insU2(PUTFIELD, ossCi);
 				s.ins0(ARETURN);
 			}
-			else if (c.b == c) // never bind to outer
+			else if (c.t != null) // never bind to outer
 			{
-				s.switchTableFrom(sw, i + 1);
-				s.switchTableFrom(sw, -i - 1);
+				s.switchTableFrom(sw, i + 1 + cs.length);
+				s.switchTableFrom(sw, -i - 1 + cs.length);
 				s.insU2(NEW, cons.putClass(c.cla));
 				s.ins0(DUP);
+				int o = 1;
 				for (int cb = 0; cb < c.t.ps.length; cb++)
 					o = makeCreate0_bind(i, s, c.t.ps[cb], oss[i], o);
 				s.insU2(INVOKESPECIAL, cons.putProc(c.t.t));
-				s.ins0(ILOAD2); // save
-				int j = s.insJump(IFIE0);
-				s.ins0(DUP);
-				s.ins0(ALOAD0);
-				s.ins0(SWAP);
-				s.insU2(PUTFIELD, fCis[i]);
-				s.jumpFrom(j);
-				for (Bind.F f: c.fs)
+				if (c.mode == Inject.Single.class)
 				{
+					s.ins0(ILOAD2); // save
+					int j = s.insJump(IFIE0);
 					s.ins0(DUP);
-					o = makeCreate0_bind(i, s, f, oss[i], o);
-					s.insU2(PUTFIELD, cons.addField(f.f));
+					s.ins0(ALOAD0);
+					s.ins0(SWAP);
+					s.insU2(PUTFIELD, fCis[i]);
+					s.jumpFrom(j);
 				}
-				for (Bind.M m: c.ms)
-				{
-					s.ins0(DUP);
-					for (Bind mp: m.ps)
-						o = makeCreate0_bind(i, s, mp, oss[i], o);
-					s.insU2(INVOKEVIRTUAL, cons.addProc(m.m));
-				}
+				for (Bind.FM fm: c.fms)
+					if (fm.f != null)
+					{
+						s.ins0(DUP);
+						o = makeCreate0_bind(i, s, fm, oss[i], o);
+						s.insU2(PUTFIELD, cons.addField(fm.f));
+					}
+					else
+					{
+						s.ins0(DUP);
+						for (Bind mp: fm.ps)
+							o = makeCreate0_bind(i, s, mp, oss[i], o);
+						s.insU2(INVOKEVIRTUAL, cons.addProc(fm.m));
+					}
 				s.ins0(ARETURN);
 			}
 			else
 			{ // never happen
-				s.switchTable(sw, i + 1, sw0);
-				s.switchTable(sw, -i - 1, sw0);
+				s.switchTable(sw, i + 1 + cs.length, sw0);
+				s.switchTable(sw, -i - 1 + cs.length, sw0);
 			}
 		}
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(3);
-		p.getCode().setStackN(3 + maxParamN);
+		p.getCode().setStackN(5 + maxParamN * 2);
 		y.getProcs().addProc(p);
 	}
 
@@ -313,7 +326,7 @@ final class Factoring
 		{
 			s.ins0(ALOAD0);
 			int i = bind(b.b);
-			s.insU2(SIPUSH, i);
+			s.insS2(SIPUSH, i);
 			if (i < 0)
 				s.ins0(ICONST0);
 			s.insU2(INVOKEVIRTUAL, i > 0 ? get0Ci : create0Ci);
@@ -335,7 +348,7 @@ final class Factoring
 			s.insU2(GETFIELD, ossCi);
 			s.insS2(SIPUSH, i0);
 			s.ins0(AALOAD);
-			s.insU2(SIPUSH, o);
+			s.insS2(SIPUSH, o);
 			s.ins0(AALOAD); // oss[i0][o]
 			s.insUnboxNarrow(b.cla);
 		}

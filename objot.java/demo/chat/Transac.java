@@ -11,6 +11,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import objot.aspect.Aspect;
+import objot.container.Inject;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,11 +69,8 @@ public @interface Transac
 	{
 		boolean read;
 		int iso;
-		boolean sub;
-		SessionFactory dataFactory;
 
-		/** @param subRequest sequent sub requests in a request */
-		public static Config config(Annotation t, boolean subRequest, SessionFactory d)
+		public static Config config(Annotation t)
 		{
 			if (t instanceof Any)
 				return null;
@@ -93,50 +91,17 @@ public @interface Transac
 				con.read = t == null ? false : t instanceof Readonly ? true : ((Repeat)t)
 					.readonly();
 			}
-			con.sub = subRequest;
-			con.dataFactory = d;
-			con.read &= !subRequest;
 			return con;
-		}
-
-		/**
-		 * commit or cancel transaction, close hibernate session. like open session in
-		 * view
-		 */
-		public static void invokeFinally(Data data, boolean commit)
-		{
-			if (data.hib == null)
-				return;
-			if (data.hib.getTransaction().isActive())
-				try
-				{
-					if (commit)
-						data.hib.getTransaction().commit();
-					else
-						data.hib.getTransaction().rollback();
-				}
-				catch (Throwable e)
-				{
-					if (As.LOG.isWarnEnabled())
-						As.LOG.warn(e);
-				}
-			if (data.hib.isOpen())
-				try
-				{
-					data.hib.close();
-				}
-				catch (Throwable e)
-				{
-					if (As.LOG.isWarnEnabled())
-						As.LOG.warn(e);
-				}
 		}
 	}
 
 	public static class As
 		extends Aspect
 	{
-		static final Log LOG = LogFactory.getLog(As.class);
+		private static final Log LOG = LogFactory.getLog(As.class);
+
+		@Inject
+		SessionFactory dataFactory;
 
 		/** open hibernate session, begin transaction */
 		@Override
@@ -146,9 +111,10 @@ public @interface Transac
 			Data data = Target.<Do>getThis().data;
 			SessionImpl hib = (SessionImpl)data.hib;
 			if (hib == null)
-				data.hib = hib = (SessionImpl)con.dataFactory.openSession();
+				data.hib = hib = (SessionImpl)dataFactory.openSession();
 
 			data.times++;
+			boolean ok = false;
 			try
 			{
 				if (LOG.isDebugEnabled())
@@ -174,16 +140,38 @@ public @interface Transac
 						+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
 							: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
 								: "read committed"));
-				if (con.sub)
-					hib.clear();
 				Target.invoke();
+				ok = true;
 			}
 			finally
 			{
 				data.times--;
+				if (data.times > 0)
+					return;
+				if (data.hib.getTransaction().isActive())
+					try
+					{
+						if (ok)
+							data.hib.getTransaction().commit();
+						else
+							data.hib.getTransaction().rollback();
+					}
+					catch (Throwable e)
+					{
+						if (LOG.isWarnEnabled())
+							LOG.warn(e);
+					}
+				if (data.hib.isOpen())
+					try
+					{
+						data.hib.close();
+					}
+					catch (Throwable e)
+					{
+						if (LOG.isWarnEnabled())
+							LOG.warn(e);
+					}
 			}
-			if (data.times == 0)
-				hib.flush();
 		}
 	}
 }

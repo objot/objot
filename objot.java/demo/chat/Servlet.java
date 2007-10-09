@@ -58,7 +58,7 @@ public final class Servlet
 			new ModelsCreate(true, -1, true);
 
 		dataFactory = Models.build(dataTest).buildSessionFactory();
-		container0 = Services.build(dataFactory, false);
+		container0 = Services.build(dataFactory);
 		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";
@@ -122,10 +122,9 @@ public final class Servlet
 					con = (Container)hReq.getSession().getAttribute("container");
 					if (con == null)
 						hReq.getSession().setAttribute("container",
-							con = container0.createOutest(null));
+							con = container0.outer().create());
 				}
-			Do s = (Do)con.createInner().get(cla);
-			boolean ok = false;
+			Do s = (Do)container0.create(con).get(cla);
 			try
 			{
 				CharSequence res;
@@ -133,7 +132,6 @@ public final class Servlet
 					res = serve(s, hReq, hRes);
 				else
 					res = serve(s, hReq, hRes, codec.dec(req, reqClas[0], cla));
-				ok = true;
 				return res;
 			}
 			catch (InvalidStateException e)
@@ -144,8 +142,6 @@ public final class Servlet
 			{
 				if (con.get(Session.class).me < 0)
 					hReq.getSession().invalidate();
-				// like open session in view
-				Transac.Config.invokeFinally(s.data, ok);
 			}
 		}
 	}

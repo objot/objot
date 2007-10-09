@@ -11,6 +11,20 @@ import objot.container.Inject;
 public interface X
 {
 	@Inject.New
+	public class OuterNew
+		implements X
+	{
+		@Inject
+		public X x;
+	}
+
+	@Inject.Single
+	public class OuterSingle
+		extends OuterNew
+	{
+	}
+
+	@Inject.New
 	public class New
 	{
 		Container con;
@@ -36,6 +50,7 @@ public interface X
 		}
 	}
 
+	/** should be {@link Inject.New} */
 	public class New2
 		extends New
 	{
@@ -72,33 +87,11 @@ public interface X
 		public New n0;
 	}
 
-	@Inject.Spread
-	public class Spread
-		implements X
+	public class Inner
 	{
 		@Inject
-		public X x;
-	}
-
-	/** should be {@link Inject.Spread} */
-	public class Spread2
-		extends Spread
-	{
-	}
-
-	@Inject.Inherit
-	public class Inherit
-		implements X
-	{
+		public OuterNew on;
 		@Inject
-		public X x;
-		@Inject
-		public Inherit i;
-	}
-
-	/** should be {@link Inject.Inherit} */
-	public class Inherit2
-		extends Inherit
-	{
+		public OuterSingle os;
 	}
 }
