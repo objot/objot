@@ -302,7 +302,7 @@ public class Instruction
 	public final void insLoad(Class<?> c)
 	{
 		if (c.isPrimitive())
-			insU2(GETSTATIC, cons.putField(cons.putClass(Class2.box(c, false)), //
+			insU2(GETSTATIC, cons.putField(cons.putClass(Class2.box(c, true)), //
 				cons.putNameDesc(cons.putUtf(TYPE_NAME), //
 					cons.putUcs(Class2.descript(Class.class)))));
 		else
@@ -312,7 +312,7 @@ public class Instruction
 	/** Stack: primitive value(s) or object --> object */
 	public final void insBox(Class<?> c)
 	{
-		if ( !c.isPrimitive())
+		if ( !c.isPrimitive() || c == void.class)
 			return;
 		Class<?> b = Class2.box(c, false);
 		insU2(INVOKESTATIC, cons.putCproc(cons.putClass(b), //
@@ -323,6 +323,8 @@ public class Instruction
 	/** Stack: object --> primitive value(s) or narrowed object */
 	public final void insUnboxNarrow(Class<?> c)
 	{
+		if (c == void.class)
+			c = Void.class;
 		if (c.isPrimitive())
 		{
 			Class<?> b = Class2.box(c, false);

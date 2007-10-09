@@ -43,7 +43,7 @@ final class Encoder
 		str = new StringBuilder(1000);
 	}
 
-	CharSequence go(Object o) throws Exception
+	StringBuilder go(Object o) throws Exception
 	{
 		refs(o);
 		if (o instanceof Collection || o.getClass().isArray())
