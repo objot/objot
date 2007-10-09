@@ -4,12 +4,14 @@
 //
 package chat;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import objot.codec.Codec;
-import objot.codec.Err;
+import objot.aspect.Aspect;
+import objot.aspect.Weaver;
 import objot.codec.ErrThrow;
 import objot.codec.Errs;
 import objot.container.Container;
@@ -22,10 +24,10 @@ import org.hibernate.cache.Cache;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.validator.InvalidStateException;
 
-import chat.model.Id;
 import chat.model.Ok;
 import chat.service.Do;
 import chat.service.Session;
+import chat.service.Do.Service;
 
 
 public final class Servlet
@@ -34,6 +36,7 @@ public final class Servlet
 	boolean dataTest;
 	Container container0;
 	SessionFactory data0;
+	Constructor<S> ctorS;
 
 	@Override
 	public void init() throws Exception
@@ -58,36 +61,31 @@ public final class Servlet
 			new ModelsCreate(true).create(true, -1);
 
 		data0 = Models.build(dataTest).buildSessionFactory();
-		container0 = Services.build(data0);
-		codec = new Codec()
+		container0 = Services.build(data0, null);
+		codec = Services.CODEC;
+		ctorS = new Weaver(Transac.As.class)
 		{
-			String modelPrefix = Id.class.getPackage().getName() + ".";
-
 			@Override
-			protected Class<?> classByName(String name) throws Exception
+			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
-				return Class.forName(modelPrefix.concat(name));
+				if (m.isAnnotationPresent(Service.class))
+					return Transac.Config.config(m);
+				return this;
 			}
-
-			/** include {@link Err} and {@link Errs} */
-			@Override
-			protected String className(Class<?> c) throws Exception
-			{
-				return c.getName().substring(c.getName().lastIndexOf('.') + 1);
-			}
-		};
+		}.weave(S.class).getConstructor(Servlet.class);
 	}
 
 	@Override
 	protected Serve getServe(String name, HttpServletRequest hReq, HttpServletResponse hRes)
 		throws Exception
 	{
-		return new S().init(codec, name);
+		return ctorS.newInstance(this).init(codec, name);
 	}
 
 	class S
 		extends Serve
 	{
+		public S()
 		{
 			serviceAnno = Do.Service.class;
 		}
@@ -124,6 +122,14 @@ public final class Servlet
 						hReq.getSession().setAttribute("container",
 							con = container0.outer().create());
 				}
+			return serve(con, req, hReq, hRes);
+		}
+
+		@Service
+		@Transac.Any
+		protected CharSequence serve(Container con, char[] req, HttpServletRequest hReq,
+			HttpServletResponse hRes) throws ErrThrow, Exception
+		{
 			Do s = (Do)container0.create(con).get(cla);
 			try
 			{

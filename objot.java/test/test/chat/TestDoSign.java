@@ -16,11 +16,7 @@ import chat.service.DoSign;
 public class TestDoSign
 	extends TestDo
 {
-	DoSign doSign;
-
-	{
-		doSign = container.get(DoSign.class);
-	}
+	DoSign doSign = container.get(DoSign.class);
 
 	@Test
 	public void inUp_up() throws Exception
@@ -67,8 +63,6 @@ public class TestDoSign
 		b.name = b.password = "b";
 		b = doSign.inUp(b);
 		asser(a.id != b.id);
-		data.hib.clear();
-		assertEquals(3, (int)data.count(data.criteria(User.class))); // + user "admin"
 	}
 
 	@Test

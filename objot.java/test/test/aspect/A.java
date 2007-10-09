@@ -18,6 +18,8 @@ class A
 	String target;
 	X thiz;
 	Class<?> clazz;
+	Class<?> returnC;
+	Object returnV;
 	Throwable except;
 	String Finally;
 
@@ -49,7 +51,13 @@ class A1
 		a.target = getTarget();
 		a.thiz = getThis();
 		a.clazz = getClazz();
+		a.returnC = getReturnClass();
 		invoke();
+		a.returnV = getReturn();
+		if (a.returnC == void.class)
+			setReturn(null);
+		else if (a.returnC == int.class)
+			setReturn((Integer)a.returnV + 1);
 	}
 }
 
@@ -64,6 +72,7 @@ class A2
 	protected void aspect() throws Throwable
 	{
 		A a = (A)Target.getData();
+		a.clazz = Target.getClazz();
 		try
 		{
 			Target.invoke();

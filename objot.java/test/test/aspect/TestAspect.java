@@ -70,6 +70,8 @@ public class TestAspect
 		assertEquals(a.target0, a.target);
 		assertSame(x, a.thiz);
 		assertEquals(X.class, a.clazz);
+		assertSame(void.class, a.returnC);
+		assertNull(a.returnV);
 		assertNull(a.except);
 		assertNull(a.Finally);
 		assertNull(x.result);
@@ -80,12 +82,13 @@ public class TestAspect
 	{
 		a = X.P.Int.a;
 		X x = weaved.newInstance();
-		assertEquals(10, x.Int(10));
+		assertEquals(11, x.Int(10));
 		assertEquals(a.name0, a.name);
 		assertEquals(a.desc0, a.desc);
 		assertEquals(a.target0, a.target);
 		assertSame(x, a.thiz);
 		assertEquals(X.class, a.clazz);
+		assertSame(int.class, a.returnC);
 		assertNull(a.except);
 		assertNull(a.Finally);
 		assertEquals(10, x.a);
@@ -199,6 +202,7 @@ public class TestAspect
 		catch (RuntimeException e)
 		{
 			assertEquals(a.name0, a.name);
+			assertSame(X.class, a.clazz);
 			assertSame(e, a.except);
 			assertEquals("finally", a.Finally);
 			assertEquals("faster", x.e);

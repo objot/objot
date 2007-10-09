@@ -5,10 +5,8 @@
 package test.chat;
 
 import java.sql.Clob;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -16,7 +14,6 @@ import javax.sql.rowset.serial.SerialClob;
 
 import objot.container.Container;
 
-import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -25,7 +22,6 @@ import chat.Models;
 import chat.ModelsCreate;
 import chat.Services;
 import chat.model.Id;
-import chat.service.Data;
 import chat.service.Session;
 
 
@@ -33,19 +29,16 @@ import chat.service.Session;
 public class TestDo
 	extends Assert
 {
-	private static SessionFactory data0;
 	private static Container container0;
 	private static ModelsCreate dataInit;
 	protected final Container container;
 	protected final Session sess;
-	protected final Data data;
 
 	@BeforeClass
 	public static void beforeAll() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		data0 = Models.build(true).buildSessionFactory();
-		container0 = Services.build(data0);
+		container0 = Services.build(Models.build(true).buildSessionFactory(), Services.CODEC);
 		dataInit = new ModelsCreate(true);
 		dataInit.create(true, 1);
 		dataInit.print = false;
@@ -54,32 +47,16 @@ public class TestDo
 	{
 		container = container0.createAll();
 		sess = container.get(Session.class);
-		data = container.get(Data.class);
-		data.lazyClose = true;
 		System.err.println("\n\n************************************************\n");
 	}
 
 	@After
 	public void afterTest() throws Exception
 	{
-		if (data.hib != null)
-			data.hib.getTransaction().rollback();
-		if (data.hib != null)
-			data.hib.close();
 		dataInit.create(true, 1);
 	}
 
 	// ********************************************************************************
-
-	public <T>Set<T> copy(Set<T> s)
-	{
-		return new HashSet<T>(s);
-	}
-
-	public <T>List<T> copy(List<T> s)
-	{
-		return new ArrayList<T>(s);
-	}
 
 	public Clob clob(String s) throws Exception
 	{

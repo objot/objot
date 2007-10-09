@@ -31,6 +31,7 @@ final class WeaveProc
 	private Bytes targetName;
 	private Bytecode y;
 	private Constants cons;
+	private int clazzCi;
 	private Code ao;
 	private Procedure wp;
 	private Class<?> returnCla;
@@ -45,6 +46,7 @@ final class WeaveProc
 		targetName = Bytecode.utf(target.getName() + ".");
 		y = y_;
 		cons = y.cons;
+		clazzCi = cons.addClass(target);
 		ao = ao_;
 		wp = new Procedure(cons);
 		wo = new Code(cons, ao.bytes, ao.beginBi);
@@ -266,7 +268,7 @@ final class WeaveProc
 
 	private void opGetClazz()
 	{
-		ws.insU2(LDCW, y.head.getSuperCi());
+		ws.insU2(LDCW, clazzCi);
 	}
 
 	private void opInvoke()
