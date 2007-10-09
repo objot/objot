@@ -56,17 +56,17 @@ public class Factory
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
 			doBind(cla, to);
 			to(c.cla, c, to);
-			if (c.b == c && Mod2.match(cla, Mod2.ABSTRACT))
-				throw new IllegalArgumentException("abstract");
 			if (c.b != c || c.mode == null)
 				return;
+			if (c.b == c && Mod2.match(cla, Mod2.ABSTRACT))
+				throw new IllegalArgumentException("abstract");
 
 			c.t = new Bind.T();
 			c.t.t = doBind(cla, cla.getDeclaredConstructors());
 			if (c.t.t.getDeclaringClass() != cla)
 				throw new IllegalArgumentException(c.t.t.getName() + " in another class");
 			if ( !Mod2.match(c.t.t, Mod2.PUBLIC, Mod2.STATIC))
-				throw new IllegalArgumentException(Mod2.toString(c.t.t));
+				throw new IllegalArgumentException(Mod2.toString(c.t.t) + c.t.t.getName());
 			Parameter[] ps = Parameter.gets(c.t.t);
 			c.t.ps = new Bind[ps.length];
 			for (int i = 0; i < ps.length; i++)
@@ -86,7 +86,8 @@ public class Factory
 					if ( !((Member)fm).getDeclaringClass().isAssignableFrom(cla))
 						throw new IllegalArgumentException(fm + " in another class");
 					else if ( !Mod2.match(fm, Mod2.PUBLIC, Mod2.STATIC))
-						throw new IllegalArgumentException(Mod2.toString(fm));
+						throw new IllegalArgumentException(Mod2.toString(fm)
+							+ ((Member)fm).getName());
 					else
 						fms0.add(fm);
 			fms = Array2.from(fms0, AccessibleObject.class);
@@ -168,17 +169,20 @@ public class Factory
 	{
 		if (con != null && classes.size() == bindN)
 			return con.create(outer);
-		Bind.Clazz[] cs = Array2.from(classes.values(), Bind.Clazz.class);
+		Bind.Clazz[] cs = new Bind.Clazz[classes.size() + 1];
+		int i = 1;
+		for (Bind.Clazz c: classes.values())
+			cs[i++] = c;
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind.Clazz c: cs)
-				if (c.b != c && c.b != null && c.b.b != c.b)
+				if (c != null && c.b != c && c.b != null && c.b.b != c.b)
 				{
 					c.b = c.b.b;
 					ok = true;
 				}
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind.Clazz c: cs)
-			if (c.os == null)
+			if (c != null && c.os == null)
 			{
 				os.add(c.obj);
 				if (c.t != null)
@@ -202,7 +206,7 @@ public class Factory
 				os.clear();
 			}
 		con = new Factoring().create(cs);
-		bindN = cs.length;
+		bindN = cs.length - 1;
 		return con.create(outer);
 	}
 

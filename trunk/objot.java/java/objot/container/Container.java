@@ -81,9 +81,7 @@ public abstract class Container
 	}
 
 	Container outer;
-	Object[][] objss;
 	static final Field F_outer = Class2.declaredField(Container.class, "outer");
-	static final Field F_objss = Class2.declaredField(Container.class, "objss");
 
 	/**
 	 * Example:
@@ -134,14 +132,13 @@ public abstract class Container
 	 * switch(i) {
 	 *   1: Container123 o = new Container123();
 	 *      o.outer = outer;
-	 *      o.objss = objss;
 	 *      return o;
-	 *   -2: A o = new A((A1)get0(5), (Object)create0(-7, false), (A4)objss[0][1]);
+	 *   -2: A o = new A((A1)get0(5), (Object)create0(-7, false), (A4)objss[2][1]);
 	 *      if (save)
 	 *        o0 = o;
 	 *      o.x = (Ax)get0(3); // bind to index 3
-	 *      o.y = (Ay)objss[0][2]; // bind to object
-	 *      o.p((Ap)objss[0][3]);
+	 *      o.y = (Ay)objss[2][2]; // bind to object
+	 *      o.p((Ap)objss[2][3]);
 	 *      o.q((int)(Integer)get0(1));
 	 *      return o;
 	 *   3: ...

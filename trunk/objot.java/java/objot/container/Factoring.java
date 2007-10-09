@@ -19,6 +19,9 @@ import static objot.bytecode.Opcode.*;
 
 final class Factoring
 {
+	private static final String NAME_oss = "oss";
+
+	/** [0] == null */
 	Bind.Clazz[] cs;
 	Object[][] oss;
 	Bytecode y;
@@ -31,11 +34,11 @@ final class Factoring
 	int[] fCis;
 	int[] cCis;
 
-	Container create(Bind.Clazz[] bs_) throws Exception
+	Container create(Bind.Clazz[] cs_) throws Exception
 	{
-		cs = bs_;
+		cs = cs_;
 		oss = new Object[cs.length][];
-		for (int i = 0; i < cs.length; i++)
+		for (int i = 1; i < cs.length; i++)
 			oss[i] = cs[i].os;
 
 		String name = Container.class.getName() + "$$" + hashCode();
@@ -50,7 +53,6 @@ final class Factoring
 		get0Ci = cons.addProc(Container.M_get0);
 		create0Ci = cons.addProc(Container.M_create0);
 		outCi = cons.addField(Container.F_outer);
-		ossCi = cons.addField(Container.F_objss);
 		fCis = new int[cs.length];
 		cCis = new int[cs.length];
 		makeFields();
@@ -60,7 +62,7 @@ final class Factoring
 
 		Container c = Class2.<Container>load(Container.class.getClassLoader(), name,
 			y.normalize()).newInstance();
-		c.objss = oss;
+		Class2.declaredField(c.getClass(), NAME_oss).set(null, oss);
 		return c;
 	}
 
@@ -69,33 +71,41 @@ final class Factoring
 	{
 		Bind.Clazz c = cs[i0];
 		if (c.b != c && c.b != null)
-			for (int i = cs.length - 1; i >= 0; i--)
+			for (int i = cs.length - 1; i > 0; i--)
 				if (cs[i] == c.b)
-					return cs[i].mode == Inject.New.class ? -i - 1 : i + 1;
-		return c.mode == Inject.New.class ? -i0 - 1 : i0 + 1;
+					return cs[i].mode == Inject.New.class ? -i : i;
+		return c.mode == Inject.New.class ? -i0 : i0;
 	}
 
 	/** @return index or -index of actual bind or object */
 	private int bind(Bind.Clazz c)
 	{
 		if (c.b != c && c.b != null)
-			for (int i = cs.length - 1; i >= 0; i--)
+			for (int i = cs.length - 1; i > 0; i--)
 				if (cs[i] == c.b)
-					return cs[i].mode == Inject.New.class ? -i - 1 : i + 1;
-		for (int i = cs.length - 1; i >= 0; i--)
+					return cs[i].mode == Inject.New.class ? -i : i;
+		for (int i = cs.length - 1; i > 0; i--)
 			if (cs[i] == c)
-				return cs[i].mode == Inject.New.class ? -i - 1 : i + 1;
+				return cs[i].mode == Inject.New.class ? -i : i;
 		throw new AssertionError();
 	}
 
 	private void makeFields()
 	{
+		Field f = new Field(cons);
+		f.setModifier(Mod2.STATIC);
+		f.setNameCi(cons.addUcs(NAME_oss));
+		f.setDescCi(cons.addUcs(Class2.descript(Object[][].class)));
+		y.getFields().addField(f);
+		ossCi = cons.addField(y.head.getClassCi(), cons.addNameDesc(f.getNameCi(), f
+			.getDescCi()));
 		int descCi = cons.addUcs(Class2.descript(Object.class));
-		for (int i = 0; i < cs.length; i++)
+		for (int i = 1; i < cs.length; i++)
 			if (cs[i].b == cs[i] && cs[i].mode != Inject.New.class)
 			{
-				Field f = new Field(cons);
-				f.setNameCi(cons.addUcs("o" + (i + 1)));
+				f = new Field(cons);
+				f.setModifier(Mod2.PRIVATE);
+				f.setNameCi(cons.addUcs("o" + i));
 				f.setDescCi(descCi);
 				y.getFields().addField(f);
 				fCis[i] = cons.addField(y.head.getClassCi(), cons.addNameDesc(f.getNameCi(),
@@ -121,7 +131,7 @@ final class Factoring
 		for (int i = 0; i <= 14; i++)
 		{
 			s.switchTableFrom(sw, i);
-			for (int j = 0; j < cs.length; j++)
+			for (int j = 1; j < cs.length; j++)
 				if (cs[j].cla.hashCode() % 15 == i)
 				{
 					s.ins0(DUP); // class
@@ -153,19 +163,20 @@ final class Factoring
 		Instruction s = new Instruction(cons, 1000);
 		s.ins0(ALOAD0); // this
 		s.ins0(ILOAD1);
-		long sw = s.insSwitchTable(1, cs.length);
+		long sw = s.insSwitchTable(0, cs.length - 1);
 		s.switchTableFrom(sw, -1);
+		s.switchTableFrom(sw, 0);
 		int sw0 = s.addr;
 		s.ins0(ACONSTNULL);
 		s.ins0(ARETURN);
 		int swO = s.addr;
-		s.insU2(GETFIELD, ossCi);
+		s.insU2(GETSTATIC, ossCi);
 		s.ins0(ILOAD1);
 		s.ins0(AALOAD);
 		s.ins0(ICONST0);
 		s.ins0(AALOAD); // oss[i][0]
 		s.ins0(ARETURN);
-		for (int i = 0; i < cs.length; i++)
+		for (int i = 1; i < cs.length; i++)
 		{
 			Bind.Clazz c = cs[i];
 			if (c.cla == Container.class)
@@ -240,23 +251,24 @@ final class Factoring
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(cons.getCprocName(create0Ci));
 		p.setDescCi(cons.getCprocDesc(create0Ci));
+		int max = cs.length - 1;
 		Instruction s = new Instruction(cons, 250);
 		s.ins0(ILOAD1); // index
-		long sw = s.insSwitchTable( -cs.length, cs.length);
+		long sw = s.insSwitchTable( -max, max);
 		s.switchTableFrom(sw, -1);
-		s.switchTableFrom(sw, cs.length);
+		s.switchTableFrom(sw, max);
 		int sw0 = s.addr;
 		s.ins0(ACONSTNULL);
 		s.ins0(ARETURN);
 		int maxParamN = 0;
-		for (int i = 0; i < cs.length; i++)
+		for (int i = 1; i < cs.length; i++)
 		{
 			Bind.Clazz c = cs[i];
 			maxParamN = Math.max(maxParamN, c.maxParamN);
 			if (c.cla == Container.class)
 			{
-				s.switchTableFrom(sw, i + 1 + cs.length);
-				s.switchTableFrom(sw, -i - 1 + cs.length);
+				s.switchTableFrom(sw, max + i);
+				s.switchTableFrom(sw, max - i);
 				s.insU2(NEW, y.head.getClassCi());
 				s.ins0(DUP);
 				s.insU2(INVOKESPECIAL, cons.addCproc(y.head.getClassCi(), //
@@ -266,16 +278,12 @@ final class Factoring
 				s.ins0(ALOAD0);
 				s.insU2(GETFIELD, outCi);
 				s.insU2(PUTFIELD, outCi);
-				s.ins0(DUP);
-				s.ins0(ALOAD0);
-				s.insU2(GETFIELD, ossCi);
-				s.insU2(PUTFIELD, ossCi);
 				s.ins0(ARETURN);
 			}
 			else if (c.t != null) // never bind to outer
 			{
-				s.switchTableFrom(sw, i + 1 + cs.length);
-				s.switchTableFrom(sw, -i - 1 + cs.length);
+				s.switchTableFrom(sw, max + i);
+				s.switchTableFrom(sw, max - i);
 				s.insU2(NEW, cons.putClass(c.cla));
 				s.ins0(DUP);
 				int o = 1;
@@ -310,8 +318,8 @@ final class Factoring
 			}
 			else
 			{ // never happen
-				s.switchTable(sw, i + 1 + cs.length, sw0);
-				s.switchTable(sw, -i - 1 + cs.length, sw0);
+				s.switchTable(sw, max + i, sw0);
+				s.switchTable(sw, max - i, sw0);
 			}
 		}
 		p.getCode().setIns(s, false);
@@ -344,8 +352,7 @@ final class Factoring
 		}
 		else if (os[o] != null)
 		{
-			s.ins0(ALOAD0);
-			s.insU2(GETFIELD, ossCi);
+			s.insU2(GETSTATIC, ossCi);
 			s.insS2(SIPUSH, i0);
 			s.ins0(AALOAD);
 			s.insS2(SIPUSH, o);
