@@ -7,7 +7,7 @@ package objot.aspect;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import objot.aspect.Aspect.Target;
+import objot.aspect.Aspect.Targ;
 import objot.bytecode.Annotation;
 import objot.bytecode.Bytecode;
 import objot.bytecode.Code;
@@ -33,6 +33,7 @@ final class WeaveProc
 	private Constants cons;
 	private Code ao;
 	private Procedure wp;
+	private Class<?> returnCla;
 	private Code wo;
 	private Instruction ws;
 	private int nameStrCi;
@@ -55,6 +56,7 @@ final class WeaveProc
 		wp.setModifier(m.getModifiers() & Mod2.PUBLIC_PROTECT);
 		wp.setNameCi(cons.addUcs(m.getName()));
 		wp.setDescCi(cons.addUcs(Class2.descript(m)));
+		returnCla = m.getReturnType();
 
 		int[] ads = new int[ao.getAddrN() + 1];
 		ws = new Instruction(cons, ao.getAddrN() + 200);
@@ -75,6 +77,7 @@ final class WeaveProc
 		wp.setModifier(t.getModifiers() & Mod2.PUBLIC_PROTECT);
 		wp.setNameCi(cons.addUtf(Weaver.CTOR_NAME));
 		wp.setDescCi(cons.addUcs(Class2.descript(t)));
+		returnCla = void.class;
 
 		int[] ads = new int[ao.getAddrN() + 1];
 		ws = new Instruction(cons, ao.getAddrN() + 200);
@@ -179,20 +182,26 @@ final class WeaveProc
 		if ( !cons.equalsUtf(cons.getCprocClass(ci), Weaver.TARGET_NAME))
 			return false;
 		Bytes name = cons.getUtf(cons.getCprocName(ci));
-		if (Target.getData.utf.equals(name))
+		if (Targ.getData.utf.equals(name))
 			opGetData(pi, datasCi);
-		else if (Target.getName.utf.equals(name))
+		else if (Targ.getName.utf.equals(name))
 			opGetName();
-		else if (Target.getDescript.utf.equals(name))
+		else if (Targ.getDescript.utf.equals(name))
 			opGetDescript();
-		else if (Target.getTarget.utf.equals(name))
+		else if (Targ.getTarget.utf.equals(name))
 			opGetTarget();
-		else if (Target.getThis.utf.equals(name))
+		else if (Targ.getThis.utf.equals(name))
 			opGetThis();
-		else if (Target.getClazz.utf.equals(name))
+		else if (Targ.getClazz.utf.equals(name))
 			opGetClazz();
-		else if (Target.invoke.utf.equals(name))
+		else if (Targ.invoke.utf.equals(name))
 			opInvoke();
+		else if (Targ.getReturnClass.utf.equals(name))
+			opGetReturnClass();
+		else if (Targ.getReturn.utf.equals(name))
+			opGetReturn();
+		else if (Targ.setReturn.utf.equals(name))
+			opSetReturn();
 		else
 			throw new AssertionError();
 		return true;
@@ -276,6 +285,31 @@ final class WeaveProc
 			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ao.getLocalN()
 				+ wp.getParamLocalN());
 		wo.setStackN(wo.getStackN() + 2 /* e.g. return long */+ wp.getParamLocalN());
+	}
+
+	private void opGetReturnClass()
+	{
+		ws.insLoad(returnCla);
+	}
+
+	private void opGetReturn()
+	{
+		if (returnCla == void.class)
+			ws.ins0(ACONSTNULL);
+		else
+			ws.insU1wU2(Opcode.getLoadOp(wp.getReturnTypeChar()), ao.getLocalN()
+				+ wp.getParamLocalN());
+		ws.insBox(returnCla);
+	}
+
+	private void opSetReturn()
+	{
+		ws.insUnboxNarrow(returnCla);
+		if (returnCla == void.class)
+			ws.ins0(POP);
+		else
+			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ao.getLocalN()
+				+ wp.getParamLocalN());
 	}
 
 	private boolean opCtor(int ad)

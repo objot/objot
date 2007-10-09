@@ -20,7 +20,7 @@ public class Codec
 	 * @param o the whole gettable object graph must keep unchanged since the references
 	 *            detection is not thread safe
 	 */
-	public CharSequence enc(Object o, Class<?> for_) throws Exception
+	public StringBuilder enc(Object o, Class<?> for_) throws Exception
 	{
 		return new Encoder(this, for_).go(o);
 	}

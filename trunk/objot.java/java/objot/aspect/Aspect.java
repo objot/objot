@@ -14,37 +14,39 @@ public abstract class Aspect
 {
 
 	/**
-	 * keyword "this" is the weaved object (== target object) not this asepct, all fields
-	 * and methods in this aspect will be in the weaved object (== target object)
+	 * keyword "this" is the weaved object (== target object) not this asepct. All fields
+	 * and methods in this aspect will be in the weaved object (== target object). Return
+	 * must be after {@link Target#invoke()}
 	 */
 	protected abstract void aspect() throws Throwable;
 
 	static final Bytes NAME_aspect = Bytecode.utf("aspect");
 
-	/** About the target method */
-	public static enum Target
+	/** The methods need aspects */
+	public static class Target
 	{
-		getData, getName, getDescript, getTarget, getThis, getClazz, invoke;
-
-		/** @return an object per target specified by {@link Weaver#doWeave} */
+		/**
+		 * @return a static object specified by {@link Weaver#doWeave} per target per
+		 *         weaved class
+		 */
 		public static <T>T getData()
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return name of target */
+		/** @return target name */
 		public static String getName()
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return descriptor of target */
+		/** @return target descriptor */
 		public static String getDescript()
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return class name + '.' + name + descriptor of target */
+		/** @return target class name + '.' + target name + target descriptor */
 		public static String getTarget()
 		{
 			throw new AbstractMethodError();
@@ -68,6 +70,48 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
-		Bytes utf = Bytecode.utf(Class2.declaredMethod1(getClass(), name()).getName());
+		/** @return target return class */
+		public static <T>Class<T> getReturnClass()
+		{
+			throw new AbstractMethodError();
+		}
+
+		/**
+		 * get target return value, primitive boxed, null for void, must after
+		 * {@link #invoke()}
+		 */
+		public static <T>T getReturn()
+		{
+			throw new AbstractMethodError();
+		}
+
+		/**
+		 * set return value, boxed primitive, null for void, could before
+		 * {@link #invoke()}
+		 */
+		public static void setReturn(Object o)
+		{
+			throw new AbstractMethodError();
+		}
+
+		private Target()
+		{
+		}
+	}
+
+	static enum Targ
+	{
+		getData,
+		getName,
+		getDescript,
+		getTarget,
+		getThis,
+		getClazz,
+		invoke,
+		getReturnClass,
+		getReturn,
+		setReturn;
+
+		Bytes utf = Bytecode.utf(Class2.declaredMethod1(Target.class, name()).getName());
 	}
 }
