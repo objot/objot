@@ -33,8 +33,9 @@ import chat.service.Session;
 public class TestDo
 	extends Assert
 {
-	private static SessionFactory dataFactory;
+	private static SessionFactory data0;
 	private static Container container0;
+	private static ModelsCreate dataInit;
 	protected final Container container;
 	protected final Session sess;
 	protected final Data data;
@@ -43,23 +44,29 @@ public class TestDo
 	public static void beforeAll() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		dataFactory = Models.build(true).buildSessionFactory();
-		container0 = Services.build(dataFactory);
-		new ModelsCreate(true, 1, true);
+		data0 = Models.build(true).buildSessionFactory();
+		container0 = Services.build(data0);
+		dataInit = new ModelsCreate(true);
+		dataInit.create(true, 1);
+		dataInit.print = false;
 	}
 
 	{
 		container = container0.createAll();
 		sess = container.get(Session.class);
 		data = container.get(Data.class);
+		data.lazyClose = true;
 		System.err.println("\n\n************************************************\n");
 	}
 
 	@After
-	public void afterTest()
+	public void afterTest() throws Exception
 	{
-		data.hib.getTransaction().rollback();
-		data.hib.close();
+		if (data.hib != null)
+			data.hib.getTransaction().rollback();
+		if (data.hib != null)
+			data.hib.close();
+		dataInit.create(true, 1);
 	}
 
 	// ********************************************************************************

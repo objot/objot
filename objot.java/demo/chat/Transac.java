@@ -101,77 +101,90 @@ public @interface Transac
 		private static final Log LOG = LogFactory.getLog(As.class);
 
 		@Inject
-		SessionFactory dataFactory;
+		public SessionFactory factory;
 
 		/** open hibernate session, begin transaction */
 		@Override
 		protected void aspect() throws Throwable
 		{
+			boolean ok = false;
 			Config con = Target.getData();
 			Data data = Target.<Do>getThis().data;
-			SessionImpl hib = (SessionImpl)data.hib;
-			if (hib == null)
-				data.hib = hib = (SessionImpl)dataFactory.openSession();
-
-			data.times++;
-			boolean ok = false;
+			data.deep++;
 			try
 			{
 				if (LOG.isDebugEnabled())
-					if (data.times == 1)
+					if (data.deep == 1)
 						LOG.debug("================ " + Target.getClazz().getName() + "-"
 							+ Target.getName() + " ================");
 					else
 						LOG.debug("---------------- " + Target.getClazz().getName() + "-"
 							+ Target.getName() + " ----------------");
-				if ( !hib.getTransaction().isActive())
-				{
-					hib.getJDBCContext().borrowConnection().setReadOnly(con.read);
-					if (con.iso > 0)
-						hib.getJDBCContext().borrowConnection().setTransactionIsolation(
-							con.iso);
-					hib.beginTransaction();
-				}
-				else if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
-					throw new Exception(Target.getTarget() + ": transaction must be writable");
-				else if (con.iso > hib.getJDBCContext().borrowConnection()
-					.getTransactionIsolation())
-					throw new Exception(Target.getTarget() + ": isolation must be at least "
-						+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
-							: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
-								: "read committed"));
+				if (data.deep == 1)
+					close(data, true);
+				if (data.hib == null)
+					data.hib = factory.openSession();
+				begin((SessionImpl)data.hib, con);
 				Target.invoke();
+				data.flush();
 				ok = true;
 			}
 			finally
 			{
-				data.times--;
-				if (data.times > 0)
-					return;
-				if (data.hib.getTransaction().isActive())
-					try
-					{
-						if (ok)
-							data.hib.getTransaction().commit();
-						else
-							data.hib.getTransaction().rollback();
-					}
-					catch (Throwable e)
-					{
-						if (LOG.isWarnEnabled())
-							LOG.warn(e);
-					}
-				if (data.hib.isOpen())
-					try
-					{
-						data.hib.close();
-					}
-					catch (Throwable e)
-					{
-						if (LOG.isWarnEnabled())
-							LOG.warn(e);
-					}
+				data.deep--;
+				if (data.deep <= 0 && !data.lazyClose)
+					close(data, ok);
 			}
+		}
+
+		private static void begin(SessionImpl hib, Config con) throws Exception
+		{
+			if (con.iso <= 0)
+				return;
+			if ( !hib.getTransaction().isActive())
+			{
+				hib.getJDBCContext().borrowConnection().setReadOnly(con.read);
+				hib.getJDBCContext().borrowConnection().setTransactionIsolation(con.iso);
+				hib.beginTransaction();
+			}
+			else if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
+				throw new Exception(Target.getTarget() + ": transaction must be writable");
+			else if (con.iso > hib.getJDBCContext().borrowConnection()
+				.getTransactionIsolation())
+				throw new Exception(Target.getTarget() + ": isolation must be at least "
+					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
+						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
+							: "read committed"));
+		}
+
+		private static void close(Data data, boolean commit)
+		{
+			if (data.hib == null)
+				return;
+			if (data.hib.getTransaction().isActive())
+				try
+				{
+					if (commit)
+						data.hib.getTransaction().commit();
+					else
+						data.hib.getTransaction().rollback();
+				}
+				catch (Throwable e)
+				{
+					if (LOG.isWarnEnabled())
+						LOG.warn(e);
+				}
+			if (data.hib.isOpen())
+				try
+				{
+					data.hib.close();
+				}
+				catch (Throwable e)
+				{
+					if (LOG.isWarnEnabled())
+						LOG.warn(e);
+				}
+			data.hib = null;
 		}
 	}
 }

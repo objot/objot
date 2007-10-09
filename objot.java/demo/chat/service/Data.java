@@ -22,7 +22,8 @@ import org.hibernate.criterion.Restrictions;
 public class Data
 {
 	public Session hib;
-	public int times;
+	public int deep;
+	public boolean lazyClose;
 
 	/** @see Hibernate#initialize */
 	public <T>T fetch(T o)

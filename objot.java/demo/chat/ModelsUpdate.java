@@ -21,7 +21,9 @@ public class ModelsUpdate
 	{
 		try
 		{
-			start(execute, false);
+			init(false);
+			LOG.info("\n================ update ================\n");
+			start(execute);
 			String[] ss = conf.generateSchemaUpdateScript(dialect, //
 				new DatabaseMetadata(conn, dialect));
 			System.out.println();

@@ -33,7 +33,7 @@ public final class Servlet
 {
 	boolean dataTest;
 	Container container0;
-	SessionFactory dataFactory;
+	SessionFactory data0;
 
 	@Override
 	public void init() throws Exception
@@ -55,10 +55,10 @@ public final class Servlet
 		dataTest |= test != null && Boolean.parseBoolean(test);
 		context.log("\n================ for test ================\n");
 		if (dataTest)
-			new ModelsCreate(true, -1, true);
+			new ModelsCreate(true).create(true, -1);
 
-		dataFactory = Models.build(dataTest).buildSessionFactory();
-		container0 = Services.build(dataFactory);
+		data0 = Models.build(dataTest).buildSessionFactory();
+		container0 = Services.build(data0);
 		codec = new Codec()
 		{
 			String modelPrefix = Id.class.getPackage().getName() + ".";
@@ -105,13 +105,13 @@ public final class Servlet
 			HttpServletResponse hRes) throws ErrThrow, Exception
 		{
 			if (cla == null) // test
-				synchronized (dataFactory)
+				synchronized (data0)
 				{
-					dataFactory.evictQueries();
-					for (Object c: ((SessionFactoryImpl)dataFactory)
+					data0.evictQueries();
+					for (Object c: ((SessionFactoryImpl)data0)
 						.getAllSecondLevelCacheRegions().values())
 						((Cache)c).clear();
-					new ModelsCreate(true, 1, true);
+					new ModelsCreate(true).create(true, 1);
 					return codec.enc(Ok.OK, Object.class);
 				}
 

@@ -20,23 +20,30 @@ public class ModelsCreate
 	/** @param args whether to execute, whether drop, false by default */
 	public static void main(String... args) throws Exception
 	{
-		new ModelsCreate(args.length > 0 && Boolean.valueOf(args[0]), //
-			args.length > 1 && Boolean.valueOf(args[1]) ? 1 : 0, false);
+		new ModelsCreate(false).create(args.length > 0 && Boolean.valueOf(args[0]),
+			args.length > 1 && Boolean.valueOf(args[1]) ? 1 : 0);
 	}
 
 	Data data;
 
-	/**
-	 * @param drop 0 create only, >0 drop and then create, <0 drop only
-	 * @param test whether use the testing database
-	 */
-	public ModelsCreate(boolean execute, int drop, boolean test) throws Exception
+	/** @param test whether use the testing database */
+	public ModelsCreate(boolean test) throws Exception
+	{
+		init(test);
+	}
+
+	/** @param drop 0 create only, >0 drop and then create, <0 drop only */
+	public void create(boolean execute, int drop) throws Exception
 	{
 		try
 		{
-			start(execute, test);
+			LOG.info("\n================ "
+				+ (drop > 0 ? "drop and create" : drop == 0 ? "create" : "drop")
+				+ " ================\n");
+			start(execute);
 			String[] cs = drop >= 0 ? conf.generateSchemaCreationScript(dialect) : null;
-			System.out.println();
+			if (print)
+				System.out.println();
 			if (drop != 0)
 			{
 				DatabaseMetaData m = conn.getMetaData();
@@ -54,7 +61,8 @@ public class ModelsCreate
 					sql(s, true);
 				if (execute)
 				{
-					System.out.println();
+					if (print)
+						System.out.println();
 					data = new Data();
 					data.hib = hib;
 					init();

@@ -126,31 +126,40 @@ public class Models
 		for (Class<?> c: Class2.packageClasses(Id.class))
 			conf.addAnnotatedClass(c);
 
+		conf.setProperty(Environment.AUTOCOMMIT, "false");
 		if (test)
 			conf.setProperty(Environment.URL, conf.getProperty(Environment.URL + ".test"));
 		return conf;
 	}
 
+	public boolean print = true;
 	protected AnnotationConfiguration conf;
 	protected Dialect dialect;
+	protected SessionFactory factory;
 	protected SessionImpl hib;
 	protected Connection conn;
 	protected Statement stat;
 
+	/** for database create and update */
 	protected Models()
 	{
 	}
 
-	/** for database create and update */
-	protected void start(boolean execute, boolean test) throws Exception
+	void init(boolean test) throws Exception
 	{
 		conf = build(test);
-		conf.setProperty(Environment.HBM2DDL_AUTO, "false");
+		conf.setProperty(Environment.AUTOCOMMIT, "false");
 		conf.setProperty(Environment.USE_SECOND_LEVEL_CACHE, "false");
 		conf.setProperty(Environment.USE_QUERY_CACHE, "false");
+		conf.setProperty(Environment.HBM2DDL_AUTO, "false");
 		conf.setProperty(Environment.SHOW_SQL, "false");
 		conf.setProperty(Environment.FORMAT_SQL, "false");
-		hib = (SessionImpl)conf.buildSessionFactory().openSession();
+		factory = conf.buildSessionFactory();
+	}
+
+	void start(boolean execute) throws Exception
+	{
+		hib = (SessionImpl)factory.openSession();
 		dialect = hib.getFactory().getDialect();
 		conn = hib.getJDBCContext().borrowConnection();
 		conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
@@ -161,7 +170,8 @@ public class Models
 
 	protected void sql(String s, boolean format) throws Exception
 	{
-		System.out.println(format ? new DDLFormatter(s).format() : s);
+		if (print)
+			System.out.println(format ? new DDLFormatter(s).format() : s);
 		if (stat != null)
 			stat.executeUpdate(s);
 	}

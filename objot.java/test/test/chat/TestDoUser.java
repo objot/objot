@@ -27,14 +27,12 @@ public class TestDoUser
 		User u = new User();
 		u.name = u.password = "b";
 		u2 = doUser.doSign.inUp(u);
-		// just for sub requests, since PersistentBag/List/Set won't be evicted
-		u2.friends = copy(u2.friends);
+		data.fetch(u2.friends);
 		u = new User();
 		u.name = u.password = "a";
 		doUser.doSign.inUp(u);
 		u1 = doUser.doUser.me();
-		// just for sub requests, since PersistentBag/List/Set won't be evicted
-		u1.friends = copy(u1.friends);
+		data.fetch(u1.friends);
 		u1.friends_ = null;
 	}
 
