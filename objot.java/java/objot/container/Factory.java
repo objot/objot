@@ -175,11 +175,7 @@ public class Factory
 			cs[i++] = c;
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind.Clazz c: cs)
-				if (c != null && c.b != c && c.b != null && c.b.b != c.b)
-				{
-					c.b = c.b.b;
-					ok = true;
-				}
+				ok |= c != null && c.b != bind2(c).b;
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind.Clazz c: cs)
 			if (c != null && c.os == null)
@@ -188,18 +184,18 @@ public class Factory
 				if (c.t != null)
 				{
 					for (Bind p: c.t.ps)
-						if (p.b == null || (p.b = p.b.b) == null)
+						if (bind2(p).b == null)
 							os.add(p.obj);
 					c.maxParamN = c.t.ps.length;
 					for (Bind.FM fm: c.fms)
 						if (fm.m != null)
 						{
 							for (Bind p: fm.ps)
-								if (p.b == null || (p.b = p.b.b) == null)
+								if (bind2(p).b == null)
 									os.add(p.obj);
 							c.maxParamN = Math.max(c.maxParamN, fm.ps.length);
 						}
-						else if (fm.b == null || (fm.b = fm.b.b) == null)
+						else if (bind2(fm).b == null)
 							os.add(fm.obj);
 				}
 				c.os = os.toArray();
@@ -235,5 +231,15 @@ public class Factory
 		}
 		if (c0.isPrimitive())
 			b.cla = Class2.unbox(b.cla, false);
+	}
+
+	private Bind bind2(Bind b)
+	{
+		if (b.b != b && b.b != null)
+		{
+			b.obj = b.b.obj;
+			b.b = b.b.b;
+		}
+		return b;
 	}
 }
