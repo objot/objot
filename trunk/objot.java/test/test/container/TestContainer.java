@@ -57,7 +57,7 @@ public class TestContainer
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return b.mode(outest.bound(c) ? null : b.mode);
+				return c == Long.class ? b.obj(9L) : b.mode(outest.bound(c) ? null : b.mode);
 			}
 
 			@Override
@@ -66,6 +66,8 @@ public class TestContainer
 			{
 				if (c == Integer.class)
 					return b.obj( -1);
+				if (c == Long.class)
+					return b;
 				if (c == String.class && fp.isAnnotationPresent(Deprecated.class))
 					return b.obj(Deprecated.class.getName());
 				if (c == int[].class)
@@ -100,6 +102,7 @@ public class TestContainer
 		assertSame(con, o.con);
 		assertSame(Deprecated.class.getName(), o.name);
 		assertEquals( -1, o.new_);
+		assertEquals(9, o.obj);
 		assertSame(null, o.ints);
 		assertEquals(65536, o.longs.length);
 

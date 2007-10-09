@@ -32,6 +32,8 @@ public interface X
 		@Inject
 		public int new_;
 		@Inject
+		public long obj;
+		@Inject
 		public int[] ints;
 		@Inject
 		public long[] longs;
