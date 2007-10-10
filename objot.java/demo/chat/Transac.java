@@ -28,7 +28,7 @@ import chat.service.Data;
 
 public @interface Transac
 {
-	/** no transaction or any transaction */
+	/** no transaction or any transaction, {@link Data#hib} still available */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Any
@@ -71,27 +71,25 @@ public @interface Transac
 		boolean read;
 		int iso;
 
-		public static Config config(AnnotatedElement o)
+		public Config(AnnotatedElement o)
 		{
 			Annotation a = Class2.annoExclusive(o, Transac.class);
-			Config con = new Config();
 			if (a instanceof Commit)
 			{
-				con.iso = TRANSACTION_READ_COMMITTED;
-				con.read = ((Commit)a).readonly();
+				iso = TRANSACTION_READ_COMMITTED;
+				read = ((Commit)a).readonly();
 			}
 			else if (a instanceof Serial)
 			{
-				con.iso = TRANSACTION_SERIALIZABLE;
-				con.read = ((Serial)a).readonly();
+				iso = TRANSACTION_SERIALIZABLE;
+				read = ((Serial)a).readonly();
 			}
 			else if ( !(a instanceof Any))
 			{
-				con.iso = TRANSACTION_REPEATABLE_READ;
-				con.read = a == null ? false : a instanceof Readonly ? true : ((Repeat)a)
+				iso = TRANSACTION_REPEATABLE_READ;
+				read = a == null ? false : a instanceof Readonly ? true : ((Repeat)a)
 					.readonly();
 			}
-			return con;
 		}
 	}
 

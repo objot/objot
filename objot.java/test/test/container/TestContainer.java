@@ -85,7 +85,7 @@ public class TestContainer
 		}.create(outest);
 	}
 
-	Container con = con0.createAll();
+	Container con = con0.createBubble(null);
 	Container con2 = con.create(Container.class);
 
 	@Test(expected = ClassCastException.class)

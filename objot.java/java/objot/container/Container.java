@@ -30,7 +30,13 @@ public abstract class Container
 		return c;
 	}
 
-	/** create container of specified outer, thread-safe. */
+	/** create container with null outer, thread-safe. */
+	public final Container create()
+	{
+		return create((Container)null);
+	}
+
+	/** create container with specified outer, thread-safe. */
 	public final Container create(Container outer_)
 	{
 		Container c = create0(index(Container.class), false);
@@ -39,18 +45,40 @@ public abstract class Container
 	}
 
 	/**
-	 * create outest container, same as <code>create((Container)null)</code>,
-	 * thread-safe.
+	 * create container with outers created recursively until the specified one,
+	 * thread-safe
+	 * 
+	 * @param until must be one of the true outers, or RuntimeException thrown
 	 */
-	public final Container create()
+	public final Container createBubble(Container until)
 	{
-		return create((Container)null);
+		until = until != null ? until : NULL;
+		Container c = create0(index(Container.class), false);
+		for (Container in = c, out; (out = in.outer) != until; in = out)
+			if (out != NULL)
+				in.outer = out = out.create0(out.index(Container.class), false);
+			else
+				throw new RuntimeException(until + " is not a true outer");
+		return c;
 	}
 
-	/** create container of all outers created, thread-safe */
-	public final Container createAll()
+	/**
+	 * create container with outers created recursively until the specified one,
+	 * thread-safe
+	 * 
+	 * @param until must be one of the true outers, or RuntimeException thrown
+	 */
+	public final Container createBubble(Container until, Container to)
 	{
-		return create(outer != NULL ? outer.createAll() : null);
+		until = until != null ? until : NULL;
+		Container c = create0(index(Container.class), false), in = c;
+		for (Container out; (out = in.outer) != until; in = out)
+			if (out != NULL)
+				in.outer = out = out.create0(out.index(Container.class), false);
+			else
+				throw new RuntimeException(until + " is not a true outer");
+		in.outer = to != null ? to : NULL;
+		return c;
 	}
 
 	/** mostly not thread-safe except for some class */

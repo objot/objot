@@ -43,7 +43,10 @@
 		<jar jarfile="${.archive}" compress="true" basedir="${.dir.compile}">
 			<include name="objot/**/*.class" />
 		</jar>
-		<jar jarfile="${.archive}" compress="true" basedir="${.dir.source.java}" update="true">
+		<jar jarfile="${.archive}"
+		     compress="true"
+		     basedir="${.dir.source.java}"
+		     update="true">
 			<include name="objot/**/*.java" />
 		</jar>
 	</target>
@@ -64,6 +67,9 @@
 				<fileset includes="**/*.jar" dir="${.dir.lib}" />
 			</classpath>
 		</javac>
+		<copy todir="${.dir.compile}">
+			<fileset includes="*.properties" dir="${.dir.source.demo}" />
+		</copy>
 	</target>
 
 	<target name="test" depends="demo">

@@ -143,6 +143,7 @@ final class WeaveProc
 		case ASTORE:
 		case ISTORE:
 		case FSTORE:
+		case RET:
 			break;
 		case IINC:
 			inc = ao.getInsS1(ad) != WIDE ? ao.getInsS1(ad + 2) : ao.getInsS2(ad + 4);
