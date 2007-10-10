@@ -33,10 +33,11 @@ final class Encoder
 	private int refn;
 	private StringBuilder str;
 
+	/** @param for_ null is Object.class */
 	Encoder(Codec o, Class<?> for_)
 	{
 		codec = o;
-		forClass = for_;
+		forClass = for_ != null ? for_ : Object.class;
 		objs = new Object[HASH_MASK + 1][32];
 		refs = new int[HASH_MASK + 1][32];
 		refn = 0;

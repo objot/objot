@@ -36,7 +36,6 @@ public abstract class Do
 	@Inject
 	public DoChat doChat;
 
-	/** @see objot.servlet.Service */
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Service
 	{

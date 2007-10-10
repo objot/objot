@@ -108,7 +108,7 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	void encodeRefs(Encoder e, Object o, Class<?> forClass) throws Exception
+	void encodeRefs(Encoder e, Object o, Class<?> forClass)
 	{
 	}
 
@@ -129,7 +129,7 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	void encode(Encoder e, Object o, Class<?> forClass) throws Exception
+	void encode(Encoder e, Object o, Class<?> forClass)
 	{
 	}
 
@@ -241,7 +241,7 @@ abstract class Clazz
 	}
 
 	/** Example: <code>return new A();</code> */
-	abstract Object object() throws Exception;
+	abstract Object object();
 
 	static final Bytes NAME_object = Bytecode.utf("object");
 	static final Bytes DESC_object = Bytecode.utf(Class2.descript( //
@@ -276,12 +276,12 @@ abstract class Clazz
 	 *   default: throw new ClassCastException();
 	 * }</pre>
 	 */
-	abstract void decode(Object o, int x, Object v) throws Exception;
+	abstract void decode(Object o, int x, Object v);
 
-	abstract void decode(Object o, int x, long v) throws Exception;
+	abstract void decode(Object o, int x, long v);
 
 	/** includes floats */
-	abstract void decode(Object o, int x, double v) throws Exception;
+	abstract void decode(Object o, int x, double v);
 
 	static final Bytes NAME_decode = Bytecode.utf("decode");
 	static final Bytes DESC_decode = Bytecode.utf(Class2.descript( //

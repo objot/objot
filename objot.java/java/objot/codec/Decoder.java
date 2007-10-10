@@ -32,15 +32,18 @@ final class Decoder
 	private long numl;
 	private double numd;
 
+	/** @param for_ null is Object.class */
 	Decoder(Codec o, Class<?> for_, char[] s)
 	{
 		codec = o;
-		forClass = for_;
+		forClass = for_ != null ? for_ : Object.class;
 		bs = s;
 	}
 
+	/** @param cla null is Object.class */
 	Object go(Class<?> cla) throws Exception
 	{
+		cla = cla != null ? cla : Object.class;
 		bx = 0;
 		by = -1;
 		bxy();

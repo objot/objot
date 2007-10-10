@@ -55,8 +55,8 @@ public class Test1
 		z[0] = z;
 
 		Codec codec = new Codec();
-		CharSequence s = codec.enc(z, Object.class);
-		Object o = codec.dec(s.toString().toCharArray(), Object.class, Object.class);
+		CharSequence s = codec.enc(z, null);
+		Object o = codec.dec(s.toString().toCharArray(), null, null);
 		CharSequence s2 = codec.enc(o, Object.class);
 		if (s.length() != s2.length())
 			throw new Exception("length error: " + s.length() + " " + s2.length());

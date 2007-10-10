@@ -43,6 +43,9 @@
 		<jar jarfile="${.archive}" compress="true" basedir="${.dir.compile}">
 			<include name="objot/**/*.class" />
 		</jar>
+		<jar jarfile="${.archive}" compress="true" basedir="${.dir.source.java}" update="true">
+			<include name="objot/**/*.java" />
+		</jar>
 	</target>
 
 	<target name="demo" depends="java.compile">
