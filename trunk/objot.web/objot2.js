@@ -84,7 +84,7 @@ $enc = function (o, forClass) {
 		throw _;
 	}
 	$enc.unref(o);
-	return s.join('\20');
+	return s.join('\x10');
 }
 	$enc.ref = function (o, ox) {
 		if (o instanceof String || o instanceof Boolean || o instanceof Number)
@@ -95,14 +95,14 @@ $enc = function (o, forClass) {
 			for (var x = 0; x < o.length; x ++)
 				typeof (ox = o[x]) !== 'string' ?
 				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
-				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
+				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
 		else if (!o.constructor.$name)
 			$throw($S(o) + ' class not ready');
 		else for (var x in o)
 			if (o.hasOwnProperty(x))
 				typeof (ox = o[x]) !== 'string' ?
 				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
-				: ox.indexOf('\20') < 0 || $throw($S(ox) + ' must NOT contain \20 \\20');
+				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
 	}
 	$enc.unref = function (o, ox) {
 		if ('' in o && /*true*/delete o[''])
@@ -167,7 +167,7 @@ $enc = function (o, forClass) {
 /** decode string to object graph, objects are created without constructors */
 $dec = function (s) {
 	try {
-		s = $.s(s).split('\20'/* Ctrl-P in vim */);
+		s = $.s(s).split('\x10');
 		var x = s[0] === '[' ? $dec.l(s, 1) : s[0] === '{' ? $dec.o(s, 1) : -1;
 		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
 			: $dec.r.length = 0, s.o;

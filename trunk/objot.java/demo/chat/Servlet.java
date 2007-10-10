@@ -15,8 +15,9 @@ import objot.aspect.Weaver;
 import objot.codec.ErrThrow;
 import objot.codec.Errs;
 import objot.container.Container;
-import objot.servlet.ObjotServlet;
-import objot.servlet.Serve;
+import objot.servlet.CodecServlet;
+import objot.servlet.ServiceInfo;
+import objot.util.Class2;
 
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
@@ -31,7 +32,7 @@ import chat.service.Do.Service;
 
 
 public final class Servlet
-	extends ObjotServlet
+	extends CodecServlet
 {
 	boolean dataTest;
 	Container container0;
@@ -76,55 +77,44 @@ public final class Servlet
 	}
 
 	@Override
-	protected Serve getServe(String name, HttpServletRequest hReq, HttpServletResponse hRes)
-		throws Exception
+	protected ServiceInfo getServiceInfo(String n, String cla, String m) throws Exception
 	{
-		return ctorS.newInstance(this).init(codec, name);
+		if (dataTest && "test".equals(cla))
+			return new ServiceInfo(codec, n, Class2.method1(ModelsCreate.class, "create"));
+		ServiceInfo inf = super.getServiceInfo(n,
+			Do.class.getPackage().getName() + '.' + cla, m);
+		return inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;
 	}
 
-	class S
-		extends Serve
+	@Override
+	protected CharSequence service(HttpServletRequest hq, ServiceInfo inf, Object... reqs)
+		throws Exception
 	{
-		public S()
-		{
-			serviceAnno = Do.Service.class;
-		}
+		if (inf.cla == ModelsCreate.class) // test
+			synchronized (data0)
+			{
+				data0.evictQueries();
+				for (Object c: ((SessionFactoryImpl)data0).getAllSecondLevelCacheRegions()
+					.values())
+					((Cache)c).clear();
+				new ModelsCreate(true).create(true, 1);
+				return codec.enc(Ok.OK, null);
+			}
 
-		@Override
-		public Serve init(String claName, String methName) throws Exception
-		{
-			if (dataTest && "test".equals(claName))
-				return this;
-			return super.init(Do.class.getPackage().getName() + '.' + claName, methName);
-		}
+		Container con = (Container)hq.getSession().getAttribute("container");
+		if (con == null)
+			synchronized (hq.getSession()) // double check
+			{
+				con = (Container)hq.getSession().getAttribute("container");
+				if (con == null)
+					hq.getSession().setAttribute("container",
+						con = container0.outer().create());
+			}
+		return serve(con, req, hq, hRes);
+	}
 
-		@Override
-		public CharSequence serve(char[] req, HttpServletRequest hReq,
-			HttpServletResponse hRes) throws ErrThrow, Exception
-		{
-			if (cla == null) // test
-				synchronized (data0)
-				{
-					data0.evictQueries();
-					for (Object c: ((SessionFactoryImpl)data0)
-						.getAllSecondLevelCacheRegions().values())
-						((Cache)c).clear();
-					new ModelsCreate(true).create(true, 1);
-					return codec.enc(Ok.OK, Object.class);
-				}
-
-			Container con = (Container)hReq.getSession().getAttribute("container");
-			if (con == null)
-				synchronized (hReq.getSession()) // double check
-				{
-					con = (Container)hReq.getSession().getAttribute("container");
-					if (con == null)
-						hReq.getSession().setAttribute("container",
-							con = container0.outer().create());
-				}
-			return serve(con, req, hReq, hRes);
-		}
-
+	public static class S
+	{
 		@Service
 		@Transac.Any
 		protected CharSequence serve(Container con, char[] req, HttpServletRequest hReq,

@@ -19,12 +19,17 @@ public class Codec
 	/**
 	 * @param o the whole gettable object graph must keep unchanged since the references
 	 *            detection is not thread safe
+	 * @param for_ null is Object.class
 	 */
 	public StringBuilder enc(Object o, Class<?> for_) throws Exception
 	{
 		return new Encoder(this, for_).go(o);
 	}
 
+	/**
+	 * @param cla null is Object.class
+	 * @param for_ null is Object.class
+	 */
 	public Object dec(char[] s, Class<?> cla, Class<?> for_) throws Exception
 	{
 		return new Decoder(this, for_, s).go(cla);

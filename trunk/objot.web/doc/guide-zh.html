@@ -73,8 +73,8 @@
 	<tr><td>Array<td>boolean[] int[] long[] &lt;T&gt;T[] List&lt;T&gt; Set&lt;T&gt;<td>list tuple</tr>
 	<tr><td>Object(非Function String Number Boolean)<td>Object Map&lt;String,Object&gt;<td>object(非instance) dict</tr>
 </table>
-其中，字符串是Unicode格式（Python服务端可以配置为UTF-8，但不推荐），并且不能包含一个特殊字符：'\20'（即\u0010）。
-Objot将SO编码成一个字符串，其中使用了特殊字符'\20'。
+其中，字符串是Unicode格式（Python服务端可以配置为UTF-8，但不推荐），并且不能包含一个特殊字符：'\x10'（即\u0010）。
+Objot将SO编码成一个字符串，其中使用了特殊字符'\x10'。
 
 <p>list、object之间可以任意引用，构成的整个SO图都可以被编解码；同时也可以定义规则，只处理SO图的局部（子图）。
 Objot支持单继承类，服务端和浏览端可以使用不同的类名，可以使用不同的属性名，均可以对应。
