@@ -4,17 +4,17 @@
 //
 package chat;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import objot.aspect.Aspect;
 import objot.aspect.Weaver;
-import objot.codec.ErrThrow;
 import objot.codec.Errs;
+import objot.container.Bind;
 import objot.container.Container;
+import objot.container.Factory;
+import objot.container.Inject;
 import objot.servlet.CodecServlet;
 import objot.servlet.ServiceInfo;
 import objot.util.Class2;
@@ -35,9 +35,9 @@ public final class Servlet
 	extends CodecServlet
 {
 	boolean dataTest;
-	Container container0;
-	SessionFactory data0;
-	Constructor<S> ctorS;
+	SessionFactory dataFactory;
+	/** outer is services container, outer.outer is session container */
+	Container containerS;
 
 	@Override
 	public void init() throws Exception
@@ -60,20 +60,28 @@ public final class Servlet
 		context.log("\n================ for test ================\n");
 		if (dataTest)
 			new ModelsCreate(true).create(true, -1);
+		dataFactory = Models.build(dataTest).buildSessionFactory();
 
-		data0 = Models.build(dataTest).buildSessionFactory();
-		container0 = Services.build(data0, null);
 		codec = Services.CODEC;
-		ctorS = new Weaver(Transac.As.class)
+		final Class<?> claS = new Weaver(Transac.As.class)
 		{
 			@Override
 			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
-				if (m.isAnnotationPresent(Service.class))
-					return Transac.Config.config(m);
-				return this;
+				return m.isAnnotationPresent(Service.class) ? new Transac.Config(m) : this;
 			}
-		}.weave(S.class).getConstructor(Servlet.class);
+		}.weave(S.class);
+		containerS = Services.build(dataFactory, null);
+		containerS = new Factory(S.class)
+		{
+			@Override
+			protected Object doBind(Class<?> c, Bind b) throws Exception
+			{
+				if (containerS.bound(c)) // here is service container
+					return b.mode(null);
+				return c == S.class ? b.cla(claS) : b;
+			}
+		}.create(containerS);
 	}
 
 	@Override
@@ -91,54 +99,52 @@ public final class Servlet
 		throws Exception
 	{
 		if (inf.cla == ModelsCreate.class) // test
-			synchronized (data0)
+			synchronized (dataFactory)
 			{
-				data0.evictQueries();
-				for (Object c: ((SessionFactoryImpl)data0).getAllSecondLevelCacheRegions()
-					.values())
+				dataFactory.evictQueries();
+				for (Object c: ((SessionFactoryImpl)dataFactory)
+					.getAllSecondLevelCacheRegions().values())
 					((Cache)c).clear();
 				new ModelsCreate(true).create(true, 1);
 				return codec.enc(Ok.OK, null);
 			}
 
-		Container con = (Container)hq.getSession().getAttribute("container");
-		if (con == null)
+		Container sess = (Container)hq.getSession().getAttribute("container");
+		if (sess == null)
 			synchronized (hq.getSession()) // double check
 			{
-				con = (Container)hq.getSession().getAttribute("container");
-				if (con == null)
+				sess = (Container)hq.getSession().getAttribute("container");
+				if (sess == null)
 					hq.getSession().setAttribute("container",
-						con = container0.outer().create());
+						sess = containerS.outer().outer().create());
 			}
-		return serve(con, req, hq, hRes);
+		try
+		{
+			return containerS.createBubble(containerS.outer().outer(), sess).get(S.class)
+				.serve(inf, reqs);
+		}
+		catch (InvalidStateException e)
+		{
+			throw Do.err(new Errs(e.getInvalidValues()));
+		}
+		finally
+		{
+			if (sess.get(Session.class).me < 0)
+				hq.getSession().invalidate();
+		}
 	}
 
+	@Inject.New
 	public static class S
 	{
+		@Inject
+		public Container con;
+
 		@Service
 		@Transac.Any
-		protected CharSequence serve(Container con, char[] req, HttpServletRequest hReq,
-			HttpServletResponse hRes) throws ErrThrow, Exception
+		protected CharSequence serve(ServiceInfo inf, Object... reqs) throws Exception
 		{
-			Do s = (Do)container0.create(con).get(cla);
-			try
-			{
-				CharSequence res;
-				if (req == null)
-					res = serve(s, hReq, hRes);
-				else
-					res = serve(s, hReq, hRes, codec.dec(req, reqClas[0], cla));
-				return res;
-			}
-			catch (InvalidStateException e)
-			{
-				throw Do.err(new Errs(e.getInvalidValues()));
-			}
-			finally
-			{
-				if (con.get(Session.class).me < 0)
-					hReq.getSession().invalidate();
-			}
+			return inf.invoke(con.get(inf.cla), reqs);
 		}
 	}
 }

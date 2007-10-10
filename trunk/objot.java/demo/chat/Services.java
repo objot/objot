@@ -46,7 +46,7 @@ public class Services
 		}
 	};
 
-	/** @return container for service inside container for session */
+	/** @return container of services which outer is for session */
 	public static Container build(final SessionFactory d, final Codec codec) throws Exception
 	{
 		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, As.class)
@@ -59,7 +59,7 @@ public class Services
 				if (ac == Sign.As.class)
 					return m.isAnnotationPresent(Sign.Any.class) ? this : null;
 				if (ac == Transac.As.class)
-					return Transac.Config.config(m);
+					return new Transac.Config(m);
 				return codec == null ? this : codec;
 			}
 		};
@@ -78,7 +78,7 @@ public class Services
 				return c == SessionFactory.class ? b.obj(d) : b;
 			}
 		}.create(null);
-		Factory f = new Factory()
+		Factory f = new Factory(Codec.class)
 		{
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
@@ -87,13 +87,12 @@ public class Services
 					return b.mode(null);
 				if (c == Codec.class)
 					return b.obj(codec);
-				return b.cla(c.isSynthetic() ? b.cla : w.weave(c));
+				return c.isSynthetic() ? b : b.cla(w.weave(c));
 			}
 		};
 		for (Class<?> c: Class2.packageClasses(Do.class))
 			if ( !Mod2.match(c, Mod2.ABSTRACT) && !Session.class.isAssignableFrom(c))
 				f.bind(c);
-		f.bind(Codec.class);
 		return f.create(sess);
 	}
 

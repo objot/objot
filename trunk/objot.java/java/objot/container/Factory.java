@@ -30,6 +30,16 @@ public class Factory
 		(classes = new HashMap<Class<?>, Bind.Clazz>()).put(c.cla, c);
 	}
 
+	public Factory()
+	{
+	}
+
+	public Factory(Class<?>... clas)
+	{
+		for (Class<?> c: clas)
+			bind(c);
+	}
+
 	public final synchronized boolean bound(Class<?> cla)
 	{
 		if (cla.isPrimitive())

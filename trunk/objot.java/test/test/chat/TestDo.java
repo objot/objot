@@ -45,7 +45,7 @@ public class TestDo
 	}
 
 	{
-		container = container0.createAll();
+		container = container0.createBubble(null);
 		sess = container.get(Session.class);
 		System.err.println("\n\n************************************************\n");
 	}

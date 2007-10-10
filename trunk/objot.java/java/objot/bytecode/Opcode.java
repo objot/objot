@@ -1250,61 +1250,51 @@ public final class Opcode
 		case ALOAD1:
 		case ALOAD2:
 		case ALOAD3:
-		case ALOAD:
 			return ALOAD;
 		case ILOAD0:
 		case ILOAD1:
 		case ILOAD2:
 		case ILOAD3:
-		case ILOAD:
 			return ILOAD;
 		case LLOAD0:
 		case LLOAD1:
 		case LLOAD2:
 		case LLOAD3:
-		case LLOAD:
 			return LLOAD;
 		case FLOAD0:
 		case FLOAD1:
 		case FLOAD2:
 		case FLOAD3:
-		case FLOAD:
 			return FLOAD;
 		case DLOAD0:
 		case DLOAD1:
 		case DLOAD2:
 		case DLOAD3:
-		case DLOAD:
 			return DLOAD;
 		case ASTORE0:
 		case ASTORE1:
 		case ASTORE2:
 		case ASTORE3:
-		case ASTORE:
 			return ASTORE;
 		case ISTORE0:
 		case ISTORE1:
 		case ISTORE2:
 		case ISTORE3:
-		case ISTORE:
 			return ISTORE;
 		case LSTORE0:
 		case LSTORE1:
 		case LSTORE2:
 		case LSTORE3:
-		case LSTORE:
 			return LSTORE;
 		case FSTORE0:
 		case FSTORE1:
 		case FSTORE2:
 		case FSTORE3:
-		case FSTORE:
 			return FSTORE;
 		case DSTORE0:
 		case DSTORE1:
 		case DSTORE2:
 		case DSTORE3:
-		case DSTORE:
 			return DSTORE;
 		case WIDE:
 			return bs[bi + 1];
@@ -1377,6 +1367,7 @@ public final class Opcode
 		case FSTORE:
 		case DSTORE:
 		case IINC:
+		case RET:
 			return Bytes.readU1(bs, bi + 1);
 		case WIDE:
 			switch (bs[bi + 1])
@@ -1392,6 +1383,7 @@ public final class Opcode
 			case FSTORE:
 			case DSTORE:
 			case IINC:
+			case RET:
 				return Bytes.readU2(bs, bi + 2);
 			}
 			throw new ClassFormatError("invalid opcode " + (bs[bi + 1] & 0xFF));
