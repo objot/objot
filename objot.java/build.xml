@@ -42,6 +42,16 @@
 		<delete file="${.archive}" />
 		<jar jarfile="${.archive}" compress="true" basedir="${.dir.compile}">
 			<include name="objot/**/*.class" />
+			<manifest>
+				<attribute name="Comment" value="contains source code" />
+				<attribute name="Specification-Title" value="objot-java" />
+				<attribute name="Specification-Version" value="${.version}" />
+				<attribute name="Specification-Vendor" value="Qianyan Cai" />
+				<attribute name="Implementation-Title" value="objot-java" />
+				<attribute name="Implementation-Version" value="${.version}" />
+				<attribute name="Implementation-Vendor" value="Qianyan Cai" />
+				<attribute name="Implementation-URL" value="http://objot.info" />
+			</manifest>
 		</jar>
 		<jar jarfile="${.archive}"
 		     compress="true"
@@ -49,6 +59,7 @@
 		     update="true">
 			<include name="objot/**/*.java" />
 		</jar>
+
 	</target>
 
 	<target name="demo" depends="java.compile">
