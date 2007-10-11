@@ -40,7 +40,7 @@ public class Services
 
 		/** include {@link Err} and {@link Errs} */
 		@Override
-		protected String className(Class<?> c) throws Exception
+		protected String className(Object o, Class<?> c) throws Exception
 		{
 			return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 		}
