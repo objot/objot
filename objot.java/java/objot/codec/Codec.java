@@ -35,19 +35,23 @@ public class Codec
 		return new Decoder(this, for_, s).go(cla);
 	}
 
-	/** multi thread, may be cached */
+	/** must be thread safe, may be cached */
 	protected Class<?> classByName(String name) throws Exception
 	{
 		return Class.forName(name);
 	}
 
-	/** multi thread, may be cached */
-	protected String className(Class<?> c) throws Exception
+	/**
+	 * must be thread safe, may be cached
+	 * 
+	 * @param c class of the object
+	 */
+	protected String className(Object o, Class<?> c) throws Exception
 	{
 		return c.getName();
 	}
 
-	/** check long value, not too large for Javascript */
+	/** check long value, not too large for Javascript, must be thread safe */
 	protected long getLong(long l) throws Exception
 	{
 		if (l < -4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
@@ -55,13 +59,13 @@ public class Codec
 		return l;
 	}
 
-	/** {@link HashMap} by default */
+	/** {@link HashMap} by default, must be thread safe */
 	protected Map<String, Object> newMap() throws Exception
 	{
 		return new HashMap<String, Object>();
 	}
 
-	/** {@link HashSet} by default but not recommended for ORM */
+	/** {@link HashSet} by default but not recommended for ORM, must be thread safe */
 	protected Set<Object> newSet(int len) throws Exception
 	{
 		return new HashSet<Object>(len);

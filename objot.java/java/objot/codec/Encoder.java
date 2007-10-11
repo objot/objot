@@ -179,7 +179,7 @@ final class Encoder
 		}
 		else
 		{
-			split().append(codec.className(o.getClass()));
+			split().append(codec.className(o, o.getClass()));
 			ref(o);
 			codec.clazz(o.getClass()).encode(this, o, forClass);
 		}
