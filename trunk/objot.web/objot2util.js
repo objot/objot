@@ -61,7 +61,7 @@ Array.prototype.remove = function (from, len) {
 }
 /** construct a new array by each element's property of this array */
 Array.prototype.byProp = function (propName) {
-	var s = new Array(this.length);
+	var s = Array(this.length);
 	for (var i = 0; i < s.length; i++)
 		s[i] = this[i][propName];
 	return s;

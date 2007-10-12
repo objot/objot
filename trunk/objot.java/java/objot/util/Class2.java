@@ -260,9 +260,9 @@ public class Class2
 	{
 		if (t instanceof ParameterizedType)
 		{
-			t = ((ParameterizedType)t).getActualTypeArguments()[paramIndex];
-			if (t instanceof Class)
-				Default = (Class<?>)t;
+			Type[] ts = ((ParameterizedType)t).getActualTypeArguments();
+			if (paramIndex < ts.length && ts[paramIndex] instanceof Class)
+				Default = (Class<?>)ts[paramIndex];
 		}
 		return Default;
 	}

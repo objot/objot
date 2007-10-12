@@ -68,7 +68,7 @@ abstract class Element
 	public PrintStream printIdentity(PrintStream out, int indent)
 	{
 		printIndent(out, indent);
-		if (Element.class.getPackage().equals(getClass().getPackage()))
+		if (Element.class.getPackage() == getClass().getPackage())
 			out.print(Class2.selfName(getClass()));
 		else
 			out.print(getClass().getName());
