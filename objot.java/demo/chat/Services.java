@@ -30,7 +30,7 @@ public class Services
 {
 	public static final Codec CODEC = new Codec()
 	{
-		String modelPrefix = Id.class.getPackage().getName() + ".";
+		String modelPrefix = Class2.packageName(Id.class).concat(".");
 
 		@Override
 		protected Class<?> classByName(String name) throws Exception

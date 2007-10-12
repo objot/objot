@@ -390,8 +390,52 @@ final class Decoder
 			c = chr();
 			if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*')
 				bxy();
-			if (m != null)
+
+			Property p = z == null ? null : z.decs.get(n);
+			if (p != null)
 			{
+				if ( !p.allow(forClass))
+					throw new RuntimeException("decoding " + o.getClass().getCanonicalName()
+						+ "." + n + " forbidden for " + forClass.getCanonicalName());
+				Object v = Class.class;
+				try
+				{
+					if (c == 0)
+						z.decode(o, p.index, v = p.clob ? clob() : str());
+					else if (c == '[')
+						z.decode(o, p.index, v = list(p.cla, p.list));
+					else if (c == '{')
+						z.decode(o, p.index, v = object(p.cla));
+					else if (c == '=')
+						z.decode(o, p.index, v = ref());
+					else if (c == '*')
+						z.decode(o, p.index, v = new Date(numl(num())));
+					else if (c == ',')
+						z.decode(o, p.index, v = null);
+					else if (c == '<')
+						z.decode(o, p.index, v = false);
+					else if (c == '>')
+						z.decode(o, p.index, v = true);
+					else if (p.cla == int.class)
+						z.decode(o, p.index, numi(num()));
+					else if (p.cla == long.class)
+						z.decode(o, p.index, numl(num()));
+					else if (p.cla == double.class || p.cla == float.class)
+						z.decode(o, p.index, numd(num()));
+					else
+						z.decode(o, p.index, v = Num(num(), p.cla));
+				}
+				catch (ClassCastException e)
+				{
+					if (v == Class.class)
+						v = Num(num(), null);
+					throw new RuntimeException(o.getClass().getCanonicalName() + "." + n
+						+ " : " + (v != null ? v.getClass().getCanonicalName() : "null")
+						+ " forbidden for " + p.cla);
+				}
+			}
+
+			if (m != null)
 				if (c == 0)
 					m.put(n, str());
 				else if (c == '[')
@@ -410,52 +454,10 @@ final class Decoder
 					m.put(n, true);
 				else
 					m.put(n, Num(num(), null));
-				continue;
-			}
-
-			Property p = z.decs.get(n);
-			if (p == null)
+			// not found
+			else if (p == null)
 				throw new RuntimeException(o.getClass().getCanonicalName() + "." + n
 					+ " not found or not decodable");
-			if ( !p.allow(forClass))
-				throw new RuntimeException("decoding " + o.getClass().getCanonicalName()
-					+ "." + n + " forbidden for " + forClass.getCanonicalName());
-			Object v = Class.class;
-			try
-			{
-				if (c == 0)
-					z.decode(o, p.index, v = p.clob ? clob() : str());
-				else if (c == '[')
-					z.decode(o, p.index, v = list(p.cla, p.list));
-				else if (c == '{')
-					z.decode(o, p.index, v = object(p.cla));
-				else if (c == '=')
-					z.decode(o, p.index, v = ref());
-				else if (c == '*')
-					z.decode(o, p.index, v = new Date(numl(num())));
-				else if (c == ',')
-					z.decode(o, p.index, v = null);
-				else if (c == '<')
-					z.decode(o, p.index, v = false);
-				else if (c == '>')
-					z.decode(o, p.index, v = true);
-				else if (p.cla == int.class)
-					z.decode(o, p.index, numi(num()));
-				else if (p.cla == long.class)
-					z.decode(o, p.index, numl(num()));
-				else if (p.cla == double.class || p.cla == float.class)
-					z.decode(o, p.index, numd(num()));
-				else
-					z.decode(o, p.index, v = Num(num(), p.cla));
-			}
-			catch (ClassCastException e)
-			{
-				if (v == Class.class)
-					v = Num(num(), null);
-				throw new RuntimeException(o.getClass().getCanonicalName() + "." + n + " : "
-					+ (v != null ? v.getClass().getCanonicalName() : "null")
-					+ " forbidden for " + p.cla);
-			}
 		}
 		return o;
 	}

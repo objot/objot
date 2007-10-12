@@ -89,8 +89,8 @@ public final class Servlet
 	{
 		if (dataTest && "test".equals(cla))
 			return new ServiceInfo(codec, n, Class2.method1(ModelsCreate.class, "create"));
-		ServiceInfo inf = super.getServiceInfo(n,
-			Do.class.getPackage().getName() + '.' + cla, m);
+		ServiceInfo inf = super.getServiceInfo(n, //
+			Class2.packageName(Do.class) + '.' + cla, m);
 		return inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;
 	}
 

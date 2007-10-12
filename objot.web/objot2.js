@@ -176,7 +176,7 @@ $dec = function (s) {
 	}
 }
 	$dec.l = function (s, x) {
-		var o = new Array(s[x++] - 0);
+		var o = Array(s[x++] - 0);
 		s[x] === ':' && (this.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
 			: (v = s[x++]) !== ']'; i++)
@@ -474,7 +474,7 @@ $dom.show = function (v) {
  * @return this */
 $dom.attach = function (type, handler, This, args, old) {
 	old && this.detach(type, old);
-	var x, s = this.$on || (this.$on = [1, 0,0,0,0]); // [free,next,handler,This,args...]
+	var x, s = this.$on || (this.$on = [1, 0,,,]); // [free,next,handler,This,args...]
 	if (x = s[type])
 		do if (s[x + 1] === handler)
 			return this;

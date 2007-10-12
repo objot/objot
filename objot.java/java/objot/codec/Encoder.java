@@ -18,6 +18,7 @@ import objot.util.Class2;
 final class Encoder
 {
 	private static final int HASH_MASK = 255;
+
 	private Codec codec;
 	private Class<?> forClass;
 	/** for object graph, as keys */
@@ -54,6 +55,11 @@ final class Encoder
 		return str;
 	}
 
+	private static boolean simpleMap(Object o)
+	{
+		return o instanceof Map && Class2.packageName(o.getClass()).equals("java.util");
+	}
+
 	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
 
 	@SuppressWarnings("unchecked")
@@ -64,20 +70,25 @@ final class Encoder
 			throw new RuntimeException("String must not contain the split char");
 		if (o == null || ref(o, -1) < 0 /* multi references */)
 			return;
-		if (o instanceof Map)
-			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
-			{
-				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
-					refs(pv.getValue());
-			}
-		else if (o instanceof Collection)
+		if (o instanceof Collection)
+		{
 			for (Object v: (Collection<?>)o)
 				refs(v);
-		else if ( !o.getClass().isArray()) // other
+			return;
+		}
+		if (o.getClass().isArray())
+		{
+			if ( !o.getClass().getComponentType().isPrimitive())
+				for (Object v: (Object[])o)
+					refs(v);
+			return;
+		}
+		if ( !simpleMap(o))
 			codec.clazz(o.getClass()).encodeRefs(this, o, forClass);
-		else if ( !o.getClass().getComponentType().isPrimitive()) // array
-			for (Object v: (Object[])o)
-				refs(v);
+		if (o instanceof Map)
+			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
+				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
+					refs(pv.getValue());
 	}
 
 	/**
@@ -170,19 +181,17 @@ final class Encoder
 	private void object(Object o) throws Exception
 	{
 		split().append('{');
-		if (o instanceof Map)
-		{
+		boolean m = simpleMap(o);
+		if (m)
 			split();
-			ref(o);
+		else
+			split().append(codec.className(o, o.getClass()));
+		ref(o);
+		if ( !m)
+			codec.clazz(o.getClass()).encode(this, o, forClass);
+		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				value(pv.getKey(), pv.getValue());
-		}
-		else
-		{
-			split().append(codec.className(o, o.getClass()));
-			ref(o);
-			codec.clazz(o.getClass()).encode(this, o, forClass);
-		}
 		split().append('}');
 	}
 
