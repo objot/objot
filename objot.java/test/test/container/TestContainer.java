@@ -28,6 +28,7 @@ public class TestContainer
 	extends Assert
 {
 	static Container con0;
+	static Container con0lazy;
 
 	@BeforeClass
 	public static void init() throws Exception
@@ -45,7 +46,7 @@ public class TestContainer
 				return b.cla(c == X.class ? OuterSingle.class : b.cla);
 			}
 		}.create(null);
-		con0 = new Factory()
+		Factory f = new Factory()
 		{
 			{
 				bind(Object.class);
@@ -82,7 +83,9 @@ public class TestContainer
 						return b.cla(New2.class);
 				return b;
 			}
-		}.create(outest);
+		};
+		con0 = f.create(outest);
+		con0lazy = f.create(outest, true);
 	}
 
 	Container con = con0.createBubble(null);
@@ -92,6 +95,26 @@ public class TestContainer
 	public void unbound() throws Exception
 	{
 		con.get(TestContainer.class);
+	}
+
+	@Test(expected = ClassCastException.class)
+	public void eager()
+	{
+		con.create();
+	}
+
+	@Test
+	public void lazy()
+	{
+		con0lazy.create();
+		try
+		{
+			con0lazy.create().get(X.Inner.class);
+			fail();
+		}
+		catch (ClassCastException e)
+		{
+		}
 	}
 
 	@Test
@@ -159,18 +182,18 @@ public class TestContainer
 	}
 
 	@Test
-	public void outer()
+	public void parent()
 	{
-		assertNull(con.create().outer());
+		assertNull(con.parent().create().parent());
 		assertSame(con, con.get(Container.class));
 		assertSame(con0.getClass(), con.getClass());
-		assertSame(con0.outer().getClass(), con.outer().getClass());
-		assertSame(con.outer(), con.outest());
+		assertSame(con0.parent().getClass(), con.parent().getClass());
+		assertSame(con.parent(), con.rootParent());
 
 		Inner o = con.get(Inner.class);
 		assertNotNull(o.on);
-		assertNotSame(con.outer().get(OuterNew.class), o.on);
-		assertSame(con.outer().get(OuterSingle.class), o.os);
+		assertNotSame(con.parent().get(OuterNew.class), o.on);
+		assertSame(con.parent().get(OuterSingle.class), o.os);
 		assertSame(o.os, o.on.x);
 		assertSame(o.os, o.os.x);
 

@@ -16,83 +16,87 @@ import objot.util.Class2;
 public abstract class Container
 {
 	/** thread-safe */
-	public final Container outer()
+	public final Container parent()
 	{
-		return outer == NULL ? null : outer;
+		return parent == NULL ? null : parent;
 	}
 
 	/** thread-safe */
-	public final Container outest()
+	public final Container rootParent()
 	{
 		Container c = this;
-		while (c.outer != NULL)
-			c = c.outer;
+		while (c.parent != NULL)
+			c = c.parent;
 		return c;
 	}
 
-	/** create container with null outer, thread-safe. */
+	/** create container with null parent, thread-safe. */
 	public final Container create()
 	{
-		return create((Container)null);
+		return create0(index(Container.class), NULL);
 	}
 
-	/** create container with specified outer, thread-safe. */
-	public final Container create(Container outer_)
+	/** create container with specified parent, thread-safe. */
+	public final Container create(Container parent_)
 	{
-		Container c = create0(index(Container.class), false);
-		c.outer = outer_ != null ? outer_ : NULL;
-		return c;
+		return create0(index(Container.class), parent_ != null ? parent_ : NULL);
 	}
 
 	/**
-	 * create container with outers created recursively until the specified one,
+	 * create container with parents created recursively until the specified one,
 	 * thread-safe
 	 * 
-	 * @param until must be one of the true outers, or RuntimeException thrown
+	 * @param until must be one of the true parents, or RuntimeException thrown
 	 */
 	public final Container createBubble(Container until)
 	{
-		until = until != null ? until : NULL;
-		Container c = create0(index(Container.class), false);
-		for (Container in = c, out; (out = in.outer) != until; in = out)
-			if (out != NULL)
-				in.outer = out = out.create0(out.index(Container.class), false);
-			else
-				throw new RuntimeException(until + " is not a true outer");
-		return c;
+		if (parent == (until != null ? until : NULL))
+			return create0(index(Container.class), parent);
+		if (parent == NULL)
+			throw new RuntimeException(until + " is not a true parent");
+		return create0(index(Container.class), parent.createBubble(until));
 	}
 
 	/**
-	 * create container with outers created recursively until the specified one,
+	 * create container with parents created recursively until the specified one,
 	 * thread-safe
 	 * 
-	 * @param until must be one of the true outers, or RuntimeException thrown
+	 * @param until must be one of the true parents, or RuntimeException thrown
 	 */
 	public final Container createBubble(Container until, Container to)
 	{
-		until = until != null ? until : NULL;
-		Container c = create0(index(Container.class), false), in = c;
-		for (Container out; (out = in.outer) != until; in = out)
-			if (out != NULL)
-				in.outer = out = out.create0(out.index(Container.class), false);
-			else
-				throw new RuntimeException(until + " is not a true outer");
-		in.outer = to != null ? to : NULL;
-		return c;
+		if (parent == (until != null ? until : NULL))
+			return create0(index(Container.class), to != null ? to : NULL);
+		if (parent == NULL)
+			throw new RuntimeException(until + " is not a true parent");
+		return create0(index(Container.class), parent.createBubble(until));
 	}
 
-	/** mostly not thread-safe except for some class */
+	/**
+	 * get an instance of the class, or get this container.
+	 * 
+	 * @see Factory#create(Container, boolean)
+	 * @throws ClassCastException if the class is not found in this and parents, or a
+	 *             bound class throws.
+	 */
 	public final <T>T get(Class<T> c)
 	{
 		int i = index(c);
-		return i > 0 ? this.<T>get0(i) : i < 0 ? this.<T>create0(i, false) : outer.get(c);
+		return i > 0 ? this.<T>get0(i) : i < 0 ? this.<T>create0(i, parent) : parent.get(c);
 	}
 
-	/** mostly not thread-safe except for some class */
+	/**
+	 * create an instance of the class whatever {@link Inject.Single} or not, or create
+	 * container with same parent.
+	 * 
+	 * @see Factory#create(Container, boolean)
+	 * @throws ClassCastException if the class is not found in this and parents, or a
+	 *             bound class throws.
+	 */
 	public final <T>T create(Class<T> c)
 	{
 		int i = index(c);
-		return i != 0 ? this.<T>create0(i, false) : outer.create(c);
+		return i != 0 ? this.<T>create0(i, parent) : parent.create(c);
 	}
 
 	/** @return whether class is bound in this container */
@@ -105,22 +109,22 @@ public abstract class Container
 	public Container boundIn(Class<?> c)
 	{
 		int i = index(c);
-		return i != 0 ? this : outer.boundIn(c);
+		return i != 0 ? this : parent.boundIn(c);
 	}
 
-	Container outer;
-	static final Field F_outer = Class2.declaredField(Container.class, "outer");
+	Container parent;
+	static final Field F_parent = Class2.declaredField(Container.class, "parent");
 
 	/**
 	 * Example:
 	 * 
 	 * <pre>
-	 * switch(c.hashCode() % 15) {
+	 * switch(c.hashCode() % 31) {
 	 *     2: if (c == Container.class) return 1;
 	 *        if (c == A.class) return 3;
 	 *        return 0;
 	 *     6: if (c == B.class) return -2; // {@link Inject.New}
-	 *        if (c == D.class) return 5; // bind to outer
+	 *        if (c == D.class) return 5; // bind to parent
 	 *        return 0;
 	 *     default: return 0;
 	 *   }
@@ -139,13 +143,13 @@ public abstract class Container
 	 * switch(i) {
 	 *   1: return this; // {@link Container}
 	 *   2: return objss[0][0]; // bind to object
-	 *   3: return o3 != null ? o3 : create0(i, true); // @{@link Inject.Single}
-	 *   4: if (o4 != null) return o4; // catch, degraded if bind to null in outers
-	 *      for (Container c = outer; ; c = c.outer) {
+	 *   3: return o3 != null ? o3 : create0(i, null); // {@link Inject.Single}
+	 *   4: if (o4 != null) return o4; // catch, degraded if bind to null in parents
+	 *      for (Container c = parent; ; c = c.parent) {
 	 *        int j = c.index(X.class);
 	 *        if (j > 0) return o4 = c.get0(j);
-	 *        if (j < 0) return c.create0(j, false);
-	 *      } // bind to outer
+	 *        if (j < 0) return c.create0(j, this);
+	 *      } // bind to parent
 	 *   default: return null; // never happen
 	 * }</pre>
 	 */
@@ -154,15 +158,18 @@ public abstract class Container
 	static final Method M_get0 = Class2.declaredMethod1(Container.class, "get0");
 
 	/**
-	 * Example:
+	 * Eager example:
 	 * 
 	 * <pre>
 	 * switch(i) {
 	 *   1: Container123 o = new Container123();
-	 *      o.outer = outer;
+	 *      o.parent = parentOrSave;
+	 *      if (o.o3 == null) o.create0(3, null); // {@link Inject.Single}
+	 *      if (o.o6 == null) o.create0(6, null); // {@link Inject.Single}
+	 *      ...
 	 *      return o;
-	 *   -2: A o = new A((A1)get0(5), (Object)create0(-7, false), (A4)objss[2][1]);
-	 *      if (save)
+	 *   -2: A o = new A((A1)get0(5), (Object)create0(-7, this), (A4)objss[2][1]);
+	 *      if (parentOrSave != null)
 	 *        o0 = o;
 	 *      o.x = (Ax)get0(3); // bind to index 3
 	 *      o.y = (Ay)objss[2][2]; // bind to object
@@ -172,8 +179,20 @@ public abstract class Container
 	 *   3: ...
 	 *   default: return null; // never happen
 	 * }</pre>
+	 * 
+	 * Lazy example:
+	 * 
+	 * <pre>
+	 * switch(i) {
+	 *   1: Container123 o = new Container123();
+	 *      o.parent = parent;
+	 *      return o;
+	 *   ...
+	 * }</pre>
+	 * 
+	 * @param parentOrSave container: parent, others: null to save
 	 */
-	abstract <T>T create0(int index, boolean save);
+	abstract <T>T create0(int index, Container parentOrSave);
 
 	static final Method M_create0 = Class2.declaredMethod1(Container.class, "create0");
 
@@ -186,7 +205,7 @@ public abstract class Container
 		}
 
 		@Override
-		<T>T create0(int index, boolean save)
+		<T>T create0(int index, Container parentOrSave)
 		{
 			throw new UnsupportedOperationException();
 		}

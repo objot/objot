@@ -144,6 +144,7 @@ public class Factory
 		return null;
 	}
 
+	/** choose a constructor for creation and injection */
 	protected Constructor<?> doBind(Class<?> c, Constructor<?>[] ts) throws Exception
 	{
 		for (Constructor<?> t: ts)
@@ -152,7 +153,13 @@ public class Factory
 		return c.getDeclaredConstructor();
 	}
 
-	/** @return array of (field or method or null) */
+	/**
+	 * determine which fields and methods need injection.
+	 * 
+	 * @param fms array of fields and methods
+	 * @return array of field and method, each need injection, or of null to ignore that
+	 *         field or method
+	 */
 	protected AccessibleObject[] doBind(Class<?> c, AccessibleObject[] fms) throws Exception
 	{
 		for (int i = 0; i < fms.length; i++)
@@ -162,6 +169,9 @@ public class Factory
 	}
 
 	/**
+	 * bind fields and parameters to something. circular dependences from constructor
+	 * parameters must be avoided since it causes stack overflow.
+	 * 
 	 * @param cc the binding class
 	 * @param fp {@link Field} or {@link Parameter}
 	 * @param c {@link Field#getType()} or {@link Parameter#cla}, same as
@@ -175,10 +185,31 @@ public class Factory
 		return null;
 	}
 
-	public final synchronized Container create(Container outer) throws Exception
+	/** eager, see {@link #create(Container, boolean)} */
+	public final Container create(Container parent) throws Exception
 	{
-		if (con != null && classes.size() == bindN)
-			return con.create(outer);
+		return create(parent, false);
+	}
+
+	/**
+	 * Create a eager or lazy container with specified parent.
+	 * <dl>
+	 * <dt>eager, recommended
+	 * <dd>all instances in {@link Inject.Single} mode are created while creating
+	 * container. thread safe, but for the classes bound to parent container, it depends
+	 * on parent.</dd>
+	 * <dt>lazy
+	 * <dd>all instances in {@link Inject.Single} mode are created at first demand, not
+	 * thread safe.</dd>
+	 * </dl>
+	 * Note that circular dependences from constructor parameters must be avoided since it
+	 * causes stack overflow.
+	 */
+	public final synchronized Container create(Container parent, boolean lazy_)
+		throws Exception
+	{
+		if (con != null && classes.size() == bindN && lazy == lazy_)
+			return con.create(parent);
 		Bind.Clazz[] cs = new Bind.Clazz[classes.size() + 1];
 		int i = 1;
 		for (Bind.Clazz c: classes.values())
@@ -211,13 +242,15 @@ public class Factory
 				c.os = os.toArray();
 				os.clear();
 			}
-		con = new Factoring().create(cs);
+		con = new Factoring().create(cs, lazy_);
 		bindN = cs.length - 1;
-		return con.create(outer);
+		lazy = lazy_;
+		return con.create(parent);
 	}
 
 	private HashMap<Class<?>, Bind.Clazz> classes;
 	private int bindN;
+	private boolean lazy;
 	private Container con;
 
 	/** @param b its {@link Bind#cla} may be unboxed */
