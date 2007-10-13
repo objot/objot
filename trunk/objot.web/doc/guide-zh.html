@@ -53,7 +53,7 @@
 浏览端，Objot兼容Firefox 2.0，Firefox 1.5，IE 7（测试中），IE 6；服务端，Objot要求Java 5(1.5)以上，或者Python 2.4以上。
 
 <p>一个在线聊天的范例，演示了如何用Objot和面向服务的AJAX架构实现一个完整的Web应用。
-部署此范例浏览端时，可以将objot.web目录对应为/objotweb/。
+部署此范例浏览端时，可以将objot.web目录部署为/objotweb/。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -78,7 +78,7 @@ Objot将SO编码成一个字符串，其中使用了特殊字符'\x10'。
 
 <p>list、object之间可以任意引用，构成的整个SO图都可以被编解码；同时也可以定义规则，只处理SO图的局部（子图）。
 Objot支持单继承类，服务端和浏览端可以使用不同的类名，可以使用不同的属性名，均可以对应。
-传递的SO必须以list或者object为起点。
+必须以list或object为起点来编解码SO图。
 
 <!--****************************************************************************************-->
 
@@ -378,10 +378,11 @@ d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有�
 }
 </pre>
 可以将this、参数指定为其他对象、数组：
-<pre>$d('click', onClick, new Date(), [ 'hello' ]);
-function onClick(o) {
+<pre>$d('click', onClick, new Date(), [ 'hello','world' ]);
+function onClick(p,q) {
 	$.is(this, Date); // this是Date对象
-	$.s(o); // o是字符串
+	$.s(p); // o是'hello'
+	$.s(q); // q是'world'
 }
 </pre>
 如果要使用默认的this和参数，则要指定与false对应的值，例如：
@@ -409,7 +410,7 @@ $d('click', onClick); // 相当于 $d('click', onClick, undefined, undefined);
 	this.name.focus();
 }
 </pre>
-这是一个登入视图组件，生成一些dom节点。并且设置一些事件函数，定义为：
+这是一个登入视图组件，生成一些dom节点。设置一些事件函数：
 <pre>_SignIn.prototype = {
 	doSign: function () {
 		this.submit.disabled = true, this.submit.blur();

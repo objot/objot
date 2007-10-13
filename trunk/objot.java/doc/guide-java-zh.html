@@ -82,7 +82,7 @@
 <h2>服务对象Service Object</h2>
 
 <p>参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
-Java支持的SO类型包括：
+在Java上支持的SO类型包括：
 <table>
 	<tr><th>Javascript<th>Java</tr>
 	<tr><td>null undefined<td>null</tr>
@@ -94,6 +94,7 @@ Java支持的SO类型包括：
 	<tr><td>Object(非Function String Number Boolean)<td>Object Map&lt;String,Object&gt;</tr>
 </table>
 Javascript中数只有52bit精度（IEEE754），因此Java服务端编码时若long和Long超出-4503599627370496L到4503599627370496L（+-52bit），默认抛出异常。
+第一次编解码某个类的对象时，会生成bytecode来访问这个类，后续编解码这个类的对象时，不再有任何reflection，优化了效率。
 
 <!--****************************************************************************************-->
 
@@ -190,7 +191,7 @@ public class Chat {
 		return Class.forName("package.name.".concat(name));
 	}
 	@Override
-	protected String className(Class&lt;?&gt; c) throws Exception {
+	protected String className(Object o, Class&lt;?&gt; c) throws Exception {
 		return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 	}
 }
@@ -224,10 +225,66 @@ dec方法第二个参数表示限定类，解码起点对象的类必须是此�
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
+<h2>依赖注入容器Container</h2>
+
+<p>依赖注入是一个有利于服务构建的重要模式，Objot提供了超轻量的基于bytecode的高效容器来实现依赖注入。
+
+<!--****************************************************************************************-->
+
+<h3>容器内的代码</h3>
+
+<p>绑定到容器objot.container.Container上的类，都可以简单地获得依赖注入模式的好处：
+<pre>public class A {
+	@Inject 
+	public B b;
+	private C c;
+	private D d;
+	private E e;
+
+	@Inject
+	public A(C v) { c = v; }
+	@Inject
+	public void d(D v, E u) { d = v; e = u; }
+}  
+</pre>
+这个类所需要的4个依赖都是通过注入获得的。
+通过容器创建A的对象时，容器会调用A的构造方法传入C的对象，然后给b赋值，再调用d方法注入D和E的对象。
+
+<p>被依赖的类也需要绑定到容器上，同时也可以使用依赖注入：
+<pre>public class B {
+	@Inject
+	public C c;
+}
+@Inject.New
+public class C {
+	@Inject
+	public A a;
+	@Inject
+	public D d;
+}
+@Inject.Single
+public class D {
+	@Inject
+	public B b;
+	@Inject
+	public E e;
+}
+</pre>
+这样在创建A对象时，会先创建C对象，而这会导致创建D、B、E对象，于是所有需要的对象都在容器中创建了。
+其中C对象有@Inject.New，表示每次需要注入C对象时，总是先创建一个新的C对象。
+而D对象有@Inject.Single，表示注入的D对象在这个容器中总是同一个，就是容器内的Singleton，默认就是@Inject.Single。
+
+<p>
+// @Inject public C(A v) { a = v; } 这里对A依赖会导致循环依赖，要用field
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
 <h2>服务Service</h2>
 
 <p>参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
-根据使用的Java框架和平台，可以用不同的方式来构建服务，Objot提供了ObjotServlet，并在范例中使用了Guice和JUnit。
+根据使用的Java框架和平台，可以用不同的方式来构建服务，Objot本身提供了轻量的依赖注入容器，轻量的切面支持，和轻量的Servlet包装，范例还使用了JUnit。
 
 <!--****************************************************************************************-->
 
