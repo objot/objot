@@ -138,7 +138,12 @@ public class Factory
 		}
 	}
 
-	/** @return ignored, just for convenience */
+	/**
+	 * bind to another class, or an object, or parent container. circular dependences from
+	 * {@link Inject.New} classes must be avoided since it causes stack overflow.
+	 * 
+	 * @return ignored, just for convenience
+	 */
 	protected Object doBind(Class<?> c, Bind b) throws Exception
 	{
 		return null;
@@ -202,8 +207,8 @@ public class Factory
 	 * <dd>all instances in {@link Inject.Single} mode are created at first demand, not
 	 * thread safe.</dd>
 	 * </dl>
-	 * Note that circular dependences from constructor parameters must be avoided since it
-	 * causes stack overflow.
+	 * Note that circular dependences from constructor parameters or {@link Inject.New}
+	 * classes must be avoided since it causes stack overflow.
 	 */
 	public final synchronized Container create(Container parent, boolean lazy_)
 		throws Exception

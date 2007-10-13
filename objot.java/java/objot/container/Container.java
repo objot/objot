@@ -185,7 +185,7 @@ public abstract class Container
 	 * <pre>
 	 * switch(i) {
 	 *   1: Container123 o = new Container123();
-	 *      o.parent = parent;
+	 *      o.parent = parentOrSave;
 	 *      return o;
 	 *   ...
 	 * }</pre>
