@@ -24,6 +24,7 @@ final class Factoring
 	/** [0] == null */
 	Bind.Clazz[] cs;
 	Object[][] oss;
+	boolean lazy;
 	Bytecode y;
 	Constants cons;
 	int indexCi;
@@ -34,12 +35,13 @@ final class Factoring
 	int[] fCis;
 	int[] cCis;
 
-	Container create(Bind.Clazz[] cs_) throws Exception
+	Container create(Bind.Clazz[] cs_, boolean lazy_) throws Exception
 	{
 		cs = cs_;
 		oss = new Object[cs.length][];
 		for (int i = 1; i < cs.length; i++)
 			oss[i] = cs[i].os;
+		lazy = lazy_;
 
 		String name = Container.class.getName() + "$$" + hashCode();
 		y = new Bytecode();
@@ -52,7 +54,7 @@ final class Factoring
 
 		get0Ci = cons.addProc(Container.M_get0);
 		create0Ci = cons.addProc(Container.M_create0);
-		outCi = cons.addField(Container.F_outer);
+		outCi = cons.addField(Container.F_parent);
 		fCis = new int[cs.length];
 		cCis = new int[cs.length];
 		makeFields();
@@ -125,14 +127,14 @@ final class Factoring
 		s.ins0(ALOAD1); // class
 		s.ins0(DUP); // class
 		s.insU2(INVOKEVIRTUAL, cons.addProc(M_hashCode)); // hash code
-		s.insS1(BIPUSH, 15);
+		s.insS1(BIPUSH, 31);
 		s.ins0(IREM);
-		long sw = s.insSwitchTable(0, 14);
-		for (int i = 0; i <= 14; i++)
+		long sw = s.insSwitchTable(0, 30);
+		for (int i = 0; i < 31; i++)
 		{
 			s.switchTableFrom(sw, i);
 			for (int j = 1; j < cs.length; j++)
-				if (cs[j].cla.hashCode() % 15 == i)
+				if (cs[j].cla.hashCode() % 31 == i)
 				{
 					s.ins0(DUP); // class
 					s.insU2(LDCW, cCis[j] = cons.addClass(cs[j].cla));
@@ -198,7 +200,7 @@ final class Factoring
 				s.ins0(POP);
 				s.ins0(ALOAD0);
 				s.ins0(ILOAD1);
-				s.ins0(ICONST1);
+				s.ins0(ACONSTNULL);
 				s.insU2(INVOKEVIRTUAL, create0Ci);
 				s.jumpFrom(j);
 				s.ins0(ARETURN);
@@ -220,7 +222,7 @@ final class Factoring
 				s.insU2(INVOKEVIRTUAL, indexCi); // c, i
 				s.ins0(DUP);
 				int ge0 = s.insJump(IFIGE0);
-				s.ins0(ICONST0);
+				s.ins0(ALOAD0);
 				s.insU2(INVOKEVIRTUAL, create0Ci); // o
 				s.ins0(ARETURN);
 				s.jumpFrom(ge0);
@@ -275,12 +277,26 @@ final class Factoring
 					cons.addNameDesc(y.getProcs().getProc(0).getNameCi(), //
 						y.getProcs().getProc(0).getDescCi())));
 				s.ins0(DUP);
-				s.ins0(ALOAD0);
-				s.insU2(GETFIELD, outCi);
+				s.ins0(ALOAD2);
 				s.insU2(PUTFIELD, outCi);
+				if ( !lazy)
+					for (int j = 1; j < cs.length; j++)
+						if (cs[j].cla != Container.class && cs[j].b == cs[j]
+							&& cs[j].mode == Inject.Single.class)
+						{
+							s.ins0(DUP);
+							s.insU2(GETFIELD, fCis[j]);
+							int k = s.insJump(IFNOTNULL);
+							s.ins0(DUP);
+							s.insS2(SIPUSH, j);
+							s.ins0(ACONSTNULL);
+							s.insU2(INVOKEVIRTUAL, create0Ci);
+							s.ins0(POP);
+							s.jumpFrom(k);
+						}
 				s.ins0(ARETURN);
 			}
-			else if (c.t != null) // never bind to outer
+			else if (c.t != null) // never bind to parent
 			{
 				s.switchTableFrom(sw, max + i);
 				s.switchTableFrom(sw, max - i);
@@ -292,8 +308,8 @@ final class Factoring
 				s.insU2(INVOKESPECIAL, cons.putProc(c.t.t));
 				if (c.mode == Inject.Single.class)
 				{
-					s.ins0(ILOAD2); // save
-					int j = s.insJump(IFIE0);
+					s.ins0(ALOAD2); // save
+					int j = s.insJump(IFNOTNULL);
 					s.ins0(DUP);
 					s.ins0(ALOAD0);
 					s.ins0(SWAP);
@@ -336,7 +352,7 @@ final class Factoring
 			int i = bind(b.b);
 			s.insS2(SIPUSH, i);
 			if (i < 0)
-				s.ins0(ICONST0);
+				s.ins0(ALOAD0);
 			s.insU2(INVOKEVIRTUAL, i > 0 ? get0Ci : create0Ci);
 			s.insUnboxNarrow(b.cla);
 			return o;

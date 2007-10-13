@@ -36,7 +36,7 @@ public final class Servlet
 {
 	boolean dataTest;
 	SessionFactory dataFactory;
-	/** outer is services container, outer.outer is session container */
+	/** parent is services container, parent.parent is session container */
 	Container containerS;
 
 	@Override
@@ -116,11 +116,11 @@ public final class Servlet
 				sess = (Container)hq.getSession().getAttribute("container");
 				if (sess == null)
 					hq.getSession().setAttribute("container",
-						sess = containerS.outer().outer().create());
+						sess = containerS.parent().parent().create());
 			}
 		try
 		{
-			return containerS.createBubble(containerS.outer().outer(), sess).get(S.class)
+			return containerS.createBubble(containerS.parent().parent(), sess).get(S.class)
 				.serve(inf, reqs);
 		}
 		catch (InvalidStateException e)

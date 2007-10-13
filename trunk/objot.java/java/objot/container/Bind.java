@@ -18,7 +18,7 @@ public class Bind
 	public Class<?> cla;
 	Clazz b;
 	public Object obj;
-	/** bind class to outer container if {@link #mode} is null and {@link #cla} not changed */
+	/** bind to parent container if {@link #mode} is null and {@link #cla} not changed */
 	public Class<? extends Annotation> mode;
 
 	public Bind obj(Object o)
