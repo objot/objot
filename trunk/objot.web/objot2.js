@@ -18,7 +18,7 @@ $S = function (x) {
 
 /** false or version number */
 $ie = navigator.userAgent.search('MSIE');
-$ie = $ie >= 0 && navigator.userAgent.charCodeAt($ie + 5);
+$ie = $ie >= 0 && navigator.userAgent.charAt($ie + 5) - 0;
 /** Gecko|Opera|Safari */
 $fos = !$ie;
 
@@ -220,7 +220,7 @@ $dec = function (s) {
  * @return a function to stop this round */
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
-	netscape && location.protocol === 'file:'
+	window.netscape && location.protocol === 'file:'
 		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
 		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
 	var h = $ie == 6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
@@ -357,7 +357,7 @@ $tx = function (singleLine) {
  * @return this */
 $dom.add = function (index) {
 	if (index >= 0 || index < 0)
-		for (var x = 1, m = this.childNodes[index]; x < arguments.length; x++)
+		for (var x = 1, m = this.childNodes[index] || null; x < arguments.length; x++)
 			this.insertBefore(arguments[x], m);
 	else
 		for (var x = 0; x < arguments.length; x++)

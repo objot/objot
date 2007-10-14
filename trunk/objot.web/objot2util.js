@@ -235,12 +235,12 @@ $Pop = function (inner) {
 
 // hints
 //
-// in Firefox, predefined function(){}.name can only be assigned without '.'
+// on Firefox, predefined function(){}.name can only be assigned without '.'
 //
 // && || ! ? if(x), 1 '0' [] are true, 0 NaN '' null undefined are false
 //   do NOT use x == true/false, use Boolean(x) or !!x or x === true/false instead
 //
-// in IE 6&7, event handler codes may need outermost try { ... } finally {}
+// on IE 6&7, event handler codes may need outermost try { ... } finally {}
 //   otherwise the inner finally { ... } may be ignored, stupid
 //
 // String(x) convert x to string (not String) unless x is already string
@@ -255,19 +255,21 @@ $Pop = function (inner) {
 //
 // when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unavailable
 //
-// \n unsupported in Firefox(not IE) element tooltip and textContent proprety, stupid
+// \n unsupported on Firefox(not IE) element tooltip and textContent proprety, stupid
 //
-// in IE 6&7, (null dom node) instanceof (Object etc) causes Javascript error.
+// on IE 6&7, (null dom node) instanceof (Object etc) causes Javascript error.
 //
-// in IE 6&7, $inp('name', 'a', ...).outerHTML contains no name="a", and
+// on IE 6&7, $inp('name', 'a', ...).outerHTML contains no name="a", and
 //   document.getElementsByName('a') returns without this input, stupid
 // and <tr>.innerHTML may not be set directly, should createElement('td')
 //
-// in IE 6(7?), iframe's window.parent may not be the actual parent window,
+// on IE 6(7?), iframe's window.parent may not be the actual parent window,
 //   but iframe's window.parent.document is the actual parent window document
 //
-// in IE 6(7?), codes in different windows may be multi-thread ??!
+// on IE 6(7?), codes in different windows may be multi-thread ??!
 //
-// in Firefox for Linux, onkeydown may be triggered only one key is down,
+// on Firefox for Linux, onkeydown may be triggered only one key is down,
 //   may use onkeypress instead
+//
+// on IE 6(7?), childNodes[index out of bound] === undefined, but null per standard 
 //

@@ -18,6 +18,7 @@
 <button onclick="demoH.call(this,event)">http</button><br>
 <button onclick="demoD.call(this,event)">dec</button><br>
 <button onclick="demoV.call(this,event)">eval</button><br>
+<div id=div1 style="width:5em"></div>
 </div>
 <input id=url type=text size=60><br>
 <textarea id=text rows=40 cols=50></textarea>
@@ -29,6 +30,7 @@ window.onerror = function(m,f,l){
 }
 
 window.div = $id('div');
+window.div1 = $id('div1');
 window.url = $id('url');
 window.text = $id('text');
 url.value = location.protocol + '//' + location.host + '/';
