@@ -1,6 +1,6 @@
 //
 // Copyright 2007 Qianyan Cai
-// Under the terms of The GNU General Public License version 2
+// Under the terms of the GNU General Public License version 2
 //
 package test.chat;
 
@@ -38,7 +38,7 @@ public class TestDo
 	public static void beforeAll() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		container0 = Services.build(Models.build(true).buildSessionFactory(), Services.CODEC);
+		container0 = Services.build(Models.build(true).buildSessionFactory(), Models.CODEC);
 		dataInit = new ModelsCreate(true);
 		dataInit.create(true, 1);
 		dataInit.print = false;

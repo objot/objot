@@ -1,12 +1,15 @@
 //
 // Copyright 2007 Qianyan Cai
-// Under the terms of The GNU General Public License version 2
+// Under the terms of the GNU General Public License version 2
 //
 package chat;
 
 import java.sql.Connection;
 import java.sql.Statement;
 
+import objot.codec.Codec;
+import objot.codec.Err;
+import objot.codec.Errs;
 import objot.util.Class2;
 
 import org.apache.commons.logging.Log;
@@ -26,7 +29,23 @@ import chat.model.Id;
 
 public class Models
 {
-	static final Log LOG = LogFactory.getLog(Models.class);
+	public static final Codec CODEC = new Codec()
+	{
+		String modelPrefix = Class2.packageName(Id.class).concat(".");
+
+		@Override
+		protected Class<?> classByName(String name) throws Exception
+		{
+			return Class.forName(modelPrefix.concat(name));
+		}
+
+		/** include {@link Err} and {@link Errs} */
+		@Override
+		protected String className(Object o, Class<?> c) throws Exception
+		{
+			return c.getName().substring(c.getName().lastIndexOf('.') + 1);
+		}
+	};
 
 	/** @param test whether use the testing database */
 	public static AnnotationConfiguration build(boolean test) throws Exception
@@ -132,6 +151,7 @@ public class Models
 		return conf;
 	}
 
+	static final Log LOG = LogFactory.getLog(Models.class);
 	public boolean print = true;
 	protected AnnotationConfiguration conf;
 	protected Dialect dialect;

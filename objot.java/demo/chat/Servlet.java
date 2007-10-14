@@ -1,6 +1,6 @@
 //
 // Copyright 2007 Qianyan Cai
-// Under the terms of The GNU General Public License version 2
+// Under the terms of the GNU General Public License version 2
 //
 package chat;
 
@@ -60,9 +60,9 @@ public final class Servlet
 		context.log("\n================ for test ================\n");
 		if (dataTest)
 			new ModelsCreate(true).create(true, -1);
+		codec = Models.CODEC;
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 
-		codec = Services.CODEC;
 		final Class<?> claS = new Weaver(Transac.As.class)
 		{
 			@Override

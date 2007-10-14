@@ -1,6 +1,6 @@
 //
 // Copyright 2007 Qianyan Cai
-// Under the terms of The GNU General Public License version 2
+// Under the terms of the GNU General Public License version 2
 //
 package chat;
 
@@ -9,8 +9,6 @@ import java.lang.reflect.Method;
 import objot.aspect.Aspect;
 import objot.aspect.Weaver;
 import objot.codec.Codec;
-import objot.codec.Err;
-import objot.codec.Errs;
 import objot.container.Bind;
 import objot.container.Container;
 import objot.container.Factory;
@@ -20,7 +18,6 @@ import objot.util.Mod2;
 
 import org.hibernate.SessionFactory;
 
-import chat.model.Id;
 import chat.service.Do;
 import chat.service.Session;
 import chat.service.Do.Service;
@@ -28,24 +25,6 @@ import chat.service.Do.Service;
 
 public class Services
 {
-	public static final Codec CODEC = new Codec()
-	{
-		String modelPrefix = Class2.packageName(Id.class).concat(".");
-
-		@Override
-		protected Class<?> classByName(String name) throws Exception
-		{
-			return Class.forName(modelPrefix.concat(name));
-		}
-
-		/** include {@link Err} and {@link Errs} */
-		@Override
-		protected String className(Object o, Class<?> c) throws Exception
-		{
-			return c.getName().substring(c.getName().lastIndexOf('.') + 1);
-		}
-	};
-
 	/** @return container of services which parent is for session */
 	public static Container build(final SessionFactory d, final Codec codec) throws Exception
 	{
