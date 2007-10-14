@@ -1,6 +1,6 @@
 //
 // Copyright 2007 Qianyan Cai
-// Under the terms of The GNU General Public License version 2
+// Under the terms of the GNU General Public License version 2
 //
 package chat.service;
 
@@ -18,7 +18,7 @@ import org.hibernate.validator.InvalidValue;
 import objot.container.Inject;
 
 
-/** common utilities */
+/** all services must in containers */
 public abstract class Do
 {
 	private static final Map<Class<?>, ClassValidator<?>> VS //
