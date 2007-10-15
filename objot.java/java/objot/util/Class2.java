@@ -38,6 +38,15 @@ public class Class2
 		return o == null ? "null" : o.getClass().getName() + '@' + System.identityHashCode(o);
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T>T cast(Object o, Class<T> c)
+	{
+		if (o == null || c.isAssignableFrom(o.getClass()))
+			return (T)o;
+		throw new RuntimeException(o.getClass().getCanonicalName() + " forbidden for "
+			+ c.getCanonicalName());
+	}
+
 	/**
 	 * Primitive class to box class.
 	 * 

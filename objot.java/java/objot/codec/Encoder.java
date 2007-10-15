@@ -55,11 +55,6 @@ final class Encoder
 		return str;
 	}
 
-	private static boolean simpleMap(Object o)
-	{
-		return o instanceof Map && Class2.packageName(o.getClass()).equals("java.util");
-	}
-
 	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
 
 	@SuppressWarnings("unchecked")
@@ -83,8 +78,7 @@ final class Encoder
 					refs(v);
 			return;
 		}
-		if ( !simpleMap(o))
-			codec.clazz(o.getClass()).encodeRefs(this, o, forClass);
+		codec.clazz(o.getClass()).encodeRefs(this, o, forClass);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
@@ -181,13 +175,9 @@ final class Encoder
 	private void object(Object o) throws Exception
 	{
 		split().append('{');
-		boolean m = simpleMap(o);
-		if (m)
-			split();
-		else
-			split().append(codec.className(o, o.getClass()));
+		split().append(codec.className(o, o.getClass()));
 		ref(o);
-		if ( !m)
+		if ( !o.getClass().getName().startsWith("java.", 0))
 			codec.clazz(o.getClass()).encode(this, o, forClass);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
@@ -262,8 +252,8 @@ final class Encoder
 		int ref;
 		if (v == null)
 			split().append(',');
-		else if (v instanceof String)
-			split(split()).append((String)v);
+		else if (v instanceof CharSequence)
+			split(split()).append((CharSequence)v);
 		else if (v instanceof Clob)
 			split(split()).append(((Clob)v).getSubString(1, //
 				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE)));
@@ -276,11 +266,29 @@ final class Encoder
 		else if (v instanceof Long)
 			split().append(codec.getLong((Long)v));
 		else if (v instanceof Number)
-			split().append(((Number)v).intValue());
+			split().append(((Number)v).longValue());
 		else if (v instanceof Date)
 			split(split().append('*')).append(((Date)v).getTime());
 		else if (v instanceof Calendar)
 			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
+		else if (v instanceof Class)
+		{
+			Class<?> c = (Class<?>)v;
+			StringBuilder s = split(split().append('/'));
+			if (CharSequence.class.isAssignableFrom(c) || Clob.class.isAssignableFrom(c))
+				s.append('\'');
+			else if (c == boolean.class || c == Boolean.class)
+				s.append('<');
+			else if (Number.class.isAssignableFrom(c) || c.isPrimitive()
+				&& (c == int.class || c == long.class || c == short.class || c == byte.class))
+				s.append('0');
+			else if (Date.class.isAssignableFrom(c) || Calendar.class.isAssignableFrom(c))
+				s.append('*');
+			else if (c.isArray() || Collection.class.isAssignableFrom(c))
+				s.append('[');
+			else
+				s.append(codec.className(null, c));
+		}
 		else if ((ref = ref(v, 0)) > 0)
 			split(split().append('=')).append(ref);
 		else if (v instanceof Collection || v.getClass().isArray())

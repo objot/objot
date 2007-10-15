@@ -47,7 +47,7 @@ function demoH(){
 	});
 }
 function demoD(){
-	D = $dec(E);
+	D = $dec(text.value);
 	EE = $enc(D, demoD);
 	if (EE != E)
 		$throw('error');
@@ -74,6 +74,7 @@ C.prototype.c = 'c';
 x = new A();
 y = new B();
 z = new C();
+y.a0 = Object;
 y.a1 = '\tasdasdf';
 y.a2 = true;
 y.a3 = 34e-5;
