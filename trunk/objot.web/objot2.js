@@ -12,8 +12,8 @@ $ = function (x) {
 /* @return x, or a short string followed by ... */
 $S = function (x) {
 	return x === null ? 'null' // stupid IE, null COM not null
-		: x instanceof Array ? x.length + '[' + $S(String(x)) + '...]' : (x = String(x),
-			(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
+	: x instanceof Array ? x.length +'['+ $S(String(x)) +'...]' : (x = "'" + String(x) + "'",
+		(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
 }
 
 /** false or version number */
@@ -35,13 +35,13 @@ $throw = function (x) {
 $class = function (SO, ctorName, sup, protos) {
 	$.s(ctorName);
 	var ctor = $.c(ctorName, true);
-	ctor.$name && $throw('duplicate class ' + ctor.$name);
+	ctor.$name$ && $throw('duplicate class ' + ctorName);
 	if (sup) {
 		$.f(sup).$name || $throw('super class ' + (sup.name || $S(sup)) + ' not ready');
 		ctor.prototype = $.copy(new sup.$ctor, ctor.prototype);
 		ctor.prototype.constructor = ctor;
 	}
-	ctor.$name = ctorName;
+	ctor.$name = ctor.$name$ = ctorName;
 	$.ctor(ctor);
 	if (ctor.prototype.constructor !== ctor)
 		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
@@ -87,8 +87,6 @@ $enc = function (o, forClass) {
 	return s.join('\x10');
 }
 	$enc.ref = function (o, ox) {
-		if (o instanceof String || o instanceof Boolean || o instanceof Number)
-			$throw($S(x) + ' must not be String or Boolean or Number');
 		if (o[''] = '' in o) // check and set multi reference flag
 			return;
 		if (o instanceof Array)
@@ -108,7 +106,7 @@ $enc = function (o, forClass) {
 		if ('' in o && /*true*/delete o[''])
 			for (var x in o)
 				o.hasOwnProperty(x) && (ox = o[x]) !== null && typeof ox === 'object'
-					&& this.unref(ox);
+					&& (ox instanceof Date || this.unref(ox));
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length);
@@ -121,12 +119,14 @@ $enc = function (o, forClass) {
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
+			else if ('$name$' in v)
+				s[x++] = '/', s[x++] = v.$name$;
 		s[x++] = ']';
 		return x;
 	}
 	$enc.o = function (o, s, x) {
-		var v, t = o.constructor.$name, enc;
-		s[x++] = t === 'Object' ? '' : t;
+		s[x++] = o.constructor.$name$;
+		var v, t, enc;
 		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++this.refX));
 		P: {
 			G: if (enc = o.constructor.$encs) {
@@ -135,7 +135,8 @@ $enc = function (o, forClass) {
 						if (enc = enc[g + 1]) {
 
 		for (var p, n = 0; n < enc.length; n++)
-			if ((p = enc[n]) in o && (v = o[p], t = typeof v) !== 'function')
+			if ((p = enc[n]) in o)
+			if ((v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
@@ -143,6 +144,8 @@ $enc = function (o, forClass) {
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
+			else if ('$name$' in v)
+				s[x++] = p, s[x++] = '/', s[x++] = v.$name$;
 
 							break P;
 						}
@@ -151,7 +154,8 @@ $enc = function (o, forClass) {
 				break P;
 			}
 		for (var p in o)
-			if (o.hasOwnProperty(p) && p.length && (v = o[p], t = typeof v) !== 'function')
+			if (o.hasOwnProperty(p) && p.length)
+			if ((v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
@@ -159,6 +163,8 @@ $enc = function (o, forClass) {
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = this.l(v, s, x), '[')
 					: (x = this.o(v, s, x), '{');
+			else if ('$name$' in v)
+				s[x++] = p, s[x++] = '/', s[x++] = v.$name$;
 		}
 		s[x++] = '}';
 		return x;
@@ -184,6 +190,7 @@ $dec = function (s) {
 				case '': o[i] = s[x++]; break; case ',': o[i] = null; break;
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
 				case '*': o[i] = new Date(s[x++] - 0); break;
+				case '/': o[i] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
 				case '[': x = this.l(s, x); o[i] = s.o; break;
 				case '{': x = this.o(s, x); o[i] = s.o; break;
 				case '=': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
@@ -200,6 +207,7 @@ $dec = function (s) {
 				case '': o[p] = s[x++]; break; case ',': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
 				case '*': o[p] = new Date(s[x++] - 0); break;
+				case '/': o[p] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
 				case '[': x = this.l(s, x); o[p] = s.o; break;
 				case '{': x = this.o(s, x); o[p] = s.o; break;
 				case '=': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
@@ -479,12 +487,6 @@ $dom.attach = function (type, handler, This, args, old) {
 		do if (s[x + 1] === handler)
 			return this;
 		while (s[x] && (x = s[x]))
-// this causes window.onerror no effect for exceptions from event handlers
-//	else if ($fos) // more events available
-//		this.addEventListener(type, $.event, false);
-// this causes unexpected "this" value in $.event
-//	else if ($ie)
-//		this.attachEvent('on' + type, $.event);
 	else
 		this['on' + type] = $.event;
 	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4, s[x] = 0, s[++x] = $.f(handler),
@@ -554,16 +556,17 @@ $.ctor = function (c) {
 	return c;
 }
 /** @return class (constructor) from class cache, or if $_$_ is true, eval() */
-$.c = function ($_$, $_$_) {
-	if ($_$ in this.cs)
-		return this.cs[$_$];
+$.c = function ($_$, $_$_, $_$$) {
+	if ($_$$ = this.cs[$_$])
+		return $_$$;
 	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found');
 	return typeof $_$_ === 'function' ? this.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
-	$.cs = { '': Object };
-	$class(true, 'Object');
+	$.cs = { '':Object }, $class(true, 'Object');
+	$.cs$ = { '':Object, "'":String, '<':Boolean, 0:Number, '*':Date, '[':Array };
+	(function() { for (var n in $.cs$) $.cs$[n].$name$ = n; })();
 
 /** copy another's properties. @return to */
 $.copy = function (to, from) {

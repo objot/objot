@@ -5,10 +5,10 @@
 package objot.codec;
 
 import java.io.UTFDataFormatException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -35,20 +35,41 @@ public class Codec
 		return new Decoder(this, for_, s).go(cla);
 	}
 
-	/** must be thread safe, will be cached */
+	/**
+	 * must be thread safe, will be cached, {@link HashMap} for "" by default
+	 * 
+	 * @param name could be ""
+	 */
 	protected Class<?> classByName(String name) throws Exception
 	{
+		if (name.length() == 0)
+			return HashMap.class;
 		return Class.forName(name);
 	}
 
 	/**
-	 * must be thread safe, may be cached
+	 * must be thread safe, "" for {@link HashMap} by default
 	 * 
 	 * @param c class of the object
+	 * @return could be ""
 	 */
 	protected String className(Object o, Class<?> c) throws Exception
 	{
+		if (c == HashMap.class)
+			return "";
 		return c.getName();
+	}
+
+	/**
+	 * by default, {@link ArrayList} for list and object, otherwise {@link HashSet} which
+	 * is not recommended for ORM
+	 * 
+	 * @param c collection class
+	 */
+	protected Collection<Object> newList(Class<?> c, int len) throws Exception
+	{
+		return c.isAssignableFrom(ArrayList.class) ? new ArrayList<Object>(len)
+			: new HashSet<Object>(len);
 	}
 
 	/** check long value, not too large for Javascript */
@@ -57,18 +78,6 @@ public class Codec
 		if (l < -4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
 			throw new RuntimeException("getting integer out of range " + l);
 		return l;
-	}
-
-	/** {@link HashMap} by default */
-	protected Map<String, Object> newMap() throws Exception
-	{
-		return new HashMap<String, Object>();
-	}
-
-	/** {@link HashSet} by default but not recommended for ORM */
-	protected Set<Object> newSet(int len) throws Exception
-	{
-		return new HashSet<Object>(len);
 	}
 
 	private final ConcurrentHashMap<Class<?>, Clazz> clas //

@@ -6,6 +6,7 @@ package chat;
 
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.HashMap;
 
 import objot.codec.Codec;
 import objot.codec.Err;
@@ -36,6 +37,8 @@ public class Models
 		@Override
 		protected Class<?> classByName(String name) throws Exception
 		{
+			if (name.length() == 0)
+				return HashMap.class;
 			return Class.forName(modelPrefix.concat(name));
 		}
 
@@ -43,6 +46,8 @@ public class Models
 		@Override
 		protected String className(Object o, Class<?> c) throws Exception
 		{
+			if (c == HashMap.class)
+				return "";
 			return c.getName().substring(c.getName().lastIndexOf('.') + 1);
 		}
 	};

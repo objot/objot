@@ -247,8 +247,7 @@ $Pop = function (inner) {
 //
 // function (a, b) { b = a; // then arguments[1] == arguments[0]
 //
-// while Firefox alert(), some callbacks could still be fired, such as
-//   timeout, interval
+// while Firefox alert(), some callbacks could still be fired, such as timeout, interval
 // while IE 6&7 alert(), some callbacks could still be fired, such as
 //   onclick, XMLHttpRequest.onreadystatechange
 // Awful ...
@@ -256,6 +255,9 @@ $Pop = function (inner) {
 // when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unavailable
 //
 // \n unsupported on Firefox(not IE) element tooltip and textContent proprety, stupid
+//
+// on Firefox addEventListener causes window.onerror no effect for exception from handler
+// on IE 6&7 attachEvent causes unexpected 'this' in handler
 //
 // on IE 6&7, (null dom node) instanceof (Object etc) causes Javascript error.
 //

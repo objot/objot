@@ -10,15 +10,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.sql.Clob;
-import java.util.AbstractCollection;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import objot.util.Array2;
+import objot.util.Class2;
 
 
 final class Decoder
@@ -221,7 +219,20 @@ final class Decoder
 			: (Number)Double.valueOf(numd);
 	}
 
-	Object[] lo_ = null;
+	private Class<?> classLiteral(String n) throws Exception
+	{
+		if ("'".equals(n))
+			return String.class;
+		if ("<".equals(n))
+			return Boolean.class;
+		if ("0".equals(n))
+			return Number.class;
+		if ("*".equals(n))
+			return Date.class;
+		if ("[".equals(n))
+			return List.class;
+		return codec.classByName(n);
+	}
 
 	@SuppressWarnings("unchecked")
 	private Object list(Class<?> cla, Class<?> elem) throws Exception
@@ -247,49 +258,12 @@ final class Decoder
 			else
 				l = lo = Array2.news(elem, len);
 		}
-		else if (cla.isAssignableFrom(ArrayList.class))
-		{
-			// ArrayList's field "array" should be "protected"
-			l = new ArrayList<Object>(new AbstractCollection<Object>()
-			{
-				@Override
-				public int size()
-				{
-					return len;
-				}
-
-				/** for Java 5 */
-				@SuppressWarnings("unchecked")
-				@Override
-				public Object[] toArray(Object[] a)
-				{
-					return lo_ = a;
-				}
-
-				/** for Java 6 */
-				@Override
-				public Object[] toArray()
-				{
-					return lo_ = new Object[len];
-				}
-
-				@Override
-				public Iterator<Object> iterator()
-				{
-					return null;
-				}
-			});
-			lo = lo_;
-			lo_ = null;
-		}
-		else if (Collection.class.isAssignableFrom(cla))
-		{
-			lo = Array2.news(elem, len);
-			l = ls = cla == Set.class ? codec.newSet(len) //
-				: (Collection<Object>)codec.clazz(cla).object();
-		}
 		else
-			throw new ClassCastException("ArrayList forbidden for " + cla);
+		{
+			l = ls = codec.newList(cla, len);
+			if ( !cla.isAssignableFrom(l.getClass()))
+				throw new ClassCastException(l.getClass() + " forbidden for " + cla);
+		}
 
 		int ref = -1;
 		if (chr() == ':')
@@ -302,62 +276,50 @@ final class Decoder
 		}
 		int i = 0;
 		if (lb != null)
-		{
 			for (char c; (c = chr()) != ']'; bxy())
 				if (c == '<' || c == '>')
 					lb[i++] = c == '>';
 				else
 					throw new RuntimeException("bool expected for boolean[] but " + c
 						+ " at " + bx);
-			return l;
-		}
-		if (li != null)
-		{
+		else if (li != null)
 			for (; chr() != ']'; bxy())
 				li[i++] = numi(num());
-			return l;
-		}
-		if (ll != null)
-		{
+		else if (ll != null)
 			for (; chr() != ']'; bxy())
 				ll[i++] = numl(num());
-			return l;
-		}
-
-		for (char c; (c = chr()) != ']'; bxy())
-		{
-			if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*')
-				bxy();
-			if (c == 0)
-				set(lo, i++, Clob.class.isAssignableFrom(elem) ? clob() : str(), elem);
-			else if (c == '[')
-				set(lo, i++, list(elem, Object.class), elem);
-			else if (c == '{')
-				set(lo, i++, object(Object.class), elem);
-			else if (c == '=')
-				set(lo, i++, ref(), elem);
-			else if (c == '*')
-				set(lo, i++, new Date(numl(num())), elem);
-			else if (c == ',')
-				lo[i++] = null;
-			else if (c == '<')
-				set(lo, i++, false, elem);
-			else if (c == '>')
-				set(lo, i++, true, elem);
-			else
-				set(lo, i++, Num(num(), elem), elem);
-		}
-		if (ls != null)
-			Array2.addTo(lo, ls);
+		else if (lo != null)
+			for (char c; (c = chr()) != ']'; bxy())
+				lo[i++] = listElem(c, elem);
+		else
+			for (char c; (c = chr()) != ']'; bxy())
+				ls.add(listElem(c, elem));
 		return l;
 	}
 
-	private void set(Object[] l, int i, Object o, Class<?> c)
+	private Object listElem(char c, Class<?> elem) throws Exception
 	{
-		if ( !c.isAssignableFrom(o.getClass()))
-			throw new RuntimeException(o.getClass().getCanonicalName() + " forbidden for "
-				+ c.getCanonicalName());
-		l[i] = o;
+		if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*')
+			bxy();
+		if (c == 0)
+			return Class2.cast(Clob.class.isAssignableFrom(elem) ? clob() : str(), elem);
+		else if (c == '[')
+			return Class2.cast(list(elem, Object.class), elem);
+		else if (c == '{')
+			return Class2.cast(object(Object.class), elem);
+		else if (c == '=')
+			return Class2.cast(ref(), elem);
+		else if (c == '*')
+			return Class2.cast(new Date(numl(num())), elem);
+		else if (c == ',')
+			return null;
+		else if (c == '<')
+			return Class2.cast(false, elem);
+		else if (c == '>')
+			return Class2.cast(true, elem);
+		else if (c == '/')
+			return Class2.cast(classLiteral(str()), elem);
+		return Class2.cast(Num(num(), elem), elem);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -365,13 +327,13 @@ final class Decoder
 	{
 		String name = str();
 		bxy();
-		Class<?> cla = name.length() > 0 ? codec.classByName(name) : Map.class;
+		Class<?> cla = codec.classByName(name);
 		if ( !cla0.isAssignableFrom(cla))
 			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
 				+ cla0.getCanonicalName());
-		Clazz z = cla == Map.class ? null : codec.clazz(cla);
-		Object o = cla == Map.class ? codec.newMap() : z.object();
-		Map<String, Object> m = o instanceof Map ? (Map<String, Object>)o : null;
+		Clazz z = codec.clazz(cla);
+		Object o = z.object();
+		Map<String, Object> m = o instanceof Map ? (Map)o : null;
 
 		int ref = -1;
 		if (chr() == ':')
@@ -391,13 +353,13 @@ final class Decoder
 			if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*')
 				bxy();
 
-			Property p = z == null ? null : z.decs.get(n);
+			Property p = z.decs.get(n);
 			if (p != null)
 			{
 				if ( !p.allow(forClass))
 					throw new RuntimeException("decoding " + o.getClass().getCanonicalName()
 						+ "." + n + " forbidden for " + forClass.getCanonicalName());
-				Object v = Class.class;
+				Object v = this;
 				try
 				{
 					if (c == 0)
@@ -416,6 +378,8 @@ final class Decoder
 						z.decode(o, p.index, v = false);
 					else if (c == '>')
 						z.decode(o, p.index, v = true);
+					else if (c == '/')
+						z.decode(o, p.index, v = classLiteral(str()));
 					else if (p.cla == int.class)
 						z.decode(o, p.index, numi(num()));
 					else if (p.cla == long.class)
@@ -427,14 +391,13 @@ final class Decoder
 				}
 				catch (ClassCastException e)
 				{
-					if (v == Class.class)
+					if (v == this)
 						v = Num(num(), null);
 					throw new RuntimeException(o.getClass().getCanonicalName() + "." + n
 						+ " : " + (v != null ? v.getClass().getCanonicalName() : "null")
 						+ " forbidden for " + p.cla);
 				}
 			}
-
 			if (m != null)
 				if (c == 0)
 					m.put(n, str());
@@ -452,6 +415,8 @@ final class Decoder
 					m.put(n, false);
 				else if (c == '>')
 					m.put(n, true);
+				else if (c == '/')
+					m.put(n, classLiteral(str()));
 				else
 					m.put(n, Num(num(), null));
 			// not found
