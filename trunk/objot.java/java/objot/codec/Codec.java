@@ -36,7 +36,7 @@ public class Codec
 	}
 
 	/**
-	 * must be thread safe, will be cached, {@link HashMap} for "" by default
+	 * must be thread safe, {@link HashMap} for "" by default
 	 * 
 	 * @param name could be ""
 	 */

@@ -252,12 +252,12 @@ $Pop = function (inner) {
 //   onclick, XMLHttpRequest.onreadystatechange
 // Awful ...
 //
-// when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unavailable
+// when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unaccessible
 //
 // \n unsupported on Firefox(not IE) element tooltip and textContent proprety, stupid
 //
-// on Firefox addEventListener causes window.onerror no effect for exception from handler
-// on IE 6&7 attachEvent causes unexpected 'this' in handler
+// on Firefox, addEventListener causes window.onerror no effect for exception from handler
+// on IE 6&7, attachEvent causes unexpected 'this' in handler
 //
 // on IE 6&7, (null dom node) instanceof (Object etc) causes Javascript error.
 //
