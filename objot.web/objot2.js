@@ -31,24 +31,24 @@ $throw = function (x) {
 //********************************************************************************************//
 
 /** make class. @param SO whether could $enc and $dec. @param sup superclass or null.
- * @param protos be copied into prototype */
-$class = function (SO, ctorName, sup, protos) {
+ * @param proto own props copied to ctor prototype */
+$class = function (SO, ctorName, sup, proto) {
 	$.s(ctorName);
-	var ctor = $.c(ctorName, true);
-	ctor.$name$ && $throw('duplicate class ' + ctorName);
+	var c = $.c(ctorName, true);
+	c.$name$ && $throw('duplicate class ' + ctorName);
 	if (sup) {
 		$.f(sup).$name || $throw('super class ' + (sup.name || $S(sup)) + ' not ready');
-		ctor.prototype = $.copy(new sup.$ctor, ctor.prototype);
-		ctor.prototype.constructor = ctor;
+		c.prototype = $.copy(new sup.$ctor, c.prototype);
+		c.prototype.constructor = c;
 	}
-	ctor.$name = ctor.$name$ = ctorName;
-	$.ctor(ctor);
-	if (ctor.prototype.constructor !== ctor)
-		$throw(ctor.$name + ' inconsistent with ' + $S(ctor.prototype.constructor));
-	protos && $.copyOwn(ctor.prototype, protos);
+	c.$name = c.$name$ = ctorName;
+	$.ctor(c);
+	if (c.prototype.constructor !== c)
+		$throw(ctorName + ' inconsistent with ' + $S(c.prototype.constructor));
+	proto && $.copy(c.prototype, proto);
 	if (SO)
-		$.cs[ctor.$name] = ctor;
-	return ctor;
+		$.cs[ctorName] = $.cs$[ctorName] = c;
+	return c;
 }
 /** add encoding rules to the class. former rules are overrided by later rules.
  * (@param forClass key. @param encs what to encode, all if null)... */
@@ -135,8 +135,7 @@ $enc = function (o, forClass) {
 						if (enc = enc[g + 1]) {
 
 		for (var p, n = 0; n < enc.length; n++)
-			if ((p = enc[n]) in o)
-			if ((v = o[p], t = typeof v) !== 'function')
+			if ((p = enc[n]) in o && (v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
@@ -288,7 +287,7 @@ $id = function (id) {
 	return $D.getElementById(id);
 }
 
-/** create a dom element and set properties. property 'c' for css class, 's' for css style
+/** create a dom element and set props. prop 'c' for css class, 's' for css style
  * function value followed by "this" and "arguments" is for event handler (see $dom.attach).
  * @param domOrName dom object or tag name.
  * ((@param prop. @param value) || @param prop object as map) ... */
@@ -546,9 +545,6 @@ $.is = function (x, clazz, name) {
 		: $throw($S(x) + ' must not-null and instanceof '
 		+ (clazz.$name || clazz.name || name || $S(clazz)));
 }
-/** @return 
-$.x = function (s, index) {
-}
 
 /** @return c which $ctor = an empty constructor */
 $.ctor = function (c) {
@@ -564,20 +560,20 @@ $.c = function ($_$, $_$_, $_$$) {
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
-	$.cs = { '':Object }, $class(true, 'Object');
-	$.cs$ = { '':Object, "'":String, '<':Boolean, 0:Number, '*':Date, '[':Array };
-	(function() { for (var n in $.cs$) $.cs$[n].$name$ = n; })();
+	$.cs$ = { '':Object, "'":String, '<':Boolean, 0:Number };
+	$.cs = { '':Object }, $class(true, 'Object'), delete $.cs$.Object;
+	(function(s,n) { s['*'] = Date, s['['] = Array; for (n in s) s[n].$name$ = n; })($.cs$);
 
-/** copy another's properties. @return to */
+/** copy another's own props. @return to */
 $.copy = function (to, from) {
 	for (var x in from)
-		to[x] = from[x];
+		from.hasOwnProperty(x) && (to[x] = from[x]);
 	return to;
 }
-/** copy another's own properties. @return to */
-$.copyOwn = function (to, from) {
+/** copy all another's props. @return to */
+$.copyAll = function (to, from) {
 	for (var x in from)
-		from.hasOwnProperty(x) && (to[x] = from[x]);
+		to[x] = from[x];
 	return to;
 }
 
