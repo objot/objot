@@ -23,6 +23,7 @@ abstract class Clazz
 	static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
 	Property[] encs;
 	HashMap<String, Property> decs = new HashMap<String, Property>();
+	String name;
 
 	static Clazz clazz(Class<?> c) throws Exception
 	{
