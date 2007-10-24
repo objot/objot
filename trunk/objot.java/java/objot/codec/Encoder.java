@@ -174,11 +174,13 @@ final class Encoder
 	@SuppressWarnings("unchecked")
 	private void object(Object o) throws Exception
 	{
+		Class c = o.getClass();
+		Clazz z = c.getName().startsWith("java.") ? null : codec.clazz(c);
 		split().append('{');
-		split().append(codec.className(o, o.getClass()));
+		split().append(z == null ? codec.className(c) : z.name);
 		ref(o);
-		if ( !o.getClass().getName().startsWith("java.", 0))
-			codec.clazz(o.getClass()).encode(this, o, forClass);
+		if (z != null)
+			z.encode(this, o, forClass);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				value(pv.getKey(), pv.getValue());
@@ -287,7 +289,7 @@ final class Encoder
 			else if (c.isArray() || Collection.class.isAssignableFrom(c))
 				s.append('[');
 			else
-				s.append(codec.className(null, c));
+				s.append(codec.className(c));
 		}
 		else if ((ref = ref(v, 0)) > 0)
 			split(split().append('=')).append(ref);

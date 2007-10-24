@@ -48,12 +48,11 @@ public class Codec
 	}
 
 	/**
-	 * must be thread safe, "" for {@link HashMap} by default
+	 * must be thread safe, may be cached, "" for {@link HashMap} by default
 	 * 
-	 * @param c class of the object
 	 * @return could be ""
 	 */
-	protected String className(Object o, Class<?> c) throws Exception
+	protected String className(Class<?> c) throws Exception
 	{
 		if (c == HashMap.class)
 			return "";
@@ -87,7 +86,11 @@ public class Codec
 	{
 		Clazz z = clas.get(c);
 		if (z == null)
-			clas.put(c, z = Clazz.clazz(c));
+		{
+			z = Clazz.clazz(c);
+			z.name = className(c);
+			clas.put(c, z);
+		}
 		return z;
 	}
 

@@ -44,7 +44,7 @@ public class Models
 
 		/** include {@link Err} and {@link Errs} */
 		@Override
-		protected String className(Object o, Class<?> c) throws Exception
+		protected String className(Class<?> c) throws Exception
 		{
 			if (c == HashMap.class)
 				return "";
