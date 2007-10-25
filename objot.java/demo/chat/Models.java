@@ -35,7 +35,7 @@ public class Models
 		String modelPrefix = Class2.packageName(Id.class).concat(".");
 
 		@Override
-		protected Class<?> classByName(String name) throws Exception
+		protected Object byName(String name) throws Exception
 		{
 			if (name.length() == 0)
 				return HashMap.class;
@@ -44,11 +44,11 @@ public class Models
 
 		/** include {@link Err} and {@link Errs} */
 		@Override
-		protected String className(Class<?> c) throws Exception
+		protected String name(Object o, Class<?> c) throws Exception
 		{
 			if (c == HashMap.class)
 				return "";
-			return c.getName().substring(c.getName().lastIndexOf('.') + 1);
+			return Class2.selfName(c);
 		}
 	};
 

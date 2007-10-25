@@ -231,7 +231,8 @@ final class Decoder
 			return Date.class;
 		if ("[".equals(n))
 			return List.class;
-		return codec.classByName(n);
+		Object o = codec.byName(n);
+		return o instanceof Class ? (Class<?>)o : o.getClass();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -327,12 +328,13 @@ final class Decoder
 	{
 		String name = str();
 		bxy();
-		Class<?> cla = codec.classByName(name);
+		Object o = codec.byName(name);
+		Class<?> cla = o instanceof Class ? (Class<?>)o : o.getClass();
+		Clazz z = codec.clazz(cla);
+		o = cla == o ? z.object() : o;
 		if ( !cla0.isAssignableFrom(cla))
 			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
 				+ cla0.getCanonicalName());
-		Clazz z = codec.clazz(cla);
-		Object o = z.object();
 		Map<String, Object> m = o instanceof Map ? (Map)o : null;
 
 		int ref = -1;

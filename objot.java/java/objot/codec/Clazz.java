@@ -23,10 +23,12 @@ abstract class Clazz
 	static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
 	Property[] encs;
 	HashMap<String, Property> decs = new HashMap<String, Property>();
-	String name;
 
 	static Clazz clazz(Class<?> c) throws Exception
 	{
+		if (c == Class.class)
+			throw new Exception(
+				"encoding/decoding class object forbidden, class literal name allowed");
 		HashMap<String, Property> es_ = new HashMap<String, Property>();
 		HashMap<String, Property> ds_ = new HashMap<String, Property>();
 		for (Field f: Class2.fields(c, 0, 0, 0))

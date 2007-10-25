@@ -74,7 +74,8 @@ $class.enc = function (clazz, forClass, encs) {
 /** encode object graph to string, following the encoding rules.
  * @param forClass rule key or subclass of rule key */
 $enc = function (o, forClass) {
-	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
+	var s = Array(100);
+	s[0] = o instanceof Array ? '[' : ($.o(o), '{');
 	s.clazz = $.f(forClass);
 	try {
 		$enc.refX = 0, $enc.ref(o);
@@ -169,10 +170,13 @@ $enc = function (o, forClass) {
 		return x;
 	}
 
-/** decode string to object graph, objects are created without constructors */
-$dec = function (s) {
+/** decode string to object graph, objects are created without constructors.
+ * @param byName function(name) { return myClassByName }, null for default
+ * @param ok function(alreadyDecodedObject) {} */
+$dec = function (s, byName, ok) {
 	try {
 		s = $.s(s).split('\x10');
+		s.c = byName || $.c, s.ok = ok;
 		var x = s[0] === '[' ? $dec.l(s, 1) : s[0] === '{' ? $dec.o(s, 1) : -1;
 		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
 			: $dec.r.length = 0, s.o;
@@ -199,7 +203,7 @@ $dec = function (s) {
 		return x;
 	}
 	$dec.o = function (s, x, p, v) {
-		var o = new ($.c(s[x++]).$ctor);
+		var o = new (s.c(s[x++]).$ctor);
 		s[x] === ':' && (this.r[s[++x]] = o, x++);
 		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
@@ -212,7 +216,7 @@ $dec = function (s) {
 				case '=': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: isNaN(o[p] = v - 0) && $throw('illegal number ' + $S(v));
 			}
-		s.o = o;
+		s.o = o, s.ok && s.ok(o);
 		return x;
 	}
 	$dec.r = [];
