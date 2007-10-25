@@ -36,11 +36,12 @@ public class Codec
 	}
 
 	/**
-	 * must be thread safe, {@link HashMap} for "" by default
+	 * Get object or class by name, must be thread safe, {@link HashMap} for "" by default
 	 * 
-	 * @param name could be ""
+	 * @param name may be ""
+	 * @return class for creating, otherwise for reusing
 	 */
-	protected Class<?> classByName(String name) throws Exception
+	protected Object byName(String name) throws Exception
 	{
 		if (name.length() == 0)
 			return HashMap.class;
@@ -48,11 +49,13 @@ public class Codec
 	}
 
 	/**
-	 * must be thread safe, may be cached, "" for {@link HashMap} by default
+	 * Get object or class name, must be thread safe, "" for {@link HashMap} by default
 	 * 
+	 * @param o may be null
+	 * @param c the object class
 	 * @return could be ""
 	 */
-	protected String className(Class<?> c) throws Exception
+	protected String name(Object o, Class<?> c) throws Exception
 	{
 		if (c == HashMap.class)
 			return "";
@@ -86,11 +89,7 @@ public class Codec
 	{
 		Clazz z = clas.get(c);
 		if (z == null)
-		{
-			z = Clazz.clazz(c);
-			z.name = className(c);
-			clas.put(c, z);
-		}
+			clas.put(c, z = Clazz.clazz(c));
 		return z;
 	}
 
