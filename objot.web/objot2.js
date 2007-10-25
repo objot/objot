@@ -74,8 +74,7 @@ $class.enc = function (clazz, forClass, encs) {
 /** encode object graph to string, following the encoding rules.
  * @param forClass rule key or subclass of rule key */
 $enc = function (o, forClass) {
-	var s = Array(100);
-	s[0] = o instanceof Array ? '[' : ($.o(o), '{');
+	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
 	s.clazz = $.f(forClass);
 	try {
 		$enc.refX = 0, $enc.ref(o);
@@ -136,7 +135,8 @@ $enc = function (o, forClass) {
 						if (enc = enc[g + 1]) {
 
 		for (var p, n = 0; n < enc.length; n++)
-			if ((p = enc[n]) in o && (v = o[p], t = typeof v) !== 'function')
+			if ((p = enc[n]) in o)
+			if ((v = o[p], t = typeof v) !== 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
@@ -557,10 +557,10 @@ $.ctor = function (c) {
 }
 /** @return class (constructor) from class cache, or if $_$_ is true, eval() */
 $.c = function ($_$, $_$_, $_$$) {
-	if ($_$$ = this.cs[$_$])
+	if ($_$$ = $.cs[$_$])
 		return $_$$;
 	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found');
-	return typeof $_$_ === 'function' ? this.cs[$_$] = $_$_
+	return typeof $_$_ === 'function' ? $.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
