@@ -57,9 +57,11 @@ public final class Servlet
 		dataTest = System.getProperty("data.test") != null;
 		String test = config.getInitParameter("data.test");
 		dataTest |= test != null && Boolean.parseBoolean(test);
-		context.log("\n================ for test ================\n");
 		if (dataTest)
+		{
+			context.log("\n================ for test ================\n");
 			new ModelsCreate(true).create(true, -1);
+		}
 		codec = Models.CODEC;
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 
@@ -88,7 +90,7 @@ public final class Servlet
 	protected ServiceInfo getServiceInfo(String n, String cla, String m) throws Exception
 	{
 		if (dataTest && "test".equals(cla))
-			return new ServiceInfo(codec, n, Class2.method1(ModelsCreate.class, "create"));
+			return new ServiceInfo(codec, n, ModelsCreate.CREATE);
 		ServiceInfo inf = super.getServiceInfo(n, //
 			Class2.packageName(Do.class) + '.' + cla, m);
 		return inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;

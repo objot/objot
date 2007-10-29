@@ -4,6 +4,9 @@
 //
 package chat;
 
+import objot.util.Class2;
+
+import java.lang.reflect.Method;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 
@@ -31,6 +34,8 @@ public class ModelsCreate
 	{
 		init(test);
 	}
+
+	public static final Method CREATE = Class2.method1(ModelsCreate.class, "create");
 
 	/** @param drop 0 create only, >0 drop and then create, <0 drop only */
 	public void create(boolean execute, int drop) throws Exception
