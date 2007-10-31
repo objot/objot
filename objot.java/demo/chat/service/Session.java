@@ -6,6 +6,7 @@ package chat.service;
 
 public class Session
 {
-	/** close service session if <0 */
-	public int me;
+	public volatile int me;
+	/** to close service session */
+	public boolean close;
 }

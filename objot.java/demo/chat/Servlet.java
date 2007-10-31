@@ -131,8 +131,11 @@ public final class Servlet
 		}
 		finally
 		{
-			if (sess.get(Session.class).me < 0)
+			if (sess.get(Session.class).close)
+			{
 				hq.getSession().invalidate();
+				hq.getSession().invalidate();
+			}
 		}
 	}
 

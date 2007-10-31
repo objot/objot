@@ -42,7 +42,8 @@ public class DoSign
 	@Transac.Any
 	public Ok out() throws Exception
 	{
-		sess.me = sess.me == 0 ? 0 : -1;
+		sess.me = 0;
+		sess.close = true;
 		return Ok.OK;
 	}
 }

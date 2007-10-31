@@ -69,12 +69,12 @@ public class TestDoSign
 	public void out() throws Exception
 	{
 		assertEquals(0, sess.me);
-		doSign.out();
-		assertEquals(0, sess.me);
+		assertEquals(false, sess.close);
 		User a = new User();
 		a.name = a.password = "a";
 		doSign.inUp(a);
 		doSign.out();
-		assertTrue(sess.me < 0);
+		assertEquals(0, sess.me);
+		assertEquals(true, sess.close);
 	}
 }
