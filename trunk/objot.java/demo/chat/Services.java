@@ -28,7 +28,7 @@ public class Services
 	/** @return container of services which parent is for session */
 	public static Container build(final SessionFactory d, final Codec codec) throws Exception
 	{
-		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, As.class)
+		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, CodecAs.class)
 		{
 			@Override
 			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
@@ -75,7 +75,7 @@ public class Services
 		return f.create(sess, false);
 	}
 
-	static final class As
+	static final class CodecAs
 		extends Aspect
 	{
 		@Inject
