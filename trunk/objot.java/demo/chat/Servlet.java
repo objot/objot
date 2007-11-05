@@ -149,7 +149,7 @@ public final class Servlet
 		@Transac.Any
 		protected CharSequence serve(ServiceInfo inf, Object... reqs) throws Exception
 		{
-			return inf.invoke(con.get(inf.cla), reqs);
+			return inf.resp(inf.invoke(con.get(inf.cla), reqs));
 		}
 	}
 }

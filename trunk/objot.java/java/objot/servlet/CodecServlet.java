@@ -63,7 +63,7 @@ public class CodecServlet
 	protected CharSequence service(HttpServletRequest hReq, ServiceInfo inf, Object... reqs)
 		throws Exception
 	{
-		return inf.invoke(null, reqs);
+		return inf.resp(inf.invoke(null, reqs));
 	}
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
