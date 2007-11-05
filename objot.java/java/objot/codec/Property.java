@@ -25,7 +25,7 @@ final class Property
 	String name;
 	Class<?> cla;
 	boolean clob;
-	Class<?> list;
+	Class<?> listElem;
 	int index;
 	private Class<?>[] clas;
 	private boolean[] allows;
@@ -54,7 +54,7 @@ final class Property
 	{
 		clob = Clob.class.isAssignableFrom(cla);
 		if (Collection.class.isAssignableFrom(cla))
-			list = Class2.typeParamClass(type, 0, Object.class);
+			listElem = Class2.typeParamClass(type, 0, Object.class);
 
 		Class<?>[] pcs;
 		if (ed == null)
