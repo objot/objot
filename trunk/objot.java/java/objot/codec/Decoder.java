@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.sql.Clob;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -367,7 +368,7 @@ final class Decoder
 					if (c == 0)
 						z.decode(o, p.index, v = p.clob ? clob() : str());
 					else if (c == '[')
-						z.decode(o, p.index, v = list(p.cla, p.list));
+						z.decode(o, p.index, v = list(p.cla, p.listElem));
 					else if (c == '{')
 						z.decode(o, p.index, v = object(p.cla));
 					else if (c == '=')
@@ -404,7 +405,7 @@ final class Decoder
 				if (c == 0)
 					m.put(n, str());
 				else if (c == '[')
-					m.put(n, list(Object[].class, null));
+					m.put(n, list(ArrayList.class, Object.class));
 				else if (c == '{')
 					m.put(n, object(Object.class));
 				else if (c == '=')
