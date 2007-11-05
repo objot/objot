@@ -29,16 +29,11 @@ public class ServiceInfo
 		reqCla = s.length == 0 ? null : s[0];
 	}
 
-	public CharSequence resp(Object o) throws Exception
-	{
-		return codec.enc(o, cla);
-	}
-
-	public CharSequence invoke(Object serv, Object... reqs) throws ErrThrow, Exception
+	public Object invoke(Object serv, Object... reqs) throws ErrThrow, Exception
 	{
 		try
 		{
-			return resp(meth.invoke(serv, reqs));
+			return meth.invoke(serv, reqs);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -62,5 +57,10 @@ public class ServiceInfo
 				throw (Error)_;
 			throw new Exception(_);
 		}
+	}
+
+	public CharSequence resp(Object o) throws Exception
+	{
+		return codec.enc(o, cla);
 	}
 }
