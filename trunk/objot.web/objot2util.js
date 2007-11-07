@@ -194,7 +194,7 @@ $Err = function (box, err, show, noStack) {
 	noStack || $fos && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
 	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-icon'));
-	show === true || box.firstChild.att('title', err).attach('dblclick', $.f(show));
+	show === true || box.firstChild.attr('title', err).attach('dblclick', $.f(show));
 	return box.cla(0, 'HTTP').cla('ERR');
 }
 $Err.onHint = function () {
@@ -210,7 +210,7 @@ $Pop = function (inner) {
 		$d('c', 'POP-back', 's', 'position:absolute; width:100%; height:100%'),
 		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
 			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add($td()
-				.att('valign', 'center').att('align', 'center').add(inner)
+				.attr('valign', 'center').attr('align', 'center').add(inner)
 			)))
 		)
 	);
