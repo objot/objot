@@ -353,7 +353,7 @@ delete _;
 }
 /** <a href=javascript://>... */
 $a0 = function () {
-	return $doms('a', arguments).att('href', 'javascript:///');
+	return $doms('a', arguments).attr('href', 'javascript:///');
 }
 
 /** create a text node, single line, multi whitespace reserved. */
@@ -435,7 +435,7 @@ $dom.cla = function (clazz) {
 }
 /** getAttribute if no argument, removeAttribute if v === null, or setAttribute.
  * @return attribute if no argument, this */
-$dom.att = function (a, v) {
+$dom.attr = function (a, v) {
 	if (arguments.length <= 1)
 		return this.getAttribute(a, 2/*exact value in ie*/);
 	for (var x = 0; x < arguments.length; x++)

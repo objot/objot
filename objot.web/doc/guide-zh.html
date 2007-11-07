@@ -362,13 +362,13 @@ d.add($a0(), $bn());
 d.rem(1, 2); // 第二个节点开始的两个节点被清除
 d.des(0); // 从第一个节点到最后一个节点被递归销毁
 d.cla('cssClass2').cla(0, 'cssClass1'); // 添加cssClass2，然后清除cssClass1
-d.att('title', $dom(d, 'title', 'A div').att('title') + '...');
+d.attr('title', $dom(d, 'title', 'A div').attr('title') + '...');
 	// 先直接设置对象属性title，再用getAttribute()取得title，再用setAttribute设置title
 d.show(true).attach('click', onClick); // 清除display:none，再设置事件函数
 d.detach('click', onClick).show(false); // 清除事件函数，再设置display:none
 d.des(); // 从父节点中清除自己，销毁自己，并递归销毁所有子节点
 </pre>
-无参数时att(), tx(), show()返回获取的值，有参数时，以及其他函数，都返回节点自身。
+无参数时attr(), tx(), show()返回获取的值，有参数时，以及其他函数，都返回节点自身。
 
 <p>给节点设置的事件函数，其this对象默认是节点自身，第一个函数参数默认是Event对象：
 <pre>function onClick(e) {
