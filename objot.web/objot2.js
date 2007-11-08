@@ -30,24 +30,24 @@ $throw = function (x) {
 
 //********************************************************************************************//
 
-/** make class. @param SO whether could $enc and $dec. @param sup superclass or null.
- * @param proto own props copied to ctor prototype */
-$class = function (SO, ctorName, sup, proto) {
-	$.s(ctorName);
-	var c = $.c(ctorName, true);
-	c.$name$ && $throw('duplicate class ' + ctorName);
+/** make class. @param SO whether could $enc and $dec. @param ctor name.
+ * @param sup superclass or null. @param proto own props copied to ctor prototype */
+$class = function (SO, ctor, sup, proto) {
+	$.s(ctor);
+	var c = $.c(ctor, true);
+	c.$name$ && $throw('duplicate class ' + ctor);
 	if (sup) {
 		$.f(sup).$name || $throw('super class ' + (sup.name || $S(sup)) + ' not ready');
 		c.prototype = $.copy(new sup.$ctor, c.prototype);
 		c.prototype.constructor = c;
 	}
-	c.$name = c.$name$ = ctorName;
+	c.$name = c.$name$ = ctor;
 	$.ctor(c);
 	if (c.prototype.constructor !== c)
-		$throw(ctorName + ' inconsistent with ' + $S(c.prototype.constructor));
+		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor));
 	proto && $.copy(c.prototype, proto);
 	if (SO)
-		$.cs[ctorName] = $.cs$[ctorName] = c;
+		$.cs[ctor] = $.cs$[ctor] = c;
 	return c;
 }
 /** add encoding rules to the class. former rules are overrided by later rules.
@@ -92,33 +92,33 @@ $enc = function (o, forClass) {
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x ++)
 				typeof (ox = o[x]) !== 'string' ?
-				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
+				ox != null && typeof ox === 'object' && (ox instanceof Date || $enc.ref(ox))
 				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
 		else if (!o.constructor.$name)
 			$throw($S(o) + ' class not ready');
 		else for (var x in o)
 			if (o.hasOwnProperty(x))
 				typeof (ox = o[x]) !== 'string' ?
-				ox != null && typeof ox === 'object' && (ox instanceof Date || this.ref(ox))
+				ox != null && typeof ox === 'object' && (ox instanceof Date || $enc.ref(ox))
 				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
 	}
 	$enc.unref = function (o, ox) {
 		if ('' in o && /*true*/delete o[''])
 			for (var x in o)
 				o.hasOwnProperty(x) && (ox = o[x]) !== null && typeof ox === 'object'
-					&& (ox instanceof Date || this.unref(ox));
+					&& (ox instanceof Date || $enc.unref(ox));
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length);
-		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++this.refX));
+		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++$enc.refX));
 		for (var i = 0, v, t; i < o.length; i++)
 			if (v = o[i], (t = typeof v) !== 'function')
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
-					: v instanceof Array ? (x = this.l(v, s, x), '[')
-					: (x = this.o(v, s, x), '{');
+					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
+					: (x = $enc.o(v, s, x), '{');
 			else if ('$name$' in v)
 				s[x++] = '/', s[x++] = v.$name$;
 		s[x++] = ']';
@@ -127,7 +127,7 @@ $enc = function (o, forClass) {
 	$enc.o = function (o, s, x) {
 		s[x++] = o.constructor.$name$;
 		var v, t, enc;
-		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++this.refX));
+		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++$enc.refX));
 		P: {
 			G: if (enc = o.constructor.$encs) {
 				for (var c = s.clazz, g = enc.length - 2; g >= 0; g -= 2)
@@ -142,8 +142,8 @@ $enc = function (o, forClass) {
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
-					: v instanceof Array ? (x = this.l(v, s, x), '[')
-					: (x = this.o(v, s, x), '{');
+					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
+					: (x = $enc.o(v, s, x), '{');
 			else if ('$name$' in v)
 				s[x++] = p, s[x++] = '/', s[x++] = v.$name$;
 
@@ -161,8 +161,8 @@ $enc = function (o, forClass) {
 					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
 					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
-					: v instanceof Array ? (x = this.l(v, s, x), '[')
-					: (x = this.o(v, s, x), '{');
+					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
+					: (x = $enc.o(v, s, x), '{');
 			else if ('$name$' in v)
 				s[x++] = p, s[x++] = '/', s[x++] = v.$name$;
 		}
@@ -171,12 +171,12 @@ $enc = function (o, forClass) {
 	}
 
 /** decode string to object graph, objects are created without constructors.
- * @param byName function(name) { return myClassByName }, null for default
- * @param ok function(alreadyDecodedObject) {} */
+ * @param byName function(name) { return objectByName }, null for default
+ * @param ok function(objectDecoded) {} */
 $dec = function (s, byName, ok) {
 	try {
 		s = $.s(s).split('\x10');
-		s.c = byName || $.c, s.ok = ok;
+		s.n = byName || $dec.n, s.ok = ok;
 		var x = s[0] === '[' ? $dec.l(s, 1) : s[0] === '{' ? $dec.o(s, 1) : -1;
 		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
 			: $dec.r.length = 0, s.o;
@@ -186,7 +186,7 @@ $dec = function (s, byName, ok) {
 }
 	$dec.l = function (s, x) {
 		var o = Array(s[x++] - 0);
-		s[x] === ':' && (this.r[s[++x]] = o, x++);
+		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
 			: (v = s[x++]) !== ']'; i++)
 			switch(v) {
@@ -194,30 +194,33 @@ $dec = function (s, byName, ok) {
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
 				case '*': o[i] = new Date(s[x++] - 0); break;
 				case '/': o[i] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
-				case '[': x = this.l(s, x); o[i] = s.o; break;
-				case '{': x = this.o(s, x); o[i] = s.o; break;
-				case '=': o[i] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
+				case '[': x = $dec.l(s, x); o[i] = s.o; break;
+				case '{': x = $dec.o(s, x); o[i] = s.o; break;
+				case '=': o[i] = $dec.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: isNaN(o[i] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o;
 		return x;
 	}
 	$dec.o = function (s, x, p, v) {
-		var o = new (s.c(s[x++]).$ctor);
-		s[x] === ':' && (this.r[s[++x]] = o, x++);
+		var o = s.n(s[x++]);
+		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
 		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break; case ',': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
 				case '*': o[p] = new Date(s[x++] - 0); break;
 				case '/': o[p] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
-				case '[': x = this.l(s, x); o[p] = s.o; break;
-				case '{': x = this.o(s, x); o[p] = s.o; break;
-				case '=': o[p] = this.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
+				case '[': x = $dec.l(s, x); o[p] = s.o; break;
+				case '{': x = $dec.o(s, x); o[p] = s.o; break;
+				case '=': o[p] = $dec.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
 				default: isNaN(o[p] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o, s.ok && s.ok(o);
 		return x;
+	}
+	$dec.n = function (n) {
+		return new ($.cs[n] || $throw($S(n) + ' class not found')).$ctor;
 	}
 	$dec.r = [];
 
