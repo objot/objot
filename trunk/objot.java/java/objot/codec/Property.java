@@ -44,7 +44,7 @@ final class Property
 	{
 		out = m.getDeclaringClass();
 		method = m;
-		name = Class2.propertyName(m, enc);
+		name = Class2.propertyOrName(m, enc);
 		cla = enc ? m.getReturnType() : m.getParameterTypes()[0];
 		init(m, enc ? m.getGenericReturnType() : m.getGenericParameterTypes()[0], e, d, null,
 			enc);
