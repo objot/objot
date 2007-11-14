@@ -246,18 +246,39 @@ public class Class2
 		return descript(m.getReturnType(), (Object[])m.getParameterTypes());
 	}
 
-	/** @param m be checked if follows the rules of getter/setter name and parameters */
+	/**
+	 * @param m be checked if follows the getter/setter rules
+	 * @return this method's property name
+	 */
 	public static String propertyName(Method m, boolean get)
 	{
 		String n = m.getName();
-		if (get && ( !n.startsWith("get") || m.getParameterTypes().length > 0 //
-		|| m.getReturnType() == void.class))
+		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class //
+			|| !n.startsWith("get") || n.length() < 4 || Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid getter: " + m);
-		if ( !get && ( !n.startsWith("set") || m.getParameterTypes().length != 1 //
-		|| m.getReturnType() != void.class))
+		if ( !get && (m.getParameterTypes().length != 1 || m.getReturnType() != void.class //
+			|| !n.startsWith("set") || n.length() < 4 || Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid setter: " + m);
-		if (n.length() > 4 && Character.isUpperCase(n.charAt(3))
-			&& Character.isUpperCase(n.charAt(4)))
+		if (Character.isUpperCase(n.charAt(4)))
+			return n.substring(3);
+		else
+			return Character.toLowerCase(n.charAt(3)) + n.substring(4);
+	}
+
+	/** @return the method's property name or original name */
+	public static String propertyOrName(Method m, boolean get)
+	{
+		String n = m.getName();
+		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class //
+		|| n.startsWith("set") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
+			throw new RuntimeException("invalid getter: " + m);
+		if ( !get && (m.getParameterTypes().length != 1 || m.getReturnType() != void.class //
+		|| n.startsWith("get") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
+			throw new RuntimeException("invalid setter: " + m);
+		if (n.length() < 4 || !n.startsWith(get ? "get" : "set")
+			|| Character.isLowerCase(n.charAt(3)))
+			return n;
+		if (Character.isUpperCase(n.charAt(4)))
 			return n.substring(3);
 		else
 			return Character.toLowerCase(n.charAt(3)) + n.substring(4);
