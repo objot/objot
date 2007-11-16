@@ -220,7 +220,7 @@ $dec = function (s, byName, ok) {
 		return x;
 	}
 	$dec.n = function (n) {
-		return new ($.cs[n] || $throw($S(n) + ' class not found')).$ctor;
+		return new (($.cs[n] || $throw($S(n) + ' class not found')).$ctor);
 	}
 	$dec.r = [];
 
