@@ -440,84 +440,111 @@ public class Array2
 		return -(low + 1); // key not found.
 	}
 
-	public static byte[] ensureN(byte[] array, int n)
+	public static byte[] ensureN(byte[] s, int n)
 	{
-		if (n <= array.length)
-			return array;
-		byte[] a = new byte[Math2.max((int)(array.length * 1.4f + 2.5f), n, 12)];
-		System.arraycopy(array, 0, a, 0, array.length);
+		if (n <= s.length)
+			return s;
+		byte[] a = new byte[Math2.max((int)(s.length * 1.4f + 2.5f), n, 12)];
+		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
 
-	public static int[] ensureN(int[] array, int n)
+	public static int[] ensureN(int[] s, int n)
 	{
-		if (n <= array.length)
-			return array;
-		int[] a = new int[Math2.max((int)(array.length * 1.5f + 2.5f), n, 4)];
-		System.arraycopy(array, 0, a, 0, array.length);
+		if (n <= s.length)
+			return s;
+		int[] a = new int[Math2.max((int)(s.length * 1.5f + 2.5f), n, 4)];
+		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
 
-	public static <T>T[] ensureN(T[] array, int n)
+	public static long[] ensureN(long[] s, int n)
 	{
-		if (n <= array.length)
-			return array;
-		T[] a = news(array, Math2.max((int)(array.length * 1.5f + 2.5f), n, 4));
-		System.arraycopy(array, 0, a, 0, array.length);
+		if (n <= s.length)
+			return s;
+		long[] a = new long[Math2.max((int)(s.length * 1.5f + 2.5f), n, 4)];
+		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
 
-	public static byte[] shrink(byte[] array, int begin, int end1)
+	public static <T>T[] ensureN(T[] s, int n)
 	{
-		Math2.checkRange(begin, end1, array.length);
-		if (end1 - begin == array.length)
-			return array;
+		if (n <= s.length)
+			return s;
+		T[] a = news(s, Math2.max((int)(s.length * 1.5f + 2.5f), n, 4));
+		System.arraycopy(s, 0, a, 0, s.length);
+		return a;
+	}
+
+	public static byte[] shrink(byte[] s, int begin, int end1)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		if (end1 - begin == s.length)
+			return s;
 		byte[] a = new byte[end1 - begin];
-		System.arraycopy(array, begin, a, 0, end1 - begin);
+		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
 
-	public static int[] shrink(int[] array, int begin, int end1)
+	public static int[] shrink(int[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, array.length);
-		if (end1 - begin == array.length)
-			return array;
+		Math2.checkRange(begin, end1, s.length);
+		if (end1 - begin == s.length)
+			return s;
 		int[] a = new int[end1 - begin];
-		System.arraycopy(array, begin, a, 0, end1 - begin);
+		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
 
-	public static <T>T[] shrink(T[] array, int begin, int end1)
+	public static long[] shrink(long[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, array.length);
-		if (end1 - begin == array.length)
-			return array;
-		T[] a = news(array, end1 - begin);
-		System.arraycopy(array, begin, a, 0, end1 - begin);
+		Math2.checkRange(begin, end1, s.length);
+		if (end1 - begin == s.length)
+			return s;
+		long[] a = new long[end1 - begin];
+		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
 
-	public static byte[] subClone(byte[] array, int begin, int end1)
+	public static <T>T[] shrink(T[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, array.length);
+		Math2.checkRange(begin, end1, s.length);
+		if (end1 - begin == s.length)
+			return s;
+		T[] a = news(s, end1 - begin);
+		System.arraycopy(s, begin, a, 0, end1 - begin);
+		return a;
+	}
+
+	public static byte[] subClone(byte[] s, int begin, int end1)
+	{
+		Math2.checkRange(begin, end1, s.length);
 		byte[] a = new byte[end1 - begin];
-		System.arraycopy(array, begin, a, 0, end1 - begin);
+		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
 
-	public static int[] subClone(int[] array, int begin, int end1)
+	public static int[] subClone(int[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, array.length);
+		Math2.checkRange(begin, end1, s.length);
 		int[] a = new int[end1 - begin];
-		System.arraycopy(array, begin, a, 0, end1 - begin);
+		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
 
-	public static <T>T[] subClone(T[] array, int begin, int end1)
+	public static long[] subClone(long[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, array.length);
-		T[] a = news(array, end1 - begin);
-		System.arraycopy(array, begin, a, 0, end1 - begin);
+		Math2.checkRange(begin, end1, s.length);
+		long[] a = new long[end1 - begin];
+		System.arraycopy(s, begin, a, 0, end1 - begin);
+		return a;
+	}
+
+	public static <T>T[] subClone(T[] s, int begin, int end1)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		T[] a = news(s, end1 - begin);
+		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
 
