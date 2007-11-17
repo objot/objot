@@ -59,6 +59,11 @@ public class Bytes
 		return end1Bi - beginBi;
 	}
 
+	public int lastBi()
+	{
+		return end1Bi - beginBi - 1;
+	}
+
 	public int copyTo(int bi, byte[] dest, int destBi, int bn)
 	{
 		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);

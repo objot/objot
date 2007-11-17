@@ -45,6 +45,11 @@ public class Ints
 		return end1I - beginI;
 	}
 
+	public int lastI()
+	{
+		return end1I - beginI - 1;
+	}
+
 	public int copyTo(int i, int[] dest, int destI, int n)
 	{
 		Math2.checkRange(i, i + n, end1I - beginI);
