@@ -91,8 +91,8 @@ public class Bytes
 		Math2.checkRange(begin, end1, bs.length);
 		if (end1Bi - beginBi != end1 - begin)
 			return false;
-		for (int i = beginBi, bi = begin; bi < end1; i++, bi++)
-			if (bytes[i] != bs[bi])
+		for (int i = beginBi, bsi = begin; bsi < end1; i++, bsi++)
+			if (bytes[i] != bs[bsi])
 				return false;
 		return true;
 	}
@@ -107,8 +107,8 @@ public class Bytes
 		Math2.checkRange(begin, end1, bs.end1Bi - bs.beginBi);
 		if (end1Bi - beginBi != end1 - begin)
 			return false;
-		for (int i = beginBi, bi = begin + bs.beginBi; i < end1Bi; i++, bi++)
-			if (bytes[i] != bs.bytes[bi])
+		for (int i = beginBi, bsi = begin + bs.beginBi; i < end1Bi; i++, bsi++)
+			if (bytes[i] != bs.bytes[bsi])
 				return false;
 		return true;
 	}
@@ -144,21 +144,21 @@ public class Bytes
 
 	public short readS2(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		return (short)(bytes[i] << 8 | bytes[i + 1] & 0xFF);
 	}
 
 	public int readU2(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		return bytes[i] << 8 & 0xFF00 | bytes[i + 1] & 0xFF;
 	}
 
 	public int readS4(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		return bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
@@ -166,7 +166,7 @@ public class Bytes
 
 	public int readU4(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		i = bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
@@ -176,14 +176,22 @@ public class Bytes
 		return i;
 	}
 
+	public long readU4ex(int i)
+	{
+		Math2.checkIndex(i, end1Bi - beginBi - 3);
+		i += beginBi;
+		return (bytes[i] & 0xFFL) << 24 | ((bytes[i + 1] & 0xFF) << 16 //
+			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF);
+	}
+
 	public long readS8(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 7);
 		i += beginBi;
 		return (long)(bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
-			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF) << 32 //
-			| (long)(bytes[i + 4] << 24 | (bytes[i + 5] & 0xFF) << 16 //
-				| (bytes[i + 6] & 0xFF) << 8 | bytes[i + 7] & 0xFF) & 0xFFFFFFFF;
+			/**/| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF) << 32 //
+			| (bytes[i + 4] << 24 | (bytes[i + 5] & 0xFF) << 16 //
+				| (bytes[i + 6] & 0xFF) << 8 | bytes[i + 7] & 0xFF) & 0xFFFFFFFFL;
 	}
 
 	public byte read0s1(int i)
@@ -222,12 +230,18 @@ public class Bytes
 		return i;
 	}
 
+	public long read0u4ex(int i)
+	{
+		return (bytes[i] & 0xFFL) << 24 | ((bytes[i + 1] & 0xFF) << 16 //
+			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF);
+	}
+
 	public long read0s8(int i)
 	{
 		return (long)(bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
-			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF) << 32 //
-			| (long)(bytes[i + 4] << 24 | (bytes[i + 5] & 0xFF) << 16 //
-				| (bytes[i + 6] & 0xFF) << 8 | bytes[i + 7] & 0xFF) & 0xFFFFFFFF;
+			/**/| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF) << 32 //
+			| (bytes[i + 4] << 24 | (bytes[i + 5] & 0xFF) << 16 //
+				| (bytes[i + 6] & 0xFF) << 8 | bytes[i + 7] & 0xFF) & 0xFFFFFFFFL;
 	}
 
 	public static byte readS1(byte[] bs, int i)
@@ -267,12 +281,18 @@ public class Bytes
 		return i;
 	}
 
+	public static long readU4ex(byte[] bs, int i)
+	{
+		return (bs[i] & 0xFFL) << 24 | ((bs[i + 1] & 0xFF) << 16 //
+			| (bs[i + 2] & 0xFF) << 8 | bs[i + 3] & 0xFF);
+	}
+
 	public static long readS8(byte[] bs, int i)
 	{
 		return (long)(bs[i] << 24 | (bs[i + 1] & 0xFF) << 16 //
-			| (bs[i + 2] & 0xFF) << 8 | bs[i + 3] & 0xFF) << 32 //
-			| (long)(bs[i + 4] << 24 | (bs[i + 5] & 0xFF) << 16 //
-				| (bs[i + 6] & 0xFF) << 8 | bs[i + 7] & 0xFF) & 0xFFFFFFFF;
+			/**/| (bs[i + 2] & 0xFF) << 8 | bs[i + 3] & 0xFF) << 32 //
+			| (bs[i + 4] << 24 | (bs[i + 5] & 0xFF) << 16 //
+				| (bs[i + 6] & 0xFF) << 8 | bs[i + 7] & 0xFF) & 0xFFFFFFFFL;
 	}
 
 	// ********************************************************************************
@@ -317,7 +337,7 @@ public class Bytes
 
 	public void writeS2(int i, short v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 8);
 		bytes[i + 1] = (byte)v;
@@ -327,7 +347,7 @@ public class Bytes
 	{
 		if (v << 16 >> 16 != v)
 			throw new ArithmeticException("invalid signed dual bytes");
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 8);
 		bytes[i + 1] = (byte)v;
@@ -337,7 +357,7 @@ public class Bytes
 	{
 		if (v >> 16 != 0)
 			throw new ArithmeticException("invalid unsigned dual bytes");
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 8);
 		bytes[i + 1] = (byte)v;
@@ -345,7 +365,7 @@ public class Bytes
 
 	public void writeS4(int i, int v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 24);
 		bytes[i + 1] = (byte)(v >> 16);
@@ -357,7 +377,7 @@ public class Bytes
 	{
 		if (v_ >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		int v = (int)v_;
 		bytes[i] = (byte)(v >> 24);
@@ -366,20 +386,20 @@ public class Bytes
 		bytes[i + 3] = (byte)v;
 	}
 
-	public void writeS8(int i, long v_)
+	public void writeS8(int i, long v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.checkIndex(i, end1Bi - beginBi - 7);
 		i += beginBi;
-		int v = (int)(v_ >> 32);
-		bytes[i] = (byte)(v >> 24);
-		bytes[i + 1] = (byte)(v >> 16);
-		bytes[i + 2] = (byte)(v >> 8);
-		bytes[i + 3] = (byte)v;
-		v = (int)v_;
-		bytes[i + 4] = (byte)(v >> 24);
-		bytes[i + 5] = (byte)(v >> 16);
-		bytes[i + 6] = (byte)(v >> 8);
-		bytes[i + 7] = (byte)v;
+		int v4 = (int)(v >> 32);
+		bytes[i] = (byte)(v4 >> 24);
+		bytes[i + 1] = (byte)(v4 >> 16);
+		bytes[i + 2] = (byte)(v4 >> 8);
+		bytes[i + 3] = (byte)v4;
+		v4 = (int)v;
+		bytes[i + 4] = (byte)(v4 >> 24);
+		bytes[i + 5] = (byte)(v4 >> 16);
+		bytes[i + 6] = (byte)(v4 >> 8);
+		bytes[i + 7] = (byte)v4;
 	}
 
 	public void write0s1(int i, byte v)
