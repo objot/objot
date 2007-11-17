@@ -4,39 +4,37 @@
 //
 package objot.util;
 
-public class Objects<T>
+public class Longs
 {
-	@SuppressWarnings("unchecked")
-	public T[] objs = (T[])Array2.OBJECTS0;
+	public long[] longs = Array2.LONGS0;
 	public int beginI;
 	public int end1I;
 
-	public Objects()
+	public Longs()
 	{
 	}
 
-	public Objects(T[] s)
+	public Longs(long[] s)
 	{
 		this(s, 0, s != null ? s.length : 0);
 	}
 
-	@SuppressWarnings("unchecked")
-	public Objects(T[] s, int begin, int end1)
+	public Longs(long[] s, int begin, int end1)
 	{
-		objs = s != null ? s : (T[])Array2.OBJECTS0;
-		Math2.checkRange(begin, end1, objs.length);
+		longs = s != null ? s : Array2.LONGS0;
+		Math2.checkRange(begin, end1, longs.length);
 		beginI = begin;
 		end1I = end1;
 	}
 
-	public Objects(Objects<? extends T> s)
+	public Longs(Longs s)
 	{
 		this(s, 0, s.n());
 	}
 
-	public Objects(Objects<? extends T> s, int begin, int end1)
+	public Longs(Longs s, int begin, int end1)
 	{
-		objs = s.objs;
+		longs = s.longs;
 		Math2.checkRange(begin, end1, s.end1I - s.beginI);
 		beginI = s.beginI + begin;
 		end1I = s.beginI + end1;
@@ -47,56 +45,56 @@ public class Objects<T>
 		return end1I - beginI;
 	}
 
-	public int copyTo(int i, T[] dest, int destI, int n)
+	public int copyTo(int i, long[] dest, int destI, int n)
 	{
 		Math2.checkRange(i, i + n, end1I - beginI);
-		System.arraycopy(objs, i + beginI, dest, destI, n);
+		System.arraycopy(longs, i + beginI, dest, destI, n);
 		return destI + n;
 	}
 
-	public int copyTo(int i, Objects<? super T> dest, int destI, int n)
+	public int copyTo(int i, Longs dest, int destI, int n)
 	{
 		Math2.checkRange(i, i + n, end1I - beginI);
 		Math2.checkRange(destI, destI + n, dest.end1I - dest.beginI);
-		System.arraycopy(objs, i + beginI, dest.objs, destI + dest.beginI, n);
+		System.arraycopy(longs, i + beginI, dest.longs, destI + dest.beginI, n);
 		return destI + n;
 	}
 
-	public int copyFrom(int i, T[] src, int srcI, int n)
+	public int copyFrom(int i, long[] src, int srcI, int n)
 	{
 		Math2.checkRange(i, i + n, end1I - beginI);
-		System.arraycopy(src, srcI, objs, i + beginI, n);
+		System.arraycopy(src, srcI, longs, i + beginI, n);
 		return i + n;
 	}
 
-	public final boolean equals(T[] s)
+	public final boolean equals(long[] s)
 	{
 		return equals(s, 0, s.length);
 	}
 
-	public boolean equals(T[] s, int begin, int end1)
+	public boolean equals(long[] s, int begin, int end1)
 	{
 		Math2.checkRange(begin, end1, s.length);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin; si < end1; i++, si++)
-			if (objs[i] != s[si])
+			if (longs[i] != s[si])
 				return false;
 		return true;
 	}
 
-	public final boolean equals(Objects<?> s)
+	public final boolean equals(Longs s)
 	{
 		return equals(s, 0, s.end1I - s.beginI);
 	}
 
-	public boolean equals(Objects<?> s, int begin, int end1)
+	public boolean equals(Longs s, int begin, int end1)
 	{
 		Math2.checkRange(begin, end1, s.end1I - s.beginI);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin + s.beginI; i < end1I; i++, si++)
-			if (objs[i] != s.objs[si] && (objs[i] == null || !objs[i].equals(s.objs[si])))
+			if (longs[i] != s.longs[si])
 				return false;
 		return true;
 	}
@@ -106,59 +104,62 @@ public class Objects<T>
 	{
 		int h = 1;
 		for (int i = beginI; i < end1I; i++)
-			h = 31 * h + (objs[i] != null ? objs[i].hashCode() : 0);
+		{
+			h = 31 * h + (int)(longs[i] >> 32);
+			h = 31 * h + (int)longs[i];
+		}
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object o)
 	{
-		return o != null && o.getClass() == getClass() && equals((Objects<?>)o);
+		return o != null && o.getClass() == getClass() && equals((Longs)o);
 	}
 
-	public T read(int i)
+	public long readS8(int i)
 	{
 		Math2.checkIndex(i, end1I - beginI);
-		return objs[i + beginI];
+		return longs[i + beginI];
 	}
 
-	public T read0(int i)
+	public long read0s8(int i)
 	{
-		return objs[i];
+		return longs[i];
 	}
 
-	public static <T>T readS8(T[] s, int i)
+	public static long readS8(long[] s, int i)
 	{
 		return s[i];
 	}
 
 	// ********************************************************************************
 
-	public Objects<T> ensureN(int n)
+	public Longs ensureN(int n)
 	{
-		objs = Array2.ensureN(objs, beginI + n);
+		longs = Array2.ensureN(longs, beginI + n);
 		return this;
 	}
 
-	public Objects<T> addN(int n)
+	public Longs addN(int n)
 	{
-		objs = Array2.ensureN(objs, end1I + n);
+		longs = Array2.ensureN(longs, end1I + n);
 		end1I += n;
 		return this;
 	}
 
-	public void write(int i, T v)
+	public void writeS8(int i, long v)
 	{
 		Math2.checkIndex(i, end1I - beginI);
-		objs[i + beginI] = v;
+		longs[i + beginI] = v;
 	}
 
-	public void write0(int i, T v)
+	public void write0s8(int i, long v)
 	{
-		objs[i] = v;
+		longs[i] = v;
 	}
 
-	public static <T>void write(T[] s, int i, T v)
+	public static void writeS8(long[] s, int i, long v)
 	{
 		s[i] = v;
 	}
