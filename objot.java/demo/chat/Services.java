@@ -85,7 +85,8 @@ public class Services
 		protected void aspect() throws Throwable
 		{
 			Target.invoke();
-			if (Target.<Do>getThis().data.deep == 1)
+			if (Target.<Do>getThis().data.deep == 1
+				&& Target.<Void>getReturnClass() != void.class)
 				codec.enc(Target.getReturn(), Target.getClazz());
 		}
 	}

@@ -5,7 +5,6 @@
 package chat.service;
 
 import chat.Transac;
-import chat.model.Ok;
 import chat.model.User;
 
 
@@ -27,14 +26,13 @@ public class DoUser
 	 * SO' {@link User#friends_}
 	 */
 	@Service
-	public Ok update(User u) throws Exception
+	public void update(User u) throws Exception
 	{
 		if (u.friends_ == null) // || name
-			return Ok.OK;
+			return;
 		User me = data.load(User.class, sess.me);
 		if (u.friends_ != null)
 			me.friends = u.friends_;
-		return Ok.OK;
 	}
 
 	/**
