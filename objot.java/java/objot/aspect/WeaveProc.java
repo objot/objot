@@ -282,8 +282,8 @@ final class WeaveProc
 			i += Opcode.getLocalStackN((char)desc.bytes[b]);
 			b += Bytecode.typeDescByteN(desc, b - desc.beginBi);
 		}
-		ws.insU2(INVOKESPECIAL, cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(wp
-			.getNameCi(), wp.getDescCi())));
+		ws.insU2(INVOKESPECIAL, cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(
+			wp.getNameCi(), wp.getDescCi())));
 		if (wp.getReturnTypeChar() != 'V')
 			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ao.getLocalN()
 				+ wp.getParamLocalN());
@@ -329,8 +329,8 @@ final class WeaveProc
 			i += Opcode.getLocalStackN((char)desc.bytes[b]);
 			b += Bytecode.typeDescByteN(desc, b - desc.beginBi);
 		}
-		ws.insU2(INVOKESPECIAL, cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(wp
-			.getNameCi(), wp.getDescCi())));
+		ws.insU2(INVOKESPECIAL, cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(
+			wp.getNameCi(), wp.getDescCi())));
 		wo.setStackN(wo.getStackN() + wp.getParamLocalN());
 		return true;
 	}

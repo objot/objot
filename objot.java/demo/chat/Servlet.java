@@ -104,8 +104,7 @@ public final class Servlet
 			synchronized (dataFactory)
 			{
 				dataFactory.evictQueries();
-				for (Object c: ((SessionFactoryImpl)dataFactory)
-					.getAllSecondLevelCacheRegions().values())
+				for (Object c: ((SessionFactoryImpl)dataFactory).getAllSecondLevelCacheRegions().values())
 					((Cache)c).clear();
 				new ModelsCreate(true).create(true, 1);
 				return codec.enc(Ok.OK, null);
@@ -122,8 +121,8 @@ public final class Servlet
 			}
 		try
 		{
-			return containerS.createBubble(containerS.parent().parent(), sess).get(S.class)
-				.serve(inf, reqs);
+			return containerS.createBubble(containerS.parent().parent(), sess).get(S.class).serve(
+				inf, reqs);
 		}
 		catch (InvalidStateException e)
 		{

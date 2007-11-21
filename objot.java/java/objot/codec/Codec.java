@@ -62,6 +62,12 @@ public class Codec
 		return c.getName();
 	}
 
+	/** If use array to present list when list type is undetermined, true by default */
+	protected boolean arrayForList() throws Exception
+	{
+		return true;
+	}
+
 	/**
 	 * by default, {@link ArrayList} for list and object, otherwise {@link HashSet} which
 	 * is not recommended for ORM

@@ -31,8 +31,7 @@ public class SimpleFormatter
 		String m = log.getMessage() != null ? log.getMessage() : "";
 		boolean sys = m.length() == 0
 			|| !"log".equals(log.getSourceMethodName())
-			|| !"org.apache.catalina.core.ApplicationContext"
-				.equals(log.getSourceClassName());
+			|| !"org.apache.catalina.core.ApplicationContext".equals(log.getSourceClassName());
 		StringBuilder s = new StringBuilder();
 		if (sys)
 			s.append(log.getLevel().getName()).append(' ');
