@@ -101,8 +101,8 @@ public final class AnnoParams
 		if (as != null)
 			for (int g = as.paramN - 1; g >= 0; g--)
 				for (int a = as.getAnnoN(g) - 1; a >= 0; a--)
-					if (as.cons.equalsUtf(as.getAnno(g, a).getDescCi(), utf(Class2
-						.descript(anno))))
+					if (as.cons.equalsUtf(as.getAnno(g, a).getDescCi(),
+						utf(Class2.descript(anno))))
 						return g << 32L | a & 0xFFFFFFFFL;
 		return -1;
 	}

@@ -99,8 +99,8 @@ final class Factoring
 		f.setNameCi(cons.addUcs(NAME_oss));
 		f.setDescCi(cons.addUcs(Class2.descript(Object[][].class)));
 		y.getFields().addField(f);
-		ossCi = cons.addField(y.head.getClassCi(), cons.addNameDesc(f.getNameCi(), f
-			.getDescCi()));
+		ossCi = cons.addField(y.head.getClassCi(), cons.addNameDesc(f.getNameCi(),
+			f.getDescCi()));
 		int descCi = cons.addUcs(Class2.descript(Object.class));
 		for (int i = 1; i < cs.length; i++)
 			if (cs[i].b == cs[i] && cs[i].mode != Inject.New.class)
@@ -152,8 +152,8 @@ final class Factoring
 		p.getCode().setLocalN(2);
 		p.getCode().setStackN(3);
 		y.getProcs().addProc(p);
-		indexCi = cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(p.getNameCi(), p
-			.getDescCi()));
+		indexCi = cons.addCproc(y.head.getSuperCi(), cons.addNameDesc(p.getNameCi(),
+			p.getDescCi()));
 	}
 
 	private void makeGet0()

@@ -128,15 +128,14 @@ public abstract class Weaver
 		f.setNameCi(cs.addUcs(DATAS_NAME));
 		f.setDescCi(cs.addUcs(Class2.descript(Object[].class)));
 		y.getFields().addField(f);
-		int datasCi = cs.addField(y.head.getClassCi(), cs.addNameDesc(f.getNameCi(), f
-			.getDescCi()));
+		int datasCi = cs.addField(y.head.getClassCi(), cs.addNameDesc(f.getNameCi(),
+			f.getDescCi()));
 
-		Code ato = y.getProcs().removeProc(y.getProcs().searchProc(CTOR_NAME, null))
-			.getCode();
+		Code ato = y.getProcs().removeProc(y.getProcs().searchProc(CTOR_NAME, null)).getCode();
 		for (Constructor<?> t: ts)
 			new WeaveProc(target, y, ato).ctor(t);
-		Code ao = y.getProcs().removeProc(y.getProcs().searchProc(Aspect.NAME_aspect, null))
-			.getCode();
+		Code ao = y.getProcs().removeProc( //
+			y.getProcs().searchProc(Aspect.NAME_aspect, null)).getCode();
 		for (int i = 0; i < ms.size(); i++)
 			new WeaveProc(target, y, ao).method(ms.get(i), i, datasCi);
 		y.removeInnerClasses();

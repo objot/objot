@@ -133,8 +133,8 @@ public abstract class Container
 	abstract int index(Class<?> c);
 
 	static final Bytes NAME_index = Bytecode.utf("index");
-	static final Bytes DESC_index = Bytecode.utf(Class2.descript( //
-		Class2.declaredMethod1(Container.class, "index")));
+	static final Bytes DESC_index = Bytecode.utf(Class2.descript(Class2.declaredMethod1(
+		Container.class, "index")));
 
 	/**
 	 * Example:

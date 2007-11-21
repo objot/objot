@@ -30,6 +30,7 @@ final class Decoder
 	private Object[] refs;
 	private long numl;
 	private double numd;
+	private boolean arrayForList;
 
 	/** @param for_ null is Object.class */
 	Decoder(Codec o, Class<?> for_, char[] s)
@@ -42,6 +43,7 @@ final class Decoder
 	/** @param cla null is Object.class */
 	Object go(Class<?> cla) throws Exception
 	{
+		arrayForList = codec.arrayForList();
 		cla = cla != null ? cla : Object.class;
 		bx = 0;
 		by = -1;
@@ -190,8 +192,8 @@ final class Decoder
 	{
 		if (type == 0)
 			return (int)numl;
-		throw new NumberFormatException("invalid int ".concat //
-			(type > 0 ? String.valueOf(numl) : String.valueOf(numd)));
+		throw new NumberFormatException("invalid int ".concat(type > 0 ? String.valueOf(numl)
+			: String.valueOf(numd)));
 	}
 
 	private long numl(int type)
@@ -405,7 +407,8 @@ final class Decoder
 				if (c == 0)
 					m.put(n, str());
 				else if (c == '[')
-					m.put(n, list(ArrayList.class, Object.class));
+					m.put(n, list(arrayForList ? Object[].class : ArrayList.class,
+						Object.class));
 				else if (c == '{')
 					m.put(n, object(Object.class));
 				else if (c == '=')

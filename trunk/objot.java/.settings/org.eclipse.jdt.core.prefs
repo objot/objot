@@ -1,4 +1,4 @@
-#Fri Oct 05 10:04:21 GMT 2007
+#Wed Nov 21 04:26:52 GMT 2007
 eclipse.preferences.version=1
 instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
 org.eclipse.jdt.core.builder.cleanOutputFolder=clean
@@ -109,7 +109,7 @@ org.eclipse.jdt.core.formatter.alignment_for_expressions_in_array_initializer=16
 org.eclipse.jdt.core.formatter.alignment_for_multiple_fields=16
 org.eclipse.jdt.core.formatter.alignment_for_parameters_in_constructor_declaration=16
 org.eclipse.jdt.core.formatter.alignment_for_parameters_in_method_declaration=16
-org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation=16
+org.eclipse.jdt.core.formatter.alignment_for_selector_in_method_invocation=0
 org.eclipse.jdt.core.formatter.alignment_for_superclass_in_type_declaration=33
 org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_enum_declaration=33
 org.eclipse.jdt.core.formatter.alignment_for_superinterfaces_in_type_declaration=33

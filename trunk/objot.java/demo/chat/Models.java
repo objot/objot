@@ -70,8 +70,7 @@ public class Models
 				{
 					SessionImpl hib = (SessionImpl)fac.openSession();
 					hib.beginTransaction();
-					Statement stat = hib.getJDBCContext().borrowConnection()
-						.createStatement();
+					Statement stat = hib.getJDBCContext().borrowConnection().createStatement();
 					stat.executeUpdate("SET WRITE_DELAY FALSE");
 					hib.getTransaction().commit();
 					stat.close();

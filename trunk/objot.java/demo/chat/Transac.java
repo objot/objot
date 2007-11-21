@@ -87,8 +87,8 @@ public @interface Transac
 			else if ( !(a instanceof Any))
 			{
 				iso = TRANSACTION_REPEATABLE_READ;
-				read = a == null ? false : a instanceof Readonly ? true : ((Repeat)a)
-					.readonly();
+				read = a == null ? false : a instanceof Readonly ? true
+					: ((Repeat)a).readonly();
 			}
 		}
 	}
@@ -170,8 +170,7 @@ public @interface Transac
 			}
 			else if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
 				throw new Exception(Target.getTarget() + ": transaction must be writable");
-			else if (con.iso > hib.getJDBCContext().borrowConnection()
-				.getTransactionIsolation())
+			else if (con.iso > hib.getJDBCContext().borrowConnection().getTransactionIsolation())
 				throw new Exception(Target.getTarget() + ": isolation must be at least "
 					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
 						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //

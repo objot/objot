@@ -165,8 +165,8 @@ public final class Procedure
 		int local = 1;
 		for (Object a: params)
 		{
-			char d = a instanceof Class ? Class2.descriptChar((Class<?>)a) : ((String)a)
-				.charAt(0);
+			char d = a instanceof Class ? Class2.descriptChar((Class<?>)a)
+				: ((String)a).charAt(0);
 			s.insU1(Opcode.getLoadOp(d), local);
 			local += Opcode.getLocalStackN(d);
 		}
