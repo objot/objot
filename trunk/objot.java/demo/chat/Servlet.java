@@ -25,7 +25,6 @@ import org.hibernate.cache.Cache;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.validator.InvalidStateException;
 
-import chat.model.Ok;
 import chat.service.Do;
 import chat.service.Session;
 import chat.service.Do.Service;
@@ -34,6 +33,8 @@ import chat.service.Do.Service;
 public final class Servlet
 	extends CodecServlet
 {
+	static final String[] OK = { "ok" };
+
 	boolean dataTest;
 	SessionFactory dataFactory;
 	/** parent is services container, parent.parent is session container */
@@ -107,7 +108,7 @@ public final class Servlet
 				for (Object c: ((SessionFactoryImpl)dataFactory).getAllSecondLevelCacheRegions().values())
 					((Cache)c).clear();
 				new ModelsCreate(true).create(true, 1);
-				return codec.enc(Ok.OK, null);
+				return codec.enc(OK, null);
 			}
 
 		Container sess = (Container)hq.getSession().getAttribute("container");
@@ -148,7 +149,8 @@ public final class Servlet
 		@Transac.Any
 		protected CharSequence serve(ServiceInfo inf, Object... reqs) throws Exception
 		{
-			return inf.resp(inf.invoke(con.get(inf.cla), reqs));
+			Object o = inf.invoke(con.get(inf.cla), reqs);
+			return inf.resp(inf.meth.getReturnType() != void.class ? o : OK);
 		}
 	}
 }

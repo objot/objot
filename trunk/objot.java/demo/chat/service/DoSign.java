@@ -8,7 +8,6 @@ import java.util.HashSet;
 
 import chat.Sign;
 import chat.Transac;
-import chat.model.Ok;
 import chat.model.User;
 
 
@@ -40,10 +39,9 @@ public class DoSign
 	@Service
 	@Sign.Any
 	@Transac.Any
-	public Ok out() throws Exception
+	public void out() throws Exception
 	{
 		sess.me = 0;
 		sess.close = true;
-		return Ok.OK;
 	}
 }
