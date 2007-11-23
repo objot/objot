@@ -124,7 +124,7 @@ public abstract class Container
 	 *        if (c == A.class) return 3;
 	 *        return 0;
 	 *     6: if (c == B.class) return -2; // {@link Inject.New}
-	 *        if (c == D.class) return 5; // bind to parent
+	 *        if (c == D.class) return 4; // bind to parent, could be cached
 	 *        return 0;
 	 *     default: return 0;
 	 *   }
@@ -144,7 +144,7 @@ public abstract class Container
 	 *   1: return this; // {@link Container}
 	 *   2: return objss[0][0]; // bind to object
 	 *   3: return o3 != null ? o3 : create0(i, null); // {@link Inject.Single}
-	 *   4: if (o4 != null) return o4; // catch, degraded if bind to null in parents
+	 *   4: if (o4 != null) return o4; // cache, degraded if bind to null in parents
 	 *      for (Container c = parent; ; c = c.parent) {
 	 *        int j = c.index(X.class);
 	 *        if (j > 0) return o4 = c.get0(j);

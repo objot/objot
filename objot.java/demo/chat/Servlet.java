@@ -37,8 +37,8 @@ public final class Servlet
 
 	boolean dataTest;
 	SessionFactory dataFactory;
-	/** parent is services container, parent.parent is session container */
-	Container containerS;
+	/** parent is service container, parent.parent is session container */
+	Container conInvoke;
 
 	@Override
 	public void init() throws Exception
@@ -66,25 +66,25 @@ public final class Servlet
 		codec = Models.CODEC;
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 
-		final Class<?> claS = new Weaver(Transac.As.class)
+		final Container conServ = Services.build(dataFactory, null);
+		final Class<?> weavedInvoke = new Weaver(Transac.As.class)
 		{
 			@Override
 			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
 				return m.isAnnotationPresent(Service.class) ? new Transac.Config(m) : this;
 			}
-		}.weave(S.class);
-		containerS = Services.build(dataFactory, null);
-		containerS = new Factory(S.class)
+		}.weave(Invoke.class);
+		conInvoke = new Factory(Invoke.class)
 		{
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				if (containerS.bound(c)) // here is service container
+				if (conServ.bound(c))
 					return b.mode(null);
-				return c == S.class ? b.cla(claS) : b;
+				return c == Invoke.class ? b.cla(weavedInvoke) : b;
 			}
-		}.create(containerS);
+		}.create(conServ);
 	}
 
 	@Override
@@ -105,7 +105,8 @@ public final class Servlet
 			synchronized (dataFactory)
 			{
 				dataFactory.evictQueries();
-				for (Object c: ((SessionFactoryImpl)dataFactory).getAllSecondLevelCacheRegions().values())
+				for (Object c: ((SessionFactoryImpl)dataFactory) //
+				.getAllSecondLevelCacheRegions().values())
 					((Cache)c).clear();
 				new ModelsCreate(true).create(true, 1);
 				return codec.enc(OK, null);
@@ -118,12 +119,12 @@ public final class Servlet
 				sess = (Container)hq.getSession().getAttribute("container");
 				if (sess == null)
 					hq.getSession().setAttribute("container",
-						sess = containerS.parent().parent().create());
+						sess = conInvoke.parent().parent().create());
 			}
 		try
 		{
-			return containerS.createBubble(containerS.parent().parent(), sess).get(S.class).serve(
-				inf, reqs);
+			return conInvoke.createBubble(conInvoke.parent().parent(), sess) //
+			.get(Invoke.class).serve(inf, reqs);
 		}
 		catch (InvalidStateException e)
 		{
@@ -140,7 +141,7 @@ public final class Servlet
 	}
 
 	@Inject.New
-	public static class S
+	public static class Invoke
 	{
 		@Inject
 		public Container con;
