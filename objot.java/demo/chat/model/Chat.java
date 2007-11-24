@@ -60,7 +60,7 @@ public class Chat
 	}
 
 	@Dec
-	public void setText(Clob _)
+	public void text(Clob _)
 	{
 		text = _;
 	}
