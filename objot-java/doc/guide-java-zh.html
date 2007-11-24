@@ -45,8 +45,8 @@
 <h2>面向服务的AJAX</h2>
 
 <p>参见<a href=guide-zh.html>《Objot 版本20 指南》</a>。
-部署范例的Java服务端时，需要将objot.java目录对应为/objot/，并与浏览端部署在同一个服务器上。
-同时，拷贝以下文件（或其他合适的版本）到objot.java/WEB-INF/lib/目录中：
+部署范例的Java服务端时，站点名应为/objot/，根目录为objot-java目录，并与浏览端部署在同一个服务器上。
+同时，拷贝以下文件（或其他合适的版本）到objot-java/WEB-INF/lib/目录中：
 <ul>
 	<li>antlr-2.7.6.jar</li>
 	<li>asm.jar</li>
@@ -63,7 +63,7 @@
 	<li>hsqldb.jar</li>
 	<li>jta.jar</li>
 </ul>
-并且确保/tmp目录（或者C:\tmp之类）可写，或者修改hibernate.properties中hsqldb文件前缀。
+并且确保/tmp目录（或者C:\tmp之类）可写，或者修改hibernate.properties中hsqldb存储文件的设置。
 对于Apache Tomcat，请使用6.0及以上版本，之前版本没有正确分离服务器根和web应用的commons-logging配置，这将导致无限递归。
 
 <p>参照下列步骤可以简单地建立一个典型的中小规模web项目服务端：
