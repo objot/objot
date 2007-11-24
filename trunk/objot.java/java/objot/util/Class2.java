@@ -272,8 +272,8 @@ public class Class2
 		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class //
 		|| n.startsWith("set") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid getter: " + m);
-		if ( !get && (m.getParameterTypes().length != 1 || m.getReturnType() != void.class //
-		|| n.startsWith("get") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
+		if ( !get && (m.getParameterTypes().length != 1 //
+			|| n.startsWith("get") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid setter: " + m);
 		if (n.length() < 4 || !n.startsWith(get ? "get" : "set")
 			|| Character.isLowerCase(n.charAt(3)))
