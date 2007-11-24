@@ -5,7 +5,7 @@
 // Under the terms of the GNU General Public License version 2
 //
 -->
-<project name="objot.java" default="all">
+<project name="objot-java" default="all">
 
 	<property name=".version" value="20" />
 
