@@ -14,13 +14,13 @@ import objot.util.Class2;
 
 public class Bind
 {
+	public Object obj;
 	/** primitive boxed */
 	public Class<?> cla;
-	Clazz b;
-	public Object obj;
-	/** bind to parent container if {@link #mode} is null and {@link #cla} not changed */
 	public Class<? extends Annotation> mode;
+	Clazz b;
 
+	/** bind to a specified object */
 	public Bind obj(Object o)
 	{
 		cla = null;
@@ -28,13 +28,21 @@ public class Bind
 		return this;
 	}
 
-	/** @param c may be boxed */
+	/**
+	 * bind to a specified class
+	 * 
+	 * @param c primitives will be boxed
+	 */
 	public Bind cla(Class<?> c)
 	{
 		cla = c.isPrimitive() ? Class2.box(c, false) : c;
 		return this;
 	}
 
+	/**
+	 * If {@link #cla} unchanged, bind class in a specified mode (e.g. {@link Inject.New},
+	 * or bind to parent container if null
+	 */
 	public Bind mode(Class<? extends Annotation> m)
 	{
 		mode = m;

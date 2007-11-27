@@ -4,17 +4,11 @@
 //
 package chat;
 
-import java.lang.reflect.Method;
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 
-import objot.aspect.Aspect;
-import objot.aspect.Weaver;
 import objot.codec.Errs;
-import objot.container.Bind;
 import objot.container.Container;
-import objot.container.Factory;
-import objot.container.Inject;
 import objot.servlet.CodecServlet;
 import objot.servlet.ServiceInfo;
 import objot.util.Class2;
@@ -25,20 +19,19 @@ import org.hibernate.cache.Cache;
 import org.hibernate.impl.SessionFactoryImpl;
 import org.hibernate.validator.InvalidStateException;
 
+import chat.service.Data;
 import chat.service.Do;
 import chat.service.Session;
-import chat.service.Do.Service;
 
 
 public final class Servlet
 	extends CodecServlet
 {
-	static final String[] OK = { "ok" };
-
 	boolean dataTest;
 	SessionFactory dataFactory;
-	/** parent is service container, parent.parent is session container */
-	Container conInvoke;
+	/** service container, parent is session container */
+	Container container;
+	CharSequence ok;
 
 	@Override
 	public void init() throws Exception
@@ -65,26 +58,8 @@ public final class Servlet
 		}
 		codec = Models.CODEC;
 		dataFactory = Models.build(dataTest).buildSessionFactory();
-
-		final Container conServ = Services.build(dataFactory, null);
-		final Class<?> weavedInvoke = new Weaver(Transac.As.class)
-		{
-			@Override
-			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
-			{
-				return m.isAnnotationPresent(Service.class) ? new Transac.Config(m) : this;
-			}
-		}.weave(Invoke.class);
-		conInvoke = new Factory(Invoke.class)
-		{
-			@Override
-			protected Object doBind(Class<?> c, Bind b) throws Exception
-			{
-				if (conServ.bound(c))
-					return b.mode(null);
-				return c == Invoke.class ? b.cla(weavedInvoke) : b;
-			}
-		}.create(conServ);
+		container = Services.build(codec, dataFactory);
+		ok = codec.enc(new String[] { "ok" }, Object.class);
 	}
 
 	@Override
@@ -109,7 +84,7 @@ public final class Servlet
 				.getAllSecondLevelCacheRegions().values())
 					((Cache)c).clear();
 				new ModelsCreate(true).create(true, 1);
-				return codec.enc(OK, null);
+				return ok;
 			}
 
 		Container sess = (Container)hq.getSession().getAttribute("container");
@@ -119,12 +94,13 @@ public final class Servlet
 				sess = (Container)hq.getSession().getAttribute("container");
 				if (sess == null)
 					hq.getSession().setAttribute("container",
-						sess = conInvoke.parent().parent().create());
+						sess = container.parent().create());
 			}
 		try
 		{
-			return conInvoke.createBubble(conInvoke.parent().parent(), sess) //
-			.get(Invoke.class).serve(inf, reqs);
+			Container con = container.createBubble(container.parent(), sess);
+			inf.invoke(con.get(inf.cla), reqs);
+			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
 		}
 		catch (InvalidStateException e)
 		{
@@ -133,25 +109,7 @@ public final class Servlet
 		finally
 		{
 			if (sess.get(Session.class).close)
-			{
 				hq.getSession().invalidate();
-				hq.getSession().invalidate();
-			}
-		}
-	}
-
-	@Inject.New
-	public static class Invoke
-	{
-		@Inject
-		public Container con;
-
-		@Service
-		@Transac.Any
-		protected CharSequence serve(ServiceInfo inf, Object... reqs) throws Exception
-		{
-			Object o = inf.invoke(con.get(inf.cla), reqs);
-			return inf.resp(inf.meth.getReturnType() != void.class ? o : OK);
 		}
 	}
 }

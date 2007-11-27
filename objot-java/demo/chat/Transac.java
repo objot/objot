@@ -108,17 +108,17 @@ public @interface Transac
 		protected void aspect() throws Throwable
 		{
 			boolean ok = false;
-			data.deep++;
+			data.depth++;
 			try
 			{
 				if (LOG.isDebugEnabled())
-					if (data.deep == 1)
+					if (data.depth == 1)
 						LOG.debug("================ " + Target.getClazz().getName() + "-"
 							+ Target.getName() + " ================");
 					else
 						LOG.debug("---------------- " + Target.getClazz().getName() + "-"
 							+ Target.getName() + " ----------------");
-				if (data.deep == 1)
+				if (data.depth == 1)
 					data.hib = factory.openSession();
 				begin((SessionImpl)data.hib, Target.<Config>getData());
 				Target.invoke();
@@ -127,8 +127,8 @@ public @interface Transac
 			}
 			finally
 			{
-				data.deep--;
-				if (data.deep <= 0)
+				data.depth--;
+				if (data.depth <= 0)
 				{
 					if (data.hib.getTransaction().isActive())
 						try

@@ -13,7 +13,6 @@ import objot.codec.ErrThrow;
 
 public class ServiceInfo
 {
-	public final Codec codec;
 	public final String name;
 	public final Class<?> cla;
 	public final Method meth;
@@ -21,7 +20,6 @@ public class ServiceInfo
 
 	public ServiceInfo(Codec c, String name_, Method m) throws Exception
 	{
-		codec = c;
 		name = name_;
 		cla = m.getDeclaringClass();
 		meth = m;
@@ -57,10 +55,5 @@ public class ServiceInfo
 				throw (Error)_;
 			throw new Exception(_);
 		}
-	}
-
-	public CharSequence resp(Object o) throws Exception
-	{
-		return codec.enc(o, cla);
 	}
 }
