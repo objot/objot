@@ -169,8 +169,8 @@ public abstract class Container
 	 *      ...
 	 *      return o;
 	 *   -2: A o = new A((A1)get0(5), (Object)create0(-7, this), (A4)objss[2][1]);
-	 *      if (parentOrSave != null)
-	 *        o0 = o;
+	 *      if (parentOrSave == null)
+	 *        o0 = o; // {@link Inject.Single}
 	 *      o.x = (Ax)get0(3); // bind to index 3
 	 *      o.y = (Ay)objss[2][2]; // bind to object
 	 *      o.p((Ap)objss[2][3]);
@@ -190,7 +190,7 @@ public abstract class Container
 	 *   ...
 	 * }</pre>
 	 * 
-	 * @param parentOrSave container: parent, others: null to save
+	 * @param parentOrSave parent when create container, null to save when create others
 	 */
 	abstract <T>T create0(int index, Container parentOrSave);
 

@@ -18,6 +18,7 @@ import objot.util.Mod2;
 
 import org.hibernate.SessionFactory;
 
+import chat.service.Data;
 import chat.service.Do;
 import chat.service.Session;
 import chat.service.Do.Service;
@@ -26,9 +27,10 @@ import chat.service.Do.Service;
 public class Services
 {
 	/** @return container of services which parent is for session */
-	public static Container build(final SessionFactory d, final Codec codec) throws Exception
+	public static Container build(final Codec codec, final SessionFactory hib)
+		throws Exception
 	{
-		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, CodecAs.class)
+		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, EncAs.class)
 		{
 			@Override
 			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
@@ -54,7 +56,7 @@ public class Services
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return c == SessionFactory.class ? b.obj(d) : b;
+				return c == SessionFactory.class ? b.obj(hib) : b;
 			}
 		}.create(null);
 		Factory f = new Factory(Codec.class)
@@ -75,19 +77,21 @@ public class Services
 		return f.create(sess, false);
 	}
 
-	static final class CodecAs
+	static final class EncAs
 		extends Aspect
 	{
 		@Inject
 		public Codec codec;
+		@Inject
+		public Data data;
 
 		@Override
 		protected void aspect() throws Throwable
 		{
 			Target.invoke();
-			if (Target.<Do>getThis().data.deep == 1
+			if (Target.<Do>getThis().data.depth == 1
 				&& Target.<Void>getReturnClass() != void.class)
-				codec.enc(Target.getReturn(), Target.getClazz());
+				data.enc = codec.enc(Target.getReturn(), Target.getClazz());
 		}
 	}
 }

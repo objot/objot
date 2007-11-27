@@ -63,7 +63,7 @@ public class CodecServlet
 	protected CharSequence service(HttpServletRequest hReq, ServiceInfo inf, Object... reqs)
 		throws Exception
 	{
-		return inf.resp(inf.invoke(null, reqs));
+		return codec.enc(inf.invoke(null, reqs), inf.cla);
 	}
 
 	// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -159,12 +159,12 @@ public class CodecServlet
 			{
 				if (e.log)
 					context.log("", e);
-				p = inf.resp(e.err);
+				p = error(inf, e.err);
 			}
 			catch (Exception e)
 			{
 				context.log("", e);
-				p = inf.resp(new Err(e));
+				p = error(inf, new Err(e));
 			}
 			if (p == null)
 				hp.setContentLength(0);
@@ -191,5 +191,10 @@ public class CodecServlet
 		{
 			throw new ServletException(e);
 		}
+	}
+
+	protected CharSequence error(ServiceInfo inf, Err e) throws Exception
+	{
+		return codec.enc(e, inf.cla);
 	}
 }

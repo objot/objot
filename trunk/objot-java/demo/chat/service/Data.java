@@ -18,11 +18,13 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
 
-/** Delegated {@link org.hibernate.Session} */
 public class Data
 {
+	/** Delegated {@link org.hibernate.Session} */
 	public Session hib;
-	public int deep;
+	public int depth;
+	/** encoded service result */
+	public CharSequence enc;
 
 	/** @see Hibernate#initialize */
 	public <T>T fetch(T o)

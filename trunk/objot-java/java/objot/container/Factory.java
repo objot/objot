@@ -47,13 +47,14 @@ public class Factory
 		return classes.containsKey(cla);
 	}
 
+	/** @param cla primitive forbidden */
 	public final synchronized void bind(Class<?> cla)
 	{
-		if (cla.isPrimitive())
-			cla = Class2.box(cla, false);
 		Bind.Clazz c = classes.get(cla);
 		if (c != null)
 			return;
+		if (cla.isPrimitive())
+			throw new IllegalArgumentException("binding " + cla + " forbidden: primitive");
 		if (cla != Container.class && Container.class.isAssignableFrom(cla))
 			throw new IllegalArgumentException("binding " + cla + " forbidden");
 		if ( !Mod2.match(cla, Mod2.PUBLIC))
@@ -65,7 +66,7 @@ public class Factory
 			c.cla(cla).mode(a != null ? a.annotationType() : Inject.Single.class);
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
 			doBind(cla, to);
-			to(c.cla, c, to);
+			to(false, c, to);
 			if (c.b != c || c.mode == null)
 				return;
 			if (c.b == c && Mod2.match(cla, Mod2.ABSTRACT))
@@ -83,7 +84,7 @@ public class Factory
 			{
 				Bind b = c.t.ps[i] = new Bind().cla(ps[i].cla);
 				doBind(cla, ps[i], b.cla, ps[i].generic, to = new Bind().cla(b.cla));
-				to(ps[i].cla, b, to);
+				to(ps[i].cla.isPrimitive(), b, to);
 			}
 
 			@SuppressWarnings("unchecked")
@@ -109,7 +110,7 @@ public class Factory
 					f.f = (Field)fms[i];
 					f.cla(f.f.getType());
 					doBind(cla, f.f, f.cla, f.f.getGenericType(), to = new Bind().cla(f.cla));
-					to(f.f.getType(), f, to);
+					to(f.f.getType().isPrimitive(), f, to);
 				}
 				else
 				{
@@ -121,7 +122,7 @@ public class Factory
 					{
 						Bind b = m.ps[j] = new Bind().cla(ps[j].cla);
 						doBind(cla, ps[j], b.cla, ps[j].generic, to = new Bind().cla(b.cla));
-						to(ps[j].cla, b, to);
+						to(ps[j].cla.isPrimitive(), b, to);
 					}
 				}
 		}
@@ -221,7 +222,7 @@ public class Factory
 			cs[i++] = c;
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind.Clazz c: cs)
-				ok |= c != null && c.b != bind2(c).b;
+				ok |= c != null && c.b != bindSpread(c).b;
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind.Clazz c: cs)
 			if (c != null && c.os == null)
@@ -230,18 +231,18 @@ public class Factory
 				if (c.t != null)
 				{
 					for (Bind p: c.t.ps)
-						if (bind2(p).b == null)
+						if (bindSpread(p).b == null)
 							os.add(p.obj);
 					c.maxParamN = c.t.ps.length;
 					for (Bind.FM fm: c.fms)
 						if (fm.m != null)
 						{
 							for (Bind p: fm.ps)
-								if (bind2(p).b == null)
+								if (bindSpread(p).b == null)
 									os.add(p.obj);
 							c.maxParamN = Math.max(c.maxParamN, fm.ps.length);
 						}
-						else if (bind2(fm).b == null)
+						else if (bindSpread(fm).b == null)
 							os.add(fm.obj);
 				}
 				c.os = os.toArray();
@@ -259,7 +260,7 @@ public class Factory
 	private Container con;
 
 	/** @param b its {@link Bind#cla} may be unboxed */
-	private void to(Class<?> c0, Bind b, Bind to) throws Exception
+	private void to(boolean primitive, Bind b, Bind to) throws Exception
 	{
 		if (to.cla == null)
 			if (to.obj == null || b.cla.isAssignableFrom(to.obj.getClass())
@@ -277,11 +278,11 @@ public class Factory
 			b.b = classes.get(to.cla);
 			b.mode = to.mode;
 		}
-		if (c0.isPrimitive())
+		if (primitive)
 			b.cla = Class2.unbox(b.cla, false);
 	}
 
-	private Bind bind2(Bind b)
+	private Bind bindSpread(Bind b)
 	{
 		if (b.b != b && b.b != null)
 		{
