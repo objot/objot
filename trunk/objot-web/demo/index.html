@@ -26,16 +26,18 @@ table { width:100%; }
 
 /*********************************************************************************************/
 
-.HTTP-icon,
-.ERR-icon {
+.Http,
+.Err {}
+.Http-icon,
+.Err-icon {
 	padding:0 8px; font-size:16px; /* -moz-inline-box issue */
 	#display:inline-block; #padding:0; #width:16px; #height:16px;
 }
-.HTTP-icon { background:url(http.gif) no-repeat 0 center; }
-.ERR { color:red; }
-.ERR-icon { background:#e66 url(error.gif) no-repeat 0 center; }
+.Http-icon { background:url(http.gif) no-repeat 0 center; }
+.Err-icon { background:#e66 url(error.gif) no-repeat 0 center; }
+.Err-text { margin-left:1ex; color:red }
 
-.POP-back { background:black; opacity:0.6; filter:alpha(opacity=60); }
+.Pop-back { background:black; opacity:0.6; filter:alpha(opacity=60); }
 
 /*********************************************************************************************/
 
@@ -46,8 +48,7 @@ table { width:100%; }
 }
 #SignIn label { width:12ex; }
 #SignIn input { #width: 20ex; }
-#SignIn .HTTP-icon { margin-left:1ex; }
-#SignIn .ERR-icon { margin-right:1ex; }
+#SignIn .Http { margin-left:1ex; }
 
 #SignOut { margin:0 1em 1ex; text-align:right; }
 
@@ -55,8 +56,8 @@ table { width:100%; }
 
 #Me { width:30%; padding:1em; vertical-align:top; background:#e8f0ff; }
 #Me .min { width:16em; height:0; }
-#Me .HTTP-icon,
-#Me .ERR-icon { margin-left:1ex; }
+#Me .Http,
+#Me .Err { margin-left:1ex; }
 
 #Me .name { display:block; clear:both; float:left; }
 #Me .do { display:block; clear:right; float:right; }
@@ -67,8 +68,8 @@ table { width:100%; }
 
 #Chatss { width:60%; padding:1em; vertical-align:top; background:#fff0e8; }
 #Chatss .min { width:30em; height:0; }
-#Chatss .HTTP-icon,
-#Chatss .ERR-icon { margin-left:1ex; }
+#Chatss .Http,
+#Chatss .Err { margin-left:1ex; }
 
 #Chatss .tabs { display:block; clear:both; float:left; }
 #Chatss .do { display:block; clear:right; float:right; }
