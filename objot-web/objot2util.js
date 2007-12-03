@@ -128,7 +128,7 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 		h.$this0 !== undefined && h.$done0.call(h.$this0);
 		var ok = false, err = false;
 		if (code == 0)
-			(res = $dec(res)) instanceof Err ? err = res : ok = res;
+			(res = $dec(res, $Do.byName, $Do.decoded)) instanceof Err ? err = res : ok = res;
 		else if (code > 0)
 			err = new Err('HTTP Error ' + code + ' ' + res);
 		h.$this1 !== undefined && h.$done1.call(h.$this1, ok, err, h);
@@ -139,7 +139,11 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 /** url prefix */
 $Do.Url = '';
 /** default timeout milliseconds */
-$Do.Timeout = 30000; 
+$Do.Timeout = 30000;
+/** @see $dec */
+$Do.byName = null;
+/** @see $dec */
+$Do.decoded = null;
 
 /** default callback delay after HTTP round end */
 $http.doneDelay = 300;
@@ -174,9 +178,9 @@ $.opacity = $fos ? function (d, v) {
  * @param h return value of $Do
  * @return the box, inner des() includes http stop */
 $Http = function (box, h) {
-	var i = $s('c', 'HTTP-icon', 'title', h.$hint + '... Stop?', 'dblclick', h);
+	var i = $s('c', 'Http-icon', 'title', h.$hint + '... Stop?', 'dblclick', h);
 	i.$http = h, i.des = h.$done0 = $Http.des, h.$this0 = i;
-	return box.des(0).cla(0, 'ERR').cla('HTTP').add(i);
+	return box.des(0).cla(0, 'Err').cla('Http').add(i);
 }
 	$Http.des = function () {
 		if (arguments.length == 0)
@@ -193,9 +197,10 @@ $Err = function (box, err, show, noStack) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
 	noStack || $fos && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
-	box.des(0), show === true && box.tx(err, true), box.add(0, $s('c', 'ERR-icon'));
-	show === true || box.firstChild.attr('title', err).attach('dblclick', $.f(show));
-	return box.cla(0, 'HTTP').cla('ERR');
+	box.des(0).add($s('c', 'Err-icon'));
+	show === true ? box.add($s('c', 'Err-text').tx(err, true))
+		: box.firstChild.attr('title', err).attach('dblclick', $.f(show));
+	return box.cla(0, 'Http').cla('Err');
 }
 $Err.onHint = function () {
 	alert(this.title); // popup better
@@ -205,9 +210,9 @@ $Err.onHint = function () {
 /** overlay the document body with a layer containing an inner box.
  * @return the popup layer */
 $Pop = function (inner) {
-	var box = $d('c', 'POP',
+	var box = $d('c', 'Pop',
 		's', 'position:fixed; z-index:10000; width:100%; height:100%; top:0; left:0').add(
-		$d('c', 'POP-back', 's', 'position:absolute; width:100%; height:100%'),
+		$d('c', 'Pop-back', 's', 'position:absolute; width:100%; height:100%'),
 		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
 			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add($td()
 				.attr('valign', 'center').attr('align', 'center').add(inner)
