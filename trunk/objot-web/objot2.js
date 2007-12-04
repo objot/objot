@@ -380,13 +380,13 @@ $dom.add = function (index) {
 }
 /** remove children, or remove self if no argument,
  * or remove len children from Math.max(index, 0), or remove to last if !(len > 0) 
- * or replace second argument if index === true.
+ * or replaced by second argument if index === true.
  * @return this */
 $dom.rem = function (index, len) {
 	if (arguments.length == 0)
 		this.parentNode && this.parentNode.removeChild(this);
 	else if (index === true)
-		$.o(len.parentNode).replaceChild(this, len);
+		$.o(this.parentNode).replaceChild(len, this);
 	else if (index >= 0 || index < 0) {
 		var s = this.childNodes;
 		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null;
@@ -405,16 +405,16 @@ $dom.des = function (index, len) {
 		this.parentNode && this.parentNode.removeChild(this),
 		index = 0;
 	if (index === true)
-		$.o(len.parentNode).replaceChild(this, len),
-		len.des ? len.des() : $dom.des.call(len);
+		$.o(this.parentNode).replaceChild(len, this),
+		this.des ? this.des() : $dom.des.call(this);
 	else if (index >= 0 || index < 0) {
 		var s = this.childNodes;
 		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null;
 		for (var x = s[index], y; x != len; x = y)
 			y = x.nextSibling, x.des ? x.des() : $dom.des.call(x);
 	} else
-		for (var x = 0; x < arguments.length; x++)
-			arguments[x].des ? arguments[x].des() : $dom.des.call(arguments[x]);
+		for (var x = 0, y; x < arguments.length; x++)
+			(y = arguments[x]).des ? y.des() : $dom.des.call(y);
 	return this;
 }
 
