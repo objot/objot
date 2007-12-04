@@ -107,19 +107,19 @@ public @interface Transac
 		@Override
 		protected void aspect() throws Throwable
 		{
+			if (LOG.isDebugEnabled())
+				if (data.depth == 0)
+					LOG.debug("================ " + Target.getClazz().getName() + "-"
+						+ Target.getName() + " ================");
+				else
+					LOG.debug("---------------- " + Target.getClazz().getName() + "-"
+						+ Target.getName() + " ----------------");
+			if (data.depth == 0)
+				data.hib = factory.openSession();
 			boolean ok = false;
 			data.depth++;
 			try
 			{
-				if (LOG.isDebugEnabled())
-					if (data.depth == 1)
-						LOG.debug("================ " + Target.getClazz().getName() + "-"
-							+ Target.getName() + " ================");
-					else
-						LOG.debug("---------------- " + Target.getClazz().getName() + "-"
-							+ Target.getName() + " ----------------");
-				if (data.depth == 1)
-					data.hib = factory.openSession();
 				begin((SessionImpl)data.hib, Target.<Config>getData());
 				Target.invoke();
 				data.flush();
