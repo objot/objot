@@ -145,6 +145,12 @@ public class Array2
 		return x == null ? DOUBLES0 : x;
 	}
 
+	/** @return the string, or "" if the string is null */
+	public static String maskNull(String x)
+	{
+		return x == null ? "" : x;
+	}
+
 	/** @return the array, or null if the array is the reused empty array */
 	public static boolean[] unmaskNull(boolean[] x)
 	{
@@ -187,9 +193,16 @@ public class Array2
 		return x == FLOATS0 ? null : x;
 	}
 
+	/** @return the array, or null if the array is the reused empty array */
 	public static double[] unmaskNull(double[] x)
 	{
 		return x == DOUBLES0 ? null : x;
+	}
+
+	/** @return the string, or null if the string is "" */
+	public static String unmaskNull(String x)
+	{
+		return x == null || x.length() > 0 ? x : null;
 	}
 
 	/**

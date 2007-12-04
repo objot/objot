@@ -134,8 +134,7 @@ _SignIn = function (box, thisOk, onOk) {
 
 _SignIn.prototype = {
 	doKey: function (e) {
-		if (e.which === 13)
-			this.doSign();
+		e.which === 13 && this.doSign();
 	},
 	doSign: function () {
 		this.submit.disabled = true, this.submit.blur();
