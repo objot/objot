@@ -378,7 +378,7 @@ window.onload = function () {
 	var box = $s();
 	var pop = $Pop(box);
 	$Http(box, DoSign.out(this, function () {
-		box = $s('id', 'SignIn').des(true, box);
+		box.des(true, box = $s('id', 'SignIn'));
 		new _SignIn(box, null, function () {
 			pop.des(), start();
 		});
