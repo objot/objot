@@ -119,7 +119,7 @@ $class(true, 'Errs', Err);
  * @param done1 called after HTTP round end, skipped if this1 missing.
  * @return same as $http */
 $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
-	var h = $http($Do.Url + service, $Do.Timeout, req, $Do.done);
+	var h = $http($Do.url + service, $Do.timeout, req, $Do.done);
 	h.$hint = hint, h.$this3 = this3, h.$done3 = done3,
 		h.$this2 = this2, h.$done2 = done2, h.$this1 = this1, h.$done1 = done1;
 	return h;
@@ -137,9 +137,9 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 	}
 
 /** url prefix */
-$Do.Url = '';
+$Do.url = '';
 /** default timeout milliseconds */
-$Do.Timeout = 30000;
+$Do.timeout = 30000;
 /** @see $dec */
 $Do.byName = null;
 /** @see $dec */

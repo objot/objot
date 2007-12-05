@@ -9,8 +9,8 @@ onerror = function(m, f, l) {
 	return true;
 }
 
-$Do.Url = '/objot/service/';
-$Do.Timeout = 5000;
+$Do.url = '/objot/service/';
+$Do.timeout = 5000;
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -167,7 +167,7 @@ _Me = function (box) {
 	var This = this;
 	setInterval(function () {
 		This.http.firstChild == null && This.doReload();
-	}, this.ReloadInterval)
+	}, this.reloadInterval)
 }
 
 _Me.prototype = {
@@ -230,7 +230,7 @@ _Me.prototype = {
 	}
 }
 
-_Me.prototype.ReloadInterval = 15000;
+_Me.prototype.reloadInterval = 15000;
 _Me.prototype.thisUnsigned;
 _Me.prototype.onUnsigned;
 _Me.prototype.thisChat;
@@ -272,50 +272,50 @@ _Chatss = function (box) {
 			this.http = $s()),
 		this.chatss = $d('c', 'chatss')
 	);
-	this.Chatss = [];
-	this.Active = null;
-	this.Datime = DatimeMin;
+	this.chatss_ = [];
+	this.active = null;
+	this.datime = DatimeMin;
 	this.doPull();
 	var This = this;
 	setInterval(function () {
 		This.http.firstChild == null && This.doPull();
-	}, this.Interval)
+	}, this.interval)
 }
 
 _Chatss.prototype = {
 	doPull: function () {
-		$Http(this.http, DoChat.read(new Chat(null, null, this.Datime), this, this.donePull));
+		$Http(this.http, DoChat.read(new Chat(null, null, this.datime), this, this.donePull));
 	},
 	donePull: function (ok, err) {
 		if (ok) {
 			for (var x = 0; x < ok.length; x++) {
 				var c = ok[x];
 				this.doChat(c.out.id == _me.id ? c.In : c.out, true).doRead(c);
-				c.datime.getTime() > this.Datime.getTime() && (this.Datime = c.datime);
+				c.datime.getTime() > this.datime.getTime() && (this.datime = c.datime);
 			}
 		}
 		err && $Err(this.http, err);
 	},
 
 	doChat: function (oppoUser, keepAct) {
-		var c = this.Chatss.indexOf(oppoUser.id, 0, 'OppoId');
+		var c = this.chatss_.indexOf(oppoUser.id, 0, 'oppoId');
 		if (c >= 0)
-			c = this.Chatss[c]
+			c = this.chatss_[c]
 		else
-			c = new _Chats(this, oppoUser), this.Chatss.push(c);
-		return this.Active != null && keepAct || c.doAct(), c;
+			this.chatss_.push(c = new _Chats(this, oppoUser));
+		return this.active != null && keepAct || c.doAct(), c;
 	}
 }
 
-_Chatss.prototype.Interval = 3000;
+_Chatss.prototype.interval = 3000;
 
 //********************************************************************************************//
 
 _Chats = function (chatss, oppoUser) {
-	this.Chatss = chatss;
-	this.OppoId = oppoUser.id;
-	this.Oppo = oppoUser;
-	this.OutDatime = DatimeMin;
+	this.chatss = chatss;
+	this.oppo = oppoUser;
+	this.oppoId = oppoUser.id;
+	this.outDatime = DatimeMin;
 	chatss.tabs.add(
 		this.tab = $a0('c', 'tab', 'click', this.doAct, this).tx(oppoUser.name));
 	chatss.chatss.add(
@@ -331,18 +331,18 @@ _Chats.prototype = {
 		this.chats.show(false), this.post.show(false), this.submit.show(false);
 	},
 	doAct: function () {
-		var a = this.Chatss.Active;
+		var a = this.chatss.active;
 		if (a != this) {
 			a && a.doInact();
 	 		this.tab.cla(0, 'tabNew').cla('tabAct'), this.chats.show(true),
 			this.post.show(true).focus(), this.submit.show(true);
-			this.Chatss.Active = this;
+			this.chatss.active = this;
 		}
 	},
 
 	doRead: function (chat) {
 		var out = chat.out.id == _me.id;
-		if (out && chat.datime.getTime() <= this.OutDatime.getTime())
+		if (out && chat.datime.getTime() <= this.outDatime.getTime())
 			return;
 		var c = out ? ' out' : ' in';
 		var d = chat.datime;
@@ -351,22 +351,22 @@ _Chats.prototype = {
 		this.chats.add(d, $s('c', 'name' + c).tx(chat.out.name),
 			$d('c', 'text' + c).tx(chat.text, true));
 		d.scrollIntoView();
-		out && (this.OutDatime = chat.datime);
-		if (this.Chatss.Active != this)
+		out && (this.outDatime = chat.datime);
+		if (this.chatss.active != this)
 			this.tab.cla('tabNew');
 	},
 
 	doPost: function () {
 		this.Post = this.post.value;
-		$Http(this.Chatss.http, DoChat.post(this.Oppo, this.Post, this, this.donePost));
+		$Http(this.chatss.http, DoChat.post(this.oppo, this.Post, this, this.donePost));
 	},
 	donePost: function (ok, err) {
 		if (ok) {
-			ok.out = _me, ok.In = this.Oppo, ok.text = this.Post;
+			ok.out = _me, ok.In = this.oppo, ok.text = this.Post;
 			this.doRead(ok);
 			this.post.value == this.Post && (this.post.value = '');
 		}
-		err && $Err(this.Chatss.http, err);
+		err && $Err(this.chatss.http, err);
 	}
 }
 
