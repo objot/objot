@@ -5,8 +5,9 @@
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
@@ -22,9 +23,6 @@ import java.util.logging.LogRecord;
 public class SimpleFormatter
 	extends Formatter
 {
-	static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-		"yyyy-MM-dd HH:mm:ss.SSS");
-
 	@Override
 	public String format(LogRecord log)
 	{
@@ -35,7 +33,7 @@ public class SimpleFormatter
 		StringBuilder s = new StringBuilder();
 		if (sys)
 			s.append(log.getLevel().getName()).append(' ');
-		s.append(DATE_FORMAT.format(new Date(log.getMillis()))).append("\t");
+		format(s, new Date(log.getMillis())).append("\t");
 		s.append(m.length() > 0 || log.getThrown() == null ? m : log.getThrown());
 		if (sys && log.getSourceClassName() != null)
 			s.append("\t---- ").append(log.getSourceClassName()).append('-').append(
@@ -48,5 +46,20 @@ public class SimpleFormatter
 			s.append(w.toCharArray()).append("\n");
 		}
 		return s.toString();
+	}
+
+	StringBuilder format(StringBuilder x, Date date)
+	{
+		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT+0"));
+		c.setTime(date);
+		int y = c.get(Calendar.YEAR), M = c.get(Calendar.MONTH) + 1, d = c.get(Calendar.DATE);
+		int h = c.get(Calendar.HOUR), m = c.get(Calendar.MINUTE), s = c.get(Calendar.SECOND);
+		int ms = c.get(Calendar.MILLISECOND);
+		x.append(y).append('-').append(M / 10).append(M % 10).append('-');
+		x.append(d / 10).append(d % 10).append(' ');
+		x.append(h / 10).append(h % 10).append(':').append(m / 10).append(m % 10).append(':');
+		x.append(s / 10).append(s % 10).append('.');
+		x.append(ms / 100).append(ms % 100 / 10).append(ms % 10);
+		return x;
 	}
 }
