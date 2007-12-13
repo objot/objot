@@ -403,7 +403,7 @@ final class Decoder
 						+ " forbidden for " + p.cla);
 				}
 			}
-			if (m != null)
+			else if (m != null)
 				if (c == 0)
 					m.put(n, str());
 				else if (c == '[')

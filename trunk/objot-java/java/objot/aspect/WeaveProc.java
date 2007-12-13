@@ -307,12 +307,14 @@ final class WeaveProc
 
 	private void opSetReturn()
 	{
-		ws.insUnboxNarrow(returnCla);
 		if (returnCla == void.class)
 			ws.ins0(POP);
 		else
+		{
+			ws.insUnboxNarrow(returnCla);
 			ws.insU1wU2(Opcode.getStoreOp(wp.getReturnTypeChar()), ao.getLocalN()
 				+ wp.getParamLocalN());
+		}
 	}
 
 	private boolean opCtor(int ad)
