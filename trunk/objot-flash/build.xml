@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of the GNU General Public License version 2
+//
+-->
+<!-- requirement: add property 'flex.home' to Ant preference in workspace -->
+<project name="objot-flash" default="all">
+
+	<property name=".version" value="20" />
+
+	<property name=":" value="${path.separator}" />
+	<property name=".source.flash" value="flash" />
+	<property name=".archive" value="objot-flash-${.version}.swc" />
+
+	<target name="flash">
+		<java classpath="${flex.home}/lib" jar="${flex.home}/lib/compc.jar" fork="true">
+			<arg value="-load-config=build.config.xml" />
+		</java>
+	</target>
+
+	<target name="all" depends="flash" />
+
+</project>
