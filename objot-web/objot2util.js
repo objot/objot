@@ -176,9 +176,11 @@ $.opacity = $fos ? function (d, v) {
 
 /** make a box as a HTTP widget, double click to stop http.
  * @param h return value of $Do
+ * @param show the widget contains http hint text if true
  * @return the box, inner des() includes http stop */
-$Http = function (box, h) {
+$Http = function (box, h, show) {
 	var i = $s('c', 'Http-icon', 'title', h.$hint + '... Stop?', 'dblclick', h);
+	show && i.add($s('c', 'Http-text').tx(h.$hint));
 	i.$http = h, i.des = h.$done0 = $Http.des, h.$this0 = i;
 	return box.des(0).cla(0, 'Err').cla('Http').add(i);
 }
