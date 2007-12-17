@@ -303,7 +303,7 @@ final class Decoder
 
 	private Object listElem(char c, Class<?> elem) throws Exception
 	{
-		if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*')
+		if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*' || c == '/')
 			bxy();
 		if (c == 0)
 			return Class2.cast(Clob.class.isAssignableFrom(elem) ? clob() : str(), elem);
@@ -355,7 +355,7 @@ final class Decoder
 			String n = str();
 			bxy();
 			c = chr();
-			if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*')
+			if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*' || c == '/')
 				bxy();
 
 			Property p = z.decs.get(n);
