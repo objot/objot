@@ -21,8 +21,7 @@ public class Codec extends Object
 					if ( !(encs[y] is String))
 						throw new Error(Util.s(encs) + ' must no contain ' + Util.s(encs[y]));
 				s.push(encs);
-			}
-			else
+			} else
 				throw new TypeError(Util.s(encs) + ' must be array or null');
 		}
 	}
@@ -106,15 +105,24 @@ public class Codec extends Object
 		if (refs[o])
 			s[x++] = ':', s[x++] = refs[o] = String(++refX);
 		for (var i:int = 0, v:Object; i < o.length; i++)
-			if (v = o[i], v is Class)
-				s[x++] = '/', s[x++] = encName(v as Class); 
-			else if (! (v is Function)) 
-				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
-					: v is Number ? String(v) : v is String ? (s[x++] = v, '')
-					: refs[v] is String ? (s[x++] = refs[v], '=')
-					: v is Date ? (s[x++] = v.getTime(), '*')
-					: v is Array ? (x = encL(v as Array, s, x), '[')
-					: (x = encO(v, s, x), '{');
+			if (v = o[i], v == null)
+				s[x++] = '.';
+			else if (v is Boolean)
+				s[x++] = v ? '>' : '<';
+			else if (v is Number)
+				s[x++] = String(v); 
+			else if (v is String)
+				s[x++] = '', s[x++] = v;
+			else if (v is Date)
+				s[x++] = '*', s[x++] = v.getTime();
+			else if (v is Class)
+				s[x++] = '/', s[x++] = encName(v as Class);
+			else if (refs[v] is String)
+				s[x++] = '=', s[x++] = refs[v];
+			else if (v is Array)
+				s[x++] = '[', x = encL(v as Array, s, x);
+			else if ( !(v is Function))
+				s[x++] = '{', x = encO(v, s, x);
 		s[x++] = ']';
 		return x;
 	}
@@ -122,7 +130,8 @@ public class Codec extends Object
 	private function encO(o:Object, s:Array, x:int):int {
 		s[x++] = name(o, o.constructor);
 		var enc:Array, p:String, v:Object;
-		refs[o] && (s[x++] = ':', s[x++] = refs[o] = String(++refX));
+		if (refs[o])
+			s[x++] = ':', s[x++] = refs[o] = String(++refX);
 		P: {
 			G: if ((enc = o.constructor[RULE])) {
 				for (var c = s.clazz, g:int = enc.length - 2; g >= 0; g -= 2)
@@ -131,16 +140,25 @@ public class Codec extends Object
 
 		for (var n:int = 0; n < enc.length; n++)
 			if ((p = enc[n]) in o)
-			if (v = o[p], v is Class)
-				s[x++] = p, s[x++] = '/', s[x++] = encName(v as Class); 
-			else if (! (v is Function)) 
-				s[x++] = p,
-				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
-					: v is Number ? String(v) : v is String ? (s[x++] = v, '')
-					: refs[v] is String ? (s[x++] = refs[v], '=')
-					: v is Date ? (s[x++] = v.getTime(), '*')
-					: v is Array ? (x = encL(v as Array, s, x), '[')
-					: (x = encO(v, s, x), '{');
+			if (v = o[p], !(v is Function))
+				if (s[x++] = p, v == null)
+					s[x++] = '.';
+				else if (v is Boolean)
+					s[x++] = v ? '>' : '<';
+				else if (v is Number)
+					s[x++] = String(v); 
+				else if (v is String)
+					s[x++] = '', s[x++] = v;
+				else if (v is Date)
+					s[x++] = '*', s[x++] = v.getTime();
+				else if (v is Class)
+					s[x++] = '/', s[x++] = encName(v as Class);
+				else if (refs[v] is String)
+					s[x++] = '=', s[x++] = refs[v];
+				else if (v is Array)
+					s[x++] = '[', x = encL(v as Array, s, x);
+				else
+					s[x++] = '{', x = encO(v, s, x);
 
 							break P;
 						}
@@ -150,16 +168,25 @@ public class Codec extends Object
 			}
 		for (p in o)
 			if (o.hasOwnProperty(p))
-			if (v = o[p], v is Class)
-				s[x++] = p, s[x++] = '/', s[x++] = encName(v as Class); 
-			else if (! (v is Function)) 
-				s[x++] = p,
-				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
-					: v is Number ? String(v) : v is String ? (s[x++] = v, '')
-					: refs[v] is String ? (s[x++] = refs[v], '=')
-					: v is Date ? (s[x++] = v.getTime(), '*')
-					: v is Array ? (x = encL(v as Array, s, x), '[')
-					: (x = encO(v, s, x), '{');
+			if (v = o[p], !(v is Function))
+				if (s[x++] = p, v == null)
+					s[x++] = '.';
+				else if (v is Boolean)
+					s[x++] = v ? '>' : '<';
+				else if (v is Number)
+					s[x++] = String(v); 
+				else if (v is String)
+					s[x++] = '', s[x++] = v;
+				else if (v is Date)
+					s[x++] = '*', s[x++] = v.getTime();
+				else if (v is Class)
+					s[x++] = '/', s[x++] = encName(v as Class);
+				else if (refs[v] is String)
+					s[x++] = '=', s[x++] = refs[v];
+				else if (v is Array)
+					s[x++] = '[', x = encL(v as Array, s, x);
+				else
+					s[x++] = '{', x = encO(v, s, x);
 		}
 		s[x++] = '}';
 		return x;
