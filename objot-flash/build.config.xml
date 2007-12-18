@@ -35,7 +35,7 @@
 		<!-- false by default for mxmlc, true by default for compc -->
 		<debug>true</debug>
 		<!-- Show stack traces for uncaught errors -->
-		<verbose-stacktraces>true</verbose-stacktraces>
+		<verbose-stacktraces>false</verbose-stacktraces>
 
 		<!-- Bindable, Managed, ChangeEvent, NonCommittingChangeEvent, Transient are for Flex -->
 		<keep-as3-metadata>
