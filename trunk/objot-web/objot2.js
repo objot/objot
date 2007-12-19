@@ -77,7 +77,7 @@ $enc = function (o, forClass) {
 	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
 	s.clazz = $.f(forClass);
 	try {
-		$enc.refX = 0, $enc.ref(o);
+		s.refX = 0, $enc.ref(o);
 		o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1);
 	} catch(_) {
 		try { $enc.unref(o); } catch(_) {}
@@ -90,7 +90,7 @@ $enc = function (o, forClass) {
 		if (o[''] = '' in o) // check and set multi reference flag
 			return;
 		if (o instanceof Array)
-			for (var x = 0; x < o.length; x ++)
+			for (var x = 0; x < o.length; x++)
 				typeof (ox = o[x]) !== 'string' ?
 				ox != null && typeof ox === 'object' && (ox instanceof Date || $enc.ref(ox))
 				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
@@ -104,13 +104,17 @@ $enc = function (o, forClass) {
 	}
 	$enc.unref = function (o, ox) {
 		if ('' in o && /*true*/delete o[''])
-			for (var x in o)
+			if (o instanceof Array)
+				for (var x = 0; x < o.length; x++)
+					(ox = o[x]) !== null && typeof ox === 'object'
+					&& (ox instanceof Date || $enc.unref(ox));
+			else for (var x in o)
 				o.hasOwnProperty(x) && (ox = o[x]) !== null && typeof ox === 'object'
 					&& (ox instanceof Date || $enc.unref(ox));
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length);
-		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++$enc.refX));
+		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++s.refX));
 		for (var i = 0, v, t; i < o.length; i++)
 			if (v = o[i], (t = typeof v) !== 'function')
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
@@ -127,7 +131,7 @@ $enc = function (o, forClass) {
 	$enc.o = function (o, s, x) {
 		s[x++] = o.constructor.$name$;
 		var v, t, enc;
-		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++$enc.refX));
+		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++s.refX));
 		P: {
 			G: if (enc = o.constructor.$encs) {
 				for (var c = s.clazz, g = enc.length - 2; g >= 0; g -= 2)
@@ -213,7 +217,7 @@ $dec = function (s, byName, ok) {
 				case '/': o[p] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
 				case '[': x = $dec.l(s, x); o[p] = s.o; break;
 				case '{': x = $dec.o(s, x); o[p] = s.o; break;
-				case '=': o[p] = $dec.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
+				case '=': o[p] = $dec.r[s[x++]]; break; case 'NaN': o[p] = NaN; break;
 				default: isNaN(o[p] = v - 0) && $throw('illegal number ' + $S(v));
 			}
 		s.o = o, s.ok && s.ok(o);
@@ -569,7 +573,8 @@ $.c = function ($_$, $_$_, $_$$) {
 	/* class cache */
 	$.cs$ = { '':Object, "'":String, '<':Boolean, 0:Number };
 	$.cs = { '':Object }, $class(true, 'Object'), delete $.cs$.Object;
-	(function(s,n) { s['*'] = Date, s['['] = Array; for (n in s) s[n].$name$ = n; })($.cs$);
+	(function(s,n) { s['*'] = Date, s['['] = Array; // JSEclipse bug
+		for (n in s) s[n].$name$ = n; })($.cs$);
 
 /** copy another's own props. @return to */
 $.copy = function (to, from) {
