@@ -117,7 +117,7 @@
 		<!-- in random order -->
 		<warn-for-var-in-changes>false</warn-for-var-in-changes>
 		<warn-import-hides-class>true</warn-import-hides-class>
-		<warn-instance-of-changes>true</warn-instance-of-changes>
+		<warn-instance-of-changes>false</warn-instance-of-changes>
 		<warn-internal-error>true</warn-internal-error>
 		<!-- _level is no longer supported. See flash.display package. -->
 		<warn-level-not-supported>true</warn-level-not-supported>
