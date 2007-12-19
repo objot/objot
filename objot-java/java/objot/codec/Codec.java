@@ -17,7 +17,7 @@ public class Codec
 	public static final char S = '\20'; // Ctrl-P in vim
 
 	/**
-	 * @param o the whole gettable object graph must keep unchanged since the references
+	 * @param o the whole encoded object graph must keep unchanged since the references
 	 *            detection is not thread safe
 	 * @param for_ null is Object.class
 	 */
