@@ -92,9 +92,9 @@ public class ModelsCreate
 		{
 			data.save(o.id(0));
 			data.flush();
-			String q = "update " + data.getEntityName(o) + " set id=" + id + " where id=?";
-			// no evict or update query would cause HibernateException
 			data.evict(o);
+			// after evict, or HibernateException
+			String q = "update " + data.getEntityName(o) + " set id=" + id + " where id=?";
 			if (data.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
 				throw new Exception("failed persist " + o + " with id = " + id);
 			o.id(id);
