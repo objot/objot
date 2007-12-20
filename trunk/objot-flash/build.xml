@@ -11,12 +11,15 @@
 	<property name=".version" value="20" />
 
 	<property name=":" value="${path.separator}" />
-	<property name=".source.flash" value="flash" />
+	<property name=".source.flash.objot" value="flash/objot" />
 	<property name=".archive" value="objot-flash-${.version}.swc" />
 
 	<target name="flash">
 		<java classpath="${flex.home}/lib" jar="${flex.home}/lib/compc.jar" fork="true">
 			<arg value="-load-config=build.config.xml" />
+			<arg value="-external-library-path=${flex.home}/frameworks/libs/playerglobal.swc" />
+			<arg value="-include-sources=${.source.flash.objot}" />
+			<arg value="-output=objot-flash-${.version}.swc" />
 		</java>
 	</target>
 

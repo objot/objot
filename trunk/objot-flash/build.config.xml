@@ -15,13 +15,6 @@
 			<path-element>flash</path-element>
 		</source-path>
 		<actionscript-file-encoding>utf-8</actionscript-file-encoding>
-		<library-path>
-			<path-element>libs</path-element>
-			<path-element>locale/{locale}</path-element>
-		</library-path>
-		<external-library-path>
-			<path-element>libs/playerglobal.swc</path-element>
-		</external-library-path>
 		<include-libraries>
 			<!-- <library>path</library> -->
 		</include-libraries>
@@ -52,7 +45,7 @@
 		</theme>
 		<fonts>
 			<!-- Use FlashType embedded fonts, which provides greater clarity for small fonts -->
-			<flash-type>true</flash-type>
+			<flash-type>false</flash-type>
 			<!-- Cached embedded font faces -->
 			<max-cached-fonts>20</max-cached-fonts>
 			<!-- Cache characters for each font face -->
@@ -70,6 +63,7 @@
 				<manager-class>flash.fonts.JREFontManager</manager-class>
 				<manager-class>flash.fonts.BatikFontManager</manager-class>
 			</managers>
+			<local-fonts-snapshot></local-fonts-snapshot>
 		</fonts>
 
 		<show-actionscript-warnings>true</show-actionscript-warnings>
