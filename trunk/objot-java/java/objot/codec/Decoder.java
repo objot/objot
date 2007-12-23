@@ -18,6 +18,7 @@ import java.util.Map;
 
 import objot.util.Array2;
 import objot.util.Class2;
+import objot.util.Math2;
 
 
 final class Decoder
@@ -25,6 +26,8 @@ final class Decoder
 	private Codec codec;
 	private Class<?> forClass;
 	private char[] bs;
+	private int bFrom;
+	private int bEnd1;
 	private int bx;
 	private int by;
 	private Object[] refs;
@@ -33,11 +36,14 @@ final class Decoder
 	private boolean arrayForList;
 
 	/** @param for_ null is Object.class */
-	Decoder(Codec o, Class<?> for_, char[] s)
+	Decoder(Codec o, Class<?> for_, char[] s, int sFrom, int sEnd1)
 	{
 		codec = o;
 		forClass = for_ != null ? for_ : Object.class;
 		bs = s;
+		Math2.checkRange(sFrom, sEnd1, s.length);
+		bFrom = sFrom;
+		bEnd1 = sEnd1;
 	}
 
 	/** @param cla null is Object.class */
@@ -45,24 +51,24 @@ final class Decoder
 	{
 		arrayForList = codec.arrayForList();
 		cla = cla != null ? cla : Object.class;
-		bx = 0;
-		by = -1;
+		by = bFrom - 1;
 		bxy();
 		refs = new Object[28];
 		Object o;
-		if (bs[0] == '[')
+		if (bs[bx] == '[')
 		{
 			bxy();
 			o = list(cla, Object.class);
 		}
-		else if (bs[0] == '{')
+		else if (bs[bx] == '{')
 		{
 			bxy();
 			o = object(cla);
 		}
 		else
-			throw new RuntimeException("array or object expected but " + chr() + " at 0");
-		if (by < bs.length)
+			throw new RuntimeException("array or object expected but " + chr() + " at 0("
+				+ bFrom + ')');
+		if (by < bEnd1)
 			throw new RuntimeException("termination expected but " + (char)(bs[by] & 0xFF)
 				+ " at " + by);
 		return o;
@@ -71,9 +77,9 @@ final class Decoder
 	private int bxy()
 	{
 		bx = ++by;
-		if (bx >= bs.length)
+		if (bx >= bEnd1)
 			throw new RuntimeException("termination unexpected");
-		while (by < bs.length && bs[by] != Codec.S)
+		while (by < bEnd1 && bs[by] != Codec.S)
 			by++;
 		return bx;
 	}

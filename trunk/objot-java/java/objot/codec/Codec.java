@@ -32,7 +32,17 @@ public class Codec
 	 */
 	public Object dec(char[] s, Class<?> cla, Class<?> for_) throws Exception
 	{
-		return new Decoder(this, for_, s).go(cla);
+		return new Decoder(this, for_, s, 0, s.length).go(cla);
+	}
+
+	/**
+	 * @param cla null is Object.class
+	 * @param for_ null is Object.class
+	 */
+	public Object dec(char[] s, int sFrom, int sEnd1, Class<?> cla, Class<?> for_)
+		throws Exception
+	{
+		return new Decoder(this, for_, s, sFrom, sEnd1).go(cla);
 	}
 
 	/**
