@@ -26,7 +26,7 @@ final class Decoder
 	private Codec codec;
 	private Class<?> forClass;
 	private char[] bs;
-	private int bFrom;
+	private int bBegin;
 	private int bEnd1;
 	private int bx;
 	private int by;
@@ -36,13 +36,13 @@ final class Decoder
 	private boolean arrayForList;
 
 	/** @param for_ null is Object.class */
-	Decoder(Codec o, Class<?> for_, char[] s, int sFrom, int sEnd1)
+	Decoder(Codec o, Class<?> for_, char[] s, int sBegin, int sEnd1)
 	{
 		codec = o;
 		forClass = for_ != null ? for_ : Object.class;
 		bs = s;
-		Math2.checkRange(sFrom, sEnd1, s.length);
-		bFrom = sFrom;
+		Math2.checkRange(sBegin, sEnd1, s.length);
+		bBegin = sBegin;
 		bEnd1 = sEnd1;
 	}
 
@@ -51,7 +51,7 @@ final class Decoder
 	{
 		arrayForList = codec.arrayForList();
 		cla = cla != null ? cla : Object.class;
-		by = bFrom - 1;
+		by = bBegin - 1;
 		bxy();
 		refs = new Object[28];
 		Object o;
@@ -67,7 +67,7 @@ final class Decoder
 		}
 		else
 			throw new RuntimeException("array or object expected but " + chr() + " at 0("
-				+ bFrom + ')');
+				+ bBegin + ')');
 		if (by < bEnd1)
 			throw new RuntimeException("termination expected but " + (char)(bs[by] & 0xFF)
 				+ " at " + by);
