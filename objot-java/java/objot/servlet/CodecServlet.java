@@ -22,6 +22,7 @@ import objot.codec.Codec;
 import objot.codec.Err;
 import objot.codec.ErrThrow;
 import objot.util.Mod2;
+import objot.util.String2;
 
 
 public class CodecServlet
@@ -143,10 +144,10 @@ public class CodecServlet
 			{
 				InputStream in = hq.getInputStream();
 				byte[] s = new byte[len];
-				for (int from = 0, done; from < len; from += done)
-					if ((done = in.read(s, from, len - from)) < 0)
+				for (int begin = 0, done; begin < len; begin += done)
+					if ((done = in.read(s, begin, len - begin)) < 0)
 						throw new EOFException();
-				q = Codec.utf(s);
+				q = String2.utf(s);
 			}
 			try
 			{
@@ -170,7 +171,7 @@ public class CodecServlet
 				hp.setContentLength(0);
 			else
 			{
-				byte[] bs = Codec.utf(p);
+				byte[] bs = String2.utf(p);
 				hp.setContentLength(bs.length);
 				hp.getOutputStream().write(bs);
 			}
