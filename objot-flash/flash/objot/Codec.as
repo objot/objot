@@ -142,7 +142,7 @@ public class Codec extends Object
 		if (encRefs[o])
 			s[x++] = ':', s[x++] = encRefs[o] = String(++refX);
 		for (var i:int = 0, v:Object; i < o.length; i++)
-			if (v = o[i], v == null)
+			if ((v = o[i]) == null)
 				s[x++] = '.';
 			else if (v is Boolean)
 				s[x++] = v ? '>' : '<';
@@ -180,7 +180,7 @@ public class Codec extends Object
 						{
 							for (var n:int = 0; n < enc.length; n++)
 								if ((p = enc[n]) in o)
-								if (v = o[p], !(v is Function))
+								if ( !((v = o[p]) is Function))
 								{
 									s[x++] = p;
 									if (v == null)
@@ -210,7 +210,7 @@ public class Codec extends Object
 			}
 			for (p in o)
 				if (o.hasOwnProperty(p))
-				if (v = o[p], !(v is Function))
+				if ( !((v = o[p]) is Function))
 				{
 					s[x++] = p;
 					if (v == null)
