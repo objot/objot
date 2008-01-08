@@ -1,4 +1,4 @@
-package objot
+﻿package objot
 {
 
 import flash.utils.Dictionary;
@@ -8,8 +8,8 @@ import flash.utils.getQualifiedClassName;
 public class Codec extends Object
 {
 	/** add encoding rules to the SO class. former rules are overrided by later rules.
- 	 * (@param forClass key. @param encs what to encode, all if null)... */
-	public static function addRule(so:Class, forClass:Class, encs:Array):void
+ 	 * (@param forClass_ key. @param encs what to encode, all if null)... */
+	public static function addRule(so:Class, forClass_:Class, encs:Array):void
 	{
 		var s:Array = so[RULE] || (so[RULE] = []);
 		for (var x:int = 1; x < arguments.length; )
@@ -74,7 +74,8 @@ public class Codec extends Object
 	 * @param for_ rule key or subclass of rule key */
 	public function enc(o:Object, for_:Class):String
 	{
-		var s:Array = [o is Array ? '[' : (Util.nul(o), '{')];
+		Util.nul(o);
+		var s:Array = [o is Array ? '[' : '{'];
 		try
 		{
 			forClass = for_, refX = 0, encRefs = new Dictionary();
