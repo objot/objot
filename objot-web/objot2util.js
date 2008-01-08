@@ -185,7 +185,7 @@ $Http = function (box, h, show) {
 	return box.add(0, i).cla(0, 'Err').cla('Http');
 }
 	$Http.done = function () {
-		this.des(0);
+		this.des(0).cla(0, 'Http');
 	}
 	$Http.des = function () {
 		return this.$http(), $dom.des.apply(this, arguments);
