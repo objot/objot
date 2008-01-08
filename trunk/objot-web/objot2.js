@@ -374,7 +374,7 @@ $tx = function (singleLine) {
  * or insert before index if index >= 0.
  * @return this */
 $dom.add = function (index) {
-	if (index >= 0 || index < 0)
+	if (typeof index == 'number')
 		for (var x = 1, m = this.childNodes[index] || null; x < arguments.length; x++)
 			this.insertBefore(arguments[x], m);
 	else
@@ -391,7 +391,7 @@ $dom.rem = function (index, len) {
 		this.parentNode && this.parentNode.removeChild(this);
 	else if (index === true)
 		$.o(this.parentNode).replaceChild(len, this);
-	else if (index >= 0 || index < 0) {
+	else if (typeof index == 'number') {
 		var s = this.childNodes;
 		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null;
 		for (var x = s[index], y; x != len; x = y)
@@ -411,7 +411,7 @@ $dom.des = function (index, len) {
 	if (index === true)
 		$.o(this.parentNode).replaceChild(len, this),
 		this.des ? this.des() : $dom.des.call(this);
-	else if (index >= 0 || index < 0) {
+	else if (typeof index == 'number') {
 		var s = this.childNodes;
 		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null;
 		for (var x = s[index], y; x != len; x = y)

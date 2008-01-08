@@ -180,14 +180,15 @@ $.opacity = $fos ? function (d, v) {
  * @return the box, inner des() includes http stop */
 $Http = function (box, h, show) {
 	var i = $s('c', 'Http-icon', 'title', h.$hint + '... Stop?', 'dblclick', h);
-	show && i.add($s('c', 'Http-text').tx(h.$hint));
-	i.$http = h, i.des = h.$done0 = $Http.des, h.$this0 = i;
-	return box.des(0).cla(0, 'Err').cla('Http').add(i);
+	h.$this0 = box, h.$done0 = $Http.done, i.$http = h, i.des = $Http.des; 
+	box.des(0), show && box.add($s('c', 'Http-text').tx(h.$hint));
+	return box.add(0, i).cla(0, 'Err').cla('Http');
 }
+	$Http.done = function () {
+		this.des(0);
+	}
 	$Http.des = function () {
-		if (arguments.length == 0)
-			this.$http();
-		return $dom.des.apply(this, arguments);
+		return this.$http(), $dom.des.apply(this, arguments);
 	}
 
 /** make a box as error widget.
