@@ -1,4 +1,4 @@
-package objot
+﻿package objot
 {
 
 import flash.utils.getDefinitionByName;
@@ -24,7 +24,7 @@ public class Util
 		return (x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n');
 	}
 
-	public static function err(x)
+	public static function err(x):void
 	{
 		throw x as Error || new Error(x);	
 	}
@@ -38,7 +38,7 @@ public class Util
 		return false;
 	}
 
-	public static function not(x)
+	public static function not(x):void
 	{
 		throw new TypeError('must be ' + x);
 	}
