@@ -1,4 +1,6 @@
-#Tue Jan 08 13:06:49 GMT 2008
+#Tue Jan 08 13:54:32 GMT 2008
 com.powerflasher.fdt.imports.ambiguousImport.AS3=Error
 com.powerflasher.fdt.imports.duplicateImport.AS3=Error
+com.powerflasher.fdt.parser.missingSemicolon.AS3=Disabled
+com.powerflasher.fdt.parser.unexpectedToken.AS3=Disabled
 eclipse.preferences.version=1
