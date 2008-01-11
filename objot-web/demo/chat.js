@@ -43,7 +43,7 @@ $class(true, 'User');
 $class(true, 'Chat');
 
 
-_me = null;
+__me = null;
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -57,7 +57,7 @@ DoSign.inUp = function (name, pass, This, done) {
 		This, done, null, this.doneInUp);
 }
 	DoSign.doneInUp = function (ok, err) {
-		ok && (_me = $.is(ok, User));
+		ok && (__me = $.is(ok, User));
 	}
 
 DoSign.out = function (This, done) {
@@ -73,7 +73,7 @@ DoUser.me = function (This, done) {
 	return $Do('DoUser-me', 'Loading my info', '', This, done, null, this.doneMe);
 }
 	DoUser.doneMe = function (ok, err) {
-		ok && (_me = $.is(ok, User), _me.friends.sort(function (a, b) {
+		ok && (__me = $.is(ok, User), __me.friends.sort(function (a, b) {
 			return a.name < b.name ? -1 : a.name > b.name ? 1 : 0; 
 		}));
 	}
@@ -87,7 +87,7 @@ DoUser.update = function (friends, This, done) {
 	return h;
 }
 	DoUser.doneUpdate = function (ok, err, h) {
-		ok && (_me.friends = h.me.friends_);
+		ok && (__me.friends = h.me.friends_);
 	}
 
 DoUser.get = function (users, This, done) {
@@ -176,9 +176,9 @@ _Me.prototype = {
 	},
 	doneReload: function (ok, err) {
 		if (ok) {
-			this.name.tx(_me.name);
+			this.name.tx(__me.name);
 			this.friends.des(0);
-			for (var s = _me.friends, x = 0; x < s.length; x++)
+			for (var s = __me.friends, x = 0; x < s.length; x++)
 				new _Me.Friend(this, s[x]);
 		}
 		if (err)
@@ -190,14 +190,14 @@ _Me.prototype = {
 
 	doAdd: function () {
 		var u = new User(null, this.add.value);
-		if (_me.friends.indexOf(u.name, 0, 'name') >= 0)
+		if (__me.friends.indexOf(u.name, 0, 'name') >= 0)
 			return this.add.value = '';
 		$Http(this.http, DoUser.get([u], this, this.doAdd_user));
 	},
 	doAdd_user: function (ok, err) {
 		if (ok)
 			if (ok[0]) {
-				var fs = _me.friends.slice();
+				var fs = __me.friends.slice();
 				fs[fs.length] = ok[0];
 				$Http(this.http, DoUser.update(fs, this, this.doneAdd));
 			}
@@ -207,7 +207,7 @@ _Me.prototype = {
 	},
 	doneAdd: function (ok, err) {
 		if (ok) {
-			new _Me.Friend(this, _me.friends[_me.friends.length - 1]);
+			new _Me.Friend(this, __me.friends[__me.friends.length - 1]);
 			this.add.value = '';
 		}
 		err && $Err(this.http, err);
@@ -215,9 +215,9 @@ _Me.prototype = {
 
 	doAddChat: function () {
 		var u = new User(null, this.add.value);
-		var x = _me.friends.indexOf(u.name, 0, 'name');
+		var x = __me.friends.indexOf(u.name, 0, 'name');
 		if (x >= 0)
-			return this.onChat && this.onChat.call(this.thisChat, _me.friends[x]);
+			return this.onChat && this.onChat.call(this.thisChat, __me.friends[x]);
 		$Http(this.http, DoUser.get([u], this, this.doneAddChat));
 	},
 	doneAddChat: function (ok, err) {
@@ -251,7 +251,7 @@ _Me.Friend = function (me, friend) {
 _Me.Friend.prototype = {
 	doRem: function () {
 		$Http(this.Me.http, DoUser.update(
-				_me.friends.slice().remove(_me.friends.indexOf(this.Friend.id, 0, 'id'), 1),
+				__me.friends.slice().remove(__me.friends.indexOf(this.Friend.id, 0, 'id'), 1),
 			this, this.doneRem));
 	},
 	doneRem: function (ok, err) {
@@ -270,9 +270,9 @@ _Chatss = function (box) {
 		this.pull = $d('c', 'do').add(
 			$a0('title', 'Any news?', 'click', this.doPull, this).tx('Pull'),
 			this.http = $s()),
-		this.chatss = $d('c', 'chatss')
+		this.chatss_ = $d('c', 'chatss')
 	);
-	this.chatss_ = [];
+	this.chatss = [];
 	this.active = null;
 	this.datime = DatimeMin;
 	this.doPull();
@@ -290,7 +290,7 @@ _Chatss.prototype = {
 		if (ok) {
 			for (var x = 0; x < ok.length; x++) {
 				var c = ok[x];
-				this.doChat(c.out.id == _me.id ? c.In : c.out, true).doRead(c);
+				this.doChat(c.out.id == __me.id ? c.In : c.out, true).doRead(c);
 				c.datime.getTime() > this.datime.getTime() && (this.datime = c.datime);
 			}
 		}
@@ -298,11 +298,11 @@ _Chatss.prototype = {
 	},
 
 	doChat: function (oppoUser, keepAct) {
-		var c = this.chatss_.indexOf(oppoUser.id, 0, 'oppoId');
+		var c = this.chatss.indexOf(oppoUser.id, 0, 'oppoId');
 		if (c >= 0)
-			c = this.chatss_[c]
+			c = this.chatss[c]
 		else
-			this.chatss_.push(c = new _Chats(this, oppoUser));
+			this.chatss.push(c = new _Chats(this, oppoUser));
 		return this.active != null && keepAct || c.doAct(), c;
 	}
 }
@@ -318,7 +318,7 @@ _Chats = function (chatss, oppoUser) {
 	this.outDatime = DatimeMin;
 	chatss.tabs.add(
 		this.tab = $a0('c', 'tab', 'click', this.doAct, this).tx(oppoUser.name));
-	chatss.chatss.add(
+	chatss.chatss_.add(
 		this.chats = $d('c', 'chats'),
 		this.post = $lns('c', 'post'),
 		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'));
@@ -341,7 +341,7 @@ _Chats.prototype = {
 	},
 
 	doRead: function (chat) {
-		var out = chat.out.id == _me.id;
+		var out = chat.out.id == __me.id;
 		if (out && chat.datime.getTime() <= this.outDatime.getTime())
 			return;
 		var c = out ? ' out' : ' in';
@@ -362,7 +362,7 @@ _Chats.prototype = {
 	},
 	donePost: function (ok, err) {
 		if (ok) {
-			ok.out = _me, ok.In = this.oppo, ok.text = this.Post;
+			ok.out = __me, ok.In = this.oppo, ok.text = this.Post;
 			this.doRead(ok);
 			this.post.value == this.Post && (this.post.value = '');
 		}
