@@ -291,7 +291,7 @@ http();
 那么最后x是'abcabc'，'abccab'，'abcbca'等许多可能。
 
 <p>回调顺序不确定，Javascript本身又没有事务支持，因此常用策略是请求时只使用局部或对象数据，而在回调时才将局部或对象数据应用到更大范围：
-<pre>_user = new User();
+<pre>__user = new User();
 DoUser = function () {}
 DoUser.update = function (friends, This, done) {
 	var u = new User();
@@ -302,11 +302,11 @@ DoUser.update = function (friends, This, done) {
 	return h;
 }
 	DoUser.doneUpdate = function (ok, err, h) {
-		ok &amp;&amp; (_user.friends = h.user.myFriends);
+		ok &amp;&amp; (__user.friends = h.user.myFriends);
 	}
 </pre>
 DoUser.update中，先生成一个临时数据u，并设置为$Do返回函数的属性。
-DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user。
+DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据__user。
 临时数据也可以作为对象传入$Do：
 <pre>	...
 	var h = $Do('DoUser-update', 'Updating my info', $enc(u, this.update),
@@ -314,7 +314,7 @@ DoUser.doneUpdate中，如果ok，才将临时数据u合并入全局数据_user�
 	...
 }
 	DoUser.doneUpdate = function (ok, err, u) {
-		ok &amp;&amp; (_user.friends = u.myFriends);
+		ok &amp;&amp; (__user.friends = u.myFriends);
 	}
 </pre>
 这样DoUser.doneUpdate可以直接得到这个临时数据。
