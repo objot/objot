@@ -74,7 +74,7 @@ public class Services
 		for (Class<?> c: Class2.packageClasses(Do.class))
 			if ( !Mod2.match(c, Mod2.ABSTRACT))
 				f.bind(c);
-		return f.create(sess, false);
+		return f.create(sess, true);
 	}
 
 	static final class EncAs
