@@ -171,6 +171,18 @@ $.opacity = $fos ? function (d, v) {
 		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')');
 	return d;
 }
+/** get disabled/readOnly, or set disabled/readOnly, or switch disabled/readOnly if v === 0.
+ * @return true/false if no argument, or this */
+$.disable = function (d, v) {
+	var r = d.disabled || d.readOnly;
+	if (arguments.length == 1)
+		return r;
+	r = v === 0 ? !r : v;
+	var rr = d.tagName.toLowerCase();
+	rr = rr == 'textarea' || rr == 'input' && d.type == 'text'
+		? (d.disabled = false, d.readOnly = r) : d.disabled = r; 
+	return d;
+}
 
 //********************************************************************************************//
 
@@ -262,7 +274,8 @@ $Pop = function (inner) {
 //
 // when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unaccessible
 //
-// \n unsupported on Firefox(not IE) element tooltip and textContent proprety, stupid
+// on Firefox, \n unsupported for element tooltips,
+//   setting textContent supports <br> but \n, getting supports \n but <br>, stupid
 //
 // on Firefox, addEventListener causes window.onerror no effect for exception from handler
 // on IE 6&7, attachEvent causes unexpected 'this' in handler

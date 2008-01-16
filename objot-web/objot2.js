@@ -336,6 +336,7 @@ $p = _('p');
 $tab = _('table');
 $tb = _('tbody');
 $tr = _('tr');
+$th = _('th');
 $td = _('td');
 $img = _('img');
 $ul = _('ul');
@@ -455,12 +456,12 @@ $dom.attr = function (a, v) {
 $dom.tx = $fos ? function (v, multiLine) {
 	if (arguments.length == 0)
 		return this.textContent;
-	v = String(v).replace(/  /g, ' \u00a0'); // whitespaces unsupported
-	if (multiLine && v.indexOf('\n') >= 0) { // '\n' unsupported in Firefox
+	v = String(v).replace(/  /g, ' \u00a0');
+	if (multiLine && v.indexOf('\n') >= 0) {
 		v = v.split('\n');
 		this.textContent = v.length > 0 ? v[0] : '';
 		for (var x = 1; x < v.length; x++)
-			this.appendChild($D.createElement('br')).textContent = '\n',
+			this.appendChild($D.createElement('br')).textContent = '\n', // \n for getting
 			this.appendChild($D.createTextNode(v[x]));
 	}
 	else
@@ -470,7 +471,7 @@ $dom.tx = $fos ? function (v, multiLine) {
 	return arguments.length == 0 ? this.innerText
 		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
-/** get style.display == 'none', or switch style.display if v == null, or set style.display.
+/** get style.display != 'none', or set style.display, or switch style.display if v === 0.
  * @return true/false if no argument, or this */
 $dom.show = function (v) {
 	var s = this.style.display !== 'none';
@@ -478,7 +479,7 @@ $dom.show = function (v) {
 		return s;
 	if (s && !v)
 		this.$show = this.style.display, this.style.display = 'none';
-	else if (!s && (v || v == null))
+	else if (!s && (v || v === 0))
 		this.style.display = this.$show || '';
 	return this;
 }
