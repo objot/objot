@@ -66,7 +66,15 @@ Array.prototype.byProp = function (propName) {
 		s[i] = this[i][propName];
 	return s;
 }
-
+/** @return whether equal length and equal elements */ 
+Array.prototype.equals = function (a) {
+	if (this.length != a.length)
+		return false;
+	for (var i = 0; i < this.length; i++)
+		if (this[i] != a[i])
+			return false;
+	return true;
+}
 
 /** @param emptyName true: any query parameter without = is value, false: is name
  * @return value, or null if no such name */
@@ -274,8 +282,9 @@ $Pop = function (inner) {
 //
 // when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unaccessible
 //
-// on Firefox, \n unsupported for element tooltips,
-//   setting textContent supports <br> but \n, getting supports \n but <br>, stupid
+// on Firefox, \n unsupported for element tooltips but supported for textarea.textContent
+//   setting other textContent supports <br> but \n, getting supports \n but <br>
+// on IE, newline is \r\n while getting textarea.value
 //
 // on Firefox, addEventListener causes window.onerror no effect for exception from handler
 // on IE 6&7, attachEvent causes unexpected 'this' in handler
