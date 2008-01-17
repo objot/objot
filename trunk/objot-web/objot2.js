@@ -451,9 +451,12 @@ $dom.attr = function (a, v) {
 		v === null ? this.removeAttribute(a) : this.setAttribute(a, v);
 	return this;
 }
-/** get/set textContent in Firefox, innerText in IE, multi lines and whitspaces reserved.
- * @return text if no argument, or this */
+/** get/set textContent in Firefox, innerText in IE, or get textarea.value, spaces reserved.
+ * @param multiLine if reserved. @return text if no argument, or this */
 $dom.tx = $fos ? function (v, multiLine) {
+	if (this.tagName.toLowerCase() == 'textarea')
+		return arguments.length == 0 ? this.value
+			: (this.textContent = multiLine ? v : v.replace(/\n/g, ' '), this);
 	if (arguments.length == 0)
 		return this.textContent;
 	v = String(v).replace(/  /g, ' \u00a0');
@@ -468,7 +471,8 @@ $dom.tx = $fos ? function (v, multiLine) {
 		this.textContent = v;
 	return this;
 } : function (v, multiLine) {
-	return arguments.length == 0 ? this.innerText
+	return arguments.length == 0 ? this.tagName.toLowerCase() == 'textarea' ?
+		this.value.replace(/\r\n/g, '\n') : this.innerText
 		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
 /** get style.display != 'none', or set style.display, or switch style.display if v === 0.

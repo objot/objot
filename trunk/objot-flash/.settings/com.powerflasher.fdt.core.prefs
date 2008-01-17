@@ -1,6 +1,7 @@
-#Tue Jan 08 13:55:37 GMT 2008
+#Thu Jan 17 01:57:09 GMT 2008
 com.powerflasher.fdt.core.Language=AS3
 com.powerflasher.fdt.core.LanguageType=Flex_2_SDK_0
 com.powerflasher.fdt.core.useProjectFormatterSettings=false
 com.powerflasher.fdt.core.useProjectProblems=true
 eclipse.preferences.version=1
+instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
