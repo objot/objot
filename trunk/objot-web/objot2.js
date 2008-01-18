@@ -459,7 +459,7 @@ $dom.tx = $fos ? function (v, multiLine) {
 			: (this.textContent = multiLine ? v : v.replace(/\n/g, ' '), this);
 	if (arguments.length == 0)
 		return this.textContent;
-	v = String(v).replace(/  /g, ' \u00a0');
+	v = String(v).replace(/  /g, '\u00a0 ');
 	if (multiLine && v.indexOf('\n') >= 0) {
 		v = v.split('\n');
 		this.textContent = v.length > 0 ? v[0] : '';
