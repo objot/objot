@@ -239,8 +239,8 @@ _Me.prototype.onChat;
 //********************************************************************************************//
 
 _Me.Friend = function (me, friend) {
-	this.Me = me;
-	this.Friend = friend;
+	this.me = me;
+	this.friend = friend;
 	me.friends.add(
 		this.left = $a0('c', 'name', 'title', 'Chat',
 			'click', me.onChat, me.thisChat, [ friend ]).tx(friend.name),
@@ -250,13 +250,13 @@ _Me.Friend = function (me, friend) {
 
 _Me.Friend.prototype = {
 	doRem: function () {
-		$Http(this.Me.http, DoUser.update(
-				__me.friends.slice().remove(__me.friends.indexOf(this.Friend.id, 0, 'id'), 1),
+		$Http(this.me.http, DoUser.update(
+				__me.friends.slice().remove(__me.friends.indexOf(this.friend.id, 0, 'id'), 1),
 			this, this.doneRem));
 	},
 	doneRem: function (ok, err) {
 		ok && (this.left.des(), this.right.des());
-		err && $Err(this.Me.http, err);
+		err && $Err(this.me.http, err);
 	}
 }
 
@@ -320,7 +320,7 @@ _Chats = function (chatss, oppoUser) {
 		this.tab = $a0('c', 'tab', 'click', this.doAct, this).tx(oppoUser.name));
 	chatss.chatss_.add(
 		this.chats = $d('c', 'chats'),
-		this.post = $lns('c', 'post'),
+		this._post = $lns('c', 'post'),
 		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'));
 	this.doInact();
 }
@@ -328,14 +328,14 @@ _Chats = function (chatss, oppoUser) {
 _Chats.prototype = {
 	doInact: function () {
 		this.tab.cla(0, 'tabAct');
-		this.chats.show(false), this.post.show(false), this.submit.show(false);
+		this.chats.show(false), this._post.show(false), this.submit.show(false);
 	},
 	doAct: function () {
 		var a = this.chatss.active;
 		if (a != this) {
 			a && a.doInact();
 	 		this.tab.cla(0, 'tabNew').cla('tabAct'), this.chats.show(true),
-			this.post.show(true).focus(), this.submit.show(true);
+			this._post.show(true).focus(), this.submit.show(true);
 			this.chatss.active = this;
 		}
 	},
@@ -357,14 +357,14 @@ _Chats.prototype = {
 	},
 
 	doPost: function () {
-		this.Post = this.post.value;
-		$Http(this.chatss.http, DoChat.post(this.oppo, this.Post, this, this.donePost));
+		this.post = this._post.tx();
+		$Http(this.chatss.http, DoChat.post(this.oppo, this.post, this, this.donePost));
 	},
 	donePost: function (ok, err) {
 		if (ok) {
-			ok.out = __me, ok.In = this.oppo, ok.text = this.Post;
+			ok.out = __me, ok.In = this.oppo, ok.text = this.post;
 			this.doRead(ok);
-			this.post.value == this.Post && (this.post.value = '');
+			this._post.tx() == this.post && this._post.tx('');
 		}
 		err && $Err(this.chatss.http, err);
 	}
