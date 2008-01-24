@@ -144,7 +144,7 @@ public class Codec extends Object
 			s[x++] = ':', s[x++] = encRefs[o] = String(++refX);
 		for (var i:int = 0, v:Object; i < o.length; i++)
 			if ((v = o[i]) == null)
-				s[x++] = '.';
+				s[x++] = ',';
 			else if (v is Boolean)
 				s[x++] = v ? '>' : '<';
 			else if (v is Number)
@@ -185,7 +185,7 @@ public class Codec extends Object
 								{
 									s[x++] = p;
 									if (v == null)
-										s[x++] = '.';
+										s[x++] = ',';
 									else if (v is Boolean)
 										s[x++] = v ? '>' : '<';
 									else if (v is Number)
@@ -215,7 +215,7 @@ public class Codec extends Object
 				{
 					s[x++] = p;
 					if (v == null)
-						s[x++] = '.';
+						s[x++] = ',';
 					else if (v is Boolean)
 						s[x++] = v ? '>' : '<';
 					else if (v is Number)
