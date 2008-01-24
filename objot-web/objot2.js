@@ -355,7 +355,7 @@ $._ = function (t, m) { return function () {
 	return m = $doms('input', arguments), m.type = t, m;
 }}
 $ln = _('text');
-$chk = _('check');
+$chk = _('checkbox');
 $rad = _('radio');
 delete _;
 }
