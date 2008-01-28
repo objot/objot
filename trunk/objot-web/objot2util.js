@@ -3,6 +3,10 @@
 // Under the terms of the GNU General Public License version 2
 //
 
+/** @return equal, or if both NaN */
+Number.prototype.equal = function (n) {
+	return this == n || isNaN(this) && isNaN(n);
+}
 
 /** search object.
  * @param from the index start from, 0 if missing.
