@@ -195,6 +195,11 @@ $.disable = function (d, v) {
 		? (d.disabled = false, d.readOnly = r) : d.disabled = r; 
 	return d;
 }
+$.defer = function (d) {
+	var s = arguments;
+	$fos ? $doms(d, s, 1) : setTimeout(function(){ $doms(d, s, 1); }, 0);
+	return d;
+}
 
 //********************************************************************************************//
 
