@@ -61,8 +61,8 @@ public class CodecServlet
 		return null;
 	}
 
-	protected CharSequence service(HttpServletRequest hReq, ServiceInfo inf, Object... reqs)
-		throws Exception
+	protected CharSequence service(HttpServletRequest hReq, HttpServletResponse hRep,
+		ServiceInfo inf, Object... reqs) throws Exception
 	{
 		return codec.enc(inf.invoke(null, reqs), inf.cla);
 	}
@@ -152,9 +152,9 @@ public class CodecServlet
 			try
 			{
 				if (q == null)
-					p = service(hq, inf);
+					p = service(hq, hp, inf);
 				else
-					p = service(hq, inf, codec.dec(q, inf.reqCla, inf.cla));
+					p = service(hq, hp, inf, codec.dec(q, inf.reqCla, inf.cla));
 			}
 			catch (ErrThrow e)
 			{

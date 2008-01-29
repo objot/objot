@@ -6,6 +6,7 @@ package chat;
 
 import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import objot.codec.Errs;
 import objot.container.Container;
@@ -73,8 +74,8 @@ public final class Servlet
 	}
 
 	@Override
-	protected CharSequence service(HttpServletRequest hq, ServiceInfo inf, Object... reqs)
-		throws Exception
+	protected CharSequence service(HttpServletRequest hq, HttpServletResponse hp,
+		ServiceInfo inf, Object... reqs) throws Exception
 	{
 		if (inf.cla == ModelsCreate.class) // test
 			synchronized (dataFactory)
