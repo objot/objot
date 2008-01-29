@@ -359,9 +359,9 @@ $chk = _('checkbox');
 $rad = _('radio');
 delete _;
 }
-/** <a href=javascript://>... */
+/** <a href=none:>... without action */
 $a0 = function () {
-	return $doms('a', arguments).attr('href', 'javascript:///');
+	return $doms('a', arguments).attr('href', 'none:').attach('click', Boolean, window);
 }
 
 /** create a text node, single line, multi whitespace reserved. */
@@ -599,11 +599,11 @@ $.copyAll = function (to, from) {
 /* event dispatcher */
 $.event = function (e, s, x, r, ee) {
 	if ((s = this.$on) && (x = s[(e = e || event).type])) {
-		do r = r || s[x + 3]
+		do r = (s[x + 3]
 			? s[x + 1].apply(s[x + 2] || new s[x + 1].$ctor, s[x + 3])
-			: s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, ee ||
-			($fos || (e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop),
-				ee = e));
+			: s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, $fos ? e : ee || (ee = e,
+				e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop))
+			) || r;
 		while (x = s[x]);
 		return !r;
 	}
