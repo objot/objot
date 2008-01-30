@@ -38,11 +38,6 @@ public class Util
 		return false;
 	}
 
-	public static function not(x):void
-	{
-		throw new TypeError('must be ' + x);
-	}
-
 	// ********************************************************************************
 
 	public static function cinit(c:Class):Class

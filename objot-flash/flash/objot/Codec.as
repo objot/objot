@@ -14,7 +14,7 @@ public class Codec extends Object
 		var s:Array = so[RULE] || (so[RULE] = []);
 		for (var x:int = 1; x < arguments.length; )
 		{
-			s.push(arguments[x++] as Class || Util.not(Class));
+			s.push(Class(arguments[x++]));
 			if ((encs = arguments[x++]) === null)
 				s.push(null);
 			else if (encs is Array)
@@ -154,7 +154,7 @@ public class Codec extends Object
 			else if (v is Date)
 				s[x++] = '*', s[x++] = v.getTime();
 			else if (v is Class)
-				s[x++] = '/', s[x++] = encName(v as Class);
+				s[x++] = '/', s[x++] = encName(Class(v));
 			else if (encRefs[v] is String)
 				s[x++] = '=', s[x++] = encRefs[v];
 			else if (v is Array)
@@ -195,7 +195,7 @@ public class Codec extends Object
 									else if (v is Date)
 										s[x++] = '*', s[x++] = v.getTime();
 									else if (v is Class)
-										s[x++] = '/', s[x++] = encName(v as Class);
+										s[x++] = '/', s[x++] = encName(Class(v));
 									else if (encRefs[v] is String)
 										s[x++] = '=', s[x++] = encRefs[v];
 									else if (v is Array)
@@ -225,7 +225,7 @@ public class Codec extends Object
 					else if (v is Date)
 						s[x++] = '*', s[x++] = v.getTime();
 					else if (v is Class)
-						s[x++] = '/', s[x++] = encName(v as Class);
+						s[x++] = '/', s[x++] = encName(Class(v));
 					else if (encRefs[v] is String)
 						s[x++] = '=', s[x++] = encRefs[v];
 					else if (v is Array)
@@ -268,7 +268,7 @@ public class Codec extends Object
 			case '[' : return Array;
 		}
 		var x:Object = byName(s);
-		return x is Class ? x as Class : x.constructor;
+		return x as Class || x.constructor;
 	}
 
 	private function decL(s:Array, x:int):int
