@@ -88,7 +88,7 @@ location.param = function (name, emptyName) {
 		var j = s[i].indexOf('=');
 		j < 0 && !emptyName && (j = s[i].length);
 		if (name == s[i].substr(0, j))
-			return unescape(s[i].substr(j + 1));
+			return decodeURIComponent(s[i].substr(j + 1));
 	}
 	return null;
 }
@@ -99,7 +99,7 @@ location.params = function (emptyName) {
 	for (var i = 0; i < s.length; i++) {
 		var j = s[i].indexOf('=');
 		j < 0 && !emptyName && (j = s[i].length);
-		p[s[i].substr(0, j)] = unescape(s[i].substr(j + 1));
+		p[s[i].substr(0, j)] = decodeURIComponent(s[i].substr(j + 1));
 	}
 	return p;
 }
@@ -283,6 +283,8 @@ $Pop = function (inner) {
 // String(x) convert x to string (not String) unless x is already string
 //
 // function (a, b) { b = a; // then arguments[1] == arguments[0]
+//
+// on IE (delete domNode.userProp) forbidden
 //
 // while Firefox alert(), some callbacks could still be fired, such as timeout, interval
 // while IE 6&7 alert(), some callbacks could still be fired, such as
