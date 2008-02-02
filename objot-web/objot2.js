@@ -601,8 +601,8 @@ $.event = function (e, s, x, r, ee) {
 	if ((s = this.$on) && (x = s[(e = e || event).type])) {
 		do r = (s[x + 3]
 			? s[x + 1].apply(s[x + 2] || new s[x + 1].$ctor, s[x + 3])
-			: s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, $fos ? e : ee || (ee = e,
-				e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop))
+			: s[x + 1].call (s[x + 2] || new s[x + 1].$ctor, $fos ? e : ee ||
+				(e.target = e.srcElement, e.which = e.keyCode, e.stop = $.eventStop, ee = e))
 			) || r;
 		while (x = s[x]);
 		return !r;

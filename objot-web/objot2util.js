@@ -71,8 +71,8 @@ Array.prototype.byProp = function (propName) {
 	return s;
 }
 /** @return whether equal length and equal elements */ 
-Array.prototype.equals = function (a) {
-	if (this.length != a.length)
+Array.prototype.equal = function (a) {
+	if (a == null || this.length != a.length)
 		return false;
 	for (var i = 0; i < this.length; i++)
 		if (this[i] != a[i])
@@ -164,7 +164,8 @@ $http.doneDelay = 300;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
-$dom($D.body);
+$B = $D.body;
+$dom($B);
 
 /** get/set style.cssFloat in Firefox, style.styleFloat in IE */
 $.Float = $fos ? function (d, v) {
@@ -195,10 +196,12 @@ $.disable = function (d, v) {
 		? (d.disabled = false, d.readOnly = r) : d.disabled = r; 
 	return d;
 }
-$.defer = function (d) {
+$.defer = function (This, Do, args) {
+	setTimeout(function(){ args ? Do.apply(This, args) : Do.call(This) }, 0);
+}
+$.deferDom = $fos ? $dom : function (m) {
 	var s = arguments;
-	$fos ? $doms(d, s, 1) : setTimeout(function(){ $doms(d, s, 1); }, 0);
-	return d;
+	return setTimeout(function(){ $doms(m, s, 1) }, 0), m;
 }
 
 //********************************************************************************************//
@@ -259,7 +262,7 @@ $Pop = function (inner) {
 		box.style.left = $D.documentElement.scrollLeft,
 		$D.documentElement.style.overflow = 'hidden';
 	box.des = $Pop.des;
-	return $D.body.add(box), box;
+	return $B.add(box), box;
 }
 	$Pop.des = function () {
 		$ie == 6 && ($D.documentElement.style.overflow = '');
@@ -271,6 +274,8 @@ $Pop = function (inner) {
 
 
 // hints
+//
+// substring(from,to) is substring(to,from) if from > to
 //
 // on Firefox, predefined function(){}.name can only be assigned without '.'
 //
@@ -315,4 +320,6 @@ $Pop = function (inner) {
 //   may use onkeypress instead
 //
 // on IE 6(7?), childNodes[index out of bound] === undefined, but null per standard 
+//
+// on IE 6(7?), some dom function eg. focus() don't support call or apply
 //
