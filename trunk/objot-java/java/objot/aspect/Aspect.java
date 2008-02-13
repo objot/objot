@@ -65,7 +65,7 @@ public abstract class Aspect
 		}
 
 		/** Invoke target with parameters which may be modified. */
-		public static void invoke()
+		public static void invoke() throws Throwable
 		{
 			throw new AbstractMethodError();
 		}

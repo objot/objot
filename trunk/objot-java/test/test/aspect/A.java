@@ -43,7 +43,7 @@ class A1
 	extends Aspect
 {
 	@Override
-	protected void aspect()
+	protected void aspect() throws Throwable
 	{
 		A a = (A)getData();
 		a.name = getName();
