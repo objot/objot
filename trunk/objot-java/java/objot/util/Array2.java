@@ -205,6 +205,174 @@ public class Array2
 		return x == null || x.length() > 0 ? x : null;
 	}
 
+	/** Search the array. */
+	public static int search(int[] s, int key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(int[] s, int begin, int end1, int key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (s[i] == key)
+				return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static int search(long[] s, long key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(long[] s, int begin, int end1, long key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (s[i] == key)
+				return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static int search(short[] s, short key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(short[] s, int begin, int end1, short key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (s[i] == key)
+				return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static int search(char[] s, char key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(char[] s, int begin, int end1, char key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (s[i] == key)
+				return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static int search(byte[] s, byte key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(byte[] s, int begin, int end1, byte key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (s[i] == key)
+				return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static int search(double[] s, double key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(double[] s, int begin, int end1, double key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		if (key == key)
+		{
+			for (int i = begin; i < end1; i++)
+				if (s[i] == key)
+					return i;
+		}
+		else
+			for (int i = begin; i < end1; i++)
+				if (s[i] != s[i])
+					return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static int search(float[] s, float key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static int search(float[] s, int begin, int end1, float key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		if (key == key)
+		{
+			for (int i = begin; i < end1; i++)
+				if (s[i] == key)
+					return i;
+		}
+		else
+			for (int i = begin; i < end1; i++)
+				if (s[i] != s[i])
+					return i;
+		return -1;
+	}
+
+	/** Search the array. */
+	public static <T>int search(Object[] s, Object key)
+	{
+		return search(s, 0, s.length, key);
+	}
+
+	/** Search the array in [begin, end1). */
+	public static <T>int search(Object[] s, int begin, int end1, Object key)
+	{
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (s[i].equals(key))
+				return i;
+		return -1;
+	}
+
+	/**
+	 * Search the array.
+	 * 
+	 * @throws NullPointerException if the comparator is null
+	 */
+	public static <T>int search2(T[] s, T key, Comparator<? super T> c)
+	{
+		return search2(s, 0, s.length, key, c);
+	}
+
+	/**
+	 * Search the array in [begin, end1).
+	 * 
+	 * @throws NullPointerException if the comparator is null
+	 */
+	public static <T>int search2(T[] s, int begin, int end1, T key, Comparator<? super T> c)
+	{
+		if (c == null)
+			throw null;
+		Math2.checkRange(begin, end1, s.length);
+		for (int i = begin; i < end1; i++)
+			if (c.compare(s[i], key) == 0)
+				return i;
+		return -1;
+	}
+
 	/**
 	 * Search the array in [begin, end1).
 	 * 
@@ -402,9 +570,11 @@ public class Array2
 	/**
 	 * Search the array in [begin, end1).
 	 * 
+	 * @param a {@link Comparable}s
 	 * @see Arrays#binarySearch(Object[],Object)
 	 */
-	public static <T>int binarySearch(Comparable<? super T>[] a, int begin, int end1, T key)
+	@SuppressWarnings("unchecked")
+	public static int binarySearch(Object[] a, int begin, int end1, Object key)
 	{
 		Math2.checkRange(begin, end1, a.length);
 		int low = begin;
@@ -412,7 +582,7 @@ public class Array2
 		while (low <= high)
 		{
 			int mid = (low + high) >> 1;
-			int cmp = a[mid].compareTo(key);
+			int cmp = ((Comparable)a[mid]).compareTo(key);
 			if (cmp < 0)
 				low = mid + 1;
 			else if (cmp > 0)
@@ -426,8 +596,8 @@ public class Array2
 	/**
 	 * Search the array in [begin, end1).
 	 * 
-	 * @throws NullPointerException if the comparator is null, this is a difference from
-	 *             {@link Arrays#binarySearch(Object[], Object, Comparator)}</code>.
+	 * @throws NullPointerException if the comparator is null, this is different from
+	 *             {@link Arrays#binarySearch(Object[], Object, Comparator)}
 	 * @see Arrays#binarySearch(Object[],Object,Comparator)
 	 */
 	public static <T>int binarySearch2(T[] a, int begin, int end1, T key,
