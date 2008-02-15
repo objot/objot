@@ -8,6 +8,13 @@ Number.prototype.equal = function (n) {
 	return this == n || isNaN(this) && isNaN(n);
 }
 
+/** @return indexOf(), or length if not found */
+String.prototype.indexEnd =
+Array.prototype.indexEnd = function (a, b, c) {
+	var i = this.indexOf(a, b, c);
+	return i >= 0 ? i : this.length;
+}
+
 /** search object.
  * @param from the index start from, 0 if missing.
  * @param propName compare this[x][propName] to object rather than this[x].
@@ -85,9 +92,8 @@ Array.prototype.equal = function (a) {
 location.param = function (name, emptyName) {
 	var s = location.search.substr(1).split('&');
 	for (var i = 0; i < s.length; i++) {
-		var j = s[i].indexOf('=');
-		j < 0 && !emptyName && (j = s[i].length);
-		if (name == s[i].substr(0, j))
+		var j = emptyName ? s[i].indexOf('=') : s[i].indexEnd('=');
+		if (name == decodeURIComponent(s[i].substr(0, j)))
 			return decodeURIComponent(s[i].substr(j + 1));
 	}
 	return null;
@@ -97,9 +103,8 @@ location.params = function (emptyName) {
 	var s = location.search.substr(1).split('&');
 	var p = {};
 	for (var i = 0; i < s.length; i++) {
-		var j = s[i].indexOf('=');
-		j < 0 && !emptyName && (j = s[i].length);
-		p[s[i].substr(0, j)] = decodeURIComponent(s[i].substr(j + 1));
+		var j = emptyName ? s[i].indexOf('=') : s[i].indexEnd('=');
+		p[decodeURIComponent(s[i].substr(0, j))] = decodeURIComponent(s[i].substr(j + 1));
 	}
 	return p;
 }
@@ -274,8 +279,6 @@ $Pop = function (inner) {
 
 
 // hints
-//
-// substring(from,to) is substring(to,from) if from > to
 //
 // on Firefox, predefined function(){}.name can only be assigned without '.'
 //
