@@ -108,7 +108,7 @@ location.params = function (emptyName) {
 	}
 	return p;
 }
-
+$ie && (location.$load = location.reload, location.reload = function () { location.$load() });
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
@@ -324,5 +324,5 @@ $Pop = function (inner) {
 //
 // on IE 6(7?), childNodes[index out of bound] === undefined, but null per standard 
 //
-// on IE 6(7?), some dom function eg. focus() don't support call or apply
+// on IE 6(7?), some function eg. focus and location.reload don't support call or apply
 //
