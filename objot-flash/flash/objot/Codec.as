@@ -74,19 +74,26 @@ public class Codec extends Object
 	 * @param for_ rule key or subclass of rule key */
 	public function enc(o:Object, for_:Class):String
 	{
-		Util.nul(o);
-		var s:Array = [o is Array ? '[' : '{'];
-		try
-		{
-			forClass = for_, refX = 0, encRefs = new Dictionary();
-			encRef(o) || Util.err(Util.s(o)
-				+ ' must not be null, String, Boolean, Number, Class, Function, Dictionary');
-			o is Array ? encL(o as Array, s, 1) : encO(o, s, 1);
-		}
-		finally
-		{
-			forClass = null, encRefs = null;	
-		}
+		var s:Array =
+			o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
+			: o is Number ? [String(o)] : o is String ? ['', o]
+			: o is Date ? ['*', o.getTime()]
+			: o is Function ? '$name$' in o ? ['/', o.$name$]
+				: Util.err('unexpected ' + Util.s(o))
+			: null;
+		if ( !s)
+			try
+			{
+				s = [o is Array ? '[' : '{'];
+				forClass = for_, refX = 0, encRefs = new Dictionary();
+				encRef(o) || Util.err(Util.s(o)
+					+ ' must not be null, String, Boolean, Number, Class, Function, Dictionary');
+				o is Array ? encL(o as Array, s, 1) : encO(o, s, 1);
+			}
+			finally
+			{
+				forClass = null, encRefs = null;	
+			}
 		return s.join('\x10');
 	}
 
@@ -246,7 +253,20 @@ public class Codec extends Object
 		try
 		{
 			var s:Array = str.split('\x10');
-			var x:int = s[0] === '[' ? decL(s, 1) : s[0] === '{' ? decO(s, 1) : -1;
+			var x:int = 1, v = s[0];
+			switch (v)
+			{
+				case '[': x = decL(s, x); break;
+				case '{': x = decO(s, x); break;
+				case '': s.o = s[x++]; break;
+				case ',': s.o = null; break;
+				case '<': s.o = false; break;
+				case '>': s.o = true; break;
+				case '*': s.o = new Date(s[x++] - 0); break;
+				case '/': s.o = decName(s[x++]); break;
+				case 'NaN': s.o = NaN; break;
+				default: isNaN(s.o = Number(v)) && Util.err('illegal number ' + Util.s(v));
+			}
 			if (x < s.length)
 				Util.err('termination expected but ' + Util.s(s[x]));
 		}
@@ -261,11 +281,11 @@ public class Codec extends Object
 	{
 		switch (s)
 		{
-			case "'" : return String;
-			case '<' : return Boolean;
-			case '0' : return Number;
-			case '*' : return Date;
-			case '[' : return Array;
+			case "'": return String;
+			case '<': return Boolean;
+			case '0': return Number;
+			case '*': return Date;
+			case '[': return Array;
 		}
 		var x:Object = byName(s);
 		return x as Class || x.constructor;

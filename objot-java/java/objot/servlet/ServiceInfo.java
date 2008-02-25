@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 
 import objot.codec.Codec;
 import objot.codec.ErrThrow;
+import objot.util.Class2;
 
 
 public class ServiceInfo
@@ -17,6 +18,7 @@ public class ServiceInfo
 	public final Class<?> cla;
 	public final Method meth;
 	public final Class<?> reqCla;
+	public final Class<?> reqBoxCla;
 
 	public ServiceInfo(Codec c, String name_, Method m) throws Exception
 	{
@@ -25,6 +27,7 @@ public class ServiceInfo
 		meth = m;
 		Class<?>[] s = m.getParameterTypes();
 		reqCla = s.length == 0 ? null : s[0];
+		reqBoxCla = Class2.box(reqCla, true);
 	}
 
 	public Object invoke(Object serv, Object... reqs) throws ErrThrow, Exception

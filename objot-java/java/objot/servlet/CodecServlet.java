@@ -154,7 +154,7 @@ public class CodecServlet
 				if (q == null)
 					p = service(hq, hp, inf);
 				else
-					p = service(hq, hp, inf, codec.dec(q, inf.reqCla, inf.cla));
+					p = service(hq, hp, inf, codec.dec(q, inf.reqBoxCla, inf.cla));
 			}
 			catch (ErrThrow e)
 			{
