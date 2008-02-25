@@ -74,16 +74,21 @@ $class.enc = function (clazz, forClass, encs) {
 /** encode object graph to string, following the encoding rules.
  * @param forClass rule key or subclass of rule key */
 $enc = function (o, forClass) {
-	var s = [o instanceof Array ? '[' : ($.o(o), '{')];
-	s.clazz = $.f(forClass);
-	try {
-		s.refX = 0, $enc.ref(o);
-		o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1);
-	} catch(_) {
-		try { $enc.unref(o); } catch(_) {}
-		throw _;
+	var t = typeof o, s = t !== 'function' ?
+		o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
+		: t === 'number' ? [String(o)] : t === 'string' ? ['', o]
+		: o instanceof Date ? ['*', o.getTime()] : 0
+	: '$name$' in o ? ['/', o.$name$] : $throw(t + ' unexpected ' + $S(o));
+	if (!s) {
+		s = [o instanceof Array ? '[' : ($.o(o), '{')];
+		s.clazz = $.f(forClass), s.refX = 0;
+		try {
+			$enc.ref(o), o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1);
+		} catch(e) {
+			try { $enc.unref(o); } catch(f) {} throw e;
+		}
+		$enc.unref(o);
 	}
-	$enc.unref(o);
 	return s.join('\x10');
 }
 	$enc.ref = function (o, ox) {
@@ -181,7 +186,16 @@ $dec = function (s, byName, ok) {
 	try {
 		s = $.s(s).split('\x10');
 		s.n = byName || $dec.n, s.ok = ok;
-		var x = s[0] === '[' ? $dec.l(s, 1) : s[0] === '{' ? $dec.o(s, 1) : -1;
+		var x = 1;
+		switch (s[0]) {
+			case '[': x = $dec.l(s, x); break; case '{': x = $dec.o(s, x); break;
+			case '': s.o = s[x++]; break; case ',': s.o = null; break;
+			case '<': s.o = false; break; case '>': s.o = true; break;
+			case '*': s.o = new Date(s[x++] - 0); break;
+			case '/': s.o = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
+			case 'NaN': s.o = NaN; break;
+			default: isNaN(s.o = s[0] - 0) && $throw('illegal number ' + $S(s[0]));
+		}
 		return x < s.length ? $throw('termination expected but ' + $S(s[x]))
 			: $dec.r.length = 0, s.o;
 	} catch(_) {
@@ -193,7 +207,7 @@ $dec = function (s, byName, ok) {
 		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
 			: (v = s[x++]) !== ']'; i++)
-			switch(v) {
+			switch (v) {
 				case '': o[i] = s[x++]; break; case ',': o[i] = null; break;
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
 				case '*': o[i] = new Date(s[x++] - 0); break;
