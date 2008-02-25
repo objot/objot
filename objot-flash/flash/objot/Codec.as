@@ -77,10 +77,7 @@ public class Codec extends Object
 		var s:Array =
 			o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
 			: o is Number ? [String(o)] : o is String ? ['', o]
-			: o is Date ? ['*', o.getTime()]
-			: o is Function ? '$name$' in o ? ['/', o.$name$]
-				: Util.err('unexpected ' + Util.s(o))
-			: null;
+			: o is Date ? ['*', o.getTime()] : null;
 		if ( !s)
 			try
 			{
@@ -137,13 +134,6 @@ public class Codec extends Object
 		return true;
 	}
 
-	private function encName(c:Class):String
-	{
-		return Util.extend(c, String) ? "'" : Util.extend(c, Boolean) ? '<'
-			: Util.extend(c, Number) ? '0' : Util.extend(c, Date) ? '*'
-			: Util.extend(c, Array) ? '[' : name(null, c);
-	}
-
 	private function encL(o:Array, s:Array, x:int):int
 	{
 		s[x++] = String(o.length);
@@ -160,13 +150,11 @@ public class Codec extends Object
 				s[x++] = '', s[x++] = v;
 			else if (v is Date)
 				s[x++] = '*', s[x++] = v.getTime();
-			else if (v is Class)
-				s[x++] = '/', s[x++] = encName(Class(v));
 			else if (encRefs[v] is String)
 				s[x++] = '=', s[x++] = encRefs[v];
 			else if (v is Array)
 				s[x++] = '[', x = encL(v as Array, s, x);
-			else if ( !(v is Function))
+			else
 				s[x++] = '{', x = encO(v, s, x);
 		s[x++] = ']';
 		return x;
@@ -201,8 +189,6 @@ public class Codec extends Object
 										s[x++] = '', s[x++] = v;
 									else if (v is Date)
 										s[x++] = '*', s[x++] = v.getTime();
-									else if (v is Class)
-										s[x++] = '/', s[x++] = encName(Class(v));
 									else if (encRefs[v] is String)
 										s[x++] = '=', s[x++] = encRefs[v];
 									else if (v is Array)
@@ -231,8 +217,6 @@ public class Codec extends Object
 						s[x++] = '', s[x++] = v;
 					else if (v is Date)
 						s[x++] = '*', s[x++] = v.getTime();
-					else if (v is Class)
-						s[x++] = '/', s[x++] = encName(Class(v));
 					else if (encRefs[v] is String)
 						s[x++] = '=', s[x++] = encRefs[v];
 					else if (v is Array)
@@ -263,7 +247,6 @@ public class Codec extends Object
 				case '<': s.o = false; break;
 				case '>': s.o = true; break;
 				case '*': s.o = new Date(s[x++] - 0); break;
-				case '/': s.o = decName(s[x++]); break;
 				case 'NaN': s.o = NaN; break;
 				default: isNaN(s.o = Number(v)) && Util.err('illegal number ' + Util.s(v));
 			}
@@ -275,20 +258,6 @@ public class Codec extends Object
 			decRefs.length = 0;
 		}
 		return s.o;
-	}
-
-	private function decName(s:String):Class
-	{
-		switch (s)
-		{
-			case "'": return String;
-			case '<': return Boolean;
-			case '0': return Number;
-			case '*': return Date;
-			case '[': return Array;
-		}
-		var x:Object = byName(s);
-		return x as Class || x.constructor;
 	}
 
 	private function decL(s:Array, x:int):int
@@ -304,7 +273,6 @@ public class Codec extends Object
 				case '<': o[i] = false; break;
 				case '>': o[i] = true; break;
 				case '*': o[i] = new Date(s[x++] - 0); break;
-				case '/': o[i] = decName(s[x++]); break;
 				case '[': x = decL(s, x); o[i] = s.o; break;
 				case '{': x = decO(s, x); o[i] = s.o; break;
 				case '=': o[i] = decRefs[s[x++]]; break;
@@ -328,7 +296,6 @@ public class Codec extends Object
 				case '<': o[p] = false; break;
 				case '>': o[p] = true; break;
 				case '*': o[p] = new Date(s[x++] - 0); break;
-				case '/': o[p] = decName(s[x++]); break;
 				case '[': x = decL(s, x); o[p] = s.o; break;
 				case '{': x = decO(s, x); o[p] = s.o; break;
 				case '=': o[p] = decRefs[s[x++]]; break;
