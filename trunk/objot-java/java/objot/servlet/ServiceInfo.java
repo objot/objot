@@ -26,8 +26,10 @@ public class ServiceInfo
 		cla = m.getDeclaringClass();
 		meth = m;
 		Class<?>[] s = m.getParameterTypes();
-		reqCla = s.length == 0 ? null : s[0];
-		reqBoxCla = Class2.box(reqCla, true);
+		if (s.length == 0)
+			reqBoxCla = reqCla = null;
+		else
+			reqBoxCla = (reqCla = s[0]).isPrimitive() ? Class2.box(reqCla, true) : reqCla;
 	}
 
 	public Object invoke(Object serv, Object... reqs) throws ErrThrow, Exception
