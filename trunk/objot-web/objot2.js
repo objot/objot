@@ -35,19 +35,20 @@ $throw = function (x) {
 $class = function (SO, ctor, sup, proto) {
 	$.s(ctor);
 	var c = $.c(ctor, true);
-	c.$name$ && $throw('duplicate class ' + ctor);
+	c != Boolean && c != String && c != Number && c != Function
+		|| $throw($S(c) + ' forbidden');
+	c.$name && $throw('duplicate class ' + ctor);
 	if (sup) {
 		$.f(sup).$name || $throw('super class ' + (sup.name || $S(sup)) + ' not ready');
 		c.prototype = $.copy(new sup.$ctor, c.prototype);
 		c.prototype.constructor = c;
 	}
-	c.$name = c.$name$ = ctor;
+	c.$name = ctor;
 	$.ctor(c);
-	if (c.prototype.constructor !== c)
+	if (c.prototype.constructor != c)
 		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor));
 	proto && $.copy(c.prototype, proto);
-	if (SO)
-		$.cs[ctor] = $.cs$[ctor] = c;
+	SO && ($.cs[ctor] = c);
 	return c;
 }
 /** add encoding rules to the class. former rules are overrided by later rules.
@@ -60,7 +61,7 @@ $class.enc = function (clazz, forClass, encs) {
 			clazz.$encs.push(null);
 		else if (encs instanceof Array) {
 			for (var y = 0; y < encs.length; y++)
-				if (typeof encs[y] !== 'string')
+				if (typeof encs[y] != 'string')
 					$throw($S(encs) + ' must not contain ' + $S(encs[y]));
 			clazz.$encs.push(encs);
 		}
@@ -74,87 +75,80 @@ $class.enc = function (clazz, forClass, encs) {
 /** encode object graph to string, following the encoding rules.
  * @param forClass rule key or subclass of rule key */
 $enc = function (o, forClass) {
-	var t = typeof o, s = t !== 'function' ?
-		o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
-		: t === 'number' ? [String(o)] : t === 'string' ? ['', o]
-		: o instanceof Date ? ['*', o.getTime()] : 0
-	: '$name$' in o ? ['/', o.$name$] : $throw(t + ' unexpected ' + $S(o));
+	var t = typeof o,
+	s = o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
+		: t == 'number' ? [String(o)] : t == 'string' ? ['', o]
+		: o instanceof Date ? ['*', o.getTime()] : 0;
 	if (!s) {
 		s = [o instanceof Array ? '[' : ($.o(o), '{')];
 		s.clazz = $.f(forClass), s.refX = 0;
 		try {
 			$enc.ref(o), o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1);
 		} catch(e) {
-			try { $enc.unref(o); } catch(f) {} throw e;
+			try { $enc.unref(o); } catch(f) {}
+			throw e;
 		}
 		$enc.unref(o);
 	}
 	return s.join('\x10');
 }
 	$enc.ref = function (o, ox) {
-		if (o[''] = '' in o) // check and set multi reference flag
+		if (o[''] = '' in o)
 			return;
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x++)
-				typeof (ox = o[x]) !== 'string' ?
-				ox != null && typeof ox === 'object' && (ox instanceof Date || $enc.ref(ox))
+				typeof (ox = o[x]) != 'string' ?
+				ox instanceof Object && (ox instanceof Date || $enc.ref(ox)) // func
 				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
 		else if (!o.constructor.$name)
-			$throw($S(o) + ' class not ready');
+			$throw($S(o.constructor) + ' class not ready');
 		else for (var x in o)
 			if (o.hasOwnProperty(x))
-				typeof (ox = o[x]) !== 'string' ?
-				ox != null && typeof ox === 'object' && (ox instanceof Date || $enc.ref(ox))
+				typeof (ox = o[x]) != 'string' ?
+				ox == null || typeof ox != 'object' || ox instanceof Date || $enc.ref(ox)
 				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10');
 	}
 	$enc.unref = function (o, ox) {
-		if ('' in o && /*true*/delete o[''])
-			if (o instanceof Array)
-				for (var x = 0; x < o.length; x++)
-					(ox = o[x]) !== null && typeof ox === 'object'
-					&& (ox instanceof Date || $enc.unref(ox));
-			else for (var x in o)
-				o.hasOwnProperty(x) && (ox = o[x]) !== null && typeof ox === 'object'
-					&& (ox instanceof Date || $enc.unref(ox));
+		delete o[''];
+		if (o instanceof Array)
+			for (var x = 0; x < o.length; x++)
+				o && o[''] != null && $enc.unref(ox);
+		else for (var x in o)
+			o.hasOwnProperty(x) && (ox = o[x]) && ox[''] != null && $enc.unref(ox);
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length);
 		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++s.refX));
 		for (var i = 0, v, t; i < o.length; i++)
-			if (v = o[i], (t = typeof v) !== 'function')
-				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
-					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
-					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
-					: v instanceof Date ? (s[x++] = v.getTime(), '*')
-					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
-					: (x = $enc.o(v, s, x), '{');
-			else if ('$name$' in v)
-				s[x++] = '/', s[x++] = v.$name$;
+			v = o[i], t = typeof v,
+			s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
+				: t == 'number' ? String(v) : t == 'string' ? (s[x++] = v, '')
+				: typeof v[''] == 'string' ? (s[x++] = v[''], '=')
+				: v instanceof Date ? (s[x++] = v.getTime(), '*')
+				: v instanceof Array ? (x = $enc.l(v, s, x), '[')
+				: (x = $enc.o(v, s, x), '{');
 		s[x++] = ']';
 		return x;
 	}
 	$enc.o = function (o, s, x) {
-		s[x++] = o.constructor.$name$;
-		var v, t, enc;
+		var n = o.constructor, p, v, t, enc;
+		s[x++] = n == Object ? '' : n.$name;
 		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++s.refX));
 		P: {
 			G: if (enc = o.constructor.$encs) {
 				for (var c = s.clazz, g = enc.length - 2; g >= 0; g -= 2)
-					if (c === enc[g] || c.prototype instanceof enc[g]) {
+					if (c == enc[g] || c.prototype instanceof enc[g]) {
 						if (enc = enc[g + 1]) {
 
-		for (var p, n = 0; n < enc.length; n++)
-			if ((p = enc[n]) in o)
-			if ((v = o[p], t = typeof v) !== 'function')
+		for (p, n = 0; n < enc.length; n++)
+			if ((p = enc[n]) in o && (t = typeof (v = o[p])) != 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
-					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
-					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
+					: t == 'number' ? String(v) : t == 'string' ? (s[x++] = v, '')
+					: typeof v[''] == 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
 					: (x = $enc.o(v, s, x), '{');
-			else if ('$name$' in v)
-				s[x++] = p, s[x++] = '/', s[x++] = v.$name$;
 
 							break P;
 						}
@@ -162,18 +156,15 @@ $enc = function (o, forClass) {
 					}
 				break P;
 			}
-		for (var p in o)
-			if (o.hasOwnProperty(p) && p.length)
-			if ((v = o[p], t = typeof v) !== 'function')
+		for (p in o)
+			if (o.hasOwnProperty(p) && p.length && (t = typeof (v = o[p])) != 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
-					: t === 'number' ? String(v) : t === 'string' ? (s[x++] = v, '')
-					: typeof v[''] === 'string' ? (s[x++] = v[''], '=')
+					: t == 'number' ? String(v) : t == 'string' ? (s[x++] = v, '')
+					: typeof v[''] == 'string' ? (s[x++] = v[''], '=')
 					: v instanceof Date ? (s[x++] = v.getTime(), '*')
 					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
 					: (x = $enc.o(v, s, x), '{');
-			else if ('$name$' in v)
-				s[x++] = p, s[x++] = '/', s[x++] = v.$name$;
 		}
 		s[x++] = '}';
 		return x;
@@ -192,7 +183,6 @@ $dec = function (s, byName, ok) {
 			case '': s.o = s[x++]; break; case ',': s.o = null; break;
 			case '<': s.o = false; break; case '>': s.o = true; break;
 			case '*': s.o = new Date(s[x++] - 0); break;
-			case '/': s.o = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
 			case 'NaN': s.o = NaN; break;
 			default: isNaN(s.o = s[0] - 0) && $throw('illegal number ' + $S(s[0]));
 		}
@@ -206,12 +196,11 @@ $dec = function (s, byName, ok) {
 		var o = Array(s[x++] - 0);
 		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
 		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
-			: (v = s[x++]) !== ']'; i++)
+			: (v = s[x++]) != ']'; i++)
 			switch (v) {
 				case '': o[i] = s[x++]; break; case ',': o[i] = null; break;
 				case '<': o[i] = false; break; case '>': o[i] = true; break;
 				case '*': o[i] = new Date(s[x++] - 0); break;
-				case '/': o[i] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
 				case '[': x = $dec.l(s, x); o[i] = s.o; break;
 				case '{': x = $dec.o(s, x); o[i] = s.o; break;
 				case '=': o[i] = $dec.r[s[x++]]; break; case 'NaN': o[i] = NaN; break;
@@ -223,12 +212,11 @@ $dec = function (s, byName, ok) {
 	$dec.o = function (s, x, p, v) {
 		var o = s.n(s[x++]);
 		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
-		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) !== '}')
+		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) != '}')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break; case ',': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
 				case '*': o[p] = new Date(s[x++] - 0); break;
-				case '/': o[p] = $.cs$[s[x++]] || $throw('illegal class ' + $S(s[x])); break;
 				case '[': x = $dec.l(s, x); o[p] = s.o; break;
 				case '{': x = $dec.o(s, x); o[p] = s.o; break;
 				case '=': o[p] = $dec.r[s[x++]]; break; case 'NaN': o[p] = NaN; break;
@@ -252,7 +240,7 @@ $dec = function (s, byName, ok) {
  * @return a function to stop this round */
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
-	window.netscape && location.protocol === 'file:'
+	window.netscape && location.protocol == 'file:'
 		&& url.charCodeAt(0) == 104 && url.indexOf('http://') == 0
 		&& netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead');
 	var h = $ie == 6 ? new ActiveXObject('Msxml2.XMLHTTP.3.0') : new XMLHttpRequest;
@@ -492,7 +480,7 @@ $dom.tx = $fos ? function (v, multiLine) {
 /** get style.display != 'none', or set style.display, or switch style.display if v === 0.
  * @return true/false if no argument, or this */
 $dom.show = function (v) {
-	var s = this.style.display !== 'none';
+	var s = this.style.display != 'none';
 	if (arguments.length == 0)
 		return s;
 	if (s && !v)
@@ -554,16 +542,16 @@ $.throwStack = function (file, line) {
 
 /** @return x if not-null object (including list, excluding function), or throw */
 $.o = function (x) {
-	return x !== null && typeof x === 'object' ? x
+	return x !== null && typeof x == 'object' ? x
 		: $throw($S(x) + ' must be not-null object');
 }
 /** @return x if string, or throw */
 $.s = function (x) {
-	return typeof x === 'string' ? x : $throw($S(x) + ' must be string');
+	return typeof x == 'string' ? x : $throw($S(x) + ' must be string');
 }
 /** @return x if function, or throw */
 $.f = function (x) {
-	return typeof x === 'function' ? x : $throw($S(x) + ' must be function');
+	return typeof x == 'function' ? x : $throw($S(x) + ' must be function');
 }
 /** @return x if Array, or throw */
 $.a = function (x) {
@@ -586,14 +574,12 @@ $.c = function ($_$, $_$_, $_$$) {
 	if ($_$$ = $.cs[$_$])
 		return $_$$;
 	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found');
-	return typeof $_$_ === 'function' ? $.cs[$_$] = $_$_
+	return typeof $_$_ == 'function' ? $.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function');
 }
 	/* class cache */
-	$.cs$ = { '':Object, "'":String, '<':Boolean, 0:Number };
-	$.cs = { '':Object }, $class(true, 'Object'), delete $.cs$.Object;
-	(function(s,n) { s['*'] = Date, s['['] = Array; // JSEclipse bug
-		for (n in s) s[n].$name$ = n; })($.cs$);
+	$.cs = { '':Object }
+	$class(true, 'Object');
 
 /** copy another's own props. @return to */
 $.copy = function (to, from) {
