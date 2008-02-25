@@ -13,7 +13,6 @@ import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import objot.util.Array2;
@@ -207,22 +206,6 @@ final class Decoder
 			: (Number)Double.valueOf(numd);
 	}
 
-	private Class<?> classLiteral(String n) throws Exception
-	{
-		if ("'".equals(n))
-			return String.class;
-		if ("<".equals(n))
-			return Boolean.class;
-		if ("0".equals(n))
-			return Number.class;
-		if ("*".equals(n))
-			return Date.class;
-		if ("[".equals(n))
-			return List.class;
-		Object o = codec.byName(n);
-		return o instanceof Class ? (Class<?>)o : o.getClass();
-	}
-
 	private Object value(char c, Class<?> cla) throws Exception
 	{
 		if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*' || c == '/')
@@ -243,8 +226,6 @@ final class Decoder
 			return Class2.cast(false, cla);
 		else if (c == '>')
 			return Class2.cast(true, cla);
-		else if (c == '/')
-			return Class2.cast(classLiteral(str()), cla);
 		return Class2.cast(Num(num(), cla), cla);
 	}
 
@@ -374,8 +355,6 @@ final class Decoder
 						z.decode(o, p.index, v = false);
 					else if (c == '>')
 						z.decode(o, p.index, v = true);
-					else if (c == '/')
-						z.decode(o, p.index, v = classLiteral(str()));
 					else if (p.cla == int.class)
 						z.decode(o, p.index, numi(num()));
 					else if (p.cla == long.class)
@@ -412,8 +391,6 @@ final class Decoder
 					m.put(n, false);
 				else if (c == '>')
 					m.put(n, true);
-				else if (c == '/')
-					m.put(n, classLiteral(str()));
 				else
 					m.put(n, Num(num(), null));
 			// not found

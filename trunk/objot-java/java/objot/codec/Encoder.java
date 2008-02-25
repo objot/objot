@@ -90,24 +90,6 @@ final class Encoder
 			split(split().append('*')).append(((Date)v).getTime());
 		else if (v instanceof Calendar)
 			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
-		else if (v instanceof Class)
-		{
-			Class<?> c = (Class<?>)v;
-			StringBuilder s = split(split().append('/'));
-			if (CharSequence.class.isAssignableFrom(c) || Clob.class.isAssignableFrom(c))
-				s.append('\'');
-			else if (c == boolean.class || c == Boolean.class)
-				s.append('<');
-			else if (Number.class.isAssignableFrom(c) || c.isPrimitive()
-				&& (c == int.class || c == long.class || c == short.class || c == byte.class))
-				s.append('0');
-			else if (Date.class.isAssignableFrom(c) || Calendar.class.isAssignableFrom(c))
-				s.append('*');
-			else if (c.isArray() || Collection.class.isAssignableFrom(c))
-				s.append('[');
-			else
-				s.append(codec.name(null, c));
-		}
 		else
 		{
 			if (objs == null)
