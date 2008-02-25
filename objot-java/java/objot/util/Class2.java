@@ -47,6 +47,15 @@ public class Class2
 			+ c.getCanonicalName());
 	}
 
+	@SuppressWarnings("unchecked")
+	public static <T>T cast(Object o, Class<T> c, boolean nullable)
+	{
+		if (o == null && nullable || c.isAssignableFrom(o.getClass()))
+			return (T)o;
+		throw new RuntimeException((o != null ? o.getClass().getCanonicalName() : "null")
+			+ " forbidden for " + c.getCanonicalName());
+	}
+
 	/**
 	 * Primitive class to box class.
 	 * 

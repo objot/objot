@@ -53,21 +53,8 @@ final class Decoder
 		cla = cla != null ? cla : Object.class;
 		by = bBegin - 1;
 		bxy();
-		refs = new Object[28];
-		Object o;
-		if (bs[bx] == '[')
-		{
-			bxy();
-			o = list(cla, Object.class);
-		}
-		else if (bs[bx] == '{')
-		{
-			bxy();
-			o = object(cla);
-		}
-		else
-			throw new RuntimeException("array or object expected but " + chr() + " at 0("
-				+ bBegin + ')');
+		refs = Array2.OBJECTS0;
+		Object o = value(chr(), cla);
 		if (by < bEnd1)
 			throw new RuntimeException("termination expected but " + (char)(bs[by] & 0xFF)
 				+ " at " + by);
@@ -82,14 +69,6 @@ final class Decoder
 		while (by < bEnd1 && bs[by] != Codec.S)
 			by++;
 		return bx;
-	}
-
-	private Object ref() throws Exception
-	{
-		int i = numi(num());
-		if (i < 0 || i >= refs.length || refs[i] == null)
-			throw new RuntimeException("reference " + i + " not found");
-		return refs[i];
 	}
 
 	private char chr()
@@ -244,6 +223,39 @@ final class Decoder
 		return o instanceof Class ? (Class<?>)o : o.getClass();
 	}
 
+	private Object value(char c, Class<?> cla) throws Exception
+	{
+		if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*' || c == '/')
+			bxy();
+		if (c == 0)
+			return Class2.cast(Clob.class.isAssignableFrom(cla) ? clob() : str(), cla);
+		else if (c == '[')
+			return list(cla, Object.class);
+		else if (c == '{')
+			return object(cla);
+		else if (c == '=')
+			return Class2.cast(ref(), cla);
+		else if (c == '*')
+			return Class2.cast(new Date(numl(num())), cla);
+		else if (c == ',')
+			return null;
+		else if (c == '<')
+			return Class2.cast(false, cla);
+		else if (c == '>')
+			return Class2.cast(true, cla);
+		else if (c == '/')
+			return Class2.cast(classLiteral(str()), cla);
+		return Class2.cast(Num(num(), cla), cla);
+	}
+
+	private Object ref() throws Exception
+	{
+		int i = numi(num());
+		if (i < 0 || i >= refs.length || refs[i] == null)
+			throw new RuntimeException("reference " + i + " not found");
+		return refs[i];
+	}
+
 	@SuppressWarnings("unchecked")
 	private Object list(Class<?> cla, Class<?> elem) throws Exception
 	{
@@ -300,36 +312,11 @@ final class Decoder
 				ll[i++] = numl(num());
 		else if (lo != null)
 			for (char c; (c = chr()) != ']'; bxy())
-				lo[i++] = listElem(c, elem);
+				lo[i++] = value(c, elem);
 		else
 			for (char c; (c = chr()) != ']'; bxy())
-				ls.add(listElem(c, elem));
+				ls.add(value(c, elem));
 		return l;
-	}
-
-	private Object listElem(char c, Class<?> elem) throws Exception
-	{
-		if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*' || c == '/')
-			bxy();
-		if (c == 0)
-			return Class2.cast(Clob.class.isAssignableFrom(elem) ? clob() : str(), elem);
-		else if (c == '[')
-			return Class2.cast(list(elem, Object.class), elem);
-		else if (c == '{')
-			return Class2.cast(object(Object.class), elem);
-		else if (c == '=')
-			return Class2.cast(ref(), elem);
-		else if (c == '*')
-			return Class2.cast(new Date(numl(num())), elem);
-		else if (c == ',')
-			return null;
-		else if (c == '<')
-			return Class2.cast(false, elem);
-		else if (c == '>')
-			return Class2.cast(true, elem);
-		else if (c == '/')
-			return Class2.cast(classLiteral(str()), elem);
-		return Class2.cast(Num(num(), elem), elem);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -346,16 +333,14 @@ final class Decoder
 				+ cla0.getCanonicalName());
 		Map<String, Object> m = o instanceof Map ? (Map)o : null;
 
-		int ref = -1;
 		if (chr() == ':')
 		{
 			bxy();
-			ref = numi(num());
+			int ref = numi(num());
 			refs = Array2.ensureN(refs, ref + 1);
 			bxy();
-		}
-		if (ref >= 0)
 			refs[ref] = o;
+		}
 		for (char c; chr() != '}'; bxy())
 		{
 			String n = str();

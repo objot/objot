@@ -12,6 +12,10 @@ public class Test1
 {
 	public static void main(String[] args) throws Exception
 	{
+		Codec codec = new Codec();
+		CharSequence s = codec.enc(new Date(), null);
+		System.out.println(codec.dec(s.toString().toCharArray(), null, null));
+
 		A x = new A();
 		x.a2 = "\n\\20sss\tasdf34234sdf";
 		x.d = new Date(54321);
@@ -54,8 +58,7 @@ public class Test1
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
 		z[0] = z;
 
-		Codec codec = new Codec();
-		CharSequence s = codec.enc(z, null);
+		s = codec.enc(z, null);
 		Object o = codec.dec(s.toString().toCharArray(), null, null);
 		CharSequence s2 = codec.enc(o, Object.class);
 		if (s.length() != s2.length())

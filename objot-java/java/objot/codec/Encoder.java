@@ -39,20 +39,93 @@ final class Encoder
 	{
 		codec = o;
 		forClass = for_ != null ? for_ : Object.class;
-		objs = new Object[HASH_MASK + 1][32];
-		refs = new int[HASH_MASK + 1][32];
-		refn = 0;
 		str = new StringBuilder(1000);
 	}
 
 	StringBuilder go(Object o) throws Exception
 	{
-		refs(o);
-		if (o instanceof Collection || o.getClass().isArray())
-			list(o);
-		else
-			object(o);
+		refn = 0;
+		value(null, o); // including initializtion
 		return str;
+	}
+
+	private StringBuilder split()
+	{
+		if (str.length() > 0)
+			str.append(Codec.S);
+		return str;
+	}
+
+	private StringBuilder split(StringBuilder s)
+	{
+		return str.append(Codec.S);
+	}
+
+	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value",
+		String.class, Object.class);
+
+	void value(String name, Object v) throws Exception
+	{
+		if (name != null)
+			split().append(name);
+		int ref;
+		if (v == null)
+			split().append(',');
+		else if (v instanceof CharSequence)
+			split(split()).append((CharSequence)v);
+		else if (v instanceof Clob)
+			split(split()).append(((Clob)v).getSubString(1, //
+				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE)));
+		else if (v instanceof Boolean)
+			split().append((Boolean)v ? '>' : '<');
+		else if (v instanceof Double)
+			split().append((double)(Double)v);
+		else if (v instanceof Float)
+			split().append((float)(Float)v);
+		else if (v instanceof Long)
+			split().append(codec.getLong((Long)v));
+		else if (v instanceof Number)
+			split().append(((Number)v).longValue());
+		else if (v instanceof Date)
+			split(split().append('*')).append(((Date)v).getTime());
+		else if (v instanceof Calendar)
+			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
+		else if (v instanceof Class)
+		{
+			Class<?> c = (Class<?>)v;
+			StringBuilder s = split(split().append('/'));
+			if (CharSequence.class.isAssignableFrom(c) || Clob.class.isAssignableFrom(c))
+				s.append('\'');
+			else if (c == boolean.class || c == Boolean.class)
+				s.append('<');
+			else if (Number.class.isAssignableFrom(c) || c.isPrimitive()
+				&& (c == int.class || c == long.class || c == short.class || c == byte.class))
+				s.append('0');
+			else if (Date.class.isAssignableFrom(c) || Calendar.class.isAssignableFrom(c))
+				s.append('*');
+			else if (c.isArray() || Collection.class.isAssignableFrom(c))
+				s.append('[');
+			else
+				s.append(codec.name(null, c));
+		}
+		else
+		{
+			if (objs == null)
+			{
+				objs = new Object[HASH_MASK + 1][32];
+				refs = new int[HASH_MASK + 1][32];
+				refs(v);
+			}
+			else if ((ref = ref(v, 0)) > 0)
+			{
+				split(split().append('=')).append(ref);
+				return;
+			}
+			if (v instanceof Collection || v.getClass().isArray())
+				list(v);
+			else
+				object(v);
+		}
 	}
 
 	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
@@ -111,18 +184,6 @@ final class Encoder
 			refs[h] = Array2.ensureN(refs[h], x + 2);
 		}
 		return 0;
-	}
-
-	private StringBuilder split()
-	{
-		if (str.length() > 0)
-			str.append(Codec.S);
-		return str;
-	}
-
-	private StringBuilder split(StringBuilder s)
-	{
-		return str.append(Codec.S);
 	}
 
 	private void list(Object o) throws Exception
@@ -239,60 +300,5 @@ final class Encoder
 		if (name != null)
 			split().append(name);
 		split().append(v);
-	}
-
-	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value",
-		String.class, Object.class);
-
-	void value(String name, Object v) throws Exception
-	{
-		if (name != null)
-			split().append(name);
-		int ref;
-		if (v == null)
-			split().append(',');
-		else if (v instanceof CharSequence)
-			split(split()).append((CharSequence)v);
-		else if (v instanceof Clob)
-			split(split()).append(((Clob)v).getSubString(1, //
-				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE)));
-		else if (v instanceof Boolean)
-			split().append((Boolean)v ? '>' : '<');
-		else if (v instanceof Double)
-			split().append((double)(Double)v);
-		else if (v instanceof Float)
-			split().append((float)(Float)v);
-		else if (v instanceof Long)
-			split().append(codec.getLong((Long)v));
-		else if (v instanceof Number)
-			split().append(((Number)v).longValue());
-		else if (v instanceof Date)
-			split(split().append('*')).append(((Date)v).getTime());
-		else if (v instanceof Calendar)
-			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
-		else if (v instanceof Class)
-		{
-			Class<?> c = (Class<?>)v;
-			StringBuilder s = split(split().append('/'));
-			if (CharSequence.class.isAssignableFrom(c) || Clob.class.isAssignableFrom(c))
-				s.append('\'');
-			else if (c == boolean.class || c == Boolean.class)
-				s.append('<');
-			else if (Number.class.isAssignableFrom(c) || c.isPrimitive()
-				&& (c == int.class || c == long.class || c == short.class || c == byte.class))
-				s.append('0');
-			else if (Date.class.isAssignableFrom(c) || Calendar.class.isAssignableFrom(c))
-				s.append('*');
-			else if (c.isArray() || Collection.class.isAssignableFrom(c))
-				s.append('[');
-			else
-				s.append(codec.name(null, c));
-		}
-		else if ((ref = ref(v, 0)) > 0)
-			split(split().append('=')).append(ref);
-		else if (v instanceof Collection || v.getClass().isArray())
-			list(v);
-		else
-			object(v);
 	}
 }
