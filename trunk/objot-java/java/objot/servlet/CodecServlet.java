@@ -153,8 +153,10 @@ public class CodecServlet
 			{
 				if (q == null)
 					p = service(hq, hp, inf);
+				else if (inf.reqClas.length == 1)
+					p = service(hq, hp, inf, codec.dec(q, inf.reqBoxClas[0], inf.cla));
 				else
-					p = service(hq, hp, inf, codec.dec(q, inf.reqBoxCla, inf.cla));
+					p = service(hq, hp, inf, (Object[])codec.dec(q, Object[].class, inf.cla));
 			}
 			catch (ErrThrow e)
 			{

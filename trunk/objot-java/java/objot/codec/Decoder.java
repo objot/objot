@@ -49,11 +49,10 @@ final class Decoder
 	Object go(Class<?> cla) throws Exception
 	{
 		arrayForList = codec.arrayForList();
-		cla = cla != null ? cla : Object.class;
+		refs = Array2.OBJECTS0;
 		by = bBegin - 1;
 		bxy();
-		refs = Array2.OBJECTS0;
-		Object o = value(chr(), cla);
+		Object o = value(chr(), cla != null ? cla : Object.class);
 		if (by < bEnd1)
 			throw new RuntimeException("termination expected but " + (char)(bs[by] & 0xFF)
 				+ " at " + by);
@@ -226,7 +225,7 @@ final class Decoder
 			return Class2.cast(false, cla);
 		else if (c == '>')
 			return Class2.cast(true, cla);
-		return Class2.cast(Num(num(), cla), cla);
+		return Class2.cast(Num(num(), cla.isPrimitive() ? Class2.box(cla, true) : cla), cla);
 	}
 
 	private Object ref() throws Exception
@@ -249,6 +248,8 @@ final class Decoder
 		Object l = null;
 		Collection<Object> ls = null;
 
+		if (cla == Object.class)
+			cla = arrayForList ? Object[].class : ArrayList.class;
 		if (cla.isArray())
 		{
 			elem = cla.getComponentType();
@@ -377,8 +378,7 @@ final class Decoder
 				if (c == 0)
 					m.put(n, str());
 				else if (c == '[')
-					m.put(n, list(arrayForList ? Object[].class : ArrayList.class,
-						Object.class));
+					m.put(n, list(Object.class, Object.class));
 				else if (c == '{')
 					m.put(n, object(Object.class));
 				else if (c == '=')

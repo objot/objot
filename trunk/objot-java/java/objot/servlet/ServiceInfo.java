@@ -17,19 +17,24 @@ public class ServiceInfo
 	public final String name;
 	public final Class<?> cla;
 	public final Method meth;
-	public final Class<?> reqCla;
-	public final Class<?> reqBoxCla;
+	public final Class<?>[] reqClas;
+	public final Class<?>[] reqBoxClas;
 
 	public ServiceInfo(Codec c, String name_, Method m) throws Exception
 	{
 		name = name_;
 		cla = m.getDeclaringClass();
 		meth = m;
-		Class<?>[] s = m.getParameterTypes();
-		if (s.length == 0)
-			reqBoxCla = reqCla = null;
+		reqClas = m.getParameterTypes();
+		if (reqClas.length == 0)
+			reqBoxClas = reqClas;
 		else
-			reqBoxCla = (reqCla = s[0]).isPrimitive() ? Class2.box(reqCla, true) : reqCla;
+		{
+			reqBoxClas = reqClas.clone();
+			for (int i = 0; i < reqClas.length; i++)
+				if (reqClas[i].isPrimitive())
+					reqBoxClas[i] = Class2.box(reqClas[i], true);
+		}
 	}
 
 	public Object invoke(Object serv, Object... reqs) throws ErrThrow, Exception
