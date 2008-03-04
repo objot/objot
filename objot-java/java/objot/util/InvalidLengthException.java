@@ -23,9 +23,9 @@ public class InvalidLengthException
 		super(cause);
 	}
 
-	public InvalidLengthException(String message, Throwable cause)
+	public InvalidLengthException(String s, Throwable cause)
 	{
-		super(message, cause);
+		super(s, cause);
 	}
 
 	public InvalidLengthException(int length, int min, int max)
