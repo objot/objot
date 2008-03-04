@@ -74,17 +74,17 @@ public class Math2
 	}
 
 	/**
-	 * @throws IndexOutOfBoundsException if <code>index < 0</code> or
+	 * @throws InvalidValueException if <code>index < 0</code> or
 	 *             <code>index >= length</code>
 	 */
 	public static void checkIndex(int index, int length)
 	{
 		if ((index | length - index - 1) < 0)
-			throw new IndexOutOfBoundsException(String.valueOf(index));
+			throw new InvalidValueException(index);
 	}
 
 	/**
-	 * @throws IndexOutOfBoundsException if <code>index < 0</code> or
+	 * @throws InvalidValueException if <code>index < 0</code> or
 	 *             <code>index >= length</code>
 	 */
 	public static void checkIndex(long index, long length)
@@ -94,7 +94,7 @@ public class Math2
 	}
 
 	/**
-	 * @throws IndexOutOfBoundsException if <code>index < minIndex</code> or
+	 * @throws InvalidValueException if <code>index < minIndex</code> or
 	 *             <code>index >= length</code>
 	 */
 	public static void checkIndex(int index, int minIndex, int length)
@@ -104,7 +104,7 @@ public class Math2
 	}
 
 	/**
-	 * @throws IndexOutOfBoundsException if <code>index < minIndex</code> or
+	 * @throws InvalidValueException if <code>index < minIndex</code> or
 	 *             <code>index >= length</code>
 	 */
 	public static void checkIndex(long index, long minIndex, long length)

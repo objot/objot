@@ -23,9 +23,9 @@ public class InvalidValueException
 		initCause(cause);
 	}
 
-	public InvalidValueException(String message, Throwable cause)
+	public InvalidValueException(String s, Throwable cause)
 	{
-		super(message);
+		super(s);
 		initCause(cause);
 	}
 

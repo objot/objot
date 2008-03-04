@@ -23,9 +23,9 @@ public class InvalidRangeException
 		super(cause);
 	}
 
-	public InvalidRangeException(String message, Throwable cause)
+	public InvalidRangeException(String s, Throwable cause)
 	{
-		super(message, cause);
+		super(s, cause);
 	}
 
 	public InvalidRangeException(int begin, int end1)
