@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.concurrent.ConcurrentMap;
 
 
 public class Array2
@@ -145,12 +146,6 @@ public class Array2
 		return x == null ? DOUBLES0 : x;
 	}
 
-	/** @return the string, or "" if the string is null */
-	public static String maskNull(String x)
-	{
-		return x == null ? "" : x;
-	}
-
 	/** @return the array, or null if the array is the reused empty array */
 	public static boolean[] unmaskNull(boolean[] x)
 	{
@@ -197,12 +192,6 @@ public class Array2
 	public static double[] unmaskNull(double[] x)
 	{
 		return x == DOUBLES0 ? null : x;
-	}
-
-	/** @return the string, or null if the string is "" */
-	public static String unmaskNull(String x)
-	{
-		return x == null || x.length() > 0 ? x : null;
 	}
 
 	/** Search the array. */
@@ -741,5 +730,12 @@ public class Array2
 		for (T o: s)
 			c.add(o);
 		return c;
+	}
+
+	/** @return current value or new value */
+	public static <K, V>V putAbsent(ConcurrentMap<K, V> m, K k, V v)
+	{
+		V v0 = m.putIfAbsent(k, v);
+		return v0 != null ? v0 : v;
 	}
 }

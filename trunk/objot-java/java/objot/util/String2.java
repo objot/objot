@@ -14,6 +14,18 @@ public class String2
 		throw new AbstractMethodError();
 	}
 
+	/** @return the string, or "" if the string is null */
+	public static String maskNull(String x)
+	{
+		return x == null ? "" : x;
+	}
+
+	/** @return the string, or null if the string is "" */
+	public static String unmaskNull(String x)
+	{
+		return x == null || x.length() > 0 ? x : null;
+	}
+
 	public static char[] utf(byte[] s) throws UTFDataFormatException
 	{
 		return utf(s, 0, s.length);
