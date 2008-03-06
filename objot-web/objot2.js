@@ -13,7 +13,7 @@ $ = function (x) {
 $S = function (x) {
 	return x === null ? 'null' // stupid IE, null COM not null
 	: x instanceof Array ? x.length +'['+ $S(String(x)) +'...]' : (x = "'" + String(x) + "'",
-		(x.length > 40 ? x.substring(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
+		(x.length > 40 ? x.substr(0, 40) + '...' : x).replace(/\r?\n/g, '\\n'));
 }
 
 /** false or version number */
@@ -78,7 +78,7 @@ $enc = function (o, forClass) {
 	var t = typeof o,
 	s = o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
 		: t == 'number' ? [String(o)] : t == 'string' ? ['', o]
-		: o instanceof Date ? ['*', o.getTime()] : 0;
+		: o instanceof Date ? ['*', o - 0] : 0;
 	if (!s) {
 		s = [o instanceof Array ? '[' : ($.o(o), '{')];
 		s.clazz = $.f(forClass), s.refX = 0;
@@ -124,7 +124,7 @@ $enc = function (o, forClass) {
 			s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 				: t == 'number' ? String(v) : t == 'string' ? (s[x++] = v, '')
 				: typeof v[''] == 'string' ? (s[x++] = v[''], '=')
-				: v instanceof Date ? (s[x++] = v.getTime(), '*')
+				: v instanceof Date ? (s[x++] = v - 0, '*')
 				: v instanceof Array ? (x = $enc.l(v, s, x), '[')
 				: (x = $enc.o(v, s, x), '{');
 		s[x++] = ']';
@@ -146,7 +146,7 @@ $enc = function (o, forClass) {
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t == 'number' ? String(v) : t == 'string' ? (s[x++] = v, '')
 					: typeof v[''] == 'string' ? (s[x++] = v[''], '=')
-					: v instanceof Date ? (s[x++] = v.getTime(), '*')
+					: v instanceof Date ? (s[x++] = v - 0, '*')
 					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
 					: (x = $enc.o(v, s, x), '{');
 
@@ -162,7 +162,7 @@ $enc = function (o, forClass) {
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
 					: t == 'number' ? String(v) : t == 'string' ? (s[x++] = v, '')
 					: typeof v[''] == 'string' ? (s[x++] = v[''], '=')
-					: v instanceof Date ? (s[x++] = v.getTime(), '*')
+					: v instanceof Date ? (s[x++] = v - 0, '*')
 					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
 					: (x = $enc.o(v, s, x), '{');
 		}
