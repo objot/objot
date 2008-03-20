@@ -195,7 +195,7 @@ $dec = function (s, byName, ok) {
 	$dec.l = function (s, x) {
 		var o = Array(s[x++] - 0);
 		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
-		for (var i = 0, v; x >= s.length ? $throw('; expected but terminated')
+		for (var i = 0, v; x >= s.length ? $throw('] expected but terminated')
 			: (v = s[x++]) != ']'; i++)
 			switch (v) {
 				case '': o[i] = s[x++]; break; case ',': o[i] = null; break;
@@ -212,7 +212,7 @@ $dec = function (s, byName, ok) {
 	$dec.o = function (s, x, p, v) {
 		var o = s.n(s[x++]);
 		s[x] === ':' && ($dec.r[s[++x]] = o, x++);
-		while (x >= s.length ? $throw('; expected but terminated') : (p = s[x++]) != '}')
+		while (x >= s.length ? $throw('} expected but terminated') : (p = s[x++]) != '}')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break; case ',': o[p] = null; break;
 				case '<': o[p] = false; break; case '>': o[p] = true; break;
