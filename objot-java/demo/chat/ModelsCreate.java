@@ -92,12 +92,19 @@ public class ModelsCreate
 		{
 			data.save(o.id(0));
 			data.flush();
-			String q = "update " + data.getEntityName(o) + " set id=" + id + " where id=?";
-			data.evict(o);
-			// after evict, or HibernateException
-			if (data.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
-				throw new Exception("failed persist " + o + " with id = " + id);
-			o.id(id);
+			if (o.id() == id)
+				data.evict(o);
+			else
+			{
+				// before evict, or HibernateException
+				String q = "update " + data.getEntityName(o) + " set id=" + id
+					+ " where id=?";
+				data.evict(o);
+				// after evict, or HibernateException
+				if (data.query(q).setInteger(0, o.id()).executeUpdate() <= 0)
+					throw new Exception("failed persist " + o + " with id = " + id);
+				o.id(id);
+			}
 		}
 		else
 		{
