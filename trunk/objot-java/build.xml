@@ -17,6 +17,7 @@
 	<property name=".target.compile" value="WEB-INF/classes" />
 	<property name=".target.doc.api" value="doc/api" />
 	<property name=".archive" value="objot-java-${.version}.jar" />
+	<property name=".archive+source" value="objot-java-${.version}+source.jar" />
 
 	<target name="java.compile">
 		<delete dir="${.target.compile}" />
@@ -54,7 +55,9 @@
 				<attribute name="License" value="GNU General Public License version 2" />
 			</manifest>
 		</jar>
-		<jar jarfile="${.archive}"
+		<delete file="${.archive+source}}" />
+		<copy file="${.archive}" tofile="${.archive+source}" />
+		<jar jarfile="${.archive+source}"
 		     compress="true"
 		     basedir="${.source.java}"
 		     update="true">
