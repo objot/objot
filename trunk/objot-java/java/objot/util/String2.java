@@ -96,4 +96,30 @@ public class String2
 			}
 		return utf;
 	}
+
+	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	public static int index(String s, char sub, int begin)
+	{
+		int x = s.indexOf(sub, begin);
+		return x >= 0 ? x : s.length();
+	}
+
+	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	public static int index(String s, String sub, int begin)
+	{
+		int x = s.indexOf(sub, begin);
+		return x >= 0 ? x : s.length();
+	}
+
+	/** @return substring ended before the char */
+	public static String sub(String s, char end, int begin)
+	{
+		return begin < s.length() ? s.substring(begin, index(s, end, begin)) : "";
+	}
+
+	/** @return substring ended before the char */
+	public static String sub(String s, String end, int begin)
+	{
+		return begin < s.length() ? s.substring(begin, index(s, end, begin)) : "";
+	}
 }
