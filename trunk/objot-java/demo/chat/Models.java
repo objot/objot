@@ -4,6 +4,7 @@
 //
 package chat;
 
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -84,6 +85,10 @@ public class Models
 				return fac;
 			}
 		};
+		InputStreamReader connect = new InputStreamReader(
+			Models.class.getResourceAsStream("/hibernate.connect.properties"), "UTF-8");
+		conf.getProperties().load(connect);
+		connect.close();
 
 		conf.setNamingStrategy(new NamingStrategy()
 		{
@@ -149,7 +154,8 @@ public class Models
 		for (Class<?> c: Class2.packageClasses(Id.class))
 			conf.addAnnotatedClass(c);
 
-		conf.setProperty(Environment.AUTOCOMMIT, "false");
+		if ( !"false".equals(conf.getProperty(Environment.AUTOCOMMIT)))
+			throw new RuntimeException(Environment.AUTOCOMMIT + " must be false");
 		if (test)
 			conf.setProperty(Environment.URL, conf.getProperty(Environment.URL + ".test"));
 		return conf;

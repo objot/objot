@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="WEB-INF/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/ejb3-persistence.jar"/>
-	<classpathentry kind="lib" path="WEB-INF/lib/hibernate3.jar" sourcepath="/work/app/dev/hibernate-3.2.5.ga.zip"/>
+	<classpathentry kind="lib" path="WEB-INF/lib/hibernate3.jar" sourcepath="/work/app/dev/hibernate-3.2.6.ga.zip"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-annotations.jar" sourcepath="/work/app/dev/hibernate-annotations-3.3.0.GA.zip"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-commons-annotations.jar"/>
 	<classpathentry kind="lib" path="WEB-INF/lib/hibernate-validator.jar" sourcepath="/work/app/dev/hibernate-validator-3.0.0.GA.zip"/>
