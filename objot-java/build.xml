@@ -55,8 +55,7 @@
 				<attribute name="License" value="GNU General Public License version 2" />
 			</manifest>
 		</jar>
-		<delete file="${.archive+source}}" />
-		<copy file="${.archive}" tofile="${.archive+source}" />
+		<copy file="${.archive}" tofile="${.archive+source}" overwrite="true"/>
 		<jar jarfile="${.archive+source}"
 		     compress="true"
 		     basedir="${.source.java}"
