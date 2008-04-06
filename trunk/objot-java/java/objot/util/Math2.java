@@ -79,7 +79,7 @@ public class Math2
 	 */
 	public static void checkIndex(int index, int length)
 	{
-		if ((index | length - index - 1) < 0)
+		if (index < 0 || index >= length)
 			throw new InvalidValueException(index);
 	}
 
@@ -89,7 +89,7 @@ public class Math2
 	 */
 	public static void checkIndex(long index, long length)
 	{
-		if ((index | length - index - 1) < 0)
+		if (index < 0 || index >= length)
 			throw new InvalidValueException(index);
 	}
 
@@ -99,7 +99,7 @@ public class Math2
 	 */
 	public static void checkIndex(int index, int minIndex, int length)
 	{
-		if ((index - minIndex | length - index - 1) < 0)
+		if (index < minIndex || index >= length)
 			throw new InvalidValueException(index);
 	}
 
@@ -109,7 +109,7 @@ public class Math2
 	 */
 	public static void checkIndex(long index, long minIndex, long length)
 	{
-		if ((index - minIndex | length - index - 1) < 0)
+		if (index < minIndex || index >= length)
 			throw new InvalidValueException(index);
 	}
 
@@ -119,7 +119,7 @@ public class Math2
 	 */
 	public static void checkLength(int length, int maxLen)
 	{
-		if ((length | maxLen - length) < 0)
+		if (length < 0 || length > maxLen)
 			throw new InvalidLengthException(length, 0, maxLen);
 	}
 
@@ -129,7 +129,7 @@ public class Math2
 	 */
 	public static void checkLength(long length, long maxLen)
 	{
-		if ((length | maxLen - length) < 0)
+		if (length < 0 || length > maxLen)
 			throw new InvalidLengthException(length, 0, maxLen);
 	}
 
@@ -139,7 +139,7 @@ public class Math2
 	 */
 	public static void checkLength(int length, int minLen, int maxLen)
 	{
-		if ((length - minLen | maxLen - length) < 0)
+		if (length < minLen || length > maxLen)
 			throw new InvalidLengthException(length, minLen, maxLen);
 	}
 
@@ -149,7 +149,7 @@ public class Math2
 	 */
 	public static void checkLength(long length, long minLen, long maxLen)
 	{
-		if ((length - minLen | maxLen - length) < 0)
+		if (length < minLen || length > maxLen)
 			throw new InvalidLengthException(length, minLen, maxLen);
 	}
 
@@ -161,7 +161,7 @@ public class Math2
 	 */
 	public static void checkRange(int begin, int end1)
 	{
-		if ((begin | end1 - begin) < 0)
+		if (begin < 0 || begin > end1)
 			throw new InvalidRangeException(begin, end1);
 	}
 
@@ -173,7 +173,7 @@ public class Math2
 	 */
 	public static void checkRange(long begin, long end1)
 	{
-		if ((begin | end1 - begin) < 0)
+		if (begin < 0 || begin > end1)
 			throw new InvalidRangeException(begin, end1);
 	}
 
@@ -183,7 +183,7 @@ public class Math2
 	 */
 	public static void checkRange(int begin, int end1, int maxEnd1)
 	{
-		if ((begin | end1 - begin | maxEnd1 - end1) < 0)
+		if (begin < 0 || begin > end1 || end1 > maxEnd1)
 			throw new InvalidRangeException(begin, end1, maxEnd1);
 	}
 
@@ -193,7 +193,7 @@ public class Math2
 	 */
 	public static void checkRange(long begin, long end1, long maxEnd1)
 	{
-		if ((begin | end1 - begin | maxEnd1 - end1) < 0)
+		if (begin < 0 || begin > end1 || end1 > maxEnd1)
 			throw new InvalidRangeException(begin, end1, maxEnd1);
 	}
 
