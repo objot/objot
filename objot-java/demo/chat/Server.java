@@ -8,11 +8,11 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import objot.codec.Errs;
 import objot.container.Container;
-import objot.servlet.CodecServlet;
-import objot.servlet.ServiceInfo;
+import objot.service.CodecServlet;
+import objot.service.ServiceInfo;
 import objot.util.Class2;
+import objot.util.Errs;
 
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
@@ -25,7 +25,7 @@ import chat.service.Do;
 import chat.service.Session;
 
 
-public final class Servlet
+public final class Server
 	extends CodecServlet
 {
 	boolean dataTest;
@@ -40,7 +40,7 @@ public final class Servlet
 		Locale.setDefault(Locale.ENGLISH);
 
 		ServletLog.logger = context;
-		if ( !(LogFactory.getLog(Servlet.class) instanceof ServletLog))
+		if ( !(LogFactory.getLog(Server.class) instanceof ServletLog))
 		{
 			String s = "\n\n**************** WARNING ****************\n"
 				+ " org.apache.commons.logging.Log = " + ServletLog.class.getName()
