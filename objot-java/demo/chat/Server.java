@@ -5,16 +5,16 @@
 package chat;
 
 import java.util.Locale;
+import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import objot.container.Container;
-import objot.service.CodecServlet;
+import objot.service.ServiceHandler;
 import objot.service.ServiceInfo;
 import objot.util.Class2;
+import objot.util.Err;
 import objot.util.Errs;
 
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cache.Cache;
 import org.hibernate.impl.SessionFactoryImpl;
@@ -26,7 +26,7 @@ import chat.service.Session;
 
 
 public final class Server
-	extends CodecServlet
+	extends ServiceHandler
 {
 	boolean dataTest;
 	SessionFactory dataFactory;
@@ -35,26 +35,24 @@ public final class Server
 	CharSequence ok;
 
 	@Override
-	public void init() throws Exception
+	public void init(Container context) throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
 
-		ServletLog.logger = context;
-		if ( !(LogFactory.getLog(Server.class) instanceof ServletLog))
+		ServletLog.logger = context.get(ServletConfig.class).getServletContext();
+		if ( !(log instanceof ServletLog))
 		{
 			String s = "\n\n**************** WARNING ****************\n"
 				+ " org.apache.commons.logging.Log = " + ServletLog.class.getName()
 				+ " should be in commons-logging.properties\n\n";
 			System.err.println(s);
-			context.log(s);
+			log.warn(s);
 		}
 
 		dataTest = System.getProperty("data.test") != null;
-		String test = config.getInitParameter("data.test");
-		dataTest |= test != null && Boolean.parseBoolean(test);
 		if (dataTest)
 		{
-			context.log("\n================ for test ================\n");
+			log.warn("\n================ for test ================\n");
 			new ModelsCreate(true).create(true, -1);
 		}
 		codec = Models.CODEC;
@@ -64,18 +62,18 @@ public final class Server
 	}
 
 	@Override
-	protected ServiceInfo getServiceInfo(String n, String cla, String m) throws Exception
+	protected ServiceInfo getInfo(String n, String cla, String m) throws Exception
 	{
 		if (dataTest && "test".equals(cla))
 			return new ServiceInfo(codec, n, ModelsCreate.CREATE);
-		ServiceInfo inf = super.getServiceInfo(n, //
+		ServiceInfo inf = super.getInfo(n, //
 			Class2.packageName(Do.class) + '.' + cla, m);
 		return inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;
 	}
 
 	@Override
-	protected CharSequence service(HttpServletRequest hq, HttpServletResponse hp,
-		ServiceInfo inf, Object... reqs) throws Exception
+	public CharSequence handle(Container context, ServiceInfo inf, char[] req, int begin,
+		int end1) throws Exception
 	{
 		if (inf.cla == ModelsCreate.class) // test
 			synchronized (dataFactory)
@@ -88,6 +86,8 @@ public final class Server
 				return ok;
 			}
 
+		HttpServletRequest hq = context.get(HttpServletRequest.class);
+		// @todo bad double check
 		Container sess = (Container)hq.getSession().getAttribute("container");
 		if (sess == null)
 			synchronized (hq.getSession()) // double check
@@ -100,17 +100,22 @@ public final class Server
 		try
 		{
 			Container con = container.createBubble(container.parent(), sess);
-			inf.invoke(con.get(inf.cla), reqs);
-			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
-		}
-		catch (InvalidStateException e)
-		{
-			throw Do.err(new Errs(e.getInvalidValues()));
+			Object p = invoke(inf, con.get(inf.cla), req, begin, end1);
+			return p instanceof Err ? codec.enc(p, null)
+				: inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
 		}
 		finally
 		{
 			if (sess.get(Session.class).close)
 				hq.getSession().invalidate();
 		}
+	}
+
+	@Override
+	protected Object error(Throwable e) throws Exception
+	{
+		if (e instanceof InvalidStateException)
+			return new Errs(((InvalidStateException)e).getInvalidValues());
+		return super.error(e);
 	}
 }
