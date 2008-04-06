@@ -10,9 +10,9 @@ import java.sql.Statement;
 import java.util.HashMap;
 
 import objot.codec.Codec;
-import objot.codec.Err;
-import objot.codec.Errs;
 import objot.util.Class2;
+import objot.util.Err;
+import objot.util.Errs;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
