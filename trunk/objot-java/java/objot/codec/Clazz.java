@@ -171,7 +171,7 @@ abstract class Clazz
 				else
 					s.insU2(INVOKEVIRTUAL, p.cons.addProc(e.method));
 				s.insU2(INVOKEVIRTUAL, refsCi);
-				s.jumpFrom(if0);
+				s.jumpHere(if0);
 			}
 		s.ins0(RETURN);
 		p.getCode().setIns(s, false);
@@ -233,7 +233,7 @@ abstract class Clazz
 				s.insBox(e.cla);
 				s.insU2(INVOKEVIRTUAL, objCi);
 			}
-			s.jumpFrom(if0);
+			s.jumpHere(if0);
 		}
 		s.ins0(RETURN);
 		p.getCode().setIns(s, false);
@@ -307,7 +307,7 @@ abstract class Clazz
 		s.ins0(ILOAD2);
 		long sw = s.insSwitchTable(0, ds.length - 1);
 		int sw0 = s.addr; // default
-		s.switchTableFrom(sw, -1);
+		s.switchTableHere(sw, -1);
 		int exCi = p.cons.addClass(ClassCastException.class);
 		s.insU2(NEW, exCi);
 		s.ins0(DUP);
@@ -321,7 +321,7 @@ abstract class Clazz
 				s.switchTable(sw, i, sw0);
 			else
 			{
-				s.switchTableFrom(sw, i);
+				s.switchTableHere(sw, i);
 				if (type == 0)
 					if (d.cla == boolean.class)
 						s.insUnboxNarrow(d.cla);
