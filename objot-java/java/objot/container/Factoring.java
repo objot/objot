@@ -21,7 +21,11 @@ final class Factoring
 {
 	private static final String NAME_oss = "oss";
 
-	/** [0] == null */
+	/**
+	 * [0] == null
+	 * 
+	 * @todo optimize: move oss to front followed by actual bind
+	 */
 	Bind.Clazz[] cs;
 	Object[][] oss;
 	boolean lazy;
@@ -30,7 +34,7 @@ final class Factoring
 	int indexCi;
 	int get0Ci;
 	int create0Ci;
-	int outCi;
+	int parentCi;
 	int ossCi;
 	int[] fCis;
 	int[] cCis;
@@ -54,7 +58,7 @@ final class Factoring
 
 		get0Ci = cons.addProc(Container.M_get0);
 		create0Ci = cons.addProc(Container.M_create0);
-		outCi = cons.addField(Container.F_parent);
+		parentCi = cons.addField(Container.F_parent);
 		fCis = new int[cs.length];
 		cCis = new int[cs.length];
 		makeFields();
@@ -62,33 +66,33 @@ final class Factoring
 		makeGet0();
 		makeCreate0();
 
-		Container c = Class2.<Container>load(Container.class.getClassLoader(), name,
-			y.normalize()).newInstance();
-		Class2.declaredField(c.getClass(), NAME_oss).set(null, oss);
-		return c;
+		Class<Container> c = Class2.<Container>load(Container.class.getClassLoader(), name,
+			y.normalize());
+		Class2.declaredField(c, NAME_oss).set(null, oss);
+		return c.newInstance(); // parent not inited
 	}
 
-	/** @return index or -index of actual bind or object */
-	private int bind(int i0)
+	/** @return index or -index of actual bind */
+	private int index(int i0)
 	{
 		Bind.Clazz c = cs[i0];
-		if (c.b != c && c.b != null)
+		if (c.bc != c && c.bc != null)
 			for (int i = cs.length - 1; i > 0; i--)
-				if (cs[i] == c.b)
-					return cs[i].mode == Inject.New.class ? -i : i;
-		return c.mode == Inject.New.class ? -i0 : i0;
+				if (cs[i] == c.bc)
+					return cs[i].mode == null || cs[i].mode == Inject.Single.class ? i : -i;
+		return c.mode == null || c.mode == Inject.Single.class ? i0 : -i0;
 	}
 
-	/** @return index or -index of actual bind or object */
-	private int bind(Bind.Clazz c)
+	/** @return index or -index of actual bind */
+	private int index(Bind.Clazz c)
 	{
-		if (c.b != c && c.b != null)
+		if (c.bc != c && c.bc != null)
 			for (int i = cs.length - 1; i > 0; i--)
-				if (cs[i] == c.b)
-					return cs[i].mode == Inject.New.class ? -i : i;
+				if (cs[i] == c.bc)
+					return cs[i].mode == null || cs[i].mode == Inject.Single.class ? i : -i;
 		for (int i = cs.length - 1; i > 0; i--)
 			if (cs[i] == c)
-				return cs[i].mode == Inject.New.class ? -i : i;
+				return cs[i].mode == null || cs[i].mode == Inject.Single.class ? i : -i;
 		throw new AssertionError();
 	}
 
@@ -103,7 +107,7 @@ final class Factoring
 			f.getDescCi()));
 		int descCi = cons.addUcs(Class2.descript(Object.class));
 		for (int i = 1; i < cs.length; i++)
-			if (cs[i].b == cs[i] && cs[i].mode != Inject.New.class)
+			if (cs[i].bc == cs[i] && cs[i].mode != Inject.New.class)
 			{
 				f = new Field(cons);
 				f.setModifier(Mod2.PRIVATE);
@@ -132,20 +136,20 @@ final class Factoring
 		long sw = s.insSwitchTable(0, 30);
 		for (int i = 0; i < 31; i++)
 		{
-			s.switchTableFrom(sw, i);
+			s.switchTableHere(sw, i);
 			for (int j = 1; j < cs.length; j++)
 				if (cs[j].cla.hashCode() % 31 == i)
 				{
 					s.ins0(DUP); // class
 					s.insU2(LDCW, cCis[j] = cons.addClass(cs[j].cla));
 					s.insS2(IFAN, 7);
-					s.insS2(SIPUSH, bind(j));
+					s.insS2(SIPUSH, index(j));
 					s.ins0(IRETURN);
 				}
 			s.ins0(ICONST0);
 			s.ins0(IRETURN);
 		}
-		s.switchTableFrom(sw, -1);
+		s.switchTableHere(sw, -1);
 		s.ins0(ICONST0);
 		s.ins0(IRETURN);
 		p.getCode().setIns(s, false);
@@ -166,12 +170,12 @@ final class Factoring
 		s.ins0(ALOAD0); // this
 		s.ins0(ILOAD1);
 		long sw = s.insSwitchTable(0, cs.length - 1);
-		s.switchTableFrom(sw, -1);
-		s.switchTableFrom(sw, 0);
+		s.switchTableHere(sw, -1);
+		s.switchTableHere(sw, 0);
 		int sw0 = s.addr;
 		s.ins0(ACONSTNULL);
 		s.ins0(ARETURN);
-		int swO = s.addr;
+		int swObj = s.addr;
 		s.insU2(GETSTATIC, ossCi);
 		s.ins0(ILOAD1);
 		s.ins0(AALOAD);
@@ -183,17 +187,14 @@ final class Factoring
 			Bind.Clazz c = cs[i];
 			if (c.cla == Container.class)
 			{
-				s.switchTableFrom(sw, i);
+				s.switchTableHere(sw, i);
 				s.ins0(ARETURN); // return this;
 			}
-			else if (c.b == null)
-				if (oss[i][0] != null)
-					s.switchTable(sw, i, swO);
-				else
-					s.switchTable(sw, i, sw0);
-			else if (c.b == c && c.mode == Inject.Single.class)
+			else if (c.bc == null) // static object
+				s.switchTable(sw, i, oss[i][0] == null ? sw0 : swObj);
+			else if (c.bc == c && c.mode == Inject.Single.class)
 			{
-				s.switchTableFrom(sw, i);
+				s.switchTableHere(sw, i);
 				s.insU2(GETFIELD, fCis[i]);
 				s.ins0(DUP);
 				int j = s.insJump(IFNOTNULL);
@@ -202,21 +203,21 @@ final class Factoring
 				s.ins0(ILOAD1);
 				s.ins0(ACONSTNULL);
 				s.insU2(INVOKEVIRTUAL, create0Ci);
-				s.jumpFrom(j);
+				s.jumpHere(j);
 				s.ins0(ARETURN);
 			}
-			else if (c.b == c && c.mode == null)
+			else if (c.bc == c && c.mode == null) // parent
 			{
-				s.switchTableFrom(sw, i);
+				s.switchTableHere(sw, i);
 				s.ins0(DUP);
 				s.insU2(GETFIELD, fCis[i]); // this, field
 				s.ins0(DUP);
 				int cache = s.insJump(IFNULL);
 				s.ins0(ARETURN);
-				s.jumpFrom(cache);
+				s.jumpHere(cache);
 				s.ins0(POP);
-				int out = s.addr; // c
-				s.insU2(GETFIELD, outCi); // c
+				int loop = s.addr; // c
+				s.insU2(GETFIELD, parentCi); // c
 				s.ins0(DUP);
 				s.insU2(LDCW, cCis[i]);
 				s.insU2(INVOKEVIRTUAL, indexCi); // c, i
@@ -225,7 +226,7 @@ final class Factoring
 				s.ins0(ALOAD0);
 				s.insU2(INVOKEVIRTUAL, create0Ci); // o
 				s.ins0(ARETURN);
-				s.jumpFrom(ge0);
+				s.jumpHere(ge0);
 				s.ins0(DUP);
 				int e0 = s.insJump(IFIE0);
 				s.insU2(INVOKEVIRTUAL, get0Ci); // o
@@ -234,11 +235,12 @@ final class Factoring
 				s.ins0(SWAP); // o, this, o
 				s.insU2(PUTFIELD, fCis[i]);
 				s.ins0(ARETURN);
-				s.jumpFrom(e0);
+				s.jumpHere(e0);
 				s.ins0(POP);
-				s.jump(s.insJump(GOTO), out);
+				s.jump(s.insJump(GOTO), loop);
 			}
 			else
+				// never happen: another class, or Inject.New, or Inject.Set
 				s.switchTable(sw, i, sw0);
 		}
 		p.getCode().setIns(s, false);
@@ -253,14 +255,21 @@ final class Factoring
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(cons.getCprocName(create0Ci));
 		p.setDescCi(cons.getCprocDesc(create0Ci));
-		int max = cs.length - 1;
+		int i0 = cs.length - 1;
 		Instruction s = new Instruction(cons, 250);
 		s.ins0(ILOAD1); // index
-		long sw = s.insSwitchTable( -max, max);
-		s.switchTableFrom(sw, -1);
-		s.switchTableFrom(sw, max);
+		long sw = s.insSwitchTable( -i0, i0);
+		s.switchTableHere(sw, -1);
+		s.switchTableHere(sw, i0);
 		int sw0 = s.addr;
 		s.ins0(ACONSTNULL);
+		s.ins0(ARETURN);
+		int swObj = s.addr;
+		s.insU2(GETSTATIC, ossCi);
+		s.ins0(ILOAD1);
+		s.ins0(AALOAD);
+		s.ins0(ICONST0);
+		s.ins0(AALOAD); // oss[i][0]
 		s.ins0(ARETURN);
 		int maxParamN = 0;
 		for (int i = 1; i < cs.length; i++)
@@ -269,8 +278,8 @@ final class Factoring
 			maxParamN = Math.max(maxParamN, c.maxParamN);
 			if (c.cla == Container.class)
 			{
-				s.switchTableFrom(sw, max + i);
-				s.switchTableFrom(sw, max - i);
+				s.switchTableHere(sw, i0 + i);
+				s.switchTable(sw, i0 - i, sw0); // never happend
 				s.insU2(NEW, y.head.getClassCi());
 				s.ins0(DUP);
 				s.insU2(INVOKESPECIAL, cons.addCproc(y.head.getClassCi(), //
@@ -278,10 +287,10 @@ final class Factoring
 						y.getProcs().getProc(0).getDescCi())));
 				s.ins0(DUP);
 				s.ins0(ALOAD2);
-				s.insU2(PUTFIELD, outCi);
+				s.insU2(PUTFIELD, parentCi);
 				if ( !lazy)
 					for (int j = 1; j < cs.length; j++)
-						if (cs[j].cla != Container.class && cs[j].b == cs[j]
+						if (cs[j].cla != Container.class && cs[j].bc == cs[j]
 							&& cs[j].mode == Inject.Single.class)
 						{
 							s.ins0(DUP);
@@ -292,14 +301,19 @@ final class Factoring
 							s.ins0(ACONSTNULL);
 							s.insU2(INVOKEVIRTUAL, create0Ci);
 							s.ins0(POP);
-							s.jumpFrom(k);
+							s.jumpHere(k);
 						}
 				s.ins0(ARETURN);
 			}
-			else if (c.t != null) // never bind to parent
+			else if (c.bc == null) // static object
 			{
-				s.switchTableFrom(sw, max + i);
-				s.switchTableFrom(sw, max - i);
+				s.switchTable(sw, i0 + i, oss[i][0] == null ? sw0 : swObj);
+				s.switchTable(sw, i0 - i, sw0); // never happend
+			}
+			else if (c.t != null) // Inject.New and Inject.Single
+			{
+				s.switchTableHere(sw, i0 + i);
+				s.switchTableHere(sw, i0 - i); // one of +/- never happen
 				s.insU2(NEW, cons.putClass(c.cla));
 				s.ins0(DUP);
 				int o = 1;
@@ -314,7 +328,7 @@ final class Factoring
 					s.ins0(ALOAD0);
 					s.ins0(SWAP);
 					s.insU2(PUTFIELD, fCis[i]);
-					s.jumpFrom(j);
+					s.jumpHere(j);
 				}
 				for (Bind.FM fm: c.fms)
 					if (fm.f != null)
@@ -332,10 +346,37 @@ final class Factoring
 					}
 				s.ins0(ARETURN);
 			}
+			else if (c.bc == c && c.mode == Inject.Set.class)
+			{
+				s.switchTable(sw, i0 + i, sw0); // never happend
+				s.switchTableHere(sw, i0 - i);
+				s.ins0(ALOAD0);
+				s.insU2(GETFIELD, fCis[i]);
+				s.ins0(ARETURN);
+			}
+			else if (c.bc == c && c.mode == null) // parent
+			{
+				s.switchTableHere(sw, i0 + i);
+				s.switchTable(sw, i0 - i, sw0); // never happend
+				s.ins0(ALOAD0);
+				int loop = s.addr; // c
+				s.insU2(GETFIELD, parentCi); // c
+				s.ins0(DUP);
+				s.insU2(LDCW, cCis[i]);
+				s.insU2(INVOKEVIRTUAL, indexCi); // c, i
+				s.ins0(DUP);
+				int e0 = s.insJump(IFIE0);
+				s.ins0(ALOAD0);
+				s.insU2(INVOKEVIRTUAL, create0Ci); // o
+				s.ins0(ARETURN);
+				s.jumpHere(e0);
+				s.ins0(POP);
+				s.jump(s.insJump(GOTO), loop);
+			}
 			else
-			{ // never happen
-				s.switchTable(sw, max + i, sw0);
-				s.switchTable(sw, max - i, sw0);
+			{ // never happen: another class
+				s.switchTable(sw, i0 + i, sw0);
+				s.switchTable(sw, i0 - i, sw0);
 			}
 		}
 		p.getCode().setIns(s, false);
@@ -346,10 +387,10 @@ final class Factoring
 
 	private int makeCreate0_bind(int i0, Instruction s, Bind b, Object[] os, int o)
 	{
-		if (b.b != null)
+		if (b.bc != null)
 		{
 			s.ins0(ALOAD0);
-			int i = bind(b.b);
+			int i = index(b.bc);
 			s.insS2(SIPUSH, i);
 			if (i < 0)
 				s.ins0(ALOAD0);

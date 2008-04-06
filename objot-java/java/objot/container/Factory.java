@@ -25,7 +25,7 @@ public class Factory
 	{
 		Bind.Clazz c = new Bind.Clazz();
 		c.cla = Container.class;
-		c.b = c;
+		c.bc = c;
 		c.mode = c.cla.getAnnotation(Inject.Single.class).annotationType();
 		(classes = new HashMap<Class<?>, Bind.Clazz>()).put(c.cla, c);
 	}
@@ -67,11 +67,11 @@ public class Factory
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
 			doBind(cla, to);
 			to(false, c, to);
-			if (c.b != c || c.mode == null)
-				return;
-			if (c.b == c && Mod2.match(cla, Mod2.ABSTRACT))
-				throw new IllegalArgumentException("abstract");
+			if (c.bc != c || c.mode == null || c.mode == Inject.Set.class)
+				return; // bind to other or set
 
+			if (Mod2.match(cla, Mod2.ABSTRACT))
+				throw new IllegalArgumentException("abstract");
 			c.t = new Bind.T();
 			c.t.t = doBind(cla, cla.getDeclaredConstructors());
 			if (c.t.t.getDeclaringClass() != cla)
@@ -140,8 +140,9 @@ public class Factory
 	}
 
 	/**
-	 * bind to another class, or an object, or parent container. circular dependences from
-	 * {@link Inject.New} classes must be avoided since it causes stack overflow.
+	 * bind to another class, or an static object, or parent container. circular
+	 * dependences from {@link Inject.New} classes must be avoided since it causes stack
+	 * overflow.
 	 * 
 	 * @return ignored, just for convenience
 	 */
@@ -191,7 +192,7 @@ public class Factory
 		return null;
 	}
 
-	/** eager, see {@link #create(Container, boolean)} */
+	/** eager see {@link #create(Container, boolean)} */
 	public final Container create(Container parent) throws Exception
 	{
 		return create(parent, false);
@@ -222,7 +223,7 @@ public class Factory
 			cs[i++] = c;
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind.Clazz c: cs)
-				ok |= c != null && c.b != bindSpread(c).b;
+				ok |= c != null && c.bc != bindSpread(c).bc;
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind.Clazz c: cs)
 			if (c != null && c.os == null)
@@ -231,24 +232,24 @@ public class Factory
 				if (c.t != null)
 				{
 					for (Bind p: c.t.ps)
-						if (bindSpread(p).b == null)
+						if (bindSpread(p).bc == null)
 							os.add(p.obj);
 					c.maxParamN = c.t.ps.length;
 					for (Bind.FM fm: c.fms)
 						if (fm.m != null)
 						{
 							for (Bind p: fm.ps)
-								if (bindSpread(p).b == null)
+								if (bindSpread(p).bc == null)
 									os.add(p.obj);
 							c.maxParamN = Math.max(c.maxParamN, fm.ps.length);
 						}
-						else if (bindSpread(fm).b == null)
+						else if (bindSpread(fm).bc == null)
 							os.add(fm.obj);
 				}
 				c.os = os.toArray();
 				os.clear();
 			}
-		con = new Factoring().create(cs, lazy_);
+		con = new Factoring().create(cs, lazy_); // parent not inited
 		bindN = cs.length - 1;
 		lazy = lazy_;
 		return con.create(parent);
@@ -275,7 +276,7 @@ public class Factory
 			if (to.mode != null && to.mode.getDeclaringClass() != Inject.class)
 				throw new IllegalArgumentException("mode " + to.mode);
 			bind(to.cla);
-			b.b = classes.get(to.cla);
+			b.bc = classes.get(to.cla);
 			b.mode = to.mode;
 		}
 		if (primitive)
@@ -284,10 +285,10 @@ public class Factory
 
 	private Bind bindSpread(Bind b)
 	{
-		if (b.b != b && b.b != null)
+		if (b.bc != b && b.bc != null)
 		{
-			b.obj = b.b.obj;
-			b.b = b.b.b;
+			b.obj = b.bc.obj;
+			b.bc = b.bc.bc;
 		}
 		return b;
 	}

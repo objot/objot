@@ -15,11 +15,11 @@ import objot.container.Factory;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import test.container.X.Inner;
+import test.container.X.ChildSingle;
 import test.container.X.New;
 import test.container.X.New2;
-import test.container.X.OuterNew;
-import test.container.X.OuterSingle;
+import test.container.X.ParentNew;
+import test.container.X.ParentSingle;
 import test.container.X.Single;
 import test.container.X.Single2;
 
@@ -33,17 +33,17 @@ public class TestContainer
 	@BeforeClass
 	public static void init() throws Exception
 	{
-		final Container outest = new Factory()
+		final Container parent = new Factory()
 		{
 			{
-				bind(OuterNew.class);
-				bind(OuterSingle.class);
+				bind(ParentNew.class);
+				bind(ParentSingle.class);
 			}
 
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return b.cla(c == X.class ? OuterSingle.class : b.cla);
+				return b.cla(c == X.class ? ParentSingle.class : b.cla);
 			}
 		}.create(null);
 		Factory f = new Factory()
@@ -52,13 +52,14 @@ public class TestContainer
 				bind(Object.class);
 				bind(New2.class);
 				bind(Single2.class);
-				bind(Inner.class);
+				bind(ChildSingle.class);
+				bind(ParentSingle.class);
 			}
 
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return c == Long.class ? b.obj(9L) : b.mode(outest.bound(c) ? null : b.mode);
+				return c == Long.class ? b.obj(9L) : b.mode(parent.bound(c) ? null : b.mode);
 			}
 
 			@Override
@@ -84,8 +85,8 @@ public class TestContainer
 				return b;
 			}
 		};
-		con0 = f.create(outest);
-		con0lazy = f.create(outest, true);
+		con0 = f.create(parent);
+		con0lazy = f.create(parent, true);
 	}
 
 	Container con = con0.createBubble(null);
@@ -109,7 +110,7 @@ public class TestContainer
 		con0lazy.create();
 		try
 		{
-			con0lazy.create().get(X.Inner.class);
+			con0lazy.create().get(X.ChildSingle.class);
 			fail();
 		}
 		catch (ClassCastException e)
@@ -168,6 +169,7 @@ public class TestContainer
 		Single o1 = con.get(Single.class);
 		assertSame(o, o1);
 		assertNotSame(o.n, con.get(New.class));
+		assertNotSame(o1, con.create(Single.class));
 
 		Single o2 = con2.get(Single.class);
 		assertNotSame(o0, o2);
@@ -190,19 +192,23 @@ public class TestContainer
 		assertSame(con0.parent().getClass(), con.parent().getClass());
 		assertSame(con.parent(), con.rootParent());
 
-		Inner o = con.get(Inner.class);
+		ChildSingle o = con.get(ChildSingle.class);
 		assertNotNull(o.on);
-		assertNotSame(con.parent().get(OuterNew.class), o.on);
-		assertSame(con.parent().get(OuterSingle.class), o.os);
+		assertNotSame(con.parent().get(ParentNew.class), o.on);
+		assertSame(con.parent().get(ParentSingle.class), o.os);
 		assertSame(o.os, o.on.x);
 		assertSame(o.os, o.os.x);
 
-		Inner o2 = con.create(Inner.class);
+		ChildSingle o2 = con.create(ChildSingle.class);
 		assertNotSame(o.on, o2.on);
 		assertSame(o.os, o2.os);
-		Inner o3 = con2.get(Inner.class);
+		ChildSingle o3 = con2.get(ChildSingle.class);
 		assertNotSame(o.on, o3.on);
 		assertNotSame(o2.on, o3.on);
 		assertSame(o.os, o3.os);
+
+		ParentSingle o4 = con.create(ParentSingle.class);
+		assertNotNull(o4);
+		assertNotSame(o.os, o4);
 	}
 }

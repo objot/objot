@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Inject
 {
-	/** inject new object every time */
+	/** inject a new instance every time */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
@@ -28,12 +28,21 @@ public @interface Inject
 	{
 	}
 
-	/** inject and save object in this container if not found in this container, default */
+	/** inject the exist or a new instance in this container, default */
 	@Target(ElementType.TYPE)
 	@Retention(RetentionPolicy.RUNTIME)
 	@Inherited
 	@Documented
 	public @interface Single
+	{
+	}
+
+	/** inject the instance by {@link Container#set} in this container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Set
 	{
 	}
 }

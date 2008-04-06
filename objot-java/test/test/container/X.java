@@ -11,7 +11,7 @@ import objot.container.Inject;
 public interface X
 {
 	@Inject.New
-	public class OuterNew
+	public class ParentNew
 		implements X
 	{
 		@Inject
@@ -19,8 +19,8 @@ public interface X
 	}
 
 	@Inject.Single
-	public class OuterSingle
-		extends OuterNew
+	public class ParentSingle
+		extends ParentNew
 	{
 	}
 
@@ -89,11 +89,11 @@ public interface X
 		public New n0;
 	}
 
-	public class Inner
+	public class ChildSingle
 	{
 		@Inject
-		public OuterNew on;
+		public ParentNew on;
 		@Inject
-		public OuterSingle os;
+		public ParentSingle os;
 	}
 }
