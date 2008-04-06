@@ -504,8 +504,7 @@ public class Class2
 			throw new Exception("invalid class " + c);
 		String p = c.getPackage().getName();
 		// find the package directory
-		URL url = c.getResource("/" + c.getName().replace('.', '/') + ".class");
-		url = new URL(url.toString().substring(0, url.toString().lastIndexOf('/') + 1));
+		URL url = c.getResource("/" + packageName(c).replace('.', '/'));
 
 		ArrayList<Class<?>> clas = new ArrayList<Class<?>>();
 

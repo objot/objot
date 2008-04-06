@@ -23,7 +23,83 @@ public class String2
 	/** @return the string, or null if the string is "" */
 	public static String unmaskNull(String x)
 	{
-		return x == null || x.length() > 0 ? x : null;
+		return x == null || x.length() == 0 ? null : x;
+	}
+
+	/** @return the string, or <code>mask</code> if the string is null or empty */
+	public static String maskEmpty(String x, String mask)
+	{
+		return x == null || x.length() == 0 ? maskNull(mask) : x;
+	}
+
+	/** @return the string, or "" if the string is null or mask */
+	public static String unmaskEmpty(String x, String mask)
+	{
+		return x == null || maskNull(mask).equals(x) ? "" : x;
+	}
+
+	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	public static int index(String s, char sub, int begin)
+	{
+		int x = s.indexOf(sub, begin);
+		return x >= 0 ? x : s.length();
+	}
+
+	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	public static int index(String s, String sub, int begin)
+	{
+		int x = s.indexOf(sub, begin);
+		return x >= 0 ? x : s.length();
+	}
+
+	public static String sub(String s, int begin)
+	{
+		return s.substring(Math2.bound(begin, 0, s.length()));
+	}
+
+	public static String sub(String s, int begin, int end1)
+	{
+		end1 = Math2.bound(end1, 0, s.length());
+		begin = Math2.bound(begin, 0, end1);
+		return s.substring(begin, end1);
+	}
+
+	/** @return substring ended before the delimiter */
+	public static String sub(String s, char deli, int begin)
+	{
+		return sub(s, begin, index(s, deli, begin));
+	}
+
+	/** @return substring ended before the delimiter */
+	public static String sub(String s, String deli, int begin)
+	{
+		return sub(s, begin, index(s, deli, begin));
+	}
+
+	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	public static int lastIndex(String s, char sub)
+	{
+		int x = s.lastIndexOf(sub);
+		return x >= 0 ? x : s.length();
+	}
+
+	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	public static int lastIndex(String s, String sub)
+	{
+		int x = s.lastIndexOf(sub);
+		return x >= 0 ? x : s.length();
+	}
+
+	/** @return substring ended before the last delimiter */
+	public static String lastSub(String s, char deli, int begin)
+	{
+		return sub(s, begin, lastIndex(s, deli));
+	}
+
+	/** @return substring ended before the last delimiter */
+	public static String lastSub(String s, String deli, int begin)
+	{
+		return sub(s, begin, lastIndex(s, deli));
 	}
 
 	public static char[] utf(byte[] s) throws UTFDataFormatException
@@ -95,31 +171,5 @@ public class String2
 				utf[y++] = (byte)(0x80 | c & 0x3F);
 			}
 		return utf;
-	}
-
-	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
-	public static int index(String s, char sub, int begin)
-	{
-		int x = s.indexOf(sub, begin);
-		return x >= 0 ? x : s.length();
-	}
-
-	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
-	public static int index(String s, String sub, int begin)
-	{
-		int x = s.indexOf(sub, begin);
-		return x >= 0 ? x : s.length();
-	}
-
-	/** @return substring ended before the char */
-	public static String sub(String s, char end, int begin)
-	{
-		return begin < s.length() ? s.substring(begin, index(s, end, begin)) : "";
-	}
-
-	/** @return substring ended before the char */
-	public static String sub(String s, String end, int begin)
-	{
-		return begin < s.length() ? s.substring(begin, index(s, end, begin)) : "";
 	}
 }

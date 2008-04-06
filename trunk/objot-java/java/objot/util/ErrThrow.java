@@ -2,7 +2,8 @@
 // Copyright 2007-2008 Qianyan Cai
 // Under the terms of the GNU General Public License version 2
 //
-package objot.codec;
+package objot.util;
+
 
 public class ErrThrow
 	extends RuntimeException

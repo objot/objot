@@ -7,7 +7,7 @@ package test.chat;
 import java.util.Date;
 import java.util.List;
 
-import objot.codec.ErrThrow;
+import objot.util.ErrThrow;
 
 import org.junit.Test;
 

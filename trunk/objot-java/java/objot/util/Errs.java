@@ -2,9 +2,9 @@
 // Copyright 2007-2008 Qianyan Cai
 // Under the terms of the GNU General Public License version 2
 //
-package objot.codec;
+package objot.util;
 
-import objot.util.Array2;
+import objot.codec.Enc;
 
 
 public class Errs
