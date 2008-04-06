@@ -205,7 +205,7 @@ public class Instruction
 		return (addr += 3) - 3;
 	}
 
-	public final void jumpFrom(int jumpTag)
+	public final void jumpHere(int jumpTag)
 	{
 		jump(jumpTag, addr);
 	}
@@ -243,7 +243,7 @@ public class Instruction
 	}
 
 	/** @param index negative for default, 0 for low-value ... */
-	public final void switchTableFrom(long tableTag, int index)
+	public final void switchTableHere(long tableTag, int index)
 	{
 		switchTable(tableTag, index, addr);
 	}
@@ -280,7 +280,7 @@ public class Instruction
 	}
 
 	/** @param index negative for default, 0 for first value ... */
-	public final void switchLookupFrom(long lookupTag, int index)
+	public final void switchLookupHere(long lookupTag, int index)
 	{
 		switchLookup(lookupTag, index, addr);
 	}
