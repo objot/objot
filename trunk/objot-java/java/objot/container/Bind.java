@@ -14,22 +14,17 @@ import objot.util.Class2;
 
 public class Bind
 {
-	public Object obj;
-	/** primitive boxed */
+	/** primitive boxed, null iff static object */
 	public Class<?> cla;
+	/** null for parent */
 	public Class<? extends Annotation> mode;
-	Clazz b;
-
-	/** bind to a specified object */
-	public Bind obj(Object o)
-	{
-		cla = null;
-		obj = o;
-		return this;
-	}
+	/** the static object */
+	public Object obj;
+	/** actual class, null iff static object */
+	Clazz bc;
 
 	/**
-	 * bind to a specified class
+	 * bind to the class
 	 * 
 	 * @param c primitives will be boxed
 	 */
@@ -40,8 +35,8 @@ public class Bind
 	}
 
 	/**
-	 * If {@link #cla} unchanged, bind class in a specified mode (e.g. {@link Inject.New},
-	 * or bind to parent container if null
+	 * If {@link #cla} is the original binding class, bind it in the mode (e.g.
+	 * {@link Inject.New}, or bind to parent container if null
 	 */
 	public Bind mode(Class<? extends Annotation> m)
 	{
@@ -49,10 +44,18 @@ public class Bind
 		return this;
 	}
 
+	/** bind to the static object */
+	public Bind obj(Object o)
+	{
+		cla = null;
+		obj = o;
+		return this;
+	}
+
 	static final class Clazz
 		extends Bind
 	{
-		/** null iif {@link #b} != this */
+		/** iif {@link #bc} == this && {@link Inject.New} || {@link Inject.Single} */
 		T t;
 		FM[] fms;
 

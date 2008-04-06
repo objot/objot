@@ -86,8 +86,9 @@ public abstract class Container
 	}
 
 	/**
-	 * create an instance of the class whatever {@link Inject.Single} or not, or create
-	 * container with same parent.
+	 * create a {@link Inject.New} instance, or create a new {@link Inject.Single}
+	 * instance, or create container with same parent, or get the static object, or get
+	 * the {@link Inject.Set} instance, or create in parent.
 	 * 
 	 * @see Factory#create(Container, boolean)
 	 * @throws ClassCastException if the class is not found in this and parents, or a
@@ -99,17 +100,36 @@ public abstract class Container
 		return i != 0 ? this.<T>create0(i, parent) : parent.create(c);
 	}
 
+	/**
+	 * set an instance of the class in {@link Inject.Set} mode.
+	 * 
+	 * @see Factory#create(Container, boolean)
+	 * @throws ClassCastException if the class is not found in this or parents, or the
+	 *             instance is not of the bound class
+	 * @throws UnsupportedOperationException if the class is bound to static object, or is
+	 *             not {@link Inject.Set} mode
+	 */
+	public final <T>T set(Class<T> c, T o)
+	{
+		int i = index(c);
+		if (i == 0)
+			return parent.set(c, o);
+		if (set0(i, o))
+			return o;
+		throw new UnsupportedOperationException();
+	}
+
 	/** @return whether class is bound in this container */
 	public boolean bound(Class<?> c)
 	{
 		return index(c) != 0;
 	}
 
-	/** @return which container bind the class, null if no one */
-	public Container boundIn(Class<?> c)
+	/** @return self or parent container which binds the class, null if no binding */
+	public Container contain(Class<?> c)
 	{
 		int i = index(c);
-		return i != 0 ? this : parent.boundIn(c);
+		return i != 0 ? this : parent.contain(c);
 	}
 
 	Container parent;
@@ -120,14 +140,16 @@ public abstract class Container
 	 * 
 	 * <pre>
 	 * switch(c.hashCode() % 31) {
-	 *     2: if (c == Container.class) return 1;
-	 *        if (c == A.class) return 3;
-	 *        return 0;
-	 *     6: if (c == B.class) return -2; // {@link Inject.New}
-	 *        if (c == D.class) return 4; // bind to parent, could be cached
-	 *        return 0;
-	 *     default: return 0;
-	 *   }
+	 *   2: if (c == Container.class) return 1;
+	 *      if (c == A.class) return -2; // {@link Inject.New}
+	 *      if (c == B.class) return 3; // {@link Inject.Single}
+	 *      if (c == BB.class) return 3; // BB bound to B
+	 *      return 0; // not found
+	 *   7: if (c == D.class) return -4; // {@link Inject.Set}
+	 *      if (c == E.class) return 5; // bind to static object
+	 *      if (c == F.class) return 6; // bind to parent, could be cached
+	 *      return 0; // not found
+	 *   default: return 0; // not found
 	 * }</pre>
 	 */
 	abstract int index(Class<?> c);
@@ -142,13 +164,13 @@ public abstract class Container
 	 * <pre>
 	 * switch(i) {
 	 *   1: return this; // {@link Container}
-	 *   2: return objss[0][0]; // bind to object
+	 *   2: return oss[2][0]; // bind to static object
 	 *   3: return o3 != null ? o3 : create0(i, null); // {@link Inject.Single}
 	 *   4: if (o4 != null) return o4; // cache, degraded if bind to null in parents
-	 *      for (Container c = parent; ; c = c.parent) {
+	 *      for (Container c = parent; ; c = c.parent) { // less stack usage than recursive  
 	 *        int j = c.index(X.class);
-	 *        if (j > 0) return o4 = c.get0(j);
-	 *        if (j < 0) return c.create0(j, this);
+	 *        if (j > 0) return o4 = c.get0(j); 
+	 *        if (j < 0) return c.create0(j, this); // include {@link Inject.Set} in parent
 	 *      } // bind to parent
 	 *   default: return null; // never happen
 	 * }</pre>
@@ -163,20 +185,27 @@ public abstract class Container
 	 * <pre>
 	 * switch(i) {
 	 *   1: Container123 o = new Container123();
-	 *      o.parent = parentOrSave;
-	 *      if (o.o3 == null) o.create0(3, null); // {@link Inject.Single}
-	 *      if (o.o6 == null) o.create0(6, null); // {@link Inject.Single}
+	 *      o.parent = parentOrSingle;
+	 *      if (o.o3 == null) o.create0(3, null);
+	 *      if (o.o6 == null) o.create0(6, null);
+	 *      ... // only create {@link Inject.Single} eagerly
+	 *      return o;
+	 *   2: return oss[2][0]; // bind to static object
+	 *   -3: return o3; // {@link Inject.Set}
+	 *   -4: A o = new A((A1)get0(5), (Object)create0(-7, this), (A4)oss[4][1]);
+	 *      o.x = (Ax)get0(3);
+	 *      o.y = (Ay)oss[4][2];
+	 *      o.p((Ap)oss[4][3]);
+	 *      o.q((int)(Integer)get0(9));
+	 *      return o;
+	 *   5: B o = new B(...);
+	 *      if (parentOrSingle == null)
+	 *        o4 = o; // save {@link Inject.Single}
 	 *      ...
-	 *      return o;
-	 *   -2: A o = new A((A1)get0(5), (Object)create0(-7, this), (A4)objss[2][1]);
-	 *      if (parentOrSave == null)
-	 *        o0 = o; // {@link Inject.Single}
-	 *      o.x = (Ax)get0(3); // bind to index 3
-	 *      o.y = (Ay)objss[2][2]; // bind to object
-	 *      o.p((Ap)objss[2][3]);
-	 *      o.q((int)(Integer)get0(1));
-	 *      return o;
-	 *   3: ...
+	 *   6: for (Container c = parent; ; c = c.parent) { // less stack usage than recursive  
+	 *        int j = c.index(X.class);
+	 *        if (j != 0) return c.create0(j, this); // include {@link Inject.Set} in parent
+	 *      } // bind to parent
 	 *   default: return null; // never happen
 	 * }</pre>
 	 * 
@@ -185,16 +214,33 @@ public abstract class Container
 	 * <pre>
 	 * switch(i) {
 	 *   1: Container123 o = new Container123();
-	 *      o.parent = parentOrSave;
+	 *      o.parent = parentOrSingle;
 	 *      return o;
 	 *   ...
 	 * }</pre>
 	 * 
-	 * @param parentOrSave parent when create container, null to save when create others
+	 * @param parentOrSingle parent when create container, null to save
+	 *            {@link Inject.Single}
 	 */
-	abstract <T>T create0(int index, Container parentOrSave);
+	abstract <T>T create0(int index, Container parentOrSingle);
 
 	static final Method M_create0 = Class2.declaredMethod1(Container.class, "create0");
+
+	/**
+	 * Example:
+	 * 
+	 * <pre>
+	 * switch(i) {
+	 *   3: o3 = (A)o; return true; // {@link Inject.Single}
+	 *   default: return false;
+	 * }</pre>
+	 */
+	boolean set0(int index, Object o)
+	{
+		return false;
+	}
+
+	static final Method M_set0 = Class2.declaredMethod1(Container.class, "set0");
 
 	private static final Container NULL = new Container()
 	{
@@ -217,7 +263,7 @@ public abstract class Container
 		}
 
 		@Override
-		public Container boundIn(Class<?> c)
+		public Container contain(Class<?> c)
 		{
 			return null;
 		}
