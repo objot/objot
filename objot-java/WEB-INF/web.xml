@@ -5,11 +5,10 @@
 
 	<servlet>
 		<servlet-name>servlet</servlet-name>
-		<servlet-class>chat.Servlet</servlet-class>
+		<servlet-class>objot.service.CodecServlet</servlet-class>
 		<init-param>
-			<param-name>data.test</param-name>
-			<!-- true (or system parameter -Ddata.test) to use testing database -->
-			<param-value>false</param-value>
+			<param-name>handler</param-name>
+			<param-value>chat.ServiceHandler</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
