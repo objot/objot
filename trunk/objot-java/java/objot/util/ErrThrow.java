@@ -4,7 +4,6 @@
 //
 package objot.util;
 
-
 public class ErrThrow
 	extends RuntimeException
 {

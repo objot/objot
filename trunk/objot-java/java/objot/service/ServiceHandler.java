@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import objot.codec.Codec;
 import objot.container.Container;
 import objot.util.Array2;
+import objot.util.Class2;
 import objot.util.Err;
 import objot.util.ErrThrow;
 import objot.util.Mod2;
@@ -34,6 +35,10 @@ public abstract class ServiceHandler
 		return this;
 	}
 
+	/**
+	 * @return the service info
+	 * @throws ErrThrow if not found
+	 */
 	public ServiceInfo getInfo(String name) throws ErrThrow
 	{
 		ServiceInfo inf = infos.get(name);
@@ -54,7 +59,11 @@ public abstract class ServiceHandler
 		return inf;
 	}
 
-	/** thread safe, service not found if null or exception */
+	/**
+	 * must be thread safe, service not found if null or exception
+	 * 
+	 * @return the service info may be cached
+	 */
 	protected ServiceInfo getInfo(String name, String cla, String method) throws Exception
 	{
 		Class<?> c = Class.forName(cla);
@@ -72,25 +81,23 @@ public abstract class ServiceHandler
 	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1)
 		throws Exception
 	{
-		Object result = invoke(inf, null, req, begin, end1);
 		try
 		{
-			return codec.enc(result, inf.cla);
+			return invoke(inf, null, true, req, begin, end1);
 		}
 		catch (Throwable e)
 		{
-			if (log.isTraceEnabled())
-				log.trace(e);
-			return codec.enc(error(e), null);
+			return error(e);
 		}
 	}
 
 	/**
 	 * @param obj an instance of service class
-	 * @return the service result or {@link #error}
+	 * @param encodeResult if encode the result
+	 * @return the service result
 	 */
-	public Object invoke(ServiceInfo inf, Object obj, char[] req, int begin, int end1)
-		throws Exception
+	public Object invoke(ServiceInfo inf, Object obj, boolean encodeResult, //
+		char[] req, int begin, int end1) throws Exception
 	{
 		Object[] qs;
 		try
@@ -106,11 +113,12 @@ public abstract class ServiceHandler
 		{
 			if (log.isTraceEnabled())
 				log.trace(e);
-			return error(e);
+			throw Class2.exception(e);
 		}
+		Object r;
 		try
 		{
-			return inf.meth.invoke(obj, qs);
+			r = inf.meth.invoke(obj, qs);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -124,25 +132,40 @@ public abstract class ServiceHandler
 			ErrThrow ee = new ErrThrow(null, s.toString());
 			if (log.isTraceEnabled())
 				log.trace(ee);
-			return error(ee);
+			throw ee;
 		}
 		catch (InvocationTargetException e)
 		{
 			if (log.isDebugEnabled())
 				log.debug(e.getCause());
-			return error(e.getCause());
+			throw Class2.exception(e.getCause());
 		}
 		catch (Throwable e)
 		{
 			if (log.isDebugEnabled())
 				log.debug(e);
-			return error(e);
+			return Class2.exception(e);
 		}
+		if (encodeResult)
+			try
+			{
+				return codec.enc(r, inf.cla);
+			}
+			catch (Throwable e)
+			{
+				if (log.isTraceEnabled())
+					log.trace(e);
+				throw Class2.exception(e);
+			}
+		return r;
 	}
 
-	/** @return {@link Err} by default */
+	/**
+	 * @return any object depending on implementation, {@link CharSequence} by default
+	 * @throws Exception depending on implementation
+	 */
 	protected Object error(Throwable e) throws Exception
 	{
-		return e instanceof ErrThrow ? ((ErrThrow)e).err : new Err(e);
+		return codec.enc(e instanceof ErrThrow ? ((ErrThrow)e).err : new Err(e), null);
 	}
 }

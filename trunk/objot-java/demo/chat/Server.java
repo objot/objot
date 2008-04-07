@@ -12,7 +12,6 @@ import objot.container.Container;
 import objot.service.ServiceHandler;
 import objot.service.ServiceInfo;
 import objot.util.Class2;
-import objot.util.Err;
 import objot.util.Errs;
 
 import org.hibernate.SessionFactory;
@@ -35,7 +34,7 @@ public final class Server
 	CharSequence ok;
 
 	@Override
-	public ServiceHandler init(Container context) throws Exception
+	public Server init(Container context) throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
 
@@ -67,14 +66,13 @@ public final class Server
 	{
 		if (dataTest && "test".equals(cla))
 			return new ServiceInfo(codec, n, ModelsCreate.CREATE);
-		ServiceInfo inf = super.getInfo(n, //
-			Class2.packageName(Do.class) + '.' + cla, m);
+		ServiceInfo inf = super.getInfo(n, Class2.packageName(Do.class) + '.' + cla, m);
 		return inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;
 	}
 
 	@Override
-	public CharSequence handle(Container context, ServiceInfo inf, char[] req, int begin,
-		int end1) throws Exception
+	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1)
+		throws Exception
 	{
 		if (inf.cla == ModelsCreate.class) // test
 			synchronized (dataFactory)
@@ -99,22 +97,21 @@ public final class Server
 		try
 		{
 			Container con = container.createBubble(container.parent(), sess);
-			Object p = invoke(inf, con.get(inf.cla), req, begin, end1);
-			return p instanceof Err ? codec.enc(p, null)
-				: inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
+			invoke(inf, con.get(inf.cla), false, req, begin, end1);
+			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
+		}
+		catch (InvalidStateException e)
+		{
+			return codec.enc(new Errs(e.getInvalidValues()), null);
+		}
+		catch (Throwable e)
+		{
+			return error(e);
 		}
 		finally
 		{
 			if (sess.get(Session.class).close)
 				hse.invalidate();
 		}
-	}
-
-	@Override
-	protected Object error(Throwable e) throws Exception
-	{
-		if (e instanceof InvalidStateException)
-			return new Errs(((InvalidStateException)e).getInvalidValues());
-		return super.error(e);
 	}
 }
