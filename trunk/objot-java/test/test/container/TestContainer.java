@@ -19,7 +19,9 @@ import test.container.X.ChildSingle;
 import test.container.X.New;
 import test.container.X.New2;
 import test.container.X.ParentNew;
+import test.container.X.ParentSet;
 import test.container.X.ParentSingle;
+import test.container.X.Set;
 import test.container.X.Single;
 import test.container.X.Single2;
 
@@ -38,6 +40,7 @@ public class TestContainer
 			{
 				bind(ParentNew.class);
 				bind(ParentSingle.class);
+				bind(ParentSet.class);
 			}
 
 			@Override
@@ -52,6 +55,7 @@ public class TestContainer
 				bind(Object.class);
 				bind(New2.class);
 				bind(Single2.class);
+				bind(Set.class);
 				bind(ChildSingle.class);
 				bind(ParentSingle.class);
 			}
@@ -89,8 +93,9 @@ public class TestContainer
 		con0lazy = f.create(parent, true);
 	}
 
-	Container con = con0.createBubble(null);
+	Container con = con0.createBubble();
 	Container con2 = con.create(Container.class);
+	Container conLazy = con0lazy.createBubble();
 
 	@Test(expected = ClassCastException.class)
 	public void unbound() throws Exception
@@ -107,15 +112,15 @@ public class TestContainer
 	@Test
 	public void lazy()
 	{
-		con0lazy.create();
-		try
-		{
-			con0lazy.create().get(X.ChildSingle.class);
-			fail();
-		}
-		catch (ClassCastException e)
-		{
-		}
+		Single.created = false;
+		conLazy.createBubble();
+		assertFalse(Single.created);
+		conLazy.get(Single.class);
+		assertTrue(Single.created);
+
+		Single.created = false;
+		con.createBubble();
+		assertTrue(Single.created);
 	}
 
 	@Test
@@ -184,6 +189,31 @@ public class TestContainer
 	}
 
 	@Test
+	public void set()
+	{
+		New2 o0 = con.get(New2.class);
+		assertNull(o0.t);
+		Single o1 = con.get(Single.class);
+		assertNull(o1.t);
+
+		Set o2 = con.get(Set.class);
+		assertNull(o2);
+		o2 = new Set();
+		assertSame(o2, con.set(Set.class, o2));
+		assertSame(o2, con.get(Set.class));
+		assertSame(o2, con.create(Set.class));
+		assertNull(o2.noInject);
+
+		New2 o3 = con.get(New2.class);
+		assertSame(o2, o3.t);
+		Single o4 = con.get(Single.class);
+		assertNull(o4.t);
+
+		conLazy.set(Set.class, o2);
+		assertSame(o2, conLazy.get(Single.class).t);
+	}
+
+	@Test
 	public void parent()
 	{
 		assertNull(con.parent().create().parent());
@@ -210,5 +240,6 @@ public class TestContainer
 		ParentSingle o4 = con.create(ParentSingle.class);
 		assertNotNull(o4);
 		assertNotSame(o.os, o4);
+		assertNotSame(o4, con.create(ParentSingle.class));
 	}
 }
