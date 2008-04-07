@@ -21,12 +21,10 @@ final class Factoring
 {
 	private static final String NAME_oss = "oss";
 
-	/**
-	 * [0] == null
-	 * 
-	 * @todo optimize: move oss to front followed by actual bind
-	 */
+	/** [0] == null */
 	Bind.Clazz[] cs;
+	/** number of actual classes and static objects, for optimization */
+	int csn;
 	Object[][] oss;
 	boolean lazy;
 	Bytecode y;
@@ -43,8 +41,15 @@ final class Factoring
 	Container create(Bind.Clazz[] cs_, boolean lazy_) throws Exception
 	{
 		cs = cs_;
-		oss = new Object[cs.length][];
-		for (int i = 1; i < cs.length; i++)
+		for (int i = csn = 1; i < cs.length; i++)
+			if (cs[i].c == null || cs[i].c == cs[i])
+			{
+				Bind.Clazz c = cs[i];
+				cs[i] = cs[csn];
+				cs[csn++] = c;
+			}
+		oss = new Object[csn][];
+		for (int i = 1; i < csn; i++)
 			oss[i] = cs[i].os;
 		lazy = lazy_;
 
@@ -61,7 +66,7 @@ final class Factoring
 		create0Ci = cons.addProc(Container.M_create0);
 		set0Ci = cons.addProc(Container.M_set0);
 		parentCi = cons.addField(Container.F_parent);
-		fCis = new int[cs.length];
+		fCis = new int[csn];
 		cCis = new int[cs.length];
 		makeFields();
 		makeIndex();
@@ -79,9 +84,9 @@ final class Factoring
 	private int index(int i0)
 	{
 		Bind.Clazz c = cs[i0];
-		if (c.bc != c && c.bc != null)
-			for (int i = cs.length - 1; i > 0; i--)
-				if (cs[i] == c.bc)
+		if (c.c != c && c.c != null)
+			for (int i = csn; i > 0; i--)
+				if (cs[i] == c.c)
 					return cs[i].mode == null || cs[i].mode == Inject.Single.class ? i : -i;
 		return c.mode == null || c.mode == Inject.Single.class ? i0 : -i0;
 	}
@@ -89,11 +94,11 @@ final class Factoring
 	/** @return index or -index of actual bind */
 	private int index(Bind.Clazz c)
 	{
-		if (c.bc != c && c.bc != null)
-			for (int i = cs.length - 1; i > 0; i--)
-				if (cs[i] == c.bc)
+		if (c.c != c && c.c != null)
+			for (int i = csn - 1; i > 0; i--)
+				if (cs[i] == c.c)
 					return cs[i].mode == null || cs[i].mode == Inject.Single.class ? i : -i;
-		for (int i = cs.length - 1; i > 0; i--)
+		for (int i = csn - 1; i > 0; i--)
 			if (cs[i] == c)
 				return cs[i].mode == null || cs[i].mode == Inject.Single.class ? i : -i;
 		throw new AssertionError();
@@ -109,8 +114,8 @@ final class Factoring
 		ossCi = cons.addField(y.head.getClassCi(), cons.addNameDesc(f.getNameCi(),
 			f.getDescCi()));
 		int descCi = cons.addUcs(Class2.descript(Object.class));
-		for (int i = 1; i < cs.length; i++)
-			if (cs[i].bc == cs[i] && cs[i].mode != Inject.New.class)
+		for (int i = 1; i < csn; i++)
+			if (cs[i].c == cs[i] && cs[i].mode != Inject.New.class)
 			{
 				f = new Field(cons);
 				f.setModifier(Mod2.PRIVATE);
@@ -172,7 +177,7 @@ final class Factoring
 		Instruction s = new Instruction(cons, 1000);
 		s.ins0(ALOAD0); // this
 		s.ins0(ILOAD1);
-		long sw = s.insSwitchTable(0, cs.length - 1);
+		long sw = s.insSwitchTable(0, csn - 1);
 		s.switchTableHere(sw, -1);
 		s.switchTableHere(sw, 0);
 		int sw0 = s.addr;
@@ -185,7 +190,7 @@ final class Factoring
 		s.ins0(ICONST0);
 		s.ins0(AALOAD); // oss[i][0]
 		s.ins0(ARETURN);
-		for (int i = 1; i < cs.length; i++)
+		for (int i = 1; i < csn; i++) // never happen: another class
 		{
 			Bind.Clazz c = cs[i];
 			if (c.cla == Container.class)
@@ -193,9 +198,9 @@ final class Factoring
 				s.switchTableHere(sw, i);
 				s.ins0(ARETURN); // return this;
 			}
-			else if (c.bc == null) // static object
+			else if (c.c == null) // static object
 				s.switchTable(sw, i, oss[i][0] == null ? sw0 : swObj);
-			else if (c.bc == c && c.mode == Inject.Single.class)
+			else if (c.c == c && c.mode == Inject.Single.class)
 			{
 				s.switchTableHere(sw, i);
 				s.insU2(GETFIELD, fCis[i]);
@@ -209,7 +214,7 @@ final class Factoring
 				s.jumpHere(j);
 				s.ins0(ARETURN);
 			}
-			else if (c.bc == c && c.mode == null) // parent
+			else if (c.c == c && c.mode == null) // parent
 			{
 				s.switchTableHere(sw, i);
 				s.ins0(DUP);
@@ -243,7 +248,7 @@ final class Factoring
 				s.jump(s.insJump(GOTO), loop);
 			}
 			else
-				// never happen: another class, or Inject.New, or Inject.Set
+				// never happen: Inject.New, or Inject.Set
 				s.switchTable(sw, i, sw0);
 		}
 		p.getCode().setIns(s, false);
@@ -258,7 +263,7 @@ final class Factoring
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(cons.getCprocName(create0Ci));
 		p.setDescCi(cons.getCprocDesc(create0Ci));
-		int i0 = cs.length - 1;
+		int i0 = csn - 1;
 		Instruction s = new Instruction(cons, 250);
 		s.ins0(ILOAD1); // index
 		long sw = s.insSwitchTable( -i0, i0);
@@ -275,7 +280,7 @@ final class Factoring
 		s.ins0(AALOAD); // oss[i][0]
 		s.ins0(ARETURN);
 		int maxParamN = 0;
-		for (int i = 1; i < cs.length; i++)
+		for (int i = 1; i < csn; i++) // never happen: another class
 		{
 			Bind.Clazz c = cs[i];
 			maxParamN = Math.max(maxParamN, c.maxParamN);
@@ -292,8 +297,8 @@ final class Factoring
 				s.ins0(ALOAD2);
 				s.insU2(PUTFIELD, parentCi);
 				if ( !lazy)
-					for (int j = 1; j < cs.length; j++)
-						if (cs[j].cla != Container.class && cs[j].bc == cs[j]
+					for (int j = 1; j < csn; j++)
+						if (cs[j].cla != Container.class && cs[j].c == cs[j]
 							&& cs[j].mode == Inject.Single.class)
 						{
 							s.ins0(DUP);
@@ -308,7 +313,7 @@ final class Factoring
 						}
 				s.ins0(ARETURN);
 			}
-			else if (c.bc == null) // static object
+			else if (c.c == null) // static object
 			{
 				s.switchTable(sw, i0 + i, oss[i][0] == null ? sw0 : swObj);
 				s.switchTable(sw, i0 - i, sw0); // never happend
@@ -349,7 +354,7 @@ final class Factoring
 					}
 				s.ins0(ARETURN);
 			}
-			else if (c.bc == c && c.mode == Inject.Set.class)
+			else if (c.c == c && c.mode == Inject.Set.class)
 			{
 				s.switchTable(sw, i0 + i, sw0); // never happend
 				s.switchTableHere(sw, i0 - i);
@@ -357,7 +362,7 @@ final class Factoring
 				s.insU2(GETFIELD, fCis[i]);
 				s.ins0(ARETURN);
 			}
-			else if (c.bc == c && c.mode == null) // parent
+			else if (c.c == c && c.mode == null) // parent
 			{
 				s.switchTableHere(sw, i0 + i);
 				s.switchTable(sw, i0 - i, sw0); // never happend
@@ -377,10 +382,7 @@ final class Factoring
 				s.jump(s.insJump(GOTO), loop);
 			}
 			else
-			{ // never happen: another class
-				s.switchTable(sw, i0 + i, sw0);
-				s.switchTable(sw, i0 - i, sw0);
-			}
+				throw new AssertionError();
 		}
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(3);
@@ -390,10 +392,10 @@ final class Factoring
 
 	private int makeCreate0_bind(int i0, Instruction s, Bind b, Object[] os, int o)
 	{
-		if (b.bc != null)
+		if (b.c != null)
 		{
 			s.ins0(ALOAD0);
-			int i = index(b.bc);
+			int i = index(b.c);
 			s.insS2(SIPUSH, i);
 			if (i < 0)
 				s.ins0(ALOAD0);
@@ -434,7 +436,7 @@ final class Factoring
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(cons.getCprocName(set0Ci));
 		p.setDescCi(cons.getCprocDesc(set0Ci));
-		int i0 = cs.length - 1;
+		int i0 = csn - 1;
 		Instruction s = new Instruction(cons, 250);
 		s.ins0(ILOAD1); // index
 		long sw = s.insSwitchTable( -i0, i0);
@@ -443,10 +445,10 @@ final class Factoring
 		int sw0 = s.addr;
 		s.ins0(ICONST0);
 		s.ins0(IRETURN);
-		for (int i = 1; i < cs.length; i++)
+		for (int i = 1; i < csn; i++) // never happen: another class
 		{
 			Bind.Clazz c = cs[i];
-			if (c.bc == c && c.mode == Inject.Set.class)
+			if (c.c == c && c.mode == Inject.Set.class)
 			{
 				s.switchTable(sw, i0 + i, sw0); // never happend
 				s.switchTableHere(sw, i0 - i);
@@ -457,7 +459,7 @@ final class Factoring
 				s.ins0(ICONST1);
 				s.ins0(IRETURN);
 			}
-			else if (c.bc == c && c.mode == null) // parent
+			else if (c.c == c && c.mode == null) // parent
 			{
 				s.switchTableHere(sw, i0 + i);
 				s.switchTable(sw, i0 - i, sw0); // never happend
@@ -477,7 +479,7 @@ final class Factoring
 				s.jump(s.insJump(GOTO), loop);
 			}
 			else
-			{ // never happen: Container, static object, other class, Inject.New/Single
+			{ // never happen: Container, static object, Inject.New, Inject.Single
 				s.switchTable(sw, i0 + i, sw0);
 				s.switchTable(sw, i0 - i, sw0);
 			}

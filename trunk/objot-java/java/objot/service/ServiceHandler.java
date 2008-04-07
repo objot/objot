@@ -7,7 +7,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import objot.codec.Codec;
 import objot.container.Container;
 import objot.util.Array2;
-import objot.util.Class2;
 import objot.util.Err;
 import objot.util.ErrThrow;
 import objot.util.Mod2;
@@ -15,8 +14,6 @@ import objot.util.String2;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import chat.service.Do;
 
 
 public abstract class ServiceHandler
@@ -28,9 +25,13 @@ public abstract class ServiceHandler
 	/** must be set in implementation */
 	protected Codec codec;
 
-	/** @param context depending on implementation, may be null */
-	public void init(Container context) throws Exception
+	/**
+	 * @param context depending on implementation, may be null
+	 * @return this one, or another which should be used to instead of this one
+	 */
+	public ServiceHandler init(Container context) throws Exception
 	{
+		return this;
 	}
 
 	public ServiceInfo getInfo(String name) throws ErrThrow
@@ -56,7 +57,7 @@ public abstract class ServiceHandler
 	/** thread safe, service not found if null or exception */
 	protected ServiceInfo getInfo(String name, String cla, String method) throws Exception
 	{
-		Class<?> c = Class.forName(Class2.packageName(Do.class) + '.' + cla);
+		Class<?> c = Class.forName(cla);
 		if (Mod2.match(c, Mod2.PUBLIC))
 			for (Method m: c.getMethods())
 				if (m.getName().equals(method))

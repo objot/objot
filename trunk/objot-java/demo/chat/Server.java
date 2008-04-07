@@ -5,8 +5,8 @@
 package chat;
 
 import java.util.Locale;
-import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
 
 import objot.container.Container;
 import objot.service.ServiceHandler;
@@ -35,11 +35,11 @@ public final class Server
 	CharSequence ok;
 
 	@Override
-	public void init(Container context) throws Exception
+	public ServiceHandler init(Container context) throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
 
-		ServletLog.logger = context.get(ServletConfig.class).getServletContext();
+		ServletLog.logger = context.get(ServletContext.class);
 		if ( !(log instanceof ServletLog))
 		{
 			String s = "\n\n**************** WARNING ****************\n"
@@ -59,6 +59,7 @@ public final class Server
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 		container = Services.build(codec, dataFactory);
 		ok = codec.enc(new String[] { "ok" }, Object.class);
+		return this;
 	}
 
 	@Override
@@ -86,16 +87,14 @@ public final class Server
 				return ok;
 			}
 
-		HttpServletRequest hq = context.get(HttpServletRequest.class);
-		// @todo bad double check
-		Container sess = (Container)hq.getSession().getAttribute("container");
+		HttpSession hse = context.get(HttpSession.class);
+		Container sess = (Container)hse.getAttribute("container");
 		if (sess == null)
-			synchronized (hq.getSession()) // double check
+			synchronized (hse) // double check
 			{
-				sess = (Container)hq.getSession().getAttribute("container");
+				sess = (Container)hse.getAttribute("container");
 				if (sess == null)
-					hq.getSession().setAttribute("container",
-						sess = container.parent().create());
+					hse.setAttribute("container", sess = container.parent().create());
 			}
 		try
 		{
@@ -107,7 +106,7 @@ public final class Server
 		finally
 		{
 			if (sess.get(Session.class).close)
-				hq.getSession().invalidate();
+				hse.invalidate();
 		}
 	}
 

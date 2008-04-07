@@ -9,13 +9,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import objot.container.Container;
+import objot.container.Factory;
 import objot.util.Array2;
 import objot.util.String2;
 
@@ -25,6 +28,7 @@ public class CodecServlet
 {
 	protected ServletConfig config;
 	protected ServiceHandler handler;
+	/** round container with global parent */
 	protected Container con;
 
 	public final void init(ServletConfig c) throws ServletException
@@ -35,7 +39,18 @@ public class CodecServlet
 				+ " %%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$\n\n");
 		try
 		{
+			con = new Factory(true, ServletConfig.class, ServletContext.class).create(null);
+			con = new Factory(true, HttpServletRequest.class, HttpServletResponse.class,
+				HttpSession.class).create(con);
+			con.set(ServletConfig.class, c);
+			con.set(ServletContext.class, c.getServletContext());
+
 			handler = (ServiceHandler)Class.forName(config.getInitParameter("handler")).newInstance();
+			handler = handler.init(con.parent());
+		}
+		catch (RuntimeException e)
+		{
+			throw e;
 		}
 		catch (Exception e)
 		{
@@ -84,7 +99,11 @@ public class CodecServlet
 						throw new EOFException();
 				q = String2.utf(s);
 			}
-			Object p = handler.handle(null, inf, q, 0, q.length);
+			Container c = con.createBubble();
+			c.set(HttpServletRequest.class, hq);
+			c.set(HttpServletResponse.class, hp);
+			c.set(HttpSession.class, hq.getSession());
+			Object p = handler.handle(c, inf, q, 0, q.length);
 			if (p == null || !(p instanceof CharSequence))
 				hp.setContentLength(0);
 			else

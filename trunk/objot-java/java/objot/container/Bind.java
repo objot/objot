@@ -14,23 +14,23 @@ import objot.util.Class2;
 
 public class Bind
 {
-	/** primitive boxed, null iff static object */
+	/** primitive boxed, null if static object while binding */
 	public Class<?> cla;
 	/** null for parent */
 	public Class<? extends Annotation> mode;
 	/** the static object */
 	public Object obj;
 	/** actual class, null iff static object */
-	Clazz bc;
+	Clazz c;
 
 	/**
 	 * bind to the class
 	 * 
-	 * @param c primitives will be boxed
+	 * @param c_ primitives will be boxed
 	 */
-	public Bind cla(Class<?> c)
+	public Bind cla(Class<?> c_)
 	{
-		cla = c.isPrimitive() ? Class2.box(c, false) : c;
+		cla = c_.isPrimitive() ? Class2.box(c_, false) : c_;
 		return this;
 	}
 
@@ -55,7 +55,7 @@ public class Bind
 	static final class Clazz
 		extends Bind
 	{
-		/** iif {@link #bc} == this && {@link Inject.New} || {@link Inject.Single} */
+		/** iif {@link #c} == this && {@link Inject.New} || {@link Inject.Single} */
 		T t;
 		FM[] fms;
 
