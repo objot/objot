@@ -42,6 +42,12 @@ public abstract class Container
 		return create0(index(Container.class), parent_ != null ? parent_ : NULL);
 	}
 
+	/** create container with parents created recursively until root, thread-safe */
+	public final Container createBubble()
+	{
+		return create0(index(Container.class), parent == NULL ? NULL : parent.createBubble());
+	}
+
 	/**
 	 * create container with parents created recursively until the specified one,
 	 * thread-safe
@@ -101,13 +107,12 @@ public abstract class Container
 	}
 
 	/**
-	 * set an instance of the class in {@link Inject.Set} mode.
+	 * set an instance of the class in {@link Inject.Set} mode, or set in parent.
 	 * 
 	 * @see Factory#create(Container, boolean)
 	 * @throws ClassCastException if the class is not found in this or parents, or the
 	 *             instance is not of the bound class
-	 * @throws UnsupportedOperationException if the class is bound to static object, or is
-	 *             not {@link Inject.Set} mode
+	 * @throws UnsupportedOperationException if the class is not {@link Inject.Set} mode
 	 */
 	public final <T>T set(Class<T> c, T o)
 	{
@@ -231,7 +236,11 @@ public abstract class Container
 	 * 
 	 * <pre>
 	 * switch(i) {
-	 *   3: o3 = (A)o; return true; // {@link Inject.Single}
+	 *   -3: o3 = (A)o; return true; // {@link Inject.Single}
+	 *   6: for (Container c = parent; ; c = c.parent) { // less stack usage than recursive  
+	 *        int j = c.index(X.class);
+	 *        if (j != 0) return c.set0(j, o);
+	 *      } // bind to parent
 	 *   default: return false;
 	 * }</pre>
 	 */

@@ -24,6 +24,11 @@ public interface X
 	{
 	}
 
+	@Inject.Set
+	public class ParentSet
+	{
+	}
+
 	@Inject.New
 	public class New
 	{
@@ -57,6 +62,8 @@ public interface X
 		extends New
 	{
 		Single p;
+		@Inject
+		public Set t;
 
 		@Inject
 		public New2(@Deprecated
@@ -79,6 +86,14 @@ public interface X
 		public Single s;
 		@Inject
 		public New n;
+		@Inject
+		public Set t;
+
+		static boolean created;
+
+		{
+			created = true;
+		}
 	}
 
 	/** should be {@link Inject.Single}, {@link #n} should be {@link New2} */
@@ -89,11 +104,19 @@ public interface X
 		public New n0;
 	}
 
+	/** should be {@link Inject.Single} */
 	public class ChildSingle
 	{
 		@Inject
 		public ParentNew on;
 		@Inject
 		public ParentSingle os;
+	}
+
+	@Inject.Set
+	public class Set
+	{
+		@Inject
+		public New noInject;
 	}
 }

@@ -34,6 +34,7 @@ final class Factoring
 	int indexCi;
 	int get0Ci;
 	int create0Ci;
+	int set0Ci;
 	int parentCi;
 	int ossCi;
 	int[] fCis;
@@ -58,6 +59,7 @@ final class Factoring
 
 		get0Ci = cons.addProc(Container.M_get0);
 		create0Ci = cons.addProc(Container.M_create0);
+		set0Ci = cons.addProc(Container.M_set0);
 		parentCi = cons.addField(Container.F_parent);
 		fCis = new int[cs.length];
 		cCis = new int[cs.length];
@@ -65,6 +67,7 @@ final class Factoring
 		makeIndex();
 		makeGet0();
 		makeCreate0();
+		makeSet0();
 
 		Class<Container> c = Class2.<Container>load(Container.class.getClassLoader(), name,
 			y.normalize());
@@ -423,5 +426,65 @@ final class Factoring
 				s.insUnboxNarrow(b.cla);
 		}
 		return ++o;
+	}
+
+	private void makeSet0()
+	{
+		Procedure p = new Procedure(cons);
+		p.setModifier(Mod2.FINAL);
+		p.setNameCi(cons.getCprocName(set0Ci));
+		p.setDescCi(cons.getCprocDesc(set0Ci));
+		int i0 = cs.length - 1;
+		Instruction s = new Instruction(cons, 250);
+		s.ins0(ILOAD1); // index
+		long sw = s.insSwitchTable( -i0, i0);
+		s.switchTableHere(sw, -1);
+		s.switchTableHere(sw, i0);
+		int sw0 = s.addr;
+		s.ins0(ICONST0);
+		s.ins0(IRETURN);
+		for (int i = 1; i < cs.length; i++)
+		{
+			Bind.Clazz c = cs[i];
+			if (c.bc == c && c.mode == Inject.Set.class)
+			{
+				s.switchTable(sw, i0 + i, sw0); // never happend
+				s.switchTableHere(sw, i0 - i);
+				s.ins0(ALOAD0);
+				s.ins0(ALOAD2);
+				s.insUnboxNarrow(c.cla);
+				s.insU2(PUTFIELD, fCis[i]);
+				s.ins0(ICONST1);
+				s.ins0(IRETURN);
+			}
+			else if (c.bc == c && c.mode == null) // parent
+			{
+				s.switchTableHere(sw, i0 + i);
+				s.switchTable(sw, i0 - i, sw0); // never happend
+				s.ins0(ALOAD0);
+				int loop = s.addr; // c
+				s.insU2(GETFIELD, parentCi); // c
+				s.ins0(DUP);
+				s.insU2(LDCW, cCis[i]);
+				s.insU2(INVOKEVIRTUAL, indexCi); // c, i
+				s.ins0(DUP);
+				int e0 = s.insJump(IFIE0);
+				s.ins0(ALOAD2);
+				s.insU2(INVOKEVIRTUAL, set0Ci); // set
+				s.ins0(IRETURN);
+				s.jumpHere(e0);
+				s.ins0(POP);
+				s.jump(s.insJump(GOTO), loop);
+			}
+			else
+			{ // never happen: Container, static object, other class, Inject.New/Single
+				s.switchTable(sw, i0 + i, sw0);
+				s.switchTable(sw, i0 - i, sw0);
+			}
+		}
+		p.getCode().setIns(s, false);
+		p.getCode().setLocalN(3);
+		p.getCode().setStackN(5);
+		y.getProcs().addProc(p);
 	}
 }
