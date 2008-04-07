@@ -85,9 +85,8 @@ public class CodecServlet
 		try
 		{
 			String uri = hq.getRequestURI();
-			ServiceInfo inf = null;
 			String name = uri.substring(uri.lastIndexOf('/') + 1);
-			inf = handler.getInfo(name);
+			ServiceInfo inf = handler.getInfo(name);
 			char[] q = Array2.CHARS0;
 			int len = hq.getContentLength();
 			if (len > 0)

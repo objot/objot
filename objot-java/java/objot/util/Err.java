@@ -6,6 +6,7 @@ package objot.util;
 
 import objot.codec.Enc;
 
+
 public class Err
 {
 	@Enc
