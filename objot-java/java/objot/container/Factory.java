@@ -25,7 +25,7 @@ public class Factory
 	{
 		Bind.Clazz c = new Bind.Clazz();
 		c.cla = Container.class;
-		c.bc = c;
+		c.c = c;
 		c.mode = c.cla.getAnnotation(Inject.Single.class).annotationType();
 		(classes = new HashMap<Class<?>, Bind.Clazz>()).put(c.cla, c);
 	}
@@ -34,8 +34,28 @@ public class Factory
 	{
 	}
 
+	/**
+	 * @param abstractSet_ if change abstract {@link Inject.Single} class to
+	 *            {@link Inject.Set}
+	 */
+	public Factory(boolean abstractSet_)
+	{
+		abstractSet = abstractSet_;
+	}
+
 	public Factory(Class<?>... clas)
 	{
+		for (Class<?> c: clas)
+			bind(c);
+	}
+
+	/**
+	 * @param abstractSet_ if change abstract {@link Inject.Single} class to
+	 *            {@link Inject.Set}
+	 */
+	public Factory(boolean abstractSet_, Class<?>... clas)
+	{
+		abstractSet = abstractSet_;
 		for (Class<?> c: clas)
 			bind(c);
 	}
@@ -67,11 +87,16 @@ public class Factory
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
 			doBind(cla, to);
 			to(false, c, to);
-			if (c.bc != c || c.mode == null || c.mode == Inject.Set.class)
+			if (c.c != c || c.mode == null || c.mode == Inject.Set.class)
 				return; // bind to other or set
 
 			if (Mod2.match(cla, Mod2.ABSTRACT))
-				throw new IllegalArgumentException("abstract");
+			{
+				if ( !abstractSet || c.mode != Inject.Single.class)
+					throw new IllegalArgumentException("abstract");
+				c.mode = Inject.Set.class;
+				return;
+			}
 			c.t = new Bind.T();
 			c.t.t = doBind(cla, cla.getDeclaredConstructors());
 			if (c.t.t.getDeclaringClass() != cla)
@@ -223,7 +248,7 @@ public class Factory
 			cs[i++] = c;
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind.Clazz c: cs)
-				ok |= c != null && c.bc != bindSpread(c).bc;
+				ok |= c != null && c.c != bindSpread(c).c;
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind.Clazz c: cs)
 			if (c != null && c.os == null)
@@ -232,18 +257,18 @@ public class Factory
 				if (c.t != null)
 				{
 					for (Bind p: c.t.ps)
-						if (bindSpread(p).bc == null)
+						if (bindSpread(p).c == null)
 							os.add(p.obj);
 					c.maxParamN = c.t.ps.length;
 					for (Bind.FM fm: c.fms)
 						if (fm.m != null)
 						{
 							for (Bind p: fm.ps)
-								if (bindSpread(p).bc == null)
+								if (bindSpread(p).c == null)
 									os.add(p.obj);
 							c.maxParamN = Math.max(c.maxParamN, fm.ps.length);
 						}
-						else if (bindSpread(fm).bc == null)
+						else if (bindSpread(fm).c == null)
 							os.add(fm.obj);
 				}
 				c.os = os.toArray();
@@ -255,6 +280,7 @@ public class Factory
 		return con.create(parent);
 	}
 
+	private boolean abstractSet;
 	private HashMap<Class<?>, Bind.Clazz> classes;
 	private int bindN;
 	private boolean lazy;
@@ -266,7 +292,7 @@ public class Factory
 		if (to.cla == null)
 			if (to.obj == null || b.cla.isAssignableFrom(to.obj.getClass())
 				|| b.cla.isArray() && to.obj instanceof Integer)
-				b.obj = to.obj;
+				b.obj = to.obj; // b.cla unchanged
 			else
 				throw new ClassCastException(b.cla + ": " + Class2.systemIdentity(to.obj));
 		else
@@ -276,7 +302,7 @@ public class Factory
 			if (to.mode != null && to.mode.getDeclaringClass() != Inject.class)
 				throw new IllegalArgumentException("mode " + to.mode);
 			bind(to.cla);
-			b.bc = classes.get(to.cla);
+			b.c = classes.get(to.cla);
 			b.mode = to.mode;
 		}
 		if (primitive)
@@ -285,10 +311,10 @@ public class Factory
 
 	private Bind bindSpread(Bind b)
 	{
-		if (b.bc != b && b.bc != null)
+		if (b.c != b && b.c != null)
 		{
-			b.obj = b.bc.obj;
-			b.bc = b.bc.bc;
+			b.obj = b.c.obj;
+			b.c = b.c.c;
 		}
 		return b;
 	}

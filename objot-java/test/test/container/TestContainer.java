@@ -63,7 +63,8 @@ public class TestContainer
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return c == Long.class ? b.obj(9L) : b.mode(parent.bound(c) ? null : b.mode);
+				return c == Object.class ? b.obj(parent) : c == Long.class ? b.obj(9L)
+					: b.mode(parent.bound(c) ? null : b.mode);
 			}
 
 			@Override
@@ -107,6 +108,12 @@ public class TestContainer
 	public void eager()
 	{
 		con.create();
+	}
+
+	@Test
+	public void staticObject()
+	{
+		assertSame(con0.rootParent(), con.get(Object.class));
 	}
 
 	@Test

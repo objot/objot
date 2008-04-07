@@ -8,7 +8,7 @@
 		<servlet-class>objot.service.CodecServlet</servlet-class>
 		<init-param>
 			<param-name>handler</param-name>
-			<param-value>chat.ServiceHandler</param-value>
+			<param-value>chat.Server</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>

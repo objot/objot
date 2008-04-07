@@ -42,7 +42,7 @@ public abstract class Container
 		return create0(index(Container.class), parent_ != null ? parent_ : NULL);
 	}
 
-	/** create container with parents created recursively until root, thread-safe */
+	/** create container with parents created recursively until null, thread-safe */
 	public final Container createBubble()
 	{
 		return create0(index(Container.class), parent == NULL ? NULL : parent.createBubble());
