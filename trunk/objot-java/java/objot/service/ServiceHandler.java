@@ -164,7 +164,7 @@ public abstract class ServiceHandler
 	 * @return any object depending on implementation, {@link CharSequence} by default
 	 * @throws Exception depending on implementation
 	 */
-	protected Object error(Throwable e) throws Exception
+	public Object error(Throwable e) throws Exception
 	{
 		return codec.enc(e instanceof ErrThrow ? ((ErrThrow)e).err : new Err(e), null);
 	}
