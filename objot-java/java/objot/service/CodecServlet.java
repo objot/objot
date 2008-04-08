@@ -19,6 +19,7 @@ import javax.servlet.http.HttpSession;
 
 import objot.container.Container;
 import objot.container.Factory;
+import objot.container.Inject;
 import objot.util.Array2;
 import objot.util.String2;
 
@@ -39,9 +40,10 @@ public class CodecServlet
 				+ " %%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$\n\n");
 		try
 		{
-			con = new Factory(true, ServletConfig.class, ServletContext.class).create(null);
-			con = new Factory(true, HttpServletRequest.class, HttpServletResponse.class,
-				HttpSession.class).create(con);
+			con = new Factory(Inject.Set.class).bind(ServletConfig.class,
+				ServletContext.class).create(null);
+			con = new Factory(Inject.Set.class).bind(HttpServletRequest.class,
+				HttpServletResponse.class, HttpSession.class).create(con);
 			con.set(ServletConfig.class, c);
 			con.set(ServletContext.class, c.getServletContext());
 
