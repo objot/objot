@@ -32,32 +32,14 @@ public class Factory
 
 	public Factory()
 	{
+		defaultMode = Inject.Single.class;
 	}
 
-	/**
-	 * @param abstractSet_ if change abstract {@link Inject.Single} class to
-	 *            {@link Inject.Set}
-	 */
-	public Factory(boolean abstractSet_)
+	public Factory(Class<? extends Annotation> defaultMode_)
 	{
-		abstractSet = abstractSet_;
-	}
-
-	public Factory(Class<?>... clas)
-	{
-		for (Class<?> c: clas)
-			bind(c);
-	}
-
-	/**
-	 * @param abstractSet_ if change abstract {@link Inject.Single} class to
-	 *            {@link Inject.Set}
-	 */
-	public Factory(boolean abstractSet_, Class<?>... clas)
-	{
-		abstractSet = abstractSet_;
-		for (Class<?> c: clas)
-			bind(c);
+		defaultMode = defaultMode_;
+		if (defaultMode != null && defaultMode.getDeclaringClass() != Inject.class)
+			throw new IllegalArgumentException("mode " + defaultMode);
 	}
 
 	public final synchronized boolean bound(Class<?> cla)
@@ -67,12 +49,19 @@ public class Factory
 		return classes.containsKey(cla);
 	}
 
+	public final synchronized Factory bind(Class<?>... clas)
+	{
+		for (Class<?> c: clas)
+			bind(c);
+		return this;
+	}
+
 	/** @param cla primitive forbidden */
-	public final synchronized void bind(Class<?> cla)
+	public final synchronized Factory bind(Class<?> cla)
 	{
 		Bind.Clazz c = classes.get(cla);
 		if (c != null)
-			return;
+			return this;
 		if (cla.isPrimitive())
 			throw new IllegalArgumentException("binding " + cla + " forbidden: primitive");
 		if (cla != Container.class && Container.class.isAssignableFrom(cla))
@@ -83,20 +72,15 @@ public class Factory
 		{
 			classes.put(cla, c = new Bind.Clazz());
 			Annotation a = Class2.annoExclusive(cla, Inject.class);
-			c.cla(cla).mode(a != null ? a.annotationType() : Inject.Single.class);
+			c.cla(cla).mode(a != null ? a.annotationType() : defaultMode);
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
 			doBind(cla, to);
 			to(false, c, to);
 			if (c.c != c || c.mode == null || c.mode == Inject.Set.class)
-				return; // bind to other or set
+				return this; // bind to other or set
 
 			if (Mod2.match(cla, Mod2.ABSTRACT))
-			{
-				if ( !abstractSet || c.mode != Inject.Single.class)
-					throw new IllegalArgumentException("abstract");
-				c.mode = Inject.Set.class;
-				return;
-			}
+				throw new IllegalArgumentException("abstract");
 			c.t = new Bind.T();
 			c.t.t = doBind(cla, cla.getDeclaredConstructors());
 			if (c.t.t.getDeclaringClass() != cla)
@@ -150,6 +134,7 @@ public class Factory
 						to(ps[j].cla.isPrimitive(), b, to);
 					}
 				}
+			return this;
 		}
 		catch (Error e)
 		{
@@ -280,7 +265,7 @@ public class Factory
 		return con.create(parent);
 	}
 
-	private boolean abstractSet;
+	private Class<? extends Annotation> defaultMode;
 	private HashMap<Class<?>, Bind.Clazz> classes;
 	private int bindN;
 	private boolean lazy;

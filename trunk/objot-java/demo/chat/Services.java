@@ -59,7 +59,7 @@ public class Services
 				return c == SessionFactory.class ? b.obj(hib) : b;
 			}
 		}.create(null);
-		Factory f = new Factory(Codec.class)
+		Factory f = new Factory()
 		{
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
@@ -70,7 +70,7 @@ public class Services
 					return b.obj(codec);
 				return c.isSynthetic() ? b : b.cla(w.weave(c));
 			}
-		};
+		}.bind(Codec.class);
 		for (Class<?> c: Class2.packageClasses(Do.class))
 			if ( !Mod2.match(c, Mod2.ABSTRACT))
 				f.bind(c);
