@@ -353,8 +353,8 @@ $inp = _('input');
 $sel = _('select');
 $opt = _('option');
 $lns = _('textarea');
-$._ = function (t, m) { return function () {
-	return m = $doms('input', arguments), m.type = t, m;
+$._ = function (t) { return function () {
+	return $dom($doms('input', arguments), 'type', t);
 }}
 $ln = _('text');
 $chk = _('checkbox');
@@ -363,7 +363,7 @@ delete _;
 }
 /** <a href=none:>... without action */
 $a0 = function () {
-	return $doms('a', arguments).attr('href', 'none:').attach('click', Boolean, window);
+	return $dom($doms('a', arguments), 'href', 'none:', 'click', Boolean, window);
 }
 
 /** create a text node, single line, multi whitespace reserved. */

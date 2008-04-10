@@ -169,6 +169,10 @@ $http.doneDelay = 300;
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
+$.proxy = function (This, go) {
+	return function () { return go.apply(This, arguments); };
+}
+
 $B = $D.body;
 $dom($B);
 
@@ -202,7 +206,7 @@ $.disable = function (d, v) {
 	return d;
 }
 $.defer = function (This, Do, args) {
-	setTimeout(function(){ args ? Do.apply(This, args) : Do.call(This) }, 0);
+	return setTimeout(function () { args ? Do.apply(This, args) : Do.call(This) }, 0), This;
 }
 $.deferDom = $fos ? $dom : function (m) {
 	var s = arguments;
