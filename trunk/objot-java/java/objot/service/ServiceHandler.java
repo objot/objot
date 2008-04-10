@@ -136,8 +136,6 @@ public abstract class ServiceHandler
 		}
 		catch (InvocationTargetException e)
 		{
-			if (log.isDebugEnabled())
-				log.debug(e.getCause());
 			throw Class2.exception(e.getCause());
 		}
 		catch (Throwable e)
