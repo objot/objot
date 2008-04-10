@@ -67,7 +67,7 @@ public final class Server
 		if (dataTest && "test".equals(cla))
 			return new ServiceInfo(codec, n, ModelsCreate.CREATE);
 		ServiceInfo inf = super.getInfo(n, Class2.packageName(Do.class) + '.' + cla, m);
-		return inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;
+		return inf != null && inf.meth.isAnnotationPresent(Do.Service.class) ? inf : null;
 	}
 
 	@Override
