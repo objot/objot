@@ -386,7 +386,7 @@ window.onload = function () {
 }
 window.onunload = function () {
 	// clean and prevent Firefox memory cache
-	$dom.des.call($D.body, 0);
+	$dom.des.call($B, 0);
 }
 
 function start() {
