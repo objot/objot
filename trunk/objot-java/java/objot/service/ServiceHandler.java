@@ -37,9 +37,9 @@ public abstract class ServiceHandler
 
 	/**
 	 * @return the service info
-	 * @throws ErrThrow if not found
+	 * @throws RequestException if not found
 	 */
-	public ServiceInfo getInfo(String name) throws ErrThrow
+	public ServiceInfo getInfo(String name) throws RequestException
 	{
 		ServiceInfo inf = infos.get(name);
 		if (inf != null)
@@ -49,12 +49,16 @@ public abstract class ServiceHandler
 			int x = String2.index(name, nameDelimiter, 0);
 			inf = getInfo(name, name.substring(0, x), String2.sub(name, x + 1));
 		}
+		catch (RequestException e)
+		{
+			throw e;
+		}
 		catch (Exception e)
 		{
-			throw new ErrThrow(null, "service not found : ".concat(name), e);
+			throw new RequestException("service not found : ".concat(name), e);
 		}
 		if (inf == null)
-			throw new ErrThrow(null, "service not found : ".concat(name));
+			throw new RequestException("service not found : ".concat(name));
 		infos.put(name, inf);
 		return inf;
 	}
@@ -79,25 +83,32 @@ public abstract class ServiceHandler
 	 * @return {@link CharSequence} by default, or any object depending on implementation
 	 */
 	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1)
-		throws Exception
+		throws RequestException, Exception
 	{
 		try
 		{
-			return invoke(inf, null, true, req, begin, end1);
+			return codec.enc(invoke(inf, null, req, begin, end1), inf.cla);
+		}
+		catch (RequestException e)
+		{
+			if (log.isTraceEnabled())
+				log.trace(e);
+			return error(e);
 		}
 		catch (Throwable e)
 		{
+			if (log.isDebugEnabled())
+				log.debug(e);
 			return error(e);
 		}
 	}
 
 	/**
 	 * @param obj an instance of service class
-	 * @param encodeResult if encode the result
 	 * @return the service result
 	 */
-	public Object invoke(ServiceInfo inf, Object obj, boolean encodeResult, //
-		char[] req, int begin, int end1) throws Exception
+	public Object invoke(ServiceInfo inf, Object obj, char[] req, int begin, int end1)
+		throws RequestException, Exception
 	{
 		Object[] qs;
 		try
@@ -111,14 +122,11 @@ public abstract class ServiceHandler
 		}
 		catch (Throwable e)
 		{
-			if (log.isTraceEnabled())
-				log.trace(e);
-			throw Class2.exception(e);
+			throw new RequestException(e);
 		}
-		Object r;
 		try
 		{
-			r = inf.meth.invoke(obj, qs);
+			return inf.meth.invoke(obj, qs);
 		}
 		catch (IllegalArgumentException e)
 		{
@@ -129,10 +137,7 @@ public abstract class ServiceHandler
 			s.append(") to ").append(inf.name);
 			s.append(e.getMessage() != null ? " : " : "").append(
 				e.getMessage() != null ? e.getMessage() : "");
-			ErrThrow ee = new ErrThrow(null, s.toString());
-			if (log.isTraceEnabled())
-				log.trace(ee);
-			throw ee;
+			throw new RequestException(s.toString());
 		}
 		catch (InvocationTargetException e)
 		{
@@ -140,22 +145,8 @@ public abstract class ServiceHandler
 		}
 		catch (Throwable e)
 		{
-			if (log.isDebugEnabled())
-				log.debug(e);
 			return Class2.exception(e);
 		}
-		if (encodeResult)
-			try
-			{
-				return codec.enc(r, inf.cla);
-			}
-			catch (Throwable e)
-			{
-				if (log.isTraceEnabled())
-					log.trace(e);
-				throw Class2.exception(e);
-			}
-		return r;
 	}
 
 	/**

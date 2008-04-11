@@ -84,35 +84,36 @@ public class CodecServlet
 		HttpServletResponse hp = (HttpServletResponse)hResp;
 		hp.setContentType("text/plain; charset=UTF-8");
 		hp.setHeader("Cache-Control", "no-cache");
+		ServiceInfo inf;
 		try
 		{
 			String uri = hq.getRequestURI();
 			String name = uri.substring(uri.lastIndexOf('/') + 1);
-			ServiceInfo inf = handler.getInfo(name);
-			char[] q = Array2.CHARS0;
-			int len = hq.getContentLength();
-			if (len > 0)
-			{
-				InputStream in = hq.getInputStream();
-				byte[] s = new byte[len];
-				for (int begin = 0, done; begin < len; begin += done)
-					if ((done = in.read(s, begin, len - begin)) < 0)
-						throw new EOFException();
-				q = String2.utf(s);
-			}
-			Container c = con.createBubble();
-			c.set(HttpServletRequest.class, hq);
-			c.set(HttpServletResponse.class, hp);
-			c.set(HttpSession.class, hq.getSession());
-			Object p = handler.handle(c, inf, q, 0, q.length);
-			if (p == null || !(p instanceof CharSequence))
-				hp.setContentLength(0);
-			else
-			{
-				byte[] bs = String2.utf((CharSequence)p);
-				hp.setContentLength(bs.length);
-				hp.getOutputStream().write(bs);
-			}
+			inf = handler.getInfo(name);
+		}
+		catch (RequestException e)
+		{
+			throw e;
+		}
+		char[] q = Array2.CHARS0;
+		int len = hq.getContentLength();
+		if (len > 0)
+		{
+			InputStream in = hq.getInputStream();
+			byte[] s = new byte[len];
+			for (int begin = 0, done; begin < len; begin += done)
+				if ((done = in.read(s, begin, len - begin)) < 0)
+					throw new EOFException();
+			q = String2.utf(s);
+		}
+		Container c = con.createBubble();
+		c.set(HttpServletRequest.class, hq);
+		c.set(HttpServletResponse.class, hp);
+		c.set(HttpSession.class, hq.getSession());
+		Object p;
+		try
+		{
+			p = handler.handle(c, inf, q, 0, q.length);
 		}
 		catch (RuntimeException e)
 		{
@@ -122,13 +123,17 @@ public class CodecServlet
 		{
 			throw e;
 		}
-		catch (ServletException e)
-		{
-			throw e;
-		}
 		catch (Exception e)
 		{
 			throw new ServletException(e);
+		}
+		if (p == null || !(p instanceof CharSequence))
+			hp.setContentLength(0);
+		else
+		{
+			byte[] bs = String2.utf((CharSequence)p);
+			hp.setContentLength(bs.length);
+			hp.getOutputStream().write(bs);
 		}
 	}
 }
