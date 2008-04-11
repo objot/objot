@@ -44,7 +44,9 @@ public class Data
 
 	public Integer count(Criteria<?> c)
 	{
-		return (Integer)c.setProjection(Projections.rowCount()).uniqueResult();
+		int n = (Integer)c.setProjection(Projections.rowCount()).uniqueResult();
+		c.setProjection(null);
+		return n;
 	}
 
 	public <T>T find1(Class<T> clazz, String prop, Object eq)

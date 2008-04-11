@@ -212,6 +212,19 @@ $.deferDom = $fos ? $dom : function (m) {
 	var s = arguments;
 	return setTimeout(function(){ $doms(m, s, 1) }, 0), m;
 }
+/** add css rule. @param selector, style... */
+$.css = function () {
+	$D.styleSheets.length || $throw('no stylesheet found');
+	var sh = $D.styleSheets[0], e, t;
+	for (var as = arguments, x = 0; x < as.length; x += 2)
+		if (e = as[x], t = as[x + 1], $fos)
+			sh.insertRule(e + '{' + t + '}', sh.cssRules.length);
+		else if (e.indexOf(',') < 0)
+			sh.addRule(e, t)
+		else
+			for (var es = e.split(','), y = 0; y < es.length; y++)
+				sh.addRule(es[y], t);
+}
 
 //********************************************************************************************//
 
