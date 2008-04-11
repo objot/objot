@@ -9,6 +9,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 
 import objot.container.Container;
+import objot.service.RequestException;
 import objot.service.ServiceHandler;
 import objot.service.ServiceInfo;
 import objot.util.Class2;
@@ -74,44 +75,51 @@ public final class Server
 	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1)
 		throws Exception
 	{
-		if (inf.cla == ModelsCreate.class) // test
-			synchronized (dataFactory)
-			{
-				dataFactory.evictQueries();
-				for (Object c: ((SessionFactoryImpl)dataFactory) //
-				.getAllSecondLevelCacheRegions().values())
-					((Cache)c).clear();
-				new ModelsCreate(true).create(true, 1);
-				return ok;
-			}
-
-		HttpSession hse = context.get(HttpSession.class);
-		Container sess = (Container)hse.getAttribute("container");
-		if (sess == null)
-			synchronized (hse) // double check
-			{
-				sess = (Container)hse.getAttribute("container");
-				if (sess == null)
-					hse.setAttribute("container", sess = container.parent().create());
-			}
 		try
 		{
+			if (inf.cla == ModelsCreate.class) // test
+				synchronized (dataFactory)
+				{
+					dataFactory.evictQueries();
+					for (Object c: ((SessionFactoryImpl)dataFactory) //
+					.getAllSecondLevelCacheRegions().values())
+						((Cache)c).clear();
+					new ModelsCreate(true).create(true, 1);
+					return ok;
+				}
+
+			HttpSession hse = context.get(HttpSession.class);
+			Container sess = (Container)hse.getAttribute("container");
+			if (sess == null)
+				synchronized (hse) // double check
+				{
+					sess = (Container)hse.getAttribute("container");
+					if (sess == null)
+						hse.setAttribute("container", sess = container.parent().create());
+				}
 			Container con = container.createBubble(container.parent(), sess);
-			invoke(inf, con.get(inf.cla), false, req, begin, end1);
+			invoke(inf, con.get(inf.cla), req, begin, end1);
+			if (sess.get(Session.class).close)
+				hse.invalidate();
 			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
 		}
 		catch (InvalidStateException e)
 		{
+			if (log.isTraceEnabled())
+				log.trace(e);
 			return codec.enc(new Errs(e.getInvalidValues()), null);
+		}
+		catch (RequestException e)
+		{
+			if (log.isTraceEnabled())
+				log.trace(e);
+			return error(e);
 		}
 		catch (Throwable e)
 		{
+			if (log.isDebugEnabled())
+				log.debug(e);
 			return error(e);
-		}
-		finally
-		{
-			if (sess.get(Session.class).close)
-				hse.invalidate();
 		}
 	}
 }
