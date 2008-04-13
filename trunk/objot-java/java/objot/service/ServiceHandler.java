@@ -95,6 +95,11 @@ public abstract class ServiceHandler
 				log.trace(e);
 			return error(e);
 		}
+		catch (Error e)
+		{
+			log.error(e);
+			return error(e);
+		}
 		catch (Throwable e)
 		{
 			if (log.isDebugEnabled())
