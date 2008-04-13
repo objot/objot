@@ -30,7 +30,7 @@ $throw = function (x) {
 
 //********************************************************************************************//
 
-/** make class. @param SO whether could $enc and $dec. @param ctor name.
+/** make class. @param SO if could be $enc and $dec. @param ctor name.
  * @param sup superclass or null. @param proto own props copied to ctor prototype */
 $class = function (SO, ctor, sup, proto) {
 	$.s(ctor);
@@ -170,7 +170,7 @@ $enc = function (o, forClass) {
 		return x;
 	}
 
-/** decode string to object graph, objects are created without constructors.
+/** decode string to object graph, objects are created without ctors.
  * @param byName function(name) { return objectByName }, null for default
  * @param ok function(objectDecoded) {} */
 $dec = function (s, byName, ok) {
@@ -235,8 +235,8 @@ $dec = function (s, byName, ok) {
 /** start a HTTP round.
  * @param timeout milliseconds or <=0.
  * @param request string.
- * @param done function called when this round end.
- * @param data passed to done, or the return value if missing.
+ * @param done function called when this round ends.
+ * @param data passed to done, or this return value if missing.
  * @return a function to stop this round */
 $http = function (url, timeout, request, done, data) {
 	$.s(url), $.s(request), $.f(done);
@@ -255,7 +255,7 @@ $http = function (url, timeout, request, done, data) {
 				s == 200 && (s = 0);
 				t = s == 0 ? h.responseText : h.statusText;
 			} catch (_) { // Firefox XMLHttpRequest issue, see hints
-				s = 1000, t = 'Network Failed';
+				s = 1000, t = 'Network Failure';
 			}
 			stop(0, 0);
 			try {
@@ -270,7 +270,7 @@ $http = function (url, timeout, request, done, data) {
 			}
 		}
 	};
-	var stop = function (nil, mode) {
+	function stop(nil, mode) {
 		if (h) {
 			try { h.onreadystatechange = null; h.abort(); } catch(_) {}
 			h = null, clearTimeout(timeout);
@@ -302,8 +302,7 @@ $id = function (id) {
 
 /** create a dom element and set props. prop 'c' for css class, 's' for css style
  * function value followed by "this" and "arguments" is for event handler (see $dom.attach).
- * @param domOrName dom object or tag name.
- * ((@param prop. @param value) || @param prop object as map) ... */
+ * @param domOrName dom object or tag name. (@param prop. @param value)... */
 $dom = function (domOrName, prop, value) {
 	return $doms(domOrName, arguments, 1);
 }
@@ -444,7 +443,7 @@ $dom.cla = function (clazz) {
 	return this;
 }
 /** getAttribute if no argument, removeAttribute if v === null, or setAttribute.
- * @return attribute if no argument, this */
+ * @return attribute if no argument, or this */
 $dom.attr = function (a, v) {
 	if (arguments.length <= 1)
 		return this.getAttribute(a, 2/*exact value in ie*/);
@@ -457,8 +456,8 @@ $dom.attr = function (a, v) {
  * @param multiLine if reserved. @return text if no argument, or this */
 $dom.tx = $fos ? function (v, multiLine) {
 	if (this.tagName.toLowerCase() == 'textarea')
-		return arguments.length == 0 ? this.value
-			: (this.textContent = multiLine ? v : v.replace(/\n/g, ' '), this);
+		return arguments.length == 0 ? this.value :
+			(this.textContent = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 	if (arguments.length == 0)
 		return this.textContent;
 	v = String(v).replace(/  /g, '\u00a0 ');
@@ -468,14 +467,13 @@ $dom.tx = $fos ? function (v, multiLine) {
 		for (var x = 1; x < v.length; x++)
 			this.appendChild($D.createElement('br')).textContent = '\n', // \n for getting
 			this.appendChild($D.createTextNode(v[x]));
-	}
-	else
+	} else
 		this.textContent = v;
 	return this;
 } : function (v, multiLine) {
 	return arguments.length == 0 ? this.tagName.toLowerCase() == 'textarea' ?
-		this.value.replace(/\r\n/g, '\n') : this.innerText
-		: (this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
+		this.value.replace(/\r\n/g, '\n') : this.innerText :
+		(this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this);
 }
 /** get style.display != 'none', or set style.display, or switch style.display if v === 0.
  * @return true/false if no argument, or this */
@@ -509,7 +507,7 @@ $dom.attach = function (type, handler, This, args, old) {
 	return s[x || type] = (x = s[0]), s[0] = s[x] || x + 4, s[x] = 0, s[++x] = $.f(handler),
 		s[++x] = This === true ? ($.ctor(handler), 0) : This || this, s[++x] = args, this;
 }
-/* detach event handler. @return this */
+/** detach event handler. @return this */
 $dom.detach = function (type, handler) {
 	var s = this.$on;
 	if ($.f(handler), s)

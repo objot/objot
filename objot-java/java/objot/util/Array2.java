@@ -95,7 +95,8 @@ public class Array2
 	@SuppressWarnings("unchecked")
 	public static <T>T[] news(T[] s, int length)
 	{
-		return (T[])Array.newInstance(s.getClass().getComponentType(), length);
+		return (T[])(s.getClass() == Object[].class ? new Object[length] //
+			: Array.newInstance(s.getClass().getComponentType(), length));
 	}
 
 	/** @return the array, or a reused empty array if the array is null */
@@ -737,5 +738,51 @@ public class Array2
 	{
 		V v0 = m.putIfAbsent(k, v);
 		return v0 != null ? v0 : v;
+	}
+
+	public static CharSequence join(Object[] s, String deli)
+	{
+		if (s == null || s.length == 0)
+			return "";
+		if (s.length == 1)
+			return s[0].toString();
+		StringBuilder j = new StringBuilder(100);
+		j.append(s[0]);
+		for (Object x: s)
+			j.append(deli).append(x);
+		return j;
+	}
+
+	public static CharSequence join(Object[] s, int begin, int end1, String deli)
+	{
+		if (s == null)
+			return "";
+		Math2.checkRange(begin, end1, s.length);
+		if (begin == end1)
+			return "";
+		if (begin == end1 - 1)
+			return s[begin].toString();
+		StringBuilder j = new StringBuilder(100);
+		j.append(s[begin]);
+		for (; begin < end1; begin++)
+			j.append(deli).append(s[begin]);
+		return j;
+	}
+
+	public static CharSequence join(Collection<?> s, String deli)
+	{
+		if (s == null || s.isEmpty())
+			return "";
+		if (s.size() == 1)
+			for (Object x: s)
+				return x.toString();
+		Object first = null;
+		StringBuilder j = new StringBuilder(100);
+		for (Object x: s)
+			if (first == null)
+				first = j.append(x);
+			else
+				j.append(deli).append(x);
+		return j;
 	}
 }
