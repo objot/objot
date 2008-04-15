@@ -343,3 +343,9 @@ $Pop = function (inner) {
 //
 // on IE 6(7?), some function eg. focus and location.reload don't support call or apply
 //
+// on IE 6(7?), user defined toString can't be iterated by for (in)
+//
+// on IE 6(7?), checkbox input onchange never be fired before blured, use onclick instead
+//
+// on IE 6(7?), nowrap must be set by $dom('<td nowrap>') or by css
+//

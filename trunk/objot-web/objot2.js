@@ -583,12 +583,14 @@ $.c = function ($_$, $_$_, $_$$) {
 $.copy = function (to, from) {
 	for (var x in from)
 		from.hasOwnProperty(x) && (to[x] = from[x]);
+	$fos || from.hasOwnProperty(x = 'toString') && (to[x] = from[x]);
 	return to;
 }
 /** copy all another's props. @return to */
 $.copyAll = function (to, from) {
 	for (var x in from)
 		to[x] = from[x];
+	$fos || (x = 'toString') in from && (to[x] = from[x]);
 	return to;
 }
 
