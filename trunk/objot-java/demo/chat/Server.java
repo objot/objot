@@ -13,12 +13,11 @@ import objot.service.RequestException;
 import objot.service.ServiceHandler;
 import objot.service.ServiceInfo;
 import objot.util.Class2;
-import objot.util.Errs;
+import objot.util.ErrThrow;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cache.Cache;
 import org.hibernate.impl.SessionFactoryImpl;
-import org.hibernate.validator.InvalidStateException;
 
 import chat.service.Data;
 import chat.service.Do;
@@ -103,16 +102,21 @@ public final class Server
 				hse.invalidate();
 			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
 		}
-		catch (InvalidStateException e)
-		{
-			if (log.isTraceEnabled())
-				log.trace(e);
-			return codec.enc(new Errs(e.getInvalidValues()), null);
-		}
 		catch (RequestException e)
 		{
 			if (log.isTraceEnabled())
 				log.trace(e);
+			return error(e);
+		}
+		catch (ErrThrow e)
+		{
+			if (log.isTraceEnabled())
+				log.trace(e);
+			return error(e);
+		}
+		catch (Error e)
+		{
+			log.error(e);
 			return error(e);
 		}
 		catch (Throwable e)
