@@ -319,7 +319,7 @@ $Pop = function (inner) {
 // when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unaccessible
 //
 // on Firefox, \n unsupported for element tooltips but supported for textarea.textContent
-//   setting other textContent supports <br> but \n, getting supports \n but <br>
+//   setting other textContents supports <br> but \n, getting supports \n but <br>
 // on IE, newline is \r\n while getting textarea.value
 //
 // on Firefox, addEventListener causes window.onerror no effect for exception from handler
@@ -336,14 +336,14 @@ $Pop = function (inner) {
 //
 // on IE 6(7?), codes in different windows may be multi-thread ??!
 //
-// on Firefox for Linux, onkeydown may be triggered only one key is down,
+// on Firefox for Linux, onkeydown may not be triggered if multi keys are down,
 //   may use onkeypress instead
 //
 // on IE 6(7?), childNodes[index out of bound] === undefined, but null per standard 
 //
 // on IE 6(7?), some function eg. focus and location.reload don't support call or apply
 //
-// on IE 6(7?), user defined toString can't be iterated by for (in)
+// on IE 6(7?), user defined toString can't be iterated by foreach
 //
 // on IE 6(7?), checkbox input onchange never be fired before blured, use onclick instead
 //
