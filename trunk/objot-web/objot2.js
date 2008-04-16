@@ -590,7 +590,8 @@ $.copy = function (to, from) {
 $.copyAll = function (to, from) {
 	for (var x in from)
 		to[x] = from[x];
-	$fos || (x = 'toString') in from && (to[x] = from[x]);
+	$fos || (x = 'toString') in from
+		&& from[x] != Object.prototype.toString && (to[x] = from[x]);
 	return to;
 }
 
