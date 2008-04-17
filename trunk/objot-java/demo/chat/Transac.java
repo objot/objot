@@ -140,8 +140,7 @@ public @interface Transac
 						}
 						catch (Throwable e)
 						{
-							if (LOG.isWarnEnabled())
-								LOG.warn(e);
+							LOG.warn(e);
 						}
 					if (data.hib.isOpen())
 						try
@@ -150,8 +149,7 @@ public @interface Transac
 						}
 						catch (Throwable e)
 						{
-							if (LOG.isWarnEnabled())
-								LOG.warn(e);
+							LOG.warn(e);
 						}
 					data.hib = null;
 				}

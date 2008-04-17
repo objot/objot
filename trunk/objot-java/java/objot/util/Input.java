@@ -31,7 +31,7 @@ public class Input
 		public Line(InputStream in_)
 		{
 			in = in_;
-			bs = new byte[1002];
+			bs = new byte[8112];
 		}
 
 		public Line(InputStream in_, int maxLen)
