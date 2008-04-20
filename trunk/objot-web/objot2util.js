@@ -110,6 +110,7 @@ location.params = function (emptyName) {
 }
 $ie && (location.$load = location.reload, location.reload = function () { location.$load() });
 
+
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
@@ -143,7 +144,7 @@ $Do = function (service, hint, req, this3, done3, this2, done2, this1, done1) {
 }
 	$Do.done = function (code, res, h) {
 		h.$this0 !== undefined && h.$done0.call(h.$this0);
-		var ok = false, err = false;
+		var ok, err; // undefined
 		if (code == 0)
 			(res = $dec(res, $Do.byName, $Do.decoded)) instanceof Err ? err = res : ok = res;
 		else if (code > 0)
@@ -162,7 +163,7 @@ $Do.byName = null;
 /** @see $dec */
 $Do.decoded = null;
 
-/** default callback delay after HTTP round end */
+/** default delay after HTTP round end */
 $http.doneDelay = 300;
 
 
