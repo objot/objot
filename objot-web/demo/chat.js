@@ -111,8 +111,8 @@ DoChat.post = function (In, text, This, done) {
 //********************************************************************************************//
 
 $class.enc(User, Object, ['id'], DoSign, ['name', 'password']);
-$class.enc(User, DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
-$class.enc(Chat, DoChat, null);
+$class.enc(User, Object, [], DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
+$class.enc(Chat, Object, [], DoChat, null);
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//

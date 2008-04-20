@@ -135,7 +135,7 @@ $enc = function (o, forClass) {
 		s[x++] = n == Object ? '' : n.$name;
 		o[''] && (s[x++] = ':', s[x++] = o[''] = String(++s.refX));
 		P: {
-			G: if (enc = o.constructor.$encs) {
+			if (enc = o.constructor.$encs)
 				for (var c = s.clazz, g = enc.length - 2; g >= 0; g -= 2)
 					if (c == enc[g] || c.prototype instanceof enc[g]) {
 						if (enc = enc[g + 1]) {
@@ -152,10 +152,8 @@ $enc = function (o, forClass) {
 
 							break P;
 						}
-						break G;
+						break;
 					}
-				break P;
-			}
 		for (p in o)
 			if (o.hasOwnProperty(p) && p.length && (t = typeof (v = o[p])) != 'function')
 				s[x++] = p,
@@ -248,26 +246,26 @@ $http = function (url, timeout, request, done, data) {
 	h.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8');
 	h.setRequestHeader('Cache-Control', 'no-cache');
 	var on = function (s, t) {
-		if (h && h.readyState == 4) {
-			try {
-				if ((s = h.status) == 0)
-					throw 0;
-				s == 200 && (s = 0);
-				t = s == 0 ? h.responseText : h.statusText;
-			} catch (_) { // Firefox XMLHttpRequest issue, see hints
-				s = 1000, t = 'Network Failure';
-			}
-			stop(0, 0);
-			try {
-				done(s, t, data);
-				done = data = s = t = null;
-			} catch(_) {
-				done = data = s = t = null;
-				if ($ie || !onerror) // TODO opera safari ?
-					throw _;
-				_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
-					: onerror(_, 0, 0);
-			}
+		if (!h)
+			return;
+		try {
+			if ((s = h.status) == 0)
+				throw 0;
+			s == 200 && (s = 0);
+			t = s == 0 ? h.responseText : h.statusText;
+		} catch (_) { // Firefox XMLHttpRequest issue, see hints
+			s = 1000, t = 'Network Failure';
+		}
+		stop(0, 0);
+		try {
+			done(s, t, data);
+			done = data = s = t = null;
+		} catch(_) {
+			done = data = s = t = null;
+			if ($ie || !onerror) // TODO opera safari ?
+				throw _;
+			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
+				: onerror(_, 0, 0);
 		}
 	};
 	function stop(nil, mode) {
@@ -278,8 +276,8 @@ $http = function (url, timeout, request, done, data) {
 				done(mode ? 1 : -1, mode ? 'timeout' : 'stop', data), done = data = null;
 		}
 	}
-	h.onreadystatechange = $fos && $http.doneDelay <= 0 ? on : function () {
-		setTimeout(on, $http.doneDelay + 1);
+	h.onreadystatechange = function () {
+		h && h.readyState == 4 && setTimeout(on, $http.doneDelay); // must timeout on IE
 	};
 	timeout = timeout > 0 && setTimeout(function () {
 		stop(0, 1);
