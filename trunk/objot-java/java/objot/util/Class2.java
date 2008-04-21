@@ -504,7 +504,7 @@ public class Class2
 			throw new Exception("invalid class " + c);
 		String p = c.getPackage().getName();
 		// find the package directory
-		URL url = c.getResource("/" + packageName(c).replace('.', '/'));
+		URL url = c.getResource("/" + packageName(c).replace('.', '/') + "/");
 
 		ArrayList<Class<?>> clas = new ArrayList<Class<?>>();
 
@@ -523,14 +523,19 @@ public class Class2
 			JarURLConnection conn = (JarURLConnection)url.openConnection();
 			JarEntry path = conn.getJarEntry();
 			if ( !path.isDirectory())
-				throw new Exception(path + "must be directory");
+				throw new Exception(path + " must be directory");
 			String name;
 			// iterate on all classes in the package
 			for (Enumeration<JarEntry> es = conn.getJarFile().entries(); es.hasMoreElements();)
-				if ((name = es.nextElement().getName()).startsWith(path.getName())
-					&& name.endsWith(".class"))
-					clas.add(Class.forName(p + "."
-						+ name.substring(path.getName().length(), name.lastIndexOf('.'))));
+			{
+				name = es.nextElement().getName();
+				if (name.startsWith(path.getName()) && name.endsWith(".class"))
+				{
+					name = name.substring(path.getName().length(), name.lastIndexOf('.'));
+					if (name.indexOf('/') < 0)
+						clas.add(Class.forName(p + "." + name));
+				}
+			}
 		}
 		else
 			throw new Exception(url.getProtocol() + " not supported yet");
