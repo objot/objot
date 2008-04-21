@@ -6,19 +6,12 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>com.powerflasher.fdt.core.FlashBuilder</name>
+			<name>com.adobe.flexbuilder.project.flexbuilder</name>
 			<arguments>
 			</arguments>
 		</buildCommand>
 	</buildSpec>
 	<natures>
-		<nature>com.powerflasher.fdt.core.FlashNature</nature>
+		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>playerglobal.swc</name>
-			<type>1</type>
-			<locationURI>Flex_2_SDK_0/frameworks/libs/playerglobal.swc</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
