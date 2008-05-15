@@ -14,6 +14,11 @@ public class String2
 		throw new AbstractMethodError();
 	}
 
+	public static boolean empty(String s)
+	{
+		return s == null || s.length() == 0;
+	}
+
 	/** @return the string, or "" if the string is null */
 	public static String maskNull(String x)
 	{
