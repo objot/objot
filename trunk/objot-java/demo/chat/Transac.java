@@ -120,7 +120,7 @@ public @interface Transac
 			data.depth++;
 			try
 			{
-				begin((SessionImpl)data.hib, Target.<Config>getData());
+				begin((SessionImpl)data.hib, Target.<Config>getData(), Target.getTarget());
 				Target.invoke();
 				data.flush();
 				ok = true;
@@ -156,7 +156,8 @@ public @interface Transac
 			}
 		}
 
-		private static void begin(SessionImpl hib, Config con) throws Exception
+		private static void begin(SessionImpl hib, Config con, String target)
+			throws Exception
 		{
 			if (con.iso <= 0)
 				return;
@@ -167,9 +168,9 @@ public @interface Transac
 				hib.beginTransaction();
 			}
 			else if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
-				throw new Exception(Target.getTarget() + ": transaction must be writable");
+				throw new Exception(target + ": transaction must be writable");
 			else if (con.iso > hib.getJDBCContext().borrowConnection().getTransactionIsolation())
-				throw new Exception(Target.getTarget() + ": isolation must be at least "
+				throw new Exception(target + ": isolation must be at least "
 					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
 						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
 							: "read committed"));
