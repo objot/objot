@@ -8,12 +8,17 @@ import java.nio.charset.Charset;
 
 public class Input
 {
+	protected Input()
+	{
+		throw new AbstractMethodError();
+	}
+
 	public static byte[] readFull(InputStream in, byte[] bs, int begin, int end1)
 		throws IOException
 	{
 		Math2.checkRange(begin, end1, bs.length);
-		for (int done; begin < end1; begin += done)
-			if ((done = in.read(bs, begin, end1 - begin)) < 0)
+		for (int n; begin < end1; begin += n)
+			if ((n = in.read(bs, begin, end1 - begin)) <= 0)
 				throw new EOFException();
 		return bs;
 	}
@@ -24,9 +29,12 @@ public class Input
 		public static final Charset UTF = Charset.forName("UTF-8");
 
 		public InputStream in;
+		public Charset cs = UTF;
 		public byte[] bs;
 		public int begin;
 		public int end1;
+		/** total number of read bytes */
+		public long readBn;
 
 		public Line(InputStream in_)
 		{
@@ -40,10 +48,11 @@ public class Input
 			bs = new byte[maxLen + 2];
 		}
 
-		@Override
-		public int available() throws IOException
+		/** set charset, default is {@link #UTF} */
+		public Line charset(Charset cs_)
 		{
-			return Math2.addOver(end1 - begin, in.available());
+			cs = cs_ != null ? cs_ : UTF;
+			return this;
 		}
 
 		@Override
@@ -54,9 +63,23 @@ public class Input
 		}
 
 		@Override
+		public int available() throws IOException
+		{
+			return Math2.addOver(end1 - begin, in.available());
+		}
+
+		@Override
 		public int read() throws IOException
 		{
-			return begin < end1 ? bs[begin++] : in.read();
+			if (begin < end1)
+				return bs[begin++] & 255;
+			int n = in.read(bs, 0, bs.length);
+			if (n <= 0)
+				return n;
+			begin = 1;
+			end1 = n;
+			readBn += n;
+			return bs[0] & 255;
 		}
 
 		@Override
@@ -70,96 +93,219 @@ public class Input
 				begin += len;
 				return len;
 			}
-			return in.read(bs_, begin_, len);
+			int n = in.read(bs_, begin_, len);
+			readBn += n;
+			return n;
 		}
 
-		public byte[] readFull(byte[] bs_, int begin_, int end1_) throws IOException
+		protected int lineMore(boolean read, int x) throws IOException
 		{
-			Math2.checkRange(begin_, end1_, bs_.length);
-			if (begin < end1)
+			if (end1 == bs.length)
 			{
-				int len = Math.min(end1 - begin, end1_ - begin_);
-				System.arraycopy(bs, begin, bs_, begin_, len);
-				begin += len;
-				begin_ += len;
+				if (begin == 0)
+					throw new InvalidLengthException("line too long : must <= "
+						+ (bs.length - 2));
+				if (read)
+					System.arraycopy(bs, begin, bs, 0, end1 - begin);
+				end1 -= begin;
+				x -= begin;
+				begin = 0;
 			}
-			for (int done; begin_ < end1_; begin_ += done)
-				if ((done = in.read(bs_, begin_, end1_ - begin_)) < 0)
-					throw new EOFException();
-			return bs_;
+			int n = in.read(bs, end1, bs.length - end1);
+			if (n <= 0)
+				throw new EOFException();
+			end1 += n;
+			readBn += n;
+			return x;
+		}
+
+		protected int lineEnd(boolean read, boolean cr) throws IOException
+		{
+			if (cr)
+				for (int x = begin;; x = lineMore(read, x))
+					for (; x + 1 < end1; x++)
+						if (bs[x] == '\r' && bs[x + 1] == '\n')
+							return x;
+			for (int x = begin;; x = lineMore(read, x))
+				for (; x < end1; x++)
+					if (bs[x] == '\n')
+						return x;
 		}
 
 		public byte[] readLine(boolean cr) throws Exception
 		{
-			int x = begin;
-			int x1 = cr ? 1 : 0;
-			char xc = cr ? '\r' : '\n';
-			for (;;)
-			{
-				for (; x + x1 < end1; x++)
-					if (bs[x] == xc && bs[x + x1] == '\n')
-					{
-						byte[] l = Array2.subClone(bs, begin, x);
-						begin = x + 1 + x1;
-						return l;
-					}
-				if (end1 == bs.length)
-				{
-					if (begin == 0)
-						throw new InvalidLengthException("line too long : must <= "
-							+ (bs.length - 2));
-					System.arraycopy(bs, begin, bs, 0, end1 - begin);
-					end1 -= begin;
-					x -= begin;
-					begin = 0;
-				}
-				int done = in.read(bs, end1, bs.length - end1);
-				if (done < 0)
-					throw new EOFException();
-				end1 += done;
-			}
+			int x = lineEnd(true, cr);
+			byte[] l = Array2.subClone(bs, begin, x);
+			begin = cr ? x + 2 : x + 1;
+			return l;
 		}
 
-		/** @param cs null for utf-8 */
-		public String readLine(Charset cs, boolean cr) throws Exception
+		/** @param cs_ by {@link #charset} if null */
+		public String readLine(Charset cs_, boolean cr) throws Exception
 		{
-			int x = begin;
-			int x1 = cr ? 1 : 0;
-			char xc = cr ? '\r' : '\n';
-			for (;;)
-			{
-				for (; x + x1 < end1; x++)
-					if (bs[x] == xc && bs[x + x1] == '\n')
-					{
-						String l = cs == null || UTF.equals(cs) ? //
-							new String(String2.utf(bs, begin, x)) : //
-							new String(bs, begin, x - begin, cs);
-						begin = x + 1 + x1;
-						return l;
-					}
-				if (end1 == bs.length)
-				{
-					if (begin == 0)
-						throw new InvalidLengthException("line too long : must <= "
-							+ (bs.length - 2));
-					System.arraycopy(bs, begin, bs, 0, end1 - begin);
-					end1 -= begin;
-					x -= begin;
-					begin = 0;
-				}
-				int done = in.read(bs, end1, bs.length - end1);
-				if (done < 0)
-					throw new EOFException();
-				end1 += done;
-			}
+			if (cs_ == null)
+				cs_ = cs;
+			int x = lineEnd(true, cr);
+			String l = UTF.equals(cs_) ? new String(String2.utf(bs, begin, x)) : new String(
+				bs, begin, x - begin, cs_);
+			begin = cr ? x + 2 : x + 1;
+			return l;
 		}
 
 		@Override
-		public long skip(long x) throws IOException
+		public long skip(long n) throws IOException
 		{
-			long xx = Math.min(x, end1 - begin);
-			begin += xx;
-			return x == xx ? xx : xx + in.skip(x - xx);
+			if (n <= 0)
+				return 0;
+			long x = Math.min(n, end1 - begin);
+			begin += x;
+			if (n == x)
+				return n;
+			n = in.skip(n - x);
+			readBn += n;
+			return x + n;
+		}
+
+		/** @return the number of bytes of the skipped line */
+		public int skipLine(boolean cr) throws Exception
+		{
+			int x = lineEnd(false, cr);
+			int l = x - begin;
+			begin = cr ? x + 2 : x + 1;
+			return l;
+		}
+	}
+
+	public static class Upload
+		extends InputStream
+	{
+		Line in;
+		byte[] split;
+		String name;
+		String fileName;
+		/** 0: begin of part, 1: reading part, -1: no more parts */
+		int part;
+		int avail;
+
+		public Upload(InputStream in_) throws Exception
+		{
+			this(new Input.Line(in_));
+		}
+
+		public Upload(Line in_) throws Exception
+		{
+			in = in_;
+			int x = in.lineEnd(true, true);
+			split = new byte[2 + x - in.begin + 2];
+			System.arraycopy(in.bs, in.begin, split, 2, x - in.begin + 2);
+			in.begin = x + 2;
+			Math2.checkLength(split.length - 4, 1, in.bs.length - 6);
+			split[0] = '\r';
+			split[1] = '\n';
+			if (split.length > 5 && split[split.length - 3] == '-')
+				part = -1;
+		}
+
+		public void closeAll() throws IOException
+		{
+			in.close();
+		}
+
+		/**
+		 * @return true: the next part is ready, false: no more parts
+		 * @throws IllegalStateException the current part unfinished
+		 * @throws Exception
+		 */
+		public boolean next() throws Exception
+		{
+			if (part < 0)
+				return false;
+			if (part > 0)
+				throw new IllegalStateException("current part unfinished");
+			String l = in.readLine(null, true);
+			int x = String2.indexAfter(l, "name=\"", 0);
+			name = String2.sub(l, '"', x);
+			x = String2.indexAfter(l, "filename=\"", x + name.length());
+			fileName = String2.sub(l, '\"', x);
+			while (in.skipLine(true) > 0)
+				;
+			part = 1;
+			return true;
+		}
+
+		public String name()
+		{
+			return name;
+		}
+
+		public String fileName()
+		{
+			return fileName;
+		}
+
+		@Override
+		public int available() throws IOException
+		{
+			if (avail > 0 || part <= 0)
+				return avail;
+			if (in.begin >= in.end1)
+				in.lineMore(true, 0);
+			int x = in.begin;
+			if (in.bs[x++] != '\r')
+				for (;; x++)
+					if (x == in.end1 || in.bs[x] == '\r')
+						return avail = x - in.begin;
+			int noMore = 0;
+			for (int y = 1; y < split.length; x++, y++)
+			{
+				if (x == in.end1)
+					x = in.lineMore(true, x);
+				if (in.bs[x] != split[y] || noMore == 1)
+					if (in.bs[x] == '-' && y == split.length - 2 && noMore++ < 2)
+						y--;
+					else
+						for (;; x++)
+							if (x == in.end1 || in.bs[x] == '\r')
+								return avail = x - in.begin;
+			}
+			in.begin = x;
+			part = noMore == 2 ? -1 : 0;
+			return avail = 0;
+		}
+
+		@Override
+		public int read() throws IOException
+		{
+			if (available() <= 0)
+				return -1;
+			avail--;
+			return in.bs[in.begin++] & 255;
+		}
+
+		@Override
+		public int read(byte[] bs, int begin, int len) throws IOException
+		{
+			Math2.checkRange(begin, begin + len, bs.length);
+			len = Math.min(len, available());
+			if (len <= 0)
+				return -1;
+			System.arraycopy(in.bs, in.begin, bs, begin, len);
+			in.begin += len;
+			avail -= len;
+			return len;
+		}
+
+		@Override
+		public long skip(long n) throws IOException
+		{
+			long m = 0;
+			while (m < n && available() > 0)
+			{
+				long x = Math.min(n - m, avail);
+				in.begin += x;
+				m += x;
+			}
+			return m;
 		}
 	}
 }

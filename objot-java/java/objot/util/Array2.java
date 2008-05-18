@@ -147,6 +147,12 @@ public class Array2
 		return x == null ? DOUBLES0 : x;
 	}
 
+	/** @return the array, or a reused empty array if the array is null */
+	public static Object[] maskNull(Object[] x)
+	{
+		return x == null ? OBJECTS0 : x;
+	}
+
 	/** @return the array, or null if the array is the reused empty array */
 	public static boolean[] unmaskNull(boolean[] x)
 	{
@@ -193,6 +199,12 @@ public class Array2
 	public static double[] unmaskNull(double[] x)
 	{
 		return x == DOUBLES0 ? null : x;
+	}
+
+	/** @return the array, or null if the array is the reused empty array */
+	public static Object[] unmaskNull(Object[] x)
+	{
+		return x == OBJECTS0 ? null : x;
 	}
 
 	/** Search the array. */
@@ -719,6 +731,58 @@ public class Array2
 		T[] a = news(s, end1 - begin);
 		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
+	}
+
+	public static byte[] concat(byte[] a, byte[] b)
+	{
+		if (a == null || a.length == 0)
+			return maskNull(b);
+		if (b == null || b.length == 0)
+			return a;
+		byte[] s = new byte[a.length + b.length];
+		System.arraycopy(a, 0, s, 0, a.length);
+		System.arraycopy(b, 0, s, a.length, b.length);
+		return s;
+	}
+
+	public static int[] concat(int[] a, int[] b)
+	{
+		if (a == null || a.length == 0)
+			return maskNull(b);
+		if (b == null || b.length == 0)
+			return a;
+		int[] s = new int[a.length + b.length];
+		System.arraycopy(a, 0, s, 0, a.length);
+		System.arraycopy(b, 0, s, a.length, b.length);
+		return s;
+	}
+
+	public static long[] concat(long[] a, long[] b)
+	{
+		if (a == null || a.length == 0)
+			return maskNull(b);
+		if (b == null || b.length == 0)
+			return a;
+		long[] s = new long[a.length + b.length];
+		System.arraycopy(a, 0, s, 0, a.length);
+		System.arraycopy(b, 0, s, a.length, b.length);
+		return s;
+	}
+
+	/** @return or {@link #OBJECTS0} if both null */
+	@SuppressWarnings("unchecked")
+	public static <T>T[] concat(T[] a, T[] b)
+	{
+		if (a == null)
+			return (T[])maskNull(b);
+		if (b == null || b.length == 0)
+			return a;
+		if (a.length == 0)
+			return b;
+		T[] s = news(a, a.length + b.length);
+		System.arraycopy(a, 0, s, 0, a.length);
+		System.arraycopy(b, 0, s, a.length, b.length);
+		return s;
 	}
 
 	public static <T>T[] from(Collection<?> s, Class<T> c)

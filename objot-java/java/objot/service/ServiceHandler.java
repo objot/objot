@@ -82,12 +82,12 @@ public abstract class ServiceHandler
 	 * @param context depending on implementation, may be null
 	 * @return {@link CharSequence} by default, or any object depending on implementation
 	 */
-	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1)
-		throws RequestException, Exception
+	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1,
+		Object[] extraReqs) throws RequestException, Exception
 	{
 		try
 		{
-			return codec.enc(invoke(inf, null, req, begin, end1), inf.cla);
+			return codec.enc(invoke(inf, null, req, begin, end1, extraReqs), inf.cla);
 		}
 		catch (RequestException e)
 		{
@@ -112,8 +112,8 @@ public abstract class ServiceHandler
 	 * @param obj an instance of service class
 	 * @return the service result
 	 */
-	public Object invoke(ServiceInfo inf, Object obj, char[] req, int begin, int end1)
-		throws RequestException, Exception
+	public Object invoke(ServiceInfo inf, Object obj, char[] req, int begin, int end1,
+		Object[] extraReqs) throws RequestException, Exception
 	{
 		Object[] qs;
 		try
@@ -129,6 +129,7 @@ public abstract class ServiceHandler
 		{
 			throw new RequestException(e);
 		}
+		qs = Array2.concat(qs, extraReqs);
 		try
 		{
 			return inf.meth.invoke(obj, qs);

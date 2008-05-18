@@ -113,7 +113,7 @@ public class CodecServlet
 		Object p;
 		try
 		{
-			p = handler.handle(c, inf, q, 0, q.length);
+			p = handler.handle(c, inf, q, 0, q.length, null);
 		}
 		catch (RuntimeException e)
 		{
