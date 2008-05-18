@@ -50,11 +50,28 @@ public class String2
 		return x >= 0 ? x : s.length();
 	}
 
-	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	/** @return {@link String#indexOf(String, int)} if found, or length if not found */
 	public static int index(String s, String sub, int begin)
 	{
 		int x = s.indexOf(sub, begin);
 		return x >= 0 ? x : s.length();
+	}
+
+	/** @return {@link String#indexOf(int, int)} + 1 if found, or length if not found */
+	public static int indexAfter(String s, char sub, int begin)
+	{
+		int x = s.indexOf(sub, begin);
+		return x >= 0 ? x + 1 : s.length();
+	}
+
+	/**
+	 * @return {@link String#indexOf(String, int)} + sub length if found, or length if not
+	 *         found
+	 */
+	public static int indexAfter(String s, String sub, int begin)
+	{
+		int x = s.indexOf(sub, begin);
+		return x >= 0 ? x + sub.length() : s.length();
 	}
 
 	public static String sub(String s, int begin)
@@ -88,7 +105,7 @@ public class String2
 		return x >= 0 ? x : s.length();
 	}
 
-	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
+	/** @return {@link String#indexOf(String, int)} if found, or length if not found */
 	public static int lastIndex(String s, String sub)
 	{
 		int x = s.lastIndexOf(sub);

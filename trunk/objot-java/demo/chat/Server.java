@@ -71,8 +71,8 @@ public final class Server
 	}
 
 	@Override
-	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1)
-		throws Exception
+	public Object handle(Container context, ServiceInfo inf, char[] req, int begin, int end1,
+		Object[] extraReqs) throws Exception
 	{
 		try
 		{
@@ -97,7 +97,7 @@ public final class Server
 						hse.setAttribute("container", sess = container.parent().create());
 				}
 			Container con = container.createBubble(container.parent(), sess);
-			invoke(inf, con.get(inf.cla), req, begin, end1);
+			invoke(inf, con.get(inf.cla), req, begin, end1, extraReqs);
 			if (sess.get(Session.class).close)
 				hse.invalidate();
 			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
