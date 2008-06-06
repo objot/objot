@@ -105,7 +105,7 @@ abstract class Element
 
 	public static Bytes utf(String s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length());
+		Math2.range(begin, end1, s.length());
 		int ulen = 0;
 		for (int i = begin; i < end1; i++)
 		{
@@ -148,7 +148,7 @@ abstract class Element
 
 	public static String ucs(Bytes utf, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, utf.end1Bi - utf.beginBi);
+		Math2.range(begin, end1, utf.end1Bi - utf.beginBi);
 		try
 		{
 			return new String(utf.bytes, utf.beginBi + begin, end1 - begin, "UTF-8");

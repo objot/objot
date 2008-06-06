@@ -26,7 +26,7 @@ public class Bytes
 	public Bytes(byte[] bs, int begin, int end1)
 	{
 		bytes = bs != null ? bs : Array2.BYTES0;
-		Math2.checkRange(begin, end1, bytes.length);
+		Math2.range(begin, end1, bytes.length);
 		beginBi = begin;
 		end1Bi = end1;
 	}
@@ -39,7 +39,7 @@ public class Bytes
 	public Bytes(Bytes bs, int begin, int end1)
 	{
 		bytes = bs.bytes;
-		Math2.checkRange(begin, end1, bs.end1Bi - bs.beginBi);
+		Math2.range(begin, end1, bs.end1Bi - bs.beginBi);
 		beginBi = bs.beginBi + begin;
 		end1Bi = bs.beginBi + end1;
 	}
@@ -66,22 +66,22 @@ public class Bytes
 
 	public int copyTo(int bi, byte[] dest, int destBi, int bn)
 	{
-		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);
+		Math2.range(bi, bi + bn, end1Bi - beginBi);
 		System.arraycopy(bytes, bi + beginBi, dest, destBi, bn);
 		return destBi + bn;
 	}
 
 	public int copyTo(int bi, Bytes dest, int destBi, int bn)
 	{
-		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);
-		Math2.checkRange(destBi, destBi + bn, dest.end1Bi - dest.beginBi);
+		Math2.range(bi, bi + bn, end1Bi - beginBi);
+		Math2.range(destBi, destBi + bn, dest.end1Bi - dest.beginBi);
 		System.arraycopy(bytes, bi + beginBi, dest.bytes, destBi + dest.beginBi, bn);
 		return destBi + bn;
 	}
 
 	public int copyFrom(int bi, byte[] src, int srcBi, int bn)
 	{
-		Math2.checkRange(bi, bi + bn, end1Bi - beginBi);
+		Math2.range(bi, bi + bn, end1Bi - beginBi);
 		System.arraycopy(src, srcBi, bytes, bi + beginBi, bn);
 		return bi + bn;
 	}
@@ -93,7 +93,7 @@ public class Bytes
 
 	public boolean equals(byte[] bs, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, bs.length);
+		Math2.range(begin, end1, bs.length);
 		if (end1Bi - beginBi != end1 - begin)
 			return false;
 		for (int i = beginBi, bsi = begin; bsi < end1; i++, bsi++)
@@ -109,7 +109,7 @@ public class Bytes
 
 	public boolean equals(Bytes bs, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, bs.end1Bi - bs.beginBi);
+		Math2.range(begin, end1, bs.end1Bi - bs.beginBi);
 		if (end1Bi - beginBi != end1 - begin)
 			return false;
 		for (int i = beginBi, bsi = begin + bs.beginBi; i < end1Bi; i++, bsi++)
@@ -135,35 +135,35 @@ public class Bytes
 
 	public byte readS1(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		return bytes[i];
 	}
 
 	public int readU1(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		return bytes[i] & 0xFF;
 	}
 
 	public short readS2(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 1);
+		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		return (short)(bytes[i] << 8 | bytes[i + 1] & 0xFF);
 	}
 
 	public int readU2(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 1);
+		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		return bytes[i] << 8 & 0xFF00 | bytes[i + 1] & 0xFF;
 	}
 
 	public int readS4(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 3);
+		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		return bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
@@ -171,7 +171,7 @@ public class Bytes
 
 	public int readU4(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 3);
+		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		i = bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
@@ -183,7 +183,7 @@ public class Bytes
 
 	public long readU4ex(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 3);
+		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		return (bytes[i] & 0xFFL) << 24 | ((bytes[i + 1] & 0xFF) << 16 //
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF);
@@ -191,7 +191,7 @@ public class Bytes
 
 	public long readS8(int i)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 7);
+		Math2.index(i, end1Bi - beginBi - 7);
 		i += beginBi;
 		return (long)(bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
 			/**/| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF) << 32 //
@@ -317,7 +317,7 @@ public class Bytes
 
 	public void writeS1(int i, byte v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		bytes[i] = v;
 	}
@@ -326,7 +326,7 @@ public class Bytes
 	{
 		if (v << 24 >> 24 != v)
 			throw new ArithmeticException("invalid signed byte");
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		bytes[i] = (byte)v;
 	}
@@ -335,14 +335,14 @@ public class Bytes
 	{
 		if (v >> 8 != 0)
 			throw new ArithmeticException("invalid unsigned byte");
-		Math2.checkIndex(i, end1Bi - beginBi);
+		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		bytes[i] = (byte)v;
 	}
 
 	public void writeS2(int i, short v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 1);
+		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 8);
 		bytes[i + 1] = (byte)v;
@@ -352,7 +352,7 @@ public class Bytes
 	{
 		if (v << 16 >> 16 != v)
 			throw new ArithmeticException("invalid signed dual bytes");
-		Math2.checkIndex(i, end1Bi - beginBi - 1);
+		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 8);
 		bytes[i + 1] = (byte)v;
@@ -362,7 +362,7 @@ public class Bytes
 	{
 		if (v >> 16 != 0)
 			throw new ArithmeticException("invalid unsigned dual bytes");
-		Math2.checkIndex(i, end1Bi - beginBi - 1);
+		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 8);
 		bytes[i + 1] = (byte)v;
@@ -370,7 +370,7 @@ public class Bytes
 
 	public void writeS4(int i, int v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 3);
+		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		bytes[i] = (byte)(v >> 24);
 		bytes[i + 1] = (byte)(v >> 16);
@@ -382,7 +382,7 @@ public class Bytes
 	{
 		if (v_ >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
-		Math2.checkIndex(i, end1Bi - beginBi - 3);
+		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
 		int v = (int)v_;
 		bytes[i] = (byte)(v >> 24);
@@ -393,7 +393,7 @@ public class Bytes
 
 	public void writeS8(int i, long v)
 	{
-		Math2.checkIndex(i, end1Bi - beginBi - 7);
+		Math2.index(i, end1Bi - beginBi - 7);
 		i += beginBi;
 		int v4 = (int)(v >> 32);
 		bytes[i] = (byte)(v4 >> 24);

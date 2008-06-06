@@ -229,7 +229,7 @@ public final class Code
 	{
 		if (bs == null)
 			throw null;
-		Math2.checkRange(addrBegin, addrEnd1, bs.length);
+		Math2.range(addrBegin, addrEnd1, bs.length);
 		if (addrEnd1 - addrBegin > 65535)
 			throw new ClassFormatError("too large code");
 		ins = bs;

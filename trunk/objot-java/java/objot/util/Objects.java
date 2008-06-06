@@ -24,7 +24,7 @@ public class Objects<T>
 	public Objects(T[] s, int begin, int end1)
 	{
 		objs = s != null ? s : (T[])Array2.OBJECTS0;
-		Math2.checkRange(begin, end1, objs.length);
+		Math2.range(begin, end1, objs.length);
 		beginI = begin;
 		end1I = end1;
 	}
@@ -37,7 +37,7 @@ public class Objects<T>
 	public Objects(Objects<? extends T> s, int begin, int end1)
 	{
 		objs = s.objs;
-		Math2.checkRange(begin, end1, s.end1I - s.beginI);
+		Math2.range(begin, end1, s.end1I - s.beginI);
 		beginI = s.beginI + begin;
 		end1I = s.beginI + end1;
 	}
@@ -54,22 +54,22 @@ public class Objects<T>
 
 	public int copyTo(int i, T[] dest, int destI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
+		Math2.range(i, i + n, end1I - beginI);
 		System.arraycopy(objs, i + beginI, dest, destI, n);
 		return destI + n;
 	}
 
 	public int copyTo(int i, Objects<? super T> dest, int destI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
-		Math2.checkRange(destI, destI + n, dest.end1I - dest.beginI);
+		Math2.range(i, i + n, end1I - beginI);
+		Math2.range(destI, destI + n, dest.end1I - dest.beginI);
 		System.arraycopy(objs, i + beginI, dest.objs, destI + dest.beginI, n);
 		return destI + n;
 	}
 
 	public int copyFrom(int i, T[] src, int srcI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
+		Math2.range(i, i + n, end1I - beginI);
 		System.arraycopy(src, srcI, objs, i + beginI, n);
 		return i + n;
 	}
@@ -81,7 +81,7 @@ public class Objects<T>
 
 	public boolean equals(T[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin; si < end1; i++, si++)
@@ -97,7 +97,7 @@ public class Objects<T>
 
 	public boolean equals(Objects<?> s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.end1I - s.beginI);
+		Math2.range(begin, end1, s.end1I - s.beginI);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin + s.beginI; i < end1I; i++, si++)
@@ -123,7 +123,7 @@ public class Objects<T>
 
 	public T read(int i)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		return objs[i + beginI];
 	}
 
@@ -154,7 +154,7 @@ public class Objects<T>
 
 	public void write(int i, T v)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		objs[i + beginI] = v;
 	}
 

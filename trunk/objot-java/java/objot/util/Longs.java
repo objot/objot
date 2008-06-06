@@ -22,7 +22,7 @@ public class Longs
 	public Longs(long[] s, int begin, int end1)
 	{
 		longs = s != null ? s : Array2.LONGS0;
-		Math2.checkRange(begin, end1, longs.length);
+		Math2.range(begin, end1, longs.length);
 		beginI = begin;
 		end1I = end1;
 	}
@@ -35,7 +35,7 @@ public class Longs
 	public Longs(Longs s, int begin, int end1)
 	{
 		longs = s.longs;
-		Math2.checkRange(begin, end1, s.end1I - s.beginI);
+		Math2.range(begin, end1, s.end1I - s.beginI);
 		beginI = s.beginI + begin;
 		end1I = s.beginI + end1;
 	}
@@ -52,22 +52,22 @@ public class Longs
 
 	public int copyTo(int i, long[] dest, int destI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
+		Math2.range(i, i + n, end1I - beginI);
 		System.arraycopy(longs, i + beginI, dest, destI, n);
 		return destI + n;
 	}
 
 	public int copyTo(int i, Longs dest, int destI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
-		Math2.checkRange(destI, destI + n, dest.end1I - dest.beginI);
+		Math2.range(i, i + n, end1I - beginI);
+		Math2.range(destI, destI + n, dest.end1I - dest.beginI);
 		System.arraycopy(longs, i + beginI, dest.longs, destI + dest.beginI, n);
 		return destI + n;
 	}
 
 	public int copyFrom(int i, long[] src, int srcI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
+		Math2.range(i, i + n, end1I - beginI);
 		System.arraycopy(src, srcI, longs, i + beginI, n);
 		return i + n;
 	}
@@ -79,7 +79,7 @@ public class Longs
 
 	public boolean equals(long[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin; si < end1; i++, si++)
@@ -95,7 +95,7 @@ public class Longs
 
 	public boolean equals(Longs s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.end1I - s.beginI);
+		Math2.range(begin, end1, s.end1I - s.beginI);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin + s.beginI; i < end1I; i++, si++)
@@ -124,7 +124,7 @@ public class Longs
 
 	public long readS8(int i)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		return longs[i + beginI];
 	}
 
@@ -155,7 +155,7 @@ public class Longs
 
 	public void writeS8(int i, long v)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		longs[i + beginI] = v;
 	}
 

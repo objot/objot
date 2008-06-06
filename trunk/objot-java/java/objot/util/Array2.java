@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentMap;
 
 
@@ -216,7 +217,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(int[] s, int begin, int end1, int key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (s[i] == key)
 				return i;
@@ -232,7 +233,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(long[] s, int begin, int end1, long key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (s[i] == key)
 				return i;
@@ -248,7 +249,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(short[] s, int begin, int end1, short key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (s[i] == key)
 				return i;
@@ -264,7 +265,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(char[] s, int begin, int end1, char key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (s[i] == key)
 				return i;
@@ -280,7 +281,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(byte[] s, int begin, int end1, byte key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (s[i] == key)
 				return i;
@@ -296,7 +297,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(double[] s, int begin, int end1, double key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (key == key)
 		{
 			for (int i = begin; i < end1; i++)
@@ -319,7 +320,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static int search(float[] s, int begin, int end1, float key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (key == key)
 		{
 			for (int i = begin; i < end1; i++)
@@ -342,7 +343,7 @@ public class Array2
 	/** Search the array in [begin, end1). */
 	public static <T>int search(Object[] s, int begin, int end1, Object key)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (s[i].equals(key))
 				return i;
@@ -368,7 +369,7 @@ public class Array2
 	{
 		if (c == null)
 			throw null;
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		for (int i = begin; i < end1; i++)
 			if (c.compare(s[i], key) == 0)
 				return i;
@@ -382,7 +383,7 @@ public class Array2
 	 */
 	public static int binarySearch(long[] a, int begin, int end1, long key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -406,7 +407,7 @@ public class Array2
 	 */
 	public static int binarySearch(int[] a, int begin, int end1, int key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -430,7 +431,7 @@ public class Array2
 	 */
 	public static int binarySearch(short[] a, int begin, int end1, short key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -454,7 +455,7 @@ public class Array2
 	 */
 	public static int binarySearch(char[] a, int begin, int end1, char key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -478,7 +479,7 @@ public class Array2
 	 */
 	public static int binarySearch(byte[] a, int begin, int end1, byte key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -502,7 +503,7 @@ public class Array2
 	 */
 	public static int binarySearch(double[] a, int begin, int end1, double key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -539,7 +540,7 @@ public class Array2
 	 */
 	public static int binarySearch(float[] a, int begin, int end1, float key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -578,7 +579,7 @@ public class Array2
 	@SuppressWarnings("unchecked")
 	public static int binarySearch(Object[] a, int begin, int end1, Object key)
 	{
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -607,7 +608,7 @@ public class Array2
 	{
 		if (c == null)
 			throw null;
-		Math2.checkRange(begin, end1, a.length);
+		Math2.range(begin, end1, a.length);
 		int low = begin;
 		int high = end1 - 1;
 		while (low <= high)
@@ -663,7 +664,7 @@ public class Array2
 
 	public static byte[] shrink(byte[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1 - begin == s.length)
 			return s;
 		byte[] a = new byte[end1 - begin];
@@ -673,7 +674,7 @@ public class Array2
 
 	public static int[] shrink(int[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1 - begin == s.length)
 			return s;
 		int[] a = new int[end1 - begin];
@@ -683,7 +684,7 @@ public class Array2
 
 	public static long[] shrink(long[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1 - begin == s.length)
 			return s;
 		long[] a = new long[end1 - begin];
@@ -693,7 +694,7 @@ public class Array2
 
 	public static <T>T[] shrink(T[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1 - begin == s.length)
 			return s;
 		T[] a = news(s, end1 - begin);
@@ -703,7 +704,7 @@ public class Array2
 
 	public static byte[] subClone(byte[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		byte[] a = new byte[end1 - begin];
 		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
@@ -711,7 +712,7 @@ public class Array2
 
 	public static int[] subClone(int[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		int[] a = new int[end1 - begin];
 		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
@@ -719,7 +720,7 @@ public class Array2
 
 	public static long[] subClone(long[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		long[] a = new long[end1 - begin];
 		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
@@ -727,7 +728,7 @@ public class Array2
 
 	public static <T>T[] subClone(T[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		T[] a = news(s, end1 - begin);
 		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
@@ -813,7 +814,7 @@ public class Array2
 		StringBuilder j = new StringBuilder(100);
 		j.append(s[0]);
 		for (Object x: s)
-			j.append(deli).append(x);
+			j.append(deli).append(x.toString());
 		return j;
 	}
 
@@ -821,15 +822,15 @@ public class Array2
 	{
 		if (s == null)
 			return "";
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (begin == end1)
 			return "";
 		if (begin == end1 - 1)
 			return s[begin].toString();
 		StringBuilder j = new StringBuilder(100);
-		j.append(s[begin]);
+		j.append(s[begin].toString());
 		for (; begin < end1; begin++)
-			j.append(deli).append(s[begin]);
+			j.append(deli).append(s[begin].toString());
 		return j;
 	}
 
@@ -837,16 +838,14 @@ public class Array2
 	{
 		if (s == null || s.isEmpty())
 			return "";
-		if (s.size() == 1)
-			for (Object x: s)
-				return x.toString();
-		Object first = null;
+		Iterator<?> i = s.iterator();
+		Object x = i.next();
+		if ( !i.hasNext())
+			return x.toString();
 		StringBuilder j = new StringBuilder(100);
-		for (Object x: s)
-			if (first == null)
-				first = j.append(x);
-			else
-				j.append(deli).append(x);
+		j.append(x.toString()).append(deli).append(i.next().toString());
+		while (i.hasNext())
+			j.append(deli).append(i.next().toString());
 		return j;
 	}
 }
