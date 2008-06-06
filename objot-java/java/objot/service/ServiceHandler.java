@@ -19,7 +19,7 @@ import org.apache.commons.logging.LogFactory;
 
 public abstract class ServiceHandler
 {
-	protected Log log = LogFactory.getLog(toString());;
+	protected Log log;
 	protected ConcurrentHashMap<String, ServiceInfo> infos //
 	= new ConcurrentHashMap<String, ServiceInfo>(128, 0.8f, 32);
 	protected char nameDelimiter = '-';
@@ -32,6 +32,7 @@ public abstract class ServiceHandler
 	 */
 	public ServiceHandler init(Container context) throws Exception
 	{
+		log = LogFactory.getLog(toString());
 		return this;
 	}
 

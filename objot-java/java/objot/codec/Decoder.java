@@ -40,7 +40,7 @@ final class Decoder
 		codec = o;
 		forClass = for_ != null ? for_ : Object.class;
 		bs = s;
-		Math2.checkRange(sBegin, sEnd1, s.length);
+		Math2.range(sBegin, sEnd1, s.length);
 		bBegin = sBegin;
 		bEnd1 = sEnd1;
 	}

@@ -34,12 +34,14 @@ public class CodecServlet
 
 	public final void init(ServletConfig c) throws ServletException
 	{
-		config = c;
-		config.getServletContext().log(
-			"\n\n================################ " + getClass().getName()
-				+ " %%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$\n\n");
 		try
 		{
+			config = c;
+			handler = (ServiceHandler)Class.forName(config.getInitParameter("handler")).newInstance();
+			config.getServletContext().log(
+				"\n\n================################ " + getClass().getName() + " : "
+					+ handler.getClass().getName() + " %%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$\n\n");
+
 			con = new Factory(Inject.Set.class).bind(ServletConfig.class,
 				ServletContext.class).create(null);
 			con = new Factory(Inject.Set.class).bind(HttpServletRequest.class,
@@ -47,7 +49,6 @@ public class CodecServlet
 			con.set(ServletConfig.class, c);
 			con.set(ServletContext.class, c.getServletContext());
 
-			handler = (ServiceHandler)Class.forName(config.getInitParameter("handler")).newInstance();
 			handler = handler.init(con.parent());
 		}
 		catch (RuntimeException e)
@@ -63,8 +64,8 @@ public class CodecServlet
 	public void destroy()
 	{
 		config.getServletContext().log(
-			"\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%% " + getClass().getName()
-				+ " ################================\n\n");
+			"\n\n$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%% " + getClass().getName() + " : "
+				+ handler.getClass().getName() + " ################================\n\n");
 	}
 
 	public ServletConfig getServletConfig()

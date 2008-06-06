@@ -15,6 +15,7 @@ import objot.service.ServiceInfo;
 import objot.util.Class2;
 import objot.util.ErrThrow;
 
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
 import org.hibernate.cache.Cache;
 import org.hibernate.impl.SessionFactoryImpl;
@@ -39,6 +40,7 @@ public final class Server
 		Locale.setDefault(Locale.ENGLISH);
 
 		ServletLog.logger = context.get(ServletContext.class);
+		log = LogFactory.getLog(toString());
 		if ( !(log instanceof ServletLog))
 		{
 			String s = "\n\n**************** WARNING ****************\n"

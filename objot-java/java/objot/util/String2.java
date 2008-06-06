@@ -131,7 +131,7 @@ public class String2
 
 	public static char[] utf(byte[] s, int begin, int end1) throws UTFDataFormatException
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		int len = 0;
 		try
 		{

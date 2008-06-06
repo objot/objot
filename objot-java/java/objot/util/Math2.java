@@ -73,105 +73,87 @@ public class Math2
 		return x > max ? max : x < min ? min : x;
 	}
 
-	/**
-	 * @throws InvalidValueException if <code>index < 0</code> or
-	 *             <code>index >= length</code>
-	 */
-	public static void checkIndex(int index, int length)
+	/** @throws InvalidValueException if <code>x < 0</code> or <code>x >= len</code> */
+	public static void index(int x, int len)
 	{
-		if (index < 0 || index >= length)
-			throw new InvalidValueException(index);
+		if (x < 0 || x >= len)
+			throw new InvalidValueException(x);
+	}
+
+	/** @throws InvalidValueException if <code>x < 0</code> or <code>x >= len</code> */
+	public static void index(long x, long len)
+	{
+		if (x < 0 || x >= len)
+			throw new InvalidValueException(x);
+	}
+
+	/** @throws InvalidValueException if <code>x < min</code> or <code>x >= len</code> */
+	public static void index(int x, int min, int len)
+	{
+		if (x < min || x >= len)
+			throw new InvalidValueException(x);
+	}
+
+	/** @throws InvalidValueException if <code>x < min</code> or <code>x >= len</code> */
+	public static void index(long x, long min, long len)
+	{
+		if (x < min || x >= len)
+			throw new InvalidValueException(x);
+	}
+
+	/** @throws InvalidLengthException if <code>len < 0</code> or <code>len > max</code> */
+	public static void length(int len, int max)
+	{
+		if (len < 0 || len > max)
+			throw new InvalidLengthException(len, 0, max);
+	}
+
+	/** @throws InvalidLengthException if <code>len < 0</code> or <code>len > max</code> */
+	public static void length(long len, long max)
+	{
+		if (len < 0 || len > max)
+			throw new InvalidLengthException(len, 0, max);
 	}
 
 	/**
-	 * @throws InvalidValueException if <code>index < 0</code> or
-	 *             <code>index >= length</code>
+	 * @throws InvalidLengthException if <code>len < min</code> or
+	 *             <code>len > max</code>
 	 */
-	public static void checkIndex(long index, long length)
+	public static void length(int len, int min, int max)
 	{
-		if (index < 0 || index >= length)
-			throw new InvalidValueException(index);
+		if (len < min || len > max)
+			throw new InvalidLengthException(len, min, max);
 	}
 
 	/**
-	 * @throws InvalidValueException if <code>index < minIndex</code> or
-	 *             <code>index >= length</code>
+	 * @throws InvalidLengthException if <code>len < min</code> or
+	 *             <code>len > max</code>
 	 */
-	public static void checkIndex(int index, int minIndex, int length)
+	public static void length(long len, long min, long max)
 	{
-		if (index < minIndex || index >= length)
-			throw new InvalidValueException(index);
+		if (len < min || len > max)
+			throw new InvalidLengthException(len, min, max);
 	}
 
 	/**
-	 * @throws InvalidValueException if <code>index < minIndex</code> or
-	 *             <code>index >= length</code>
-	 */
-	public static void checkIndex(long index, long minIndex, long length)
-	{
-		if (index < minIndex || index >= length)
-			throw new InvalidValueException(index);
-	}
-
-	/**
-	 * @throws InvalidLengthException if <code>length < 0</code> or
-	 *             <code>length > maxLen</code>
-	 */
-	public static void checkLength(int length, int maxLen)
-	{
-		if (length < 0 || length > maxLen)
-			throw new InvalidLengthException(length, 0, maxLen);
-	}
-
-	/**
-	 * @throws InvalidLengthException if <code>length < 0</code> or
-	 *             <code>length > maxLen</code>
-	 */
-	public static void checkLength(long length, long maxLen)
-	{
-		if (length < 0 || length > maxLen)
-			throw new InvalidLengthException(length, 0, maxLen);
-	}
-
-	/**
-	 * @throws InvalidLengthException if <code>length < minLen</code> or
-	 *             <code>length > maxLen</code>
-	 */
-	public static void checkLength(int length, int minLen, int maxLen)
-	{
-		if (length < minLen || length > maxLen)
-			throw new InvalidLengthException(length, minLen, maxLen);
-	}
-
-	/**
-	 * @throws InvalidLengthException if <code>length < minLen</code> or
-	 *             <code>length > maxLen</code>
-	 */
-	public static void checkLength(long length, long minLen, long maxLen)
-	{
-		if (length < minLen || length > maxLen)
-			throw new InvalidLengthException(length, minLen, maxLen);
-	}
-
-	/**
-	 * Similar to {@link #checkLength(int, int)}.
+	 * Similar to {@link #length(int, int)}.
 	 * 
 	 * @throws InvalidRangeException if <code>begin < 0</code> or
 	 *             <code>begin > end1</code>
 	 */
-	public static void checkRange(int begin, int end1)
+	public static void range(int begin, int end1)
 	{
 		if (begin < 0 || begin > end1)
 			throw new InvalidRangeException(begin, end1);
 	}
 
 	/**
-	 * Similar to {@link #checkLength(long, long)}.
+	 * Similar to {@link #length(long, long)}.
 	 * 
 	 * @throws InvalidRangeException if <code>begin < 0</code> or
 	 *             <code>begin > end1</code>
 	 */
-	public static void checkRange(long begin, long end1)
+	public static void range(long begin, long end1)
 	{
 		if (begin < 0 || begin > end1)
 			throw new InvalidRangeException(begin, end1);
@@ -181,7 +163,7 @@ public class Math2
 	 * @throws InvalidRangeException if <code>begin < 0</code> or
 	 *             <code>begin > end1</code> or <code>end1 > maxEnd1</code>
 	 */
-	public static void checkRange(int begin, int end1, int maxEnd1)
+	public static void range(int begin, int end1, int maxEnd1)
 	{
 		if (begin < 0 || begin > end1 || end1 > maxEnd1)
 			throw new InvalidRangeException(begin, end1, maxEnd1);
@@ -191,104 +173,104 @@ public class Math2
 	 * @throws InvalidRangeException if <code>begin < 0</code> or
 	 *             <code>begin > end1</code> or <code>end1 > maxEnd1</code>
 	 */
-	public static void checkRange(long begin, long end1, long maxEnd1)
+	public static void range(long begin, long end1, long maxEnd1)
 	{
 		if (begin < 0 || begin > end1 || end1 > maxEnd1)
 			throw new InvalidRangeException(begin, end1, maxEnd1);
 	}
 
 	/** @return <code>x >= min && x <= max</code> */
-	public static boolean isGELE(int x, int min, int max)
+	public static boolean gele(int x, int min, int max)
 	{
 		return x >= min && x <= max;
 	}
 
 	/** @return <code>x >= min && x <= max</code> */
-	public static boolean isGELE(long x, long min, long max)
+	public static boolean gele(long x, long min, long max)
 	{
 		return x >= min && x <= max;
 	}
 
 	/** @return <code>x > min1 && x < max1</code> */
-	public static boolean isGL(int x, int min1, int max1)
+	public static boolean gl(int x, int min1, int max1)
 	{
 		return x > min1 && x < max1;
 	}
 
 	/** @return <code>x > min1 && x < max1</code> */
-	public static boolean isGL(long x, long min1, long max1)
+	public static boolean gl(long x, long min1, long max1)
 	{
 		return x > min1 && x < max1;
 	}
 
 	/** @return <code>x >= min && x < max1</code> */
-	public static boolean isGEL(int x, int min, int max1)
+	public static boolean gel(int x, int min, int max1)
 	{
 		return x >= min && x < max1;
 	}
 
 	/** @return <code>x >= min && x < max1</code> */
-	public static boolean isGEL(long x, long min, long max1)
+	public static boolean gel(long x, long min, long max1)
 	{
 		return x >= min && x < max1;
 	}
 
 	/** @return <code>x > min1 && x <= max</code> */
-	public static boolean isGLE(int x, int min1, int max)
+	public static boolean gle(int x, int min1, int max)
 	{
 		return x > min1 && x <= max;
 	}
 
 	/** @return <code>x > min1 && x <= max</code> */
-	public static boolean isGLE(long x, long min1, long max)
+	public static boolean gle(long x, long min1, long max)
 	{
 		return x > min1 && x <= max;
 	}
 
 	/** @return <code>x <= min || x >= max</code> */
-	public static boolean isLEGE(int x, int min, int max)
+	public static boolean lege(int x, int min, int max)
 	{
 		return x <= min || x >= max;
 	}
 
 	/** @return <code>x <= min || x >= max</code> */
-	public static boolean isLEGE(long x, long min, long max)
+	public static boolean lege(long x, long min, long max)
 	{
 		return x <= min || x >= max;
 	}
 
 	/** @return <code>x < min1 || x > max1</code> */
-	public static boolean isLG(int x, int min1, int max1)
+	public static boolean lg(int x, int min1, int max1)
 	{
 		return x < min1 || x > max1;
 	}
 
 	/** @return <code>x < min1 || x > max1</code> */
-	public static boolean isLG(long x, long min1, long max1)
+	public static boolean lg(long x, long min1, long max1)
 	{
 		return x < min1 || x > max1;
 	}
 
 	/** @return <code>x <= min || x > max1</code> */
-	public static boolean isLEG(int x, int min, int max1)
+	public static boolean leg(int x, int min, int max1)
 	{
 		return x <= min || x > max1;
 	}
 
 	/** @return <code>x <= min || x > max1</code> */
-	public static boolean isLEG(long x, long min, long max1)
+	public static boolean leg(long x, long min, long max1)
 	{
 		return x <= min || x > max1;
 	}
 
 	/** @return <code>x < min1 || x >= max</code> */
-	public static boolean isLGE(int x, int min1, int max)
+	public static boolean lge(int x, int min1, int max)
 	{
 		return x < min1 || x >= max;
 	}
 
 	/** @return <code>x < min1 || x >= max</code> */
-	public static boolean isLGE(long x, long min1, long max)
+	public static boolean lge(long x, long min1, long max)
 	{
 		return x < min1 || x >= max;
 	}
@@ -604,7 +586,7 @@ public class Math2
 	}
 
 	/** @return <code>x > 0 && (x & x - 1) == 0</code>, wether x is a power of 2 */
-	public static boolean powerOf2(int x)
+	public static boolean power2(int x)
 	{
 		return x > 0 && (x & x - 1) == 0;
 	}
@@ -672,7 +654,7 @@ public class Math2
 	 * @return decimal value for hex char
 	 * @throws IllegalArgumentException if the char is invalid
 	 */
-	public static int hexToDecThrows(char hex)
+	public static int hexToDecThrow(char hex)
 	{
 		int v = hexToDec(hex);
 		if (v < 0)

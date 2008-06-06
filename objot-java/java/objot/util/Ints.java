@@ -22,7 +22,7 @@ public class Ints
 	public Ints(int[] s, int begin, int end1)
 	{
 		ints = s != null ? s : Array2.INTS0;
-		Math2.checkRange(begin, end1, ints.length);
+		Math2.range(begin, end1, ints.length);
 		beginI = begin;
 		end1I = end1;
 	}
@@ -35,7 +35,7 @@ public class Ints
 	public Ints(Ints s, int begin, int end1)
 	{
 		ints = s.ints;
-		Math2.checkRange(begin, end1, s.end1I - s.beginI);
+		Math2.range(begin, end1, s.end1I - s.beginI);
 		beginI = s.beginI + begin;
 		end1I = s.beginI + end1;
 	}
@@ -52,22 +52,22 @@ public class Ints
 
 	public int copyTo(int i, int[] dest, int destI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
+		Math2.range(i, i + n, end1I - beginI);
 		System.arraycopy(ints, i + beginI, dest, destI, n);
 		return destI + n;
 	}
 
 	public int copyTo(int i, Ints dest, int destI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
-		Math2.checkRange(destI, destI + n, dest.end1I - dest.beginI);
+		Math2.range(i, i + n, end1I - beginI);
+		Math2.range(destI, destI + n, dest.end1I - dest.beginI);
 		System.arraycopy(ints, i + beginI, dest.ints, destI + dest.beginI, n);
 		return destI + n;
 	}
 
 	public int copyFrom(int i, int[] src, int srcI, int n)
 	{
-		Math2.checkRange(i, i + n, end1I - beginI);
+		Math2.range(i, i + n, end1I - beginI);
 		System.arraycopy(src, srcI, ints, i + beginI, n);
 		return i + n;
 	}
@@ -79,7 +79,7 @@ public class Ints
 
 	public boolean equals(int[] s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.length);
+		Math2.range(begin, end1, s.length);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin; si < end1; i++, si++)
@@ -95,7 +95,7 @@ public class Ints
 
 	public boolean equals(Ints s, int begin, int end1)
 	{
-		Math2.checkRange(begin, end1, s.end1I - s.beginI);
+		Math2.range(begin, end1, s.end1I - s.beginI);
 		if (end1I - beginI != end1 - begin)
 			return false;
 		for (int i = beginI, si = begin + s.beginI; i < end1I; i++, si++)
@@ -121,13 +121,13 @@ public class Ints
 
 	public int readS4(int i)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		return ints[i + beginI];
 	}
 
 	public int readU4(int i)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		i = ints[i + beginI];
 		if (i < 0)
 			throw new ArithmeticException("unsigned quad bytes too large : 0x"
@@ -137,13 +137,13 @@ public class Ints
 
 	public long readU4ex(int i)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		return ints[i + beginI] & 0xFFFFFFFFL;
 	}
 
 	public long readS8(int i)
 	{
-		Math2.checkIndex(i, end1I - beginI - 1);
+		Math2.index(i, end1I - beginI - 1);
 		i += beginI;
 		return (long)ints[i] << 32 | ints[++i] & 0xFFFFFFFFL;
 	}
@@ -214,7 +214,7 @@ public class Ints
 
 	public void writeS4(int i, int v)
 	{
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		ints[i + beginI] = v;
 	}
 
@@ -222,13 +222,13 @@ public class Ints
 	{
 		if (v >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
-		Math2.checkIndex(i, end1I - beginI);
+		Math2.index(i, end1I - beginI);
 		ints[i + beginI] = (int)v;
 	}
 
 	public void writeS8(int i, long v)
 	{
-		Math2.checkIndex(i, end1I - beginI - 1);
+		Math2.index(i, end1I - beginI - 1);
 		i += beginI;
 		ints[i] = (int)(v >> 32);
 		ints[++i] = (int)v;

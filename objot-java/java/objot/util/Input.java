@@ -16,7 +16,7 @@ public class Input
 	public static byte[] readFull(InputStream in, byte[] bs, int begin, int end1)
 		throws IOException
 	{
-		Math2.checkRange(begin, end1, bs.length);
+		Math2.range(begin, end1, bs.length);
 		for (int n; begin < end1; begin += n)
 			if ((n = in.read(bs, begin, end1 - begin)) <= 0)
 				throw new EOFException();
@@ -29,7 +29,9 @@ public class Input
 		public static final Charset UTF = Charset.forName("UTF-8");
 
 		public InputStream in;
-		public Charset cs = UTF;
+		public Charset cs;
+		public byte preEol;
+		public byte eol;
 		public byte[] bs;
 		public int begin;
 		public int end1;
@@ -39,6 +41,9 @@ public class Input
 		public Line(InputStream in_)
 		{
 			in = in_;
+			cs = UTF;
+			preEol = '\r';
+			eol = '\n';
 			bs = new byte[8112];
 		}
 
@@ -52,6 +57,18 @@ public class Input
 		public Line charset(Charset cs_)
 		{
 			cs = cs_ != null ? cs_ : UTF;
+			return this;
+		}
+
+		public Line preEol(byte v)
+		{
+			preEol = v;
+			return this;
+		}
+
+		public Line eol(byte v)
+		{
+			eol = v;
 			return this;
 		}
 
@@ -85,7 +102,7 @@ public class Input
 		@Override
 		public int read(byte[] bs_, int begin_, int len) throws IOException
 		{
-			Math2.checkRange(begin_, begin_ + len, bs_.length);
+			Math2.range(begin_, begin_ + len, bs_.length);
 			if (begin < end1)
 			{
 				len = Math.min(end1 - begin, len);
@@ -119,36 +136,40 @@ public class Input
 			return x;
 		}
 
-		protected int lineEnd(boolean read, boolean cr) throws IOException
+		protected int lineEnd(boolean read, boolean pre) throws IOException
 		{
-			if (cr)
+			if (pre)
 				for (int x = begin;; x = lineMore(read, x))
 					for (; x + 1 < end1; x++)
-						if (bs[x] == '\r' && bs[x + 1] == '\n')
+						if (bs[x] == preEol && bs[x + 1] == eol)
 							return x;
 			for (int x = begin;; x = lineMore(read, x))
 				for (; x < end1; x++)
-					if (bs[x] == '\n')
+					if (bs[x] == eol)
 						return x;
 		}
 
-		public byte[] readLine(boolean cr) throws Exception
+		/** @param pre if {@link #preEol} is enabled */
+		public byte[] readLine(boolean pre) throws Exception
 		{
-			int x = lineEnd(true, cr);
+			int x = lineEnd(true, pre);
 			byte[] l = Array2.subClone(bs, begin, x);
-			begin = cr ? x + 2 : x + 1;
+			begin = pre ? x + 2 : x + 1;
 			return l;
 		}
 
-		/** @param cs_ by {@link #charset} if null */
-		public String readLine(Charset cs_, boolean cr) throws Exception
+		/**
+		 * @param cs_ by {@link #charset} if null
+		 * @param pre if {@link #preEol} is enabled
+		 */
+		public String readLine(Charset cs_, boolean pre) throws Exception
 		{
 			if (cs_ == null)
 				cs_ = cs;
-			int x = lineEnd(true, cr);
+			int x = lineEnd(true, pre);
 			String l = UTF.equals(cs_) ? new String(String2.utf(bs, begin, x)) : new String(
 				bs, begin, x - begin, cs_);
-			begin = cr ? x + 2 : x + 1;
+			begin = pre ? x + 2 : x + 1;
 			return l;
 		}
 
@@ -166,12 +187,15 @@ public class Input
 			return x + n;
 		}
 
-		/** @return the number of bytes of the skipped line */
-		public int skipLine(boolean cr) throws Exception
+		/**
+		 * @param pre if {@link #preEol} is enabled
+		 * @return the number of bytes of the skipped line
+		 */
+		public int skipLine(boolean pre) throws Exception
 		{
-			int x = lineEnd(false, cr);
+			int x = lineEnd(false, pre);
 			int l = x - begin;
-			begin = cr ? x + 2 : x + 1;
+			begin = pre ? x + 2 : x + 1;
 			return l;
 		}
 	}
@@ -199,7 +223,7 @@ public class Input
 			split = new byte[2 + x - in.begin + 2];
 			System.arraycopy(in.bs, in.begin, split, 2, x - in.begin + 2);
 			in.begin = x + 2;
-			Math2.checkLength(split.length - 4, 1, in.bs.length - 6);
+			Math2.length(split.length - 4, 1, in.bs.length - 6);
 			split[0] = '\r';
 			split[1] = '\n';
 			if (split.length > 5 && split[split.length - 3] == '-')
@@ -285,7 +309,7 @@ public class Input
 		@Override
 		public int read(byte[] bs, int begin, int len) throws IOException
 		{
-			Math2.checkRange(begin, begin + len, bs.length);
+			Math2.range(begin, begin + len, bs.length);
 			len = Math.min(len, available());
 			if (len <= 0)
 				return -1;
