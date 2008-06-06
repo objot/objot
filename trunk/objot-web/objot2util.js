@@ -253,7 +253,8 @@ $Http = function (box, h, show) {
  * @return the box */
 $Err = function (box, err, show, noStack) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err);
-	noStack || $fos && (err = err + '\n' + $.throwStack());
+	noStack || $Err.noStack && noStack === undefined  
+		|| $fos && (err = err + '\n' + $.throwStack());
 	show == null && (show = $Err.onHint);
 	box.des(0).add($s('c', 'Err-icon'));
 	show === true ? box.add($s('c', 'Err-text').tx(err, true))
@@ -264,6 +265,7 @@ $Err.onHint = function () {
 	alert(this.title); // popup better
 	this.des();
 }
+$Err.noStack = false;
 
 /** overlay the document body with a layer containing an inner box.
  * @return the popup layer */
@@ -272,8 +274,8 @@ $Pop = function (inner) {
 		's', 'position:fixed; z-index:10000; width:100%; height:100%; top:0; left:0').add(
 		$d('c', 'Pop-back', 's', 'position:absolute; width:100%; height:100%'),
 		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
-			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add($td()
-				.attr('valign', 'center').attr('align', 'center').add(inner)
+			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add(
+				$td('s', 'vertical-align:middle').attr('align', 'center').add(inner)
 			)))
 		)
 	);

@@ -358,9 +358,9 @@ $chk = _('checkbox');
 $rad = _('radio');
 delete _;
 }
-/** <a href=none:>... without action */
+/** <a>... without action */
 $a0 = function () {
-	return $dom($doms('a', arguments), 'href', 'none:', 'click', Boolean, window);
+	return $dom($doms('a', arguments), 'href', Math.random() + ':', 'click', Boolean, window);
 }
 
 /** create a text node, single line, multi whitespace reserved. */
