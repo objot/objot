@@ -2,7 +2,7 @@
 <!--
 //
 // Copyright 2007-2008 Qianyan Cai
-// Under the terms of the GNU General Public License version 2
+// Under the terms of the GNU Library General Public License version 2
 //
 -->
 <project name="objot-java" default="all">
@@ -51,7 +51,7 @@
 				<attribute name="Implementation-Version" value="${.version}" />
 				<attribute name="Implementation-Vendor" value="Qianyan Cai" />
 				<attribute name="Implementation-URL" value="http://objot.info" />
-				<attribute name="License" value="GNU General Public License version 2" />
+				<attribute name="License" value="GNU Library General Public License version 2" />
 			</manifest>
 		</jar>
 		<jar jarfile="${.archive}"
