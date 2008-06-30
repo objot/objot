@@ -1,4 +1,8 @@
-﻿package objot
+﻿//
+// Copyright 2007-2008 Qianyan Cai
+// Under the terms of the GNU General Public License version 2
+//
+package objot
 {
 
 import flash.utils.Dictionary;
@@ -251,7 +255,9 @@ public class Codec extends Object
 				default: isNaN(s.o = Number(v)) && Util.err('illegal number ' + Util.s(v));
 			}
 			if (x < s.length)
-				Util.err('termination expected but ' + Util.s(s[x]));
+				Util.err('end expected but ' + Util.s(s[x]));
+			else if (x > s.length)
+				Util.err('end unexpected');
 		}
 		finally
 		{
@@ -265,7 +271,7 @@ public class Codec extends Object
 		var o:Array = new Array(s[x++] - 0);
 		if (s[x] === ':')
 			decRefs[s[++x]] = o, x++;
-		for (var i:int = 0, v:Object; x >= s.length ? Util.err('] expected but terminated')
+		for (var i:int = 0, v:Object; x >= s.length ? Util.err('] expected but end')
 			: (v = s[x++]) !== ']'; i++)
 			switch (v) {
 				case '': o[i] = s[x++]; break;
@@ -289,7 +295,7 @@ public class Codec extends Object
 			o = new o();
 		if (s[x] === ':')
 			decRefs[s[++x]] = o, x++;
-		while (x >= s.length ? Util.err('} expected but terminated') : (p = s[x++]) !== '}')
+		while (x >= s.length ? Util.err('} expected but end') : (p = s[x++]) !== '}')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break;
 				case ',': o[p] = null; break;
