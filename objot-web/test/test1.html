@@ -25,65 +25,65 @@
 </body>
 <script>
 
-window.onerror = function(m,f,l){
-	return alert(m + '\n' + $.throwStack(f, l)), true;
+window.onerror = function(m,f,l) {
+	return alert(m + '\n' + $.throwStack(f, l)), true
 }
 
-window.div = $id('div');
-window.div1 = $id('div1');
-window.url = $id('url');
-window.text = $id('text');
-url.value = location.protocol + '//' + location.host + '/';
+window.div = $id('div')
+window.div1 = $id('div1')
+window.url = $id('url')
+window.text = $id('text')
+url.value = location.protocol + '//' + location.host + '/'
 
-function demoE(){
-	x.a2 = text.value;
-	E = $enc(z, demoE);
-	text.value = E;
+function demoE() {
+	x.a2 = text.value
+	E = $enc(z, demoE)
+	text.value = E
 }
-function demoH(){
+function demoH() {
 	$http(url.value, 0, text.value, function (code, data) {
-		$D.title = code + ' ' + data.length;
-		text.value = U = data;
-	});
+		$D.title = code + ' ' + data.length
+		text.value = U = data
+	})
 }
-function demoD(){
-	D = $dec(text.value);
-	EE = $enc(D, demoD);
+function demoD() {
+	D = $dec(text.value)
+	EE = $enc(D, demoD)
 	if (EE != E)
-		$throw('error');
+		$throw('error')
 }
-function demoV(event){
-	eval(text.value);
+function demoV(event) {
+	eval(text.value)
 }
 
 function A(x) {
 }
 function B() {
-	this.bb = 'bb';
+	this.bb = 'bb'
 }
 function C() {
 }
 
-$class(false, 'A');
-$class(false, 'B', A);
-A.prototype.aa = 'aa';
-$class.enc(B, demoE, ['a1']);
+$class(false, 'A')
+$class(false, 'B', A)
+A.prototype.aa = 'aa'
+$class.enc(B, demoE, ['a1'])
 
-$class(false, 'C', B);
-C.prototype.c = 'c';
-x = new A();
-y = new B();
-z = new C();
-y.a0 = Object;
-y.a1 = '\tasdasdf';
-y.a2 = true;
-y.a3 = 34e-5;
-y.a4 = null;
-y.a5 = undefined;
-y.a6 = [y, y.a1, y.a2, y.a3, y.a4, y.a5];
-y.a6[6] = y.a6;
-y.a7 = { x:x, xx:y.a6[0] };
-y.a8 = y.a2;
+$class(false, 'C', B)
+C.prototype.c = 'c'
+x = new A()
+y = new B()
+z = new C()
+y.a0 = Object
+y.a1 = '\tasdasdf'
+y.a2 = true
+y.a3 = 34e-5
+y.a4 = null
+y.a5 = undefined
+y.a6 = [y, y.a1, y.a2, y.a3, y.a4, y.a5]
+y.a6[6] = y.a6
+y.a7 = { x:x, xx:y.a6[0] }
+y.a8 = y.a2
 z = [
 y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,
 y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,
@@ -94,7 +94,7 @@ y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,
 y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,
 y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,
 y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,
-y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y];
+y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y,y]
 
 </script>
 </html>

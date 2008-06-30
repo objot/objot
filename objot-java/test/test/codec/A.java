@@ -10,8 +10,8 @@ import objot.codec.EncDec;
 public class A
 {
 	@Enc
+	// @Dec ( { A.class })
 	@Dec
-	// ( { A.class })
 	public Object a2;
 
 	@EncDec
