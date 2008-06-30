@@ -39,4 +39,5 @@ public class B
 
 	@EncDec
 	public double a10;
+
 }

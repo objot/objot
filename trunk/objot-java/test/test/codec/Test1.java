@@ -17,7 +17,7 @@ public class Test1
 		System.out.println(codec.dec(s.toString().toCharArray(), null, null));
 
 		A x = new A();
-		x.a2 = "\n\\20sss\tasdf34234sdf";
+		x.a2 = "\n\\20sss\tasd$@#%$%3423qwerty";
 		x.d = new Date(54321);
 		B y = new B();
 		y.a1 = Integer.MIN_VALUE / 2000;
