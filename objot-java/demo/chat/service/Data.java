@@ -23,8 +23,8 @@ public class Data
 	/** Delegated {@link org.hibernate.Session} */
 	public Session hib;
 	public int depth;
-	/** encoded service result */
-	public CharSequence enc;
+	/** encoded service result or byte[] or InputStream */
+	public Object result;
 
 	/** @see Hibernate#initialize */
 	public <T>T fetch(T o)

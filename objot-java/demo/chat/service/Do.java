@@ -36,6 +36,9 @@ public abstract class Do
 	@Inject
 	public DoChat doChat;
 
+	/** null for default */
+	public String respType;
+
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Service
 	{
