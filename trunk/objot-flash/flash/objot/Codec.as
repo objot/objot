@@ -1,13 +1,13 @@
-﻿//
+//
 // Copyright 2007-2008 Qianyan Cai
 // Under the terms of the GNU Library General Public License version 2
 //
 package objot
 {
-
 import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
+
 
 public class Codec extends Object
 {
@@ -312,5 +312,4 @@ public class Codec extends Object
 		return x;
 	}
 }
-
 }
