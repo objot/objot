@@ -43,7 +43,7 @@ $class = function (SO, ctor, sup, proto) {
 	}
 	$.ctor(c).$name = ctor
 	if (c.prototype.constructor != c)
-		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor))
+		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor));
 	proto && $.copy(c.prototype, proto)
 	SO && ($.cs[ctor] = c)
 	return c
@@ -59,7 +59,7 @@ $class.enc = function (clazz, forClass, encs) {
 		else if (encs instanceof Array) {
 			for (var y = 0; y < encs.length; y++)
 				if (typeof encs[y] != 'string')
-					$throw($S(encs) + ' must not contain ' + $S(encs[y]))
+					$throw($S(encs) + ' must not contain ' + $S(encs[y]));
 			clazz.$encs.push(encs)
 		}
 		else
@@ -257,7 +257,7 @@ $http = function (url, time, req, done, data) {
 		} catch(_) {
 			done = data = null
 			if ($ie || !onerror) // TODO opera safari ?
-				throw _
+				throw _;
 			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
 				: onerror(_, 0, 0)
 		}
@@ -405,7 +405,7 @@ $dom.des = function (index, len) {
 /** add css class, or remove css class if first argument === 0. @return this */
 $dom.cla = function (clazz) {
 	if (arguments.length == 0 || clazz === 0 && this.className.length == 0)
-		return this;
+		return this
 	var cs = this.className.split(' '), c
 	X:for (var x = clazz === 0 ? 1 : 0; x < arguments.length; x++)
 		if (c = $.s(arguments[x])) {
@@ -414,7 +414,7 @@ $dom.cla = function (clazz) {
 					if (clazz === 0)
 						cs.splice(y, 1)
 					else
-						continue X
+						continue X;
 			clazz === 0 || (cs[cs.length] = c)
 		}
 	this.className = cs.join(' ')
@@ -435,9 +435,9 @@ $dom.attr = function (a, v) {
 $dom.tx = $fos ? function (v, multiLine) {
 	if (this.tagName.toLowerCase() == 'textarea')
 		return arguments.length == 0 ? this.value :
-			(this.textContent = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this)
+			(this.value = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this)
 	if (arguments.length == 0)
-		return this.textContent
+		return this.textContent;
 	v = String(v).replace(/  /g, '\u00a0 ')
 	if (multiLine && v.indexOf('\n') >= 0) {
 		v = v.split('\n')
@@ -509,7 +509,7 @@ $.throwStack = function (file, line) {
 }
 	Error.prototype.Stack = function (s) {
 		if (!(s = this.stack))
-			return ''
+			return '';
 		(s = this.stack.split('\n')).pop()
 		for (var x = s.length - 1; x >= 0; x--)
 			(s[x] = s[x].substr(s[x].lastIndexOf(')') + 1)) == '@:0' && s.splice(x, 1)
@@ -548,7 +548,7 @@ $.ctor = function (c) {
 /** @return class (constructor) from class cache, or if $_$_ is true, eval() */
 $.c = function ($_$, $_$_, $_$$) {
 	if ($_$$ = $.cs[$_$])
-		return $_$$
+		return $_$$;
 	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found')
 	return typeof $_$_ == 'function' ? $.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function')
@@ -723,9 +723,9 @@ $http.form = function (url, time, req, done, data, form, prog) {
 		if (!r) return
 		try {
 			if (!(t = r.contentWindow.document.body) || !(t = t.lastChild)
-				|| t.$ || !t.tagName)
-				return time > 0 && new Date() - tm > time && stop(on, 1, 'timeout')
-			t.$ = 1, t = t.previousSibling
+				|| t.className || !t.tagName)
+				return time > 0 && new Date() - tm > time && stop(on, 1, 'timeout');
+			t.className = 'o', t = t.previousSibling
 		} catch (_) { // denied
 			return stop(on, 2000, 'Network or Server Failure')
 		}
@@ -733,7 +733,7 @@ $http.form = function (url, time, req, done, data, form, prog) {
 			: (tm = new Date()) && prog && prog(t.nodeValue, data)
 	}, 300)
 	function stop(o, a, b, R) {
-		if (!r) return
+		if (!r) return;
 		r.nextSibling.tx(''), clearInterval(on)
 		try { R = r, r = null, R.src = 'about:blank', R.des() } catch(_) {}
 		try {
@@ -741,7 +741,7 @@ $http.form = function (url, time, req, done, data, form, prog) {
 		} catch(_) {
 			done = data = null
 			if ($ie || !onerror) // TODO opera safari ?
-				throw _
+				throw _;
 			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
 				: onerror(_, 0, 0)
 		}
@@ -773,7 +773,7 @@ $Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form, 
 		if (code == 0)
 			(res = $dec(res, $Do.byName, $Do.decoded)) instanceof Err ? err = res : ok = res
 		else if (code > 0)
-			err = new Err('HTTP Error ' + code + ' ' + res)
+			err = new Err('HTTP Error ' + code + ' ' + res);
 		h.$t1 !== undefined && h.$1.call(h.$t1, ok, err, h)
 		h.$t2 !== undefined && h.$2.call(h.$t2, ok, err, h)
 		h.$t3 !== undefined && h.$3.call(h.$t3, ok, err, h)
@@ -835,7 +835,7 @@ $.opacity = $fos ? function (d, v) {
 } : function (d, v) {
 	var s = d.style, f = s.filter
 	if (v === undefined)
-		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1
+		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
 	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
 		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')')
 	return d
@@ -845,7 +845,7 @@ $.opacity = $fos ? function (d, v) {
 $.disable = function (d, v) {
 	var r = d.disabled || d.readOnly
 	if (arguments.length == 1)
-		return r
+		return r;
 	r = v === 0 ? !r : v
 	var rr = d.tagName.toLowerCase()
 	rr = rr == 'textarea' || rr == 'input' && d.type == 'text'
@@ -926,7 +926,7 @@ $Pop = function (inner) {
 		box.style.position = 'absolute',
 		box.style.top = $D.documentElement.scrollTop,
 		box.style.left = $D.documentElement.scrollLeft,
-		$D.documentElement.style.overflow = 'hidden'
+		$D.documentElement.style.overflow = 'hidden';
 	box.des = $Pop.des
 	return $B.add(box), box
 }

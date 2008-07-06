@@ -27,6 +27,7 @@ public abstract class ServiceHandler
 	protected ConcurrentHashMap<String, ServiceInfo> infos //
 	= new ConcurrentHashMap<String, ServiceInfo>(128, 0.8f, 32);
 	protected char nameDelimiter = '-';
+	protected char nameMethodDot = '_';
 	/** must be set in implementation */
 	protected Codec codec;
 
@@ -52,7 +53,8 @@ public abstract class ServiceHandler
 		try
 		{
 			int x = String2.index(name, nameDelimiter, 0);
-			inf = getInfo(name, name.substring(0, x), String2.sub(name, x + 1));
+			inf = getInfo(name, name.substring(0, x), //
+				String2.sub(name, x + 1).replace('.', nameMethodDot));
 		}
 		catch (RequestException e)
 		{

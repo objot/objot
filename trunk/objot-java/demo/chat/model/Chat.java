@@ -6,6 +6,7 @@ package chat.model;
 
 import java.sql.Clob;
 import java.util.Date;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,10 +15,10 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 
+import objot.codec.Dec;
 import objot.codec.Enc;
 import objot.codec.EncDec;
 import objot.codec.Name;
-import objot.codec.Dec;
 
 import org.hibernate.annotations.Proxy;
 import org.hibernate.validator.NotNull;
@@ -52,6 +53,10 @@ public class Chat
 
 	@BeText(max = 1024, simple = false)
 	public Clob text;
+
+	@Enc
+	@ManyToOne(cascade = CascadeType.ALL)
+	public Smiley smiley;
 
 	@Enc
 	public Clob getText()

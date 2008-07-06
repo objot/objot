@@ -10,7 +10,7 @@ onerror = function(m, f, l) {
 }
 
 $Do.url = '/objot/service/';
-$Do.timeout = 5000;
+$Do.timeout = 15000;
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -38,9 +38,12 @@ Chat = function (out, In, datime, text) {
 	this.datime = datime;
 	this.text = text;
 }
+Smiley = function () {
+}
 
 $class(true, 'User');
 $class(true, 'Chat');
+$class(true, 'Smiley');
 
 
 __me = null;
@@ -103,15 +106,20 @@ DoChat.read = function (chat, This, done) {
 	return $Do('DoChat-read', 'Reading chats', $enc(chat, this), This, done);
 }
 
-DoChat.post = function (In, text, This, done) {
+DoChat.post = function (form, In, text, This, done) {
 	return $Do('DoChat-post', 'Posting chat',
-		$enc(new Chat(null, In, DatimeMin, text), this), This, done);
+		$enc(new Chat(null, In, DatimeMin, text), this), This, done,
+		undefined, undefined, undefined, undefined, form);
+}
+
+DoChat.smiley = function (s) {
+	return $img('src', $Do.url + 'DoChat-smiley?' + $enc(s.id, this), 'border', 0);
 }
 
 //********************************************************************************************//
 
 $class.enc(User, Object, ['id'], DoSign, ['name', 'password']);
-$class.enc(User, Object, [], DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
+$class.enc(User, DoUser.update, ['id', 'friends_'], DoUser.get, ['id', 'name']);
 $class.enc(Chat, Object, [], DoChat, null);
 
 
@@ -318,24 +326,25 @@ _Chats = function (chatss, oppoUser) {
 	this.outDatime = DatimeMin;
 	chatss.tabs.add(
 		this.tab = $a0('c', 'tab', 'click', this.doAct, this).tx(oppoUser.name));
-	chatss.chatss_.add(
+	chatss.chatss_.add($d().add(
 		this.chats = $d('c', 'chats'),
 		this._post = $lns('c', 'post'),
-		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'));
+		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'),
+		this.smiley = $.form().add($inp('type', 'file', 'name', 'smiley'))
+	));
 	this.doInact();
 }
 
 _Chats.prototype = {
 	doInact: function () {
 		this.tab.cla(0, 'tabAct');
-		this.chats.show(false), this._post.show(false), this.submit.show(false);
+		this.chats.parentNode.show(false);
 	},
 	doAct: function () {
 		var a = this.chatss.active;
 		if (a != this) {
 			a && a.doInact();
-	 		this.tab.cla(0, 'tabNew').cla('tabAct'), this.chats.show(true),
-			this._post.show(true).focus(), this.submit.show(true);
+	 		this.tab.cla(0, 'tabNew').cla('tabAct'), this.chats.parentNode.show(true);
 			this.chatss.active = this;
 		}
 	},
@@ -349,7 +358,9 @@ _Chats.prototype = {
 		d = $s('c', 'datime' + c).tx(d.getFullYear() + '-' + (d.getMonth() + 1)
 			+ '-' + d.getDate() + ' ' + d.toLocaleTimeString());
 		this.chats.add(d, $s('c', 'name' + c).tx(chat.out.name),
-			$d('c', 'text' + c).tx(chat.text, true));
+			$d('c', 'text' + c).tx(chat.text, true).add(
+				chat.smiley ? DoChat.smiley(chat.smiley) : 0
+			));
 		d.scrollIntoView();
 		out && (this.outDatime = chat.datime);
 		if (this.chatss.active != this)
@@ -358,7 +369,8 @@ _Chats.prototype = {
 
 	doPost: function () {
 		this.post = this._post.tx();
-		$Http(this.chatss.http, DoChat.post(this.oppo, this.post, this, this.donePost));
+		$Http(this.chatss.http,
+			DoChat.post(this.smiley, this.oppo, this.post, this, this.donePost), true);
 	},
 	donePost: function (ok, err) {
 		if (ok) {

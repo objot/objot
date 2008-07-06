@@ -4,6 +4,7 @@
 //
 package chat;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
 
 import objot.aspect.Aspect;
@@ -30,8 +31,11 @@ public class Services
 	public static Container build(final Codec codec, final SessionFactory hib)
 		throws Exception
 	{
-		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, EncAs.class)
+		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, EncAs.class,
+			ByteAs.class)
 		{
+			CharSequence v = codec != null ? codec.enc(true, null) : null;
+
 			@Override
 			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
@@ -41,7 +45,12 @@ public class Services
 					return m.isAnnotationPresent(Sign.Any.class) ? this : null;
 				if (ac == Transac.As.class)
 					return new Transac.Config(m);
-				return codec == null ? this : codec;
+				if (m.getReturnType() == byte[].class
+					|| InputStream.class.isAssignableFrom(m.getReturnType()))
+					return ac == ByteAs.class ? null : this;
+				if (codec != null && ac == EncAs.class)
+					return m.getReturnType() == void.class ? v : null;
+				return this;
 			}
 		};
 		final Container sess = new Factory()
@@ -59,7 +68,7 @@ public class Services
 				return c == SessionFactory.class ? b.obj(hib) : b;
 			}
 		}.create(null);
-		Factory f = new Factory()
+		Factory req = new Factory()
 		{
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
@@ -72,9 +81,9 @@ public class Services
 			}
 		}.bind(Codec.class);
 		for (Class<?> c: Class2.packageClasses(Do.class))
-			if ( !Mod2.match(c, Mod2.ABSTRACT))
-				f.bind(c);
-		return f.create(sess, true);
+			if (Mod2.match(c, Mod2.PUBLIC, Mod2.ABSTRACT))
+				req.bind(c);
+		return req.create(sess, true);
 	}
 
 	static final class EncAs
@@ -89,9 +98,26 @@ public class Services
 		protected void aspect() throws Throwable
 		{
 			Target.invoke();
-			if (Target.<Do>getThis().data.depth == 1
-				&& Target.<Void>getReturnClass() != void.class)
-				data.enc = codec.enc(Target.getReturn(), Target.getClazz());
+			if (Target.<Do>getThis().data.depth != 1)
+				return;
+			CharSequence v = Target.<String>getData();
+			data.result = v != null ? v : codec.enc(Target.getReturn(), Target.getClazz());
+		}
+	}
+
+	static final class ByteAs
+		extends Aspect
+	{
+		@Inject
+		public Data data;
+
+		@Override
+		protected void aspect() throws Throwable
+		{
+			Target.invoke();
+			if (Target.<Do>getThis().data.depth != 1)
+				return;
+			data.result = Target.getReturn();
 		}
 	}
 }

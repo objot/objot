@@ -32,7 +32,6 @@ public final class Server
 	SessionFactory dataFactory;
 	/** service container, parent is session container */
 	Container container;
-	CharSequence ok;
 
 	@Override
 	public Server init(Container context) throws Exception
@@ -59,7 +58,6 @@ public final class Server
 		codec = Models.CODEC;
 		dataFactory = Models.build(dataTest).buildSessionFactory();
 		container = Services.build(codec, dataFactory);
-		ok = codec.enc(new String[] { "ok" }, Object.class);
 		return this;
 	}
 
@@ -86,7 +84,7 @@ public final class Server
 					.getAllSecondLevelCacheRegions().values())
 						((Cache)c).clear();
 					new ModelsCreate(true).create(true, 1);
-					return ok;
+					return "ok";
 				}
 
 			HttpSession hse = context.get(HttpSession.class);
@@ -99,10 +97,13 @@ public final class Server
 						hse.setAttribute("container", sess = container.parent().create());
 				}
 			Container con = container.createBubble(container.parent(), sess);
-			invoke(inf, con.get(inf.cla), req, begin, end1, extraReqs);
+			Object ser = con.get(inf.cla);
+			invoke(inf, ser, req, begin, end1, extraReqs);
 			if (sess.get(Session.class).close)
 				hse.invalidate();
-			return inf.meth.getReturnType() != void.class ? con.get(Data.class).enc : ok;
+			if (ser instanceof Do && ((Do)ser).respType != null)
+				context.set(String.class, ((Do)ser).respType);
+			return con.get(Data.class).result;
 		}
 		catch (RequestException e)
 		{

@@ -154,7 +154,7 @@ public class Input
 		}
 
 		/** @param pre if {@link #preEol} is enabled */
-		public byte[] readLine(boolean pre) throws Exception
+		public byte[] readLine(boolean pre) throws IOException
 		{
 			int x = lineEnd(true, pre);
 			byte[] l = Array2.subClone(bs, begin, x);
@@ -166,7 +166,7 @@ public class Input
 		 * @param cs_ by {@link #charset} if null
 		 * @param pre if {@link #preEol} is enabled
 		 */
-		public String readLine(Charset cs_, boolean pre) throws Exception
+		public String readLine(Charset cs_, boolean pre) throws IOException
 		{
 			if (cs_ == null)
 				cs_ = cs;
@@ -195,7 +195,7 @@ public class Input
 		 * @param pre if {@link #preEol} is enabled
 		 * @return the number of bytes of the skipped line
 		 */
-		public int skipLine(boolean pre) throws Exception
+		public int skipLine(boolean pre) throws IOException
 		{
 			int x = lineEnd(false, pre);
 			int l = x - begin;
@@ -211,16 +211,17 @@ public class Input
 		byte[] split;
 		String name;
 		String fileName;
-		/** 0: begin of part, 1: reading part, -1: no more parts */
+		String type;
+		/** 0: before part, 1: reading part, -1: no more parts */
 		int part;
 		int avail;
 
-		public Upload(InputStream in_) throws Exception
+		public Upload(InputStream in_) throws IOException
 		{
 			this(new Input.Line(in_));
 		}
 
-		public Upload(Line in_) throws Exception
+		public Upload(Line in_) throws IOException
 		{
 			in = in_;
 			int x = in.lineEnd(true, true);
@@ -242,9 +243,9 @@ public class Input
 		/**
 		 * @return true: the next part is ready, false: no more parts
 		 * @throws IllegalStateException the current part unfinished
-		 * @throws Exception
+		 * @throws IOException
 		 */
-		public boolean next() throws Exception
+		public boolean next() throws IOException
 		{
 			if (part < 0)
 				return false;
@@ -255,8 +256,15 @@ public class Input
 			name = String2.sub(l, '"', x);
 			x = String2.indexAfter(l, "filename=\"", x + name.length());
 			fileName = String2.sub(l, '\"', x);
-			while (in.skipLine(true) > 0)
-				;
+			type = "";
+			l = in.readLine(null, true);
+			if (l.length() > 0)
+			{
+				if (l.toLowerCase().startsWith("content-type: "))
+					type = l.substring(14);
+				while (in.skipLine(true) > 0)
+					;
+			}
 			part = 1;
 			return true;
 		}
@@ -269,6 +277,11 @@ public class Input
 		public String fileName()
 		{
 			return fileName;
+		}
+
+		public String type()
+		{
+			return type;
 		}
 
 		@Override

@@ -46,7 +46,7 @@ public class TestDoChat
 		c.text = clob("post1");
 		c.datime = DATE0;
 		long time = System.currentTimeMillis();
-		doChat.post(c);
+		doChat.post(c, null);
 		asser(c.id > 0);
 		asser(c.datime.getTime() >= time);
 		asser(c.datime.getTime() < time + 2000);
@@ -60,7 +60,7 @@ public class TestDoChat
 		c.in = u2;
 		c.text = clob("post1");
 		c.datime = DATE0;
-		doChat.post(c);
+		doChat.post(c, null);
 	}
 
 	@Test
@@ -77,7 +77,7 @@ public class TestDoChat
 		c.in = u2;
 		c.text = clob("post1");
 		c.datime = DATE0;
-		doChat.post(c);
+		doChat.post(c, null);
 	}
 
 	@Test
@@ -88,7 +88,7 @@ public class TestDoChat
 		c.in = u1;
 		c.text = clob("post1");
 		c.datime = DATE0;
-		doChat.post(c);
+		doChat.post(c, null);
 		Chat cc = new Chat();
 		cc.in = u1;
 		List<Chat> s = doChat.read(cc);
@@ -108,7 +108,7 @@ public class TestDoChat
 		c.in = u1;
 		c.text = clob("post1");
 		c.datime = DATE0;
-		doChat.post(c);
+		doChat.post(c, null);
 		Chat cc = new Chat();
 		cc.in = u1;
 		cc.datime = c.datime;
@@ -132,11 +132,11 @@ public class TestDoChat
 		c.in = u2;
 		c.text = clob("post1");
 		c.datime = DATE0;
-		doChat.post(c);
+		doChat.post(c, null);
 		doChat.doSign.inUp(u2);
 		c.in = u1;
 		c.text = clob("post1");
-		doChat.post(c);
+		doChat.post(c, null);
 
 		Chat cc = new Chat();
 		cc.in = u1;
