@@ -587,8 +587,8 @@ $.event = function (e, s, x, r) {
 
 
 $D = document
-$B = $D.body
-$dom($B)
+$DE = $dom($D.documentElement)
+$B = $dom($D.body)
 
 
 // UTILITIES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -639,7 +639,7 @@ $http.form = function (url, time, req, done, data, form) {
 	}
 	try { form.submit() } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
 	data === undefined && (data = stop), stop.$ = r
-	var t = setInterval(on, 300)
+	var t = setInterval(on, 500)
 	return stop
 }
 
@@ -798,28 +798,22 @@ $Err.noStack = false
  * @return the popup layer */
 $Pop = function (inner) {
 	var box = $d('c', 'Pop',
-		's', 'position:fixed; z-index:10000; width:100%; height:100%; top:0; left:0').add(
-		$d('c', 'Pop-back', 's', 'position:absolute; width:100%; height:100%'),
-		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
-			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add(
+		's', 'position:fixed;z-index:10000; width:100%;height:100%; top:0;left:0').add(
+		$d('c', 'Pop-back', 's', 'position:absolute; width:100%;height:100%'),
+		$d('s', 'overflow:auto;position:absolute; width:100%;height:100%').add(
+			$tab('s', 'width:100%;height:100%').add($tb().add($tr().add(
 				$td('s', 'vertical-align:middle').attr('align', 'center').add(inner)
 			)))
 		)
 	)
-	$fos || box.add(0, $.opacity(
-		$dom('iframe', 's', 'position:absolute; width:100%; height:100%'), 0))
+	$ie && box.add(0, $.opacity(
+		$dom('iframe', 's', 'position:absolute; width:100%;height:100%'), 0))
 	if ($ie == 6)
-		box.style.position = 'absolute',
-		box.style.top = $D.documentElement.scrollTop,
-		box.style.left = $D.documentElement.scrollLeft,
-		$D.documentElement.style.overflow = 'hidden';
-	box.des = $Pop.des
+		box.attach('des', function () { box.style.cssText = 'display:none' })
+		.style.cssText += ';top:expression(documentElement.scrollTop)'
+			+ ';left:expression(documentElement.scrollLeft);position:absolute;'
 	return $B.add(box), box
 }
-	$Pop.des = function () {
-		$ie == 6 && ($D.documentElement.style.overflow = '')
-		$dom.des.apply(this, arguments)
-	}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
