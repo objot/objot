@@ -240,7 +240,7 @@ $http = function (url, time, req, done, data) {
 	r.setRequestHeader('Content-Type', 'text/plain; charset=UTF-8')
 	r.setRequestHeader('Cache-Control', 'no-cache')
 	r.onreadystatechange = function () {
-		r && r.readyState == 4 && setTimeout(on, $http.doneDelay) // must timeout on IE
+		r && r.readyState == 4 && setTimeout(on, 300) // must timeout on IE
 	}
 	function on() {
 		if (!r) return
@@ -262,17 +262,15 @@ $http = function (url, time, req, done, data) {
 				: onerror(_, 0, 0)
 		}
 	}
+	try { r.send(req) } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
+	data === undefined && (data = stop), url = req = null
 	time = time > 0 && setTimeout(function () { stop(on, 1, 'timeout') }, time)
-	data === undefined && (data = stop)
-	return r.send(req), url = req = null, stop
+	return stop
 }
-$http.doneDelay = 0
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
-
-$D = document
 
 $id = function (id) {
 	return $D.getElementById(id)
@@ -588,7 +586,243 @@ $.event = function (e, s, x, r) {
 		: $.eventStop = function () { this.cancelBubble = true }
 
 
-//@@@@@@@@@@@@@@@@ UTILITIES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+$D = document
+$B = $D.body
+$dom($B)
+
+
+// UTILITIES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+
+
+/** SO for error */
+Err = function (hint) {
+	this.hint = $(hint)
+}
+/** SO for errors. sub of Err */
+Errs = function (hints) {
+	Err.call(this, '')
+	hints && (this.hints = $.a(hints))
+}
+$class(true, 'Err')
+$class(true, 'Errs', Err)
+
+/** start a HTTP round using form, see $http */
+$http.form = function (url, time, req, done, data, form) {
+	$.s(req), $.f(done), form.action = $.s(url)
+	form.firstChild.$t && form.firstChild.des()
+	form.firstChild.tx(req, true)
+	var r = $.iframe(form, '$t', new Date(), 'load', on, 0, [on], 'des', stop).show(false)
+	function on(e, b) {
+		if (!r) return
+		try { b = r.contentWindow.document.body } catch (_) {
+			return stop(on, 2000, 'Network or Server Failure')
+		}
+		if (e == on || r.readyState == 'complete')
+			(b = b.firstChild).id == 'objot' ? stop(on, 0, $dom(b).tx())
+				: stop(on, 900, '400-500') 
+		else
+			time > 0 && new Date() - r.$t > time && stop(on, 1, 'timeout');
+	}
+	function stop(o, a, b, R) {
+		if (!r) return;
+		R = r, stop.$ = r = null, R.nextSibling.tx(''), clearInterval(t)
+		try { R.src = 'about:blank', R.des() } catch(_) {}
+		try {
+			done(o == on ? a : -1, o == on ? b : 'stop', data), done = data = null
+		} catch(_) {
+			done = data = null
+			if ($ie || !onerror) // TODO opera safari ?
+				throw _;
+			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
+				: onerror(_, 0, 0)
+		}
+	}
+	try { form.submit() } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
+	data === undefined && (data = stop), stop.$ = r
+	var t = setInterval(on, 300)
+	return stop
+}
+
+/** $http wrapped with hint and several callback functions
+ * @param url prepended by $Do.Url
+ * @param thisX as "this" in doneX
+ * @param doneX called after done(X-1), skipped if thisX missing
+ * @return same as $http */
+$Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form) {
+	var h = (form ? $http.form : $http)
+		($Do.url + url, $Do.timeout, req, $Do.done, undefined, form)
+	h.$hint = hint, h.$t3 = this3, h.$3 = done3,
+		h.$t2 = this2, h.$2 = done2, h.$t1 = this1, h.$1 = done1
+	return h
+}
+	$Do.done = function (code, p, h) {
+		h.$t0 !== undefined && h.$0.call(h.$t0)
+		var ok, err // undefined
+		if (code == 0)
+			(p = $dec(p, $Do.byName, $Do.decoded)) instanceof Err ? err = p : ok = p
+		else if (code > 0)
+			err = new Err('HTTP Error ' + code + ' ' + p);
+		h.$t1 !== undefined && h.$1.call(h.$t1, ok, err, h)
+		h.$t2 !== undefined && h.$2.call(h.$t2, ok, err, h)
+		h.$t3 !== undefined && h.$3.call(h.$t3, ok, err, h)
+	}
+
+/** url prefix */
+$Do.url = ''
+/** default timeout ms */
+$Do.timeout = 30000
+/** @see $dec */
+$Do.byName = null
+/** @see $dec */
+$Do.decoded = null
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+
+
+$.proxy = function (This, go) {
+	return function () { return go.apply(This, arguments) }
+}
+$.defer = function (This, Do, args, time) {
+	setTimeout(function () { args ? Do.apply(This, args) : Do.call(This) }, time || 0)
+	return This
+}
+$.deferDom = $fos ? $dom : function (m) {
+	var s = arguments
+	return setTimeout(function(){ $doms(m, s, 1) }, 0), m
+}
+
+/** for upload, var args */
+$.form = function () {
+	return $doms($dom($fos ? 'form' : '<form enctype="multipart/form-data">',
+		'method', 'post', 'enctype', 'multipart/form-data'), arguments, 0)
+		.add($lns().show(false))
+}
+$.iframe = function (form) {
+	var n = '$' + Math.random(), i = $doms(
+		$dom($fos ? 'iframe' : '<iframe name="' + n + '">', 'name', n), arguments, 1)
+	return form && (form.firstChild.name = form.add(0, i).target = n), i
+}
+/** get/set style.cssFloat in Firefox, style.styleFloat in IE */
+$.Float = $fos ? function (d, v) {
+	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d)
+} : function (d, v) {
+	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d)
+}
+/** get/set style.opacity in Firefox, style.filter in IE */
+$.opacity = $fos ? function (d, v) {
+	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d)
+} : function (d, v) {
+	var s = d.style, f = s.filter
+	if (v === undefined)
+		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
+	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
+		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')')
+	return d
+}
+/** get disabled/readOnly, or set disabled/readOnly, or switch disabled/readOnly if v === 0
+ * @return true/false if no argument, or this */
+$.disable = function (d, v) {
+	var r = d.disabled || d.readOnly
+	if (arguments.length == 1)
+		return r;
+	r = v === 0 ? !r : v
+	var rr = d.tagName.toLowerCase()
+	rr = rr == 'textarea' || rr == 'input' && d.type == 'text'
+		? (d.disabled = false, d.readOnly = r) : d.disabled = r 
+	return d
+}
+/** add css rule. @param selector, style... */
+$.css = function () {
+	$D.styleSheets.length || $throw('no stylesheet found')
+	var sh = $D.styleSheets[0], e, t
+	for (var as = arguments, x = 0; x < as.length; x += 2)
+		if (e = as[x], t = as[x + 1], $fos)
+			sh.insertRule(e + '{' + t + '}', sh.cssRules.length)
+		else if (e.indexOf(',') < 0)
+			sh.addRule(e, t)
+		else
+			for (var es = e.split(','), y = 0; y < es.length; y++)
+				sh.addRule(es[y], t)
+}
+
+//********************************************************************************************//
+
+/** make a box as a HTTP widget, double click or des() to stop http
+ * @param h return value of $Do
+ * @param show the widget contains http hint text if true
+ * @return the box */
+$Http = function (box, h, show, prog) {
+	h.$t0 = box, h.$0 = $Http.done 
+	box.des(0).cla(0, 'Err').cla('Http').add(
+		$s('c', 'Http-icon', 'title', h.$hint + '. stop?', 'dblclick', h, 0, 0, 'des', h))
+		.add(show ? $s('c', 'Http-text').tx(h.$hint) : 0)
+	prog && $Http.prog(-2, '', [h, box])
+	return box
+}
+	$Http.done = function () {
+		this.des(0).cla(0, 'Http')
+	}
+	$Http.prog = function (code, p, hb, h, b) {
+		if (!(h = hb[0]).$) return
+		if (code == 0 && p)
+			h.$.$t = new Date(),
+			(b = hb[1]).firstChild.title = h.$hint + ' ' + p + '. stop?',
+			b.firstChild.nextSibling && b.lastChild.tx(h.$hint + ' ' + p)
+		$.defer(0, $http,
+			[$Do.url + '$prog$?' + h.$.name, $Do.timeout, '', $Http.prog, hb], 4000);
+	}
+
+/** make a box as error widget
+ * @param err Err, Errs or string
+ * @param show the widget contains err text if true,
+               or a function called at double click (show err text if null or missing)
+ * @return the box */
+$Err = function (box, err, show, noStack) {
+	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err)
+	noStack || $Err.noStack && noStack === undefined  
+		|| $fos && (err = err + '\n' + $.throwStack())
+	show == null && (show = $Err.onHint)
+	box.des(0).add($s('c', 'Err-icon'))
+	show === true ? box.add($s('c', 'Err-text').tx(err, true))
+		: box.firstChild.attr('title', err).attach('dblclick', $.f(show))
+	return box.cla(0, 'Http').cla('Err')
+}
+$Err.onHint = function () {
+	alert(this.title) // popup better
+	this.des()
+}
+$Err.noStack = false
+
+/** overlay document with a layer containing an inner box
+ * @return the popup layer */
+$Pop = function (inner) {
+	var box = $d('c', 'Pop',
+		's', 'position:fixed; z-index:10000; width:100%; height:100%; top:0; left:0').add(
+		$d('c', 'Pop-back', 's', 'position:absolute; width:100%; height:100%'),
+		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
+			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add(
+				$td('s', 'vertical-align:middle').attr('align', 'center').add(inner)
+			)))
+		)
+	)
+	$fos || box.add(0, $.opacity(
+		$dom('iframe', 's', 'position:absolute; width:100%; height:100%'), 0))
+	if ($ie == 6)
+		box.style.position = 'absolute',
+		box.style.top = $D.documentElement.scrollTop,
+		box.style.left = $D.documentElement.scrollLeft,
+		$D.documentElement.style.overflow = 'hidden';
+	box.des = $Pop.des
+	return $B.add(box), box
+}
+	$Pop.des = function () {
+		$ie == 6 && ($D.documentElement.style.overflow = '')
+		$dom.des.apply(this, arguments)
+	}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
 /** @return equal, or if both NaN */
@@ -696,241 +930,3 @@ location.params = function (emptyName) {
 	return p
 }
 $ie && (location.$load = location.reload, location.reload = function () { location.$load() })
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-
-
-/** SO for error */
-Err = function (hint) {
-	this.hint = $(hint)
-}
-/** SO for errors. sub of Err */
-Errs = function (hints) {
-	Err.call(this, '')
-	hints && (this.hints = $.a(hints))
-}
-$class(true, 'Err')
-$class(true, 'Errs', Err)
-
-/** start a HTTP round using form, see $http */
-$http.form = function (url, time, req, done, data, form, prog) {
-	$.s(req), $.f(done), form.action = $.s(url)
-	form.firstChild.$form && form.firstChild.des()
-	form.firstChild.tx(req, true)
-	var r = $.iframe(form, '$form', 1, 'des', stop).show(false), tm = new Date()
-	var on = setInterval(function (t) {
-		if (!r) return
-		try {
-			if (!(t = r.contentWindow.document.body) || !(t = t.lastChild)
-				|| t.className || !t.tagName)
-				return time > 0 && new Date() - tm > time && stop(on, 1, 'timeout');
-			t.className = 'o', t = t.previousSibling
-		} catch (_) { // denied
-			return stop(on, 2000, 'Network or Server Failure')
-		}
-		t.tagName ? stop(on, 0, $dom(t).tx())
-			: (tm = new Date()) && prog && prog(t.nodeValue, data)
-	}, 300)
-	function stop(o, a, b, R) {
-		if (!r) return;
-		r.nextSibling.tx(''), clearInterval(on)
-		try { R = r, r = null, R.src = 'about:blank', R.des() } catch(_) {}
-		try {
-			done(o == on ? a : -1, o == on ? b : 'stop', data), done = data = null
-		} catch(_) {
-			done = data = null
-			if ($ie || !onerror) // TODO opera safari ?
-				throw _;
-			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
-				: onerror(_, 0, 0)
-		}
-	}
-	data === undefined && (data = stop)
-	try { form.submit() } catch(_) { $.defer(0, stop, [on, 1000, 'Network Failure']) } // IE
-	return stop
-}
-$http.cross = function () {
-	$fos && location.protocol == 'file:' &&
-		netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead')
-}
-
-/** $http wrapped with hint and several callback functions
- * @param url prepended by $Do.Url
- * @param thisX as "this" in doneX
- * @param doneX called after done(X-1), skipped if thisX missing
- * @return same as $http */
-$Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form, thisP, doneP) {
-	var h = (form ? $http.form : $http)
-		($Do.url + url, $Do.timeout, req, $Do.done, undefined, form, $Do.prog)
-	h.$hint = hint, h.$t3 = this3, h.$3 = done3, h.$t2 = this2, h.$2 = done2,
-		h.$t1 = this1, h.$1 = done1, h.$tp = thisP, h.$p = doneP
-	return h
-}
-	$Do.done = function (code, res, h) {
-		h.$t0 !== undefined && h.$0.call(h.$t0)
-		var ok, err // undefined
-		if (code == 0)
-			(res = $dec(res, $Do.byName, $Do.decoded)) instanceof Err ? err = res : ok = res
-		else if (code > 0)
-			err = new Err('HTTP Error ' + code + ' ' + res);
-		h.$t1 !== undefined && h.$1.call(h.$t1, ok, err, h)
-		h.$t2 !== undefined && h.$2.call(h.$t2, ok, err, h)
-		h.$t3 !== undefined && h.$3.call(h.$t3, ok, err, h)
-	}
-	$Do.prog = function (p, h) {
-		h.$tp !== undefined && h.$p.call(h.$tp, p, h)
-	}
-
-/** url prefix */
-$Do.url = ''
-/** default timeout ms */
-$Do.timeout = 30000
-/** @see $dec */
-$Do.byName = null
-/** @see $dec */
-$Do.decoded = null
-
-/** default delay after HTTP round end */
-$http.doneDelay = 300
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
-
-
-$B = $D.body
-$dom($B)
-
-$.proxy = function (This, go) {
-	return function () { return go.apply(This, arguments) }
-}
-$.defer = function (This, Do, args) {
-	return setTimeout(function () { args ? Do.apply(This, args) : Do.call(This) }, 0), This
-}
-$.deferDom = $fos ? $dom : function (m) {
-	var s = arguments
-	return setTimeout(function(){ $doms(m, s, 1) }, 0), m
-}
-
-/** for upload, var args */
-$.form = function () {
-	return $doms($dom($fos ? 'form' : '<form enctype="multipart/form-data">',
-		'method', 'post', 'enctype', 'multipart/form-data'), arguments, 0)
-		.add($lns('name', '$$').show(false))
-}
-$.iframe = function (form) {
-	var n = '$$' + Math.random(), i = $doms(
-		$dom($fos ? 'iframe' : '<iframe name="' + n + '">', 'name', n), arguments, 1)
-	return form && (form.add(0, i).target = n), i
-}
-/** get/set style.cssFloat in Firefox, style.styleFloat in IE */
-$.Float = $fos ? function (d, v) {
-	return v === undefined ? d.style.cssFloat : (d.style.cssFloat = v, d)
-} : function (d, v) {
-	return v === undefined ? d.style.styleFloat : (d.style.styleFloat = v, d)
-}
-/** get/set style.opacity in Firefox, style.filter in IE */
-$.opacity = $fos ? function (d, v) {
-	return v === undefined ? d.style.opacity : (d.style.opacity = v < 1 ? v : '', d)
-} : function (d, v) {
-	var s = d.style, f = s.filter
-	if (v === undefined)
-		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
-	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
-		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')')
-	return d
-}
-/** get disabled/readOnly, or set disabled/readOnly, or switch disabled/readOnly if v === 0
- * @return true/false if no argument, or this */
-$.disable = function (d, v) {
-	var r = d.disabled || d.readOnly
-	if (arguments.length == 1)
-		return r;
-	r = v === 0 ? !r : v
-	var rr = d.tagName.toLowerCase()
-	rr = rr == 'textarea' || rr == 'input' && d.type == 'text'
-		? (d.disabled = false, d.readOnly = r) : d.disabled = r 
-	return d
-}
-/** add css rule. @param selector, style... */
-$.css = function () {
-	$D.styleSheets.length || $throw('no stylesheet found')
-	var sh = $D.styleSheets[0], e, t
-	for (var as = arguments, x = 0; x < as.length; x += 2)
-		if (e = as[x], t = as[x + 1], $fos)
-			sh.insertRule(e + '{' + t + '}', sh.cssRules.length)
-		else if (e.indexOf(',') < 0)
-			sh.addRule(e, t)
-		else
-			for (var es = e.split(','), y = 0; y < es.length; y++)
-				sh.addRule(es[y], t)
-}
-
-//********************************************************************************************//
-
-/** make a box as a HTTP widget, double click or des() to stop http
- * @param h return value of $Do
- * @param show the widget contains http hint text if true
- * @return the box */
-$Http = function (box, h, show) {
-	h.$t0 = box, h.$0 = $Http.done
-	h.$tp === undefined && (h.$tp = box, h.$p = $Http.prog, box.$hint = h.$hint)
-	return box.des(0).cla(0, 'Err').cla('Http').add(
-		$s('c', 'Http-icon', 'title', h.$hint + '. stop?', 'dblclick', h, 0, 0, 'des', h))
-		.add(show ? $s('c', 'Http-text').tx(h.$hint) : 0)
-}
-	$Http.done = function () {
-		this.des(0).cla(0, 'Http')
-	}
-	$Http.prog = function (p) {
-		this.firstChild.title = this.$hint + '... ' + p + '. stop?'
-		this.firstChild.nextSibling && this.lastChild.tx(this.$hint + ' ' + p)
-	}
-
-/** make a box as error widget
- * @param err Err, Errs or string
- * @param show the widget contains err text if true,
-               or a function called at double click (show err text if null or missing)
- * @return the box */
-$Err = function (box, err, show, noStack) {
-	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err)
-	noStack || $Err.noStack && noStack === undefined  
-		|| $fos && (err = err + '\n' + $.throwStack())
-	show == null && (show = $Err.onHint)
-	box.des(0).add($s('c', 'Err-icon'))
-	show === true ? box.add($s('c', 'Err-text').tx(err, true))
-		: box.firstChild.attr('title', err).attach('dblclick', $.f(show))
-	return box.cla(0, 'Http').cla('Err')
-}
-$Err.onHint = function () {
-	alert(this.title) // popup better
-	this.des()
-}
-$Err.noStack = false
-
-/** overlay document with a layer containing an inner box
- * @return the popup layer */
-$Pop = function (inner) {
-	var box = $d('c', 'Pop',
-		's', 'position:fixed; z-index:10000; width:100%; height:100%; top:0; left:0').add(
-		$d('c', 'Pop-back', 's', 'position:absolute; width:100%; height:100%'),
-		$d('s', 'overflow:auto; position:absolute; width:100%; height:100%').add(
-			$tab('s', 'width:100%; height:100%').add($tb().add($tr().add(
-				$td('s', 'vertical-align:middle').attr('align', 'center').add(inner)
-			)))
-		)
-	)
-	$fos || box.add(0, $.opacity(
-		$dom('iframe', 's', 'position:absolute; width:100%; height:100%'), 0))
-	if ($ie == 6)
-		box.style.position = 'absolute',
-		box.style.top = $D.documentElement.scrollTop,
-		box.style.left = $D.documentElement.scrollLeft,
-		$D.documentElement.style.overflow = 'hidden';
-	box.des = $Pop.des
-	return $B.add(box), box
-}
-	$Pop.des = function () {
-		$ie == 6 && ($D.documentElement.style.overflow = '')
-		$dom.des.apply(this, arguments)
-	}

@@ -10,7 +10,7 @@ onerror = function(m, f, l) {
 }
 
 $Do.url = '/objot/service/';
-$Do.timeout = 15000;
+$Do.timeout = 10000;
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -370,7 +370,7 @@ _Chats.prototype = {
 	doPost: function () {
 		this.post = this._post.tx();
 		$Http(this.chatss.http,
-			DoChat.post(this.smiley, this.oppo, this.post, this, this.donePost), true);
+			DoChat.post(this.smiley, this.oppo, this.post, this, this.donePost), 1, 1);
 	},
 	donePost: function (ok, err) {
 		if (ok) {

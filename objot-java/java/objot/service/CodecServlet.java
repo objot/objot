@@ -7,7 +7,6 @@ package objot.service;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URLDecoder;
 import javax.servlet.Servlet;
 import javax.servlet.ServletConfig;
@@ -31,12 +30,7 @@ import objot.util.String2;
 public class CodecServlet
 	implements Servlet
 {
-	protected static final byte[] UPLOAD_RESP_PRE = String2.utf( // for IE
-	"<html>                                                          "
-		+ "                                                                "
-		+ "                                                                "
-		+ "                                                          <body>");
-	protected static final byte[] UPLOAD_SPLIT = String2.utf("%<br>");
+	public static final String PROGRESS = "$prog$";
 
 	protected ServletConfig config;
 	protected ServiceHandler handler;
@@ -94,13 +88,25 @@ public class CodecServlet
 	{
 		HttpServletRequest hq = (HttpServletRequest)hReq;
 		HttpServletResponse hp = (HttpServletResponse)hResp;
-		OutputStream hpo = hp.getOutputStream();
 		hp.setHeader("Cache-Control", "no-cache");
+		hp.setContentType("text/plain; charset=UTF-8");
+
+		String uri = URLDecoder.decode(hq.getRequestURI(), "UTF-8");
+		String name = uri.substring(uri.lastIndexOf('/') + 1);
+		if (name.equals(PROGRESS))
+		{
+			Input.Upload up = (Input.Upload)hq.getSession().getAttribute(
+				PROGRESS.concat(String2.maskNull(hq.getQueryString())));
+			byte[] bs = up == null ? Array2.BYTES0
+				: String2.utf(up.progress(999) / 10f + "%");
+			hp.setContentLength(bs.length);
+			hp.getOutputStream().write(bs);
+			return;
+		}
 		ServiceInfo inf;
 		try
 		{
-			String uri = URLDecoder.decode(hq.getRequestURI(), "UTF-8");
-			inf = handler.getInfo(uri.substring(uri.lastIndexOf('/') + 1));
+			inf = handler.getInfo(name);
 		}
 		catch (RequestException e)
 		{
@@ -109,22 +115,17 @@ public class CodecServlet
 		char[] q = Array2.CHARS0;
 		Object[] extraQs = null;
 
-		boolean up = String2.maskNull(hq.getContentType()).startsWith("multipart/form-data");
+		String up = String2.maskNull(hq.getContentType()).startsWith("multipart/form-data")
+			? "" : null;
 		int len = hq.getContentLength();
-		if (up)
+		if (up != null)
 		{
-			boolean down = byte[].class.isAssignableFrom(inf.meth.getReturnType())
-				|| InputStream.class.isAssignableFrom(inf.meth.getReturnType());
-			if ( !down)
-			{
-				hp.setContentType("text/html; charset=UTF-8");
-				hpo.write(UPLOAD_RESP_PRE);
-				hpo.flush();
-			}
-			Input.Upload in = new Input.Upload(down ? hq.getInputStream() //
-				: new Upload(hq.getInputStream(), len, hpo));
+			Input.Upload in = new Input.Upload(hq.getInputStream());
+			in.total = len;
 			if (in.next())
 			{
+				if (in.name().length() > 0)
+					hq.getSession().setAttribute(up = PROGRESS.concat(in.name()), in);
 				Bytes s = new Bytes(in, false);
 				len = s.byteN();
 				q = String2.utf(s.bytes, s.beginBi, len);
@@ -167,15 +168,21 @@ public class CodecServlet
 		{
 			throw new ServletException(e);
 		}
+		finally
+		{
+			if ( !String2.empty(up))
+				hq.getSession().removeAttribute(up);
+		}
 		if (p == null)
 			throw null;
 		if (p instanceof CharSequence)
 		{
-			if (up)
+			if (up != null)
 			{
+				hp.setContentType("text/html; charset=UTF-8");
 				CharSequence r = (CharSequence)p;
 				StringBuilder s = new StringBuilder();
-				s.append("<pre class=ob>");
+				s.append("<pre id=objot>");
 				for (int i = 0; i < r.length(); i++)
 					if (r.charAt(i) == '&')
 						s.append("&amp;");
@@ -183,96 +190,22 @@ public class CodecServlet
 						s.append("&lt;");
 					else
 						s.append(r.charAt(i));
-				p = s.append("</pre><br></body></html>").toString();
+				p = s.append("</pre>").toString();
 			}
-			else
-				hp.setContentType("text/plain; charset=UTF-8");
 			byte[] bs = String2.utf((CharSequence)p);
 			hp.setContentLength(bs.length);
-			hpo.write(bs);
+			hp.getOutputStream().write(bs);
 		}
 		else if (p instanceof InputStream)
 		{
-			Bytes s = new Bytes((InputStream)p, true);
 			hp.setContentType(c.get(String.class));
-			hp.setContentLength(s.byteN());
-			hpo.write(s.bytes, s.beginBi, s.byteN());
+			Input.readTo((InputStream)p, hp.getOutputStream());
 		}
 		else
 		{
 			hp.setContentType(c.get(String.class));
 			hp.setContentLength(((byte[])p).length);
-			hpo.write((byte[])p);
-		}
-	}
-
-	static class Upload
-		extends InputStream
-	{
-		InputStream in;
-		long n;
-		long p;
-		int k;
-		OutputStream out;
-
-		Upload(InputStream in_, int n_, OutputStream out_)
-		{
-			in = in_;
-			n = n_;
-			out = out_;
-		}
-
-		void progress(long x) throws IOException
-		{
-			p += x;
-			int kk = (int)(p * 999 / n); // max 99.9%
-			if (kk <= k)
-				return;
-			k = kk;
-			if (k >= 100)
-				out.write(k / 100 + '0');
-			out.write(k / 10 % 10 + '0');
-			out.write('.');
-			out.write(k % 10 + '0');
-			out.write(UPLOAD_SPLIT);
-			out.flush();
-		}
-
-		@Override
-		public int available() throws IOException
-		{
-			return in.available();
-		}
-
-		@Override
-		public void close() throws IOException
-		{
-			in.close();
-		}
-
-		@Override
-		public int read() throws IOException
-		{
-			progress(1);
-			return in.read();
-		}
-
-		@Override
-		public int read(byte[] b, int off, int len) throws IOException
-		{
-			int x = in.read(b, off, len);
-			if (x > 0)
-				progress(x);
-			return x;
-		}
-
-		@Override
-		public long skip(long x) throws IOException
-		{
-			x = in.skip(x);
-			if (x > 0)
-				progress(Math.max(x, n));
-			return x;
+			hp.getOutputStream().write((byte[])p);
 		}
 	}
 }
