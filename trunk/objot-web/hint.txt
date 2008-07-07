@@ -22,6 +22,9 @@ when Firefox XMLHttpRequest fails, readyState is 4 and status is 0 or unaccessib
 if connection is lost when response body (and heads on Firefox) is receiving,
   readyState is 4 status is 200 text is truncated, stupid
 
+Firefox cross domain: location.protocol == 'file:' &&
+	netscape.security.PrivilegeManager.enablePrivilege('UniversalBrowserRead')
+
 on Firefox, \n unsupported for element tooltips but supported for textarea.textContent
   setting other textContents supports <br> but \n, getting supports \n but <br>
 on IE, newline is \r\n while getting textarea.value

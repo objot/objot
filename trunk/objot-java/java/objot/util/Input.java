@@ -7,6 +7,7 @@ package objot.util;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 
 
@@ -25,6 +26,27 @@ public class Input
 			if ((n = in.read(bs, begin, end1 - begin)) <= 0)
 				throw new EOFException();
 		return bs;
+	}
+
+	public static long readTo(InputStream in, OutputStream out) throws IOException
+	{
+		return readTo(in, out, Long.MAX_VALUE, new byte[8192]);
+	}
+
+	public static long readTo(InputStream in, OutputStream out, long len) throws IOException
+	{
+		return readTo(in, out, len, len <= 0 ? null : new byte[(int)Math.min(8192, len)]);
+	}
+
+	public static long readTo(InputStream in, OutputStream out, long len, byte[] buf)
+		throws IOException
+	{
+		long n = 0;
+		int x = 0;
+		while ((n += x) < len
+			&& (x = in.read(buf, 0, (int)Math.min(buf.length, len - n))) > 0)
+			out.write(buf, 0, x);
+		return n;
 	}
 
 	public static class Line
@@ -48,7 +70,7 @@ public class Input
 			cs = UTF;
 			preEol = '\r';
 			eol = '\n';
-			bs = new byte[8112];
+			bs = new byte[8192];
 		}
 
 		public Line(InputStream in_, int maxLen)
@@ -119,7 +141,7 @@ public class Input
 			return n;
 		}
 
-		protected int lineMore(boolean read, int x) throws IOException
+		protected int more(boolean read, int x) throws IOException
 		{
 			if (end1 == bs.length)
 			{
@@ -143,11 +165,11 @@ public class Input
 		protected int lineEnd(boolean read, boolean pre) throws IOException
 		{
 			if (pre)
-				for (int x = begin;; x = lineMore(read, x))
+				for (int x = begin;; x = more(read, x))
 					for (; x + 1 < end1; x++)
 						if (bs[x] == preEol && bs[x + 1] == eol)
 							return x;
-			for (int x = begin;; x = lineMore(read, x))
+			for (int x = begin;; x = more(read, x))
 				for (; x < end1; x++)
 					if (bs[x] == eol)
 						return x;
@@ -215,6 +237,7 @@ public class Input
 		/** 0: before part, 1: reading part, -1: no more parts */
 		int part;
 		int avail;
+		public long total;
 
 		public Upload(InputStream in_) throws IOException
 		{
@@ -238,6 +261,11 @@ public class Input
 		public void closeAll() throws IOException
 		{
 			in.close();
+		}
+
+		public int progress(int top)
+		{
+			return (int)(in.readBn * top / total);
 		}
 
 		/**
@@ -290,7 +318,7 @@ public class Input
 			if (avail > 0 || part <= 0)
 				return avail;
 			if (in.begin >= in.end1)
-				in.lineMore(true, 0);
+				in.more(true, 0);
 			int x = in.begin;
 			if (in.bs[x++] != '\r')
 				for (;; x++)
@@ -300,7 +328,7 @@ public class Input
 			for (int y = 1; y < split.length; x++, y++)
 			{
 				if (x == in.end1)
-					x = in.lineMore(true, x);
+					x = in.more(true, x);
 				if (in.bs[x] != split[y] || noMore == 1)
 					if (in.bs[x] == '-' && y == split.length - 2 && noMore++ < 2)
 						y--;
