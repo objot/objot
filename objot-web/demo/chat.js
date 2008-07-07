@@ -326,25 +326,28 @@ _Chats = function (chatss, oppoUser) {
 	this.outDatime = DatimeMin;
 	chatss.tabs.add(
 		this.tab = $a0('c', 'tab', 'click', this.doAct, this).tx(oppoUser.name));
-	chatss.chatss_.add($d().add(
+	chatss.chatss_.add(
 		this.chats = $d('c', 'chats'),
 		this._post = $lns('c', 'post'),
 		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'),
 		this.smiley = $.form().add($inp('type', 'file', 'name', 'smiley'))
-	));
+	);
 	this.doInact();
 }
 
 _Chats.prototype = {
 	doInact: function () {
 		this.tab.cla(0, 'tabAct');
-		this.chats.parentNode.show(false);
+		this.chats.show(false), this._post.show(false);
+		this.submit.show(false), this.smiley.show(false);
 	},
 	doAct: function () {
 		var a = this.chatss.active;
 		if (a != this) {
 			a && a.doInact();
-	 		this.tab.cla(0, 'tabNew').cla('tabAct'), this.chats.parentNode.show(true);
+	 		this.tab.cla(0, 'tabNew').cla('tabAct');
+	 		this.chats.show(true), this._post.show(true).focus();
+	 		this.submit.show(true), this.smiley.show(true);
 			this.chatss.active = this;
 		}
 	},
