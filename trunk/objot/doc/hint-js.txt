@@ -10,7 +10,7 @@ String(x) convert x to string (not String) unless x is already string
 
 function (a, b) { b = a; // then arguments[1] == arguments[0]
 
-on IE (delete domNode.userProp) forbidden
+on IE 6&7, (delete domNode.userProp) forbidden
 
 while Firefox alert(), some callbacks could still be fired, such as timeout, interval
 while IE 6&7 alert(), some callbacks could still be fired, such as
@@ -31,30 +31,31 @@ on IE, newline is \r\n while getting textarea.value
 
 on Firefox, addEventListener causes window.onerror no effect for exception from handler
 on IE 6&7, attachEvent causes unexpected 'this' in handler
+on Opera&Safari, onerror unsupported
 
 on IE 6&7, (null dom node) instanceof (Object etc) causes Javascript error,
   adding text node property causes error
 
 on IE 6&7, $inp('name', 'a', ...).outerHTML contains no name="a", and
   document.getElementsByName('a') returns without this input, stupid
-and <tr>.innerHTML may not be set directly, should createElement('td')
 
 on IE 6(7?), iframe's window.parent may not be the actual parent window,
   but iframe's window.parent.document is the actual parent window document
 
-on IE 6(7?), codes in different windows may be multi-thread ??!
+on IE 6(7?), codes in different windows may be multi-thread (multi-process?)
 
 on Firefox for Linux, onkeydown may not be triggered if multi keys are down,
   may use onkeypress instead
 
-on IE 6(7?), childNodes[index out of bound] === undefined, but null per standard 
+on IE 6&7, childNodes[index out of bound] === undefined, but null per standard 
 
-on IE 6(7?), some function eg. focus and location.reload don't support call or apply
+on IE 6&7, some function eg. focus and location.reload don't support call or apply
 
-on IE 6(7?), user defined toString can't be iterated by foreach
+on IE 6&7, user defined toString can't be iterated by foreach
 
 on IE 6(7?), checkbox input onchange never be fired before blured, use onclick instead
 
 on IE 6(7?), nowrap must be set by $dom('<td nowrap>') or by css
+  <tr>.innerHTML may not be set directly, should createElement('td')
 
-on IE 6(7?), form.submit() throws if offline
+on IE 6&7, form.submit() throws if offline

@@ -28,9 +28,9 @@ $throw = function (x) {
 		: x instanceof Error ? x : Error(0, x)
 }
 
-/** make class. @param SO if could be $enc and $dec. @param ctor name
+/** make class. @param if could be $enc and $dec. @param ctor name
  * @param sup superclass or null. @param proto own props copied to ctor prototype */
-$class = function (SO, ctor, sup, proto) {
+$class = function (codec, ctor, sup, proto) {
 	$.s(ctor)
 	var c = $.c(ctor, true)
 	c != Boolean && c != String && c != Number && c != Function
@@ -45,7 +45,7 @@ $class = function (SO, ctor, sup, proto) {
 	if (c.prototype.constructor != c)
 		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor));
 	proto && $.copy(c.prototype, proto)
-	SO && ($.cs[ctor] = c)
+	codec && ($.cs[ctor] = c)
 	return c
 }
 /** add encoding rules to the class. former rules are overrided by later rules
@@ -255,11 +255,7 @@ $http = function (url, time, req, done, data) {
 		try {
 			done(o == on ? a : -1, o == on ? b : 'stop', data), done = data = null
 		} catch(_) {
-			done = data = null
-			if ($ie || !onerror) // TODO opera safari ?
-				throw _;
-			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
-				: onerror(_, 0, 0)
+			throw done = data = null, _
 		}
 	}
 	try { r.send(req) } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
@@ -594,11 +590,11 @@ $B = $dom($D.body)
 // UTILITIES @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 
 
-/** SO for error */
+/** for error */
 Err = function (hint) {
 	this.hint = $(hint)
 }
-/** SO for errors. sub of Err */
+/** for errors. sub of Err */
 Errs = function (hints) {
 	Err.call(this, '')
 	hints && (this.hints = $.a(hints))
@@ -630,11 +626,7 @@ $http.form = function (url, time, req, done, data, form) {
 		try {
 			done(o == on ? a : -1, o == on ? b : 'stop', data), done = data = null
 		} catch(_) {
-			done = data = null
-			if ($ie || !onerror) // TODO opera safari ?
-				throw _;
-			_ instanceof Error ? onerror(_.message, _.fileName, _.lineNumber)
-				: onerror(_, 0, 0)
+			throw done = data = null, _
 		}
 	}
 	try { form.submit() } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
@@ -751,6 +743,7 @@ $.css = function () {
 /** make a box as a HTTP widget, double click or des() to stop http
  * @param h return value of $Do
  * @param show the widget contains http hint text if true
+ * @param prog if show the upload progress
  * @return the box */
 $Http = function (box, h, show, prog) {
 	h.$t0 = box, h.$0 = $Http.done 
