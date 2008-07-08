@@ -7,7 +7,7 @@
 -->
 <project name="objot-java" default="all">
 
-	<property name=".version" value="20" />
+	<property name=".version" value="21" />
 
 	<property name=":" value="${path.separator}" />
 	<property name=".source.java" value="java" />
