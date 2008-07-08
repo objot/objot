@@ -9,7 +9,7 @@ onerror = function(m, f, l) {
 	return true;
 }
 
-$Do.url = '/objot/service/';
+$Do.url = '../service/';
 $Do.timeout = 10000;
 
 
