@@ -23,7 +23,7 @@ import objot.util.Math2;
 final class Decoder
 {
 	private Codec codec;
-	private Class<?> forClass;
+	private Class<?> ruleKey;
 	private char[] bs;
 	private int bBegin;
 	private int bEnd1;
@@ -34,11 +34,11 @@ final class Decoder
 	private double numd;
 	private boolean arrayForList;
 
-	/** @param for_ null is Object.class */
-	Decoder(Codec o, Class<?> for_, char[] s, int sBegin, int sEnd1)
+	/** @param ruleKey_ null is Object.class */
+	Decoder(Codec o, Class<?> ruleKey_, char[] s, int sBegin, int sEnd1)
 	{
 		codec = o;
-		forClass = for_ != null ? for_ : Object.class;
+		ruleKey = ruleKey_ != null ? ruleKey_ : Object.class;
 		bs = s;
 		Math2.range(sBegin, sEnd1, s.length);
 		bBegin = sBegin;
@@ -334,9 +334,9 @@ final class Decoder
 			Property p = z.decs.get(n);
 			if (p != null)
 			{
-				if ( !p.allow(forClass))
+				if ( !p.allow(ruleKey))
 					throw new RuntimeException("decoding " + o.getClass().getCanonicalName()
-						+ "." + n + " forbidden for " + forClass.getCanonicalName());
+						+ "." + n + " forbidden for " + ruleKey.getCanonicalName());
 				Object v = this;
 				try
 				{

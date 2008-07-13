@@ -12,13 +12,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
-/** the annotated field could be encoded while {@link Encoder#go} */
+/** the annotated field or getter could be encoded when {@link Codec#enc} */
 @Target( { ElementType.TYPE, ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
 public @interface Enc
 {
-	/** encoding rules about the class specified in {@link Encoder#go} */
+	/** encoding rules are about the class specified in {@link Codec#enc} */
 	Class<?>[] value() default {};
 }

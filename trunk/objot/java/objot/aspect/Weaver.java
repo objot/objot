@@ -100,7 +100,7 @@ public abstract class Weaver
 			String name = acs[ax].getName() + "$$" + hashCode() + '$'
 				+ target.getName().replace('.', '$');
 			sup = Class2.<T>load(acs[ax].getClassLoader(), name, //
-				make1(target, abs[ax], name, sup, ats, ams));
+				make(target, abs[ax], name, sup, ats, ams));
 			Class2.declaredField(sup, DATAS_NAME).set(null, aos.toArray());
 		}
 		return sup;
@@ -109,7 +109,7 @@ public abstract class Weaver
 	/** @return this {@link Weaver} not to weave the method with the aspect, other to weave */
 	protected abstract Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception;
 
-	private byte[] make1(Class<?> target, Bytes ab, String name, Class<?> sup,
+	private byte[] make(Class<?> target, Bytes ab, String name, Class<?> sup,
 		ArrayList<Constructor<?>> ts, ArrayList<Method> ms)
 	{
 		Bytecode y = new Bytecode(ab);

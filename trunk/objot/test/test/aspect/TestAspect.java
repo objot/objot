@@ -57,6 +57,7 @@ public class TestAspect
 		X x = c.newInstance("new");
 		assertEquals("new", x.result);
 		assertTrue(c.isAnnotationPresent(Inject.class));
+		assertEquals(2, A.ctor);
 	}
 
 	@Test

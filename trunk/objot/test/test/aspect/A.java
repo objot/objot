@@ -5,6 +5,7 @@
 package test.aspect;
 
 import objot.aspect.Aspect;
+
 import static objot.aspect.Aspect.Target.*;
 
 
@@ -22,6 +23,8 @@ class A
 	Object returnV;
 	Throwable except;
 	String Finally;
+
+	static int ctor;
 
 	A(Class<?> clazz_, String name_, String desc_)
 	{
@@ -42,6 +45,12 @@ class A
 class A1
 	extends Aspect
 {
+
+	A1()
+	{
+		A.ctor++;
+	}
+
 	@Override
 	protected void aspect() throws Throwable
 	{
@@ -67,6 +76,11 @@ class A2
 {
 	static final String FINALLY = "Final".toLowerCase();
 	final String Finally = FINALLY.concat("ly");
+
+	A2()
+	{
+		A.ctor++;
+	}
 
 	@Override
 	protected void aspect() throws Throwable

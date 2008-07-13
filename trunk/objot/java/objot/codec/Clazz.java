@@ -131,7 +131,7 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	void encode(Encoder e, Object o, Class<?> forClass)
+	void encode(Encoder e, Object o, Class<?> ruleKey)
 	{
 	}
 

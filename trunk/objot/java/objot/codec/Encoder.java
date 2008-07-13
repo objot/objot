@@ -20,25 +20,25 @@ final class Encoder
 	private static final int HASH_MASK = 255;
 
 	private Codec codec;
-	private Class<?> forClass;
-	/** for object graph, as keys */
+	private Class<?> ruleKey;
+	/** data as key in data graph */
 	private Object[][] objs;
 	/**
-	 * for object graph, reference numbers, as values.
-	 * <dd>0: the object is referenced only once, no reference number
-	 * <dd><0: the object is referenced many times, need a reference number
+	 * reference number as value in data graph.
+	 * <dd>0: be refered only once, no reference number
+	 * <dd><0: be refered many times, need a reference number
 	 * <dd>>0: reference number
 	 */
 	private int[][] refs;
-	/** for object graph, the number of used (multi) reference numbers */
+	/** the number of used reference numbers */
 	private int refn;
 	private StringBuilder str;
 
-	/** @param for_ null is Object.class */
-	Encoder(Codec o, Class<?> for_)
+	/** @param ruleKey_ null is Object.class */
+	Encoder(Codec o, Class<?> ruleKey_)
 	{
 		codec = o;
-		forClass = for_ != null ? for_ : Object.class;
+		ruleKey = ruleKey_ != null ? ruleKey_ : Object.class;
 		str = new StringBuilder(1000);
 	}
 
@@ -83,7 +83,7 @@ final class Encoder
 		else if (v instanceof Float)
 			split().append((float)(Float)v);
 		else if (v instanceof Long)
-			split().append(codec.getLong((Long)v));
+			split().append(codec.beLong((Long)v));
 		else if (v instanceof Number)
 			split().append(((Number)v).longValue());
 		else if (v instanceof Date)
@@ -113,7 +113,7 @@ final class Encoder
 	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
 
 	@SuppressWarnings("unchecked")
-	/** visit the object graph */
+	/** visit the data graph */
 	void refs(Object o) throws Exception
 	{
 		if (o instanceof String && ((String)o).indexOf(Codec.S) >= 0)
@@ -133,7 +133,7 @@ final class Encoder
 					refs(v);
 			return;
 		}
-		codec.clazz(o.getClass()).encodeRefs(this, o, forClass);
+		codec.clazz(o.getClass()).encodeRefs(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
@@ -201,7 +201,7 @@ final class Encoder
 			split().append(l.length);
 			ref(o);
 			for (long v: l)
-				split().append(codec.getLong(v));
+				split().append(codec.beLong(v));
 		}
 		else
 		{
@@ -220,7 +220,7 @@ final class Encoder
 		split().append('{');
 		split().append(codec.name(o, o.getClass()));
 		ref(o);
-		codec.clazz(o.getClass()).encode(this, o, forClass);
+		codec.clazz(o.getClass()).encode(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				value(pv.getKey(), pv.getValue());
@@ -251,7 +251,7 @@ final class Encoder
 	{
 		if (name != null)
 			split().append(name);
-		split().append(codec.getLong(v));
+		split().append(codec.beLong(v));
 	}
 
 	static final Method M_valueBool = Class2.declaredMethod(Encoder.class, "value",

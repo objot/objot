@@ -16,32 +16,32 @@ public class Codec
 	public static final char S = '\20'; // Ctrl-P in vim
 
 	/**
-	 * @param o the whole encoded object graph must keep unchanged since the references
+	 * @param o the whole encoded data graph must keep unchanged since the references
 	 *            detection is not thread safe
-	 * @param for_ null is Object.class
+	 * @param ruleKey null is Object.class
 	 */
-	public StringBuilder enc(Object o, Class<?> for_) throws Exception
+	public StringBuilder enc(Object o, Class<?> ruleKey) throws Exception
 	{
-		return new Encoder(this, for_).go(o);
+		return new Encoder(this, ruleKey).go(o);
 	}
 
 	/**
 	 * @param cla null is Object.class
-	 * @param for_ null is Object.class
+	 * @param ruleKey null is Object.class
 	 */
-	public Object dec(char[] s, Class<?> cla, Class<?> for_) throws Exception
+	public Object dec(char[] s, Class<?> cla, Class<?> ruleKey) throws Exception
 	{
-		return new Decoder(this, for_, s, 0, s.length).go(cla);
+		return new Decoder(this, ruleKey, s, 0, s.length).go(cla);
 	}
 
 	/**
 	 * @param cla null is Object.class
-	 * @param for_ null is Object.class
+	 * @param ruleKey null is Object.class
 	 */
-	public Object dec(char[] s, int sBegin, int sEnd1, Class<?> cla, Class<?> for_)
+	public Object dec(char[] s, int sBegin, int sEnd1, Class<?> cla, Class<?> ruleKey)
 		throws Exception
 	{
-		return new Decoder(this, for_, s, sBegin, sEnd1).go(cla);
+		return new Decoder(this, ruleKey, s, sBegin, sEnd1).go(cla);
 	}
 
 	/**
@@ -60,13 +60,12 @@ public class Codec
 	/**
 	 * Get object or class name, must be thread safe, "" for {@link HashMap} by default
 	 * 
-	 * @param o may be null
 	 * @param c the object class
 	 * @return could be ""
 	 */
 	protected String name(Object o, Class<?> c) throws Exception
 	{
-		if (c == HashMap.class)
+		if (o instanceof HashMap)
 			return "";
 		return c.getName();
 	}
@@ -89,8 +88,8 @@ public class Codec
 			: new HashSet<Object>(len);
 	}
 
-	/** check long value, not too large for Javascript */
-	protected long getLong(long l) throws Exception
+	/** check long value, not too large for Javascript and Actionscript */
+	protected long beLong(long l) throws Exception
 	{
 		if (l < -4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
 			throw new RuntimeException("getting integer out of range " + l);

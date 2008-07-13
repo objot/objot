@@ -1,0 +1,583 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Copyright 2007-2008 Qianyan Cai
+// Under the terms of the GNU Library General Public License version 2
+//
+-->
+<html>
+<head>
+<meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<title>Objot 版本21 Java端指南</title>
+<style>
+	body	{ padding:0; margin:1em; background:white; line-height:1.4; font-family:sans-serif; }
+	h2		{ margin:3em 0 1em; padding:0 0 0.2ex; border-bottom:0.3ex solid #cdf; color:#730; }
+	h3		{ margin:2em 0 1em; padding:0 0 0.1ex 1em; border-bottom:0.2ex solid #cdf; color:#730; }
+	h4		{ margin:2em 0 1em 3ex; padding:0; color:#015; }
+	h5		{ margin:2em 0 1em 3ex; padding:0; color:#032; }
+	a:link		{ color: #04e; text-decoration:none; }
+	a:visited	{ color: #60c; text-decoration:none; }
+	a:hover		{ background:#ddf; }
+	table	{ margin:0 3ex 1em; background:#f6f6f6; }
+	td		{ padding:0 1ex 0.3ex; border-bottom:1px solid #dd8; }
+	pre		{ margin:1ex 2ex; padding:0.6ex; border:1px solid #cc6; background:#f2f2f2; line-height:1.2; }
+</style>
+</head>
+<body>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h1	align=center><a href=http://objot.info>Objot</a> 版本21 Java端指南</h1>
+<hr>
+
+<p>版权所有2007-2008蔡倩彦，采用GNU LibraryGPL 版本2许可模式。
+
+<p>关于Javascript端开发请参考<a href=manual-js-zh.html>《Objot 版本21 Javascript端手册》</a>。
+关于Actionscript端开发请参考<a href=manual-as-zh.html>《Objot 版本21 Actionscript端手册》</a>。
+
+<ul>
+	<li><a href=#demo>范例</a></li>
+	<li><a href=#codec>数据编解码</a></li>
+	<li><a href=#aspect>AOP</a></li>
+	<li><a href=#container>IOC</a></li>
+	<li><a href=#service>Service辅助</a></li>
+</ul>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2 id=demo>范例</h2>
+
+使用Servlet服务器部署范例。拷贝以下文件（或其他合适的版本）到WEB-INF/lib/目录中：
+<ul>
+	<li>antlr-2.7.6.jar</li>
+	<li>asm.jar</li>
+	<li>asm-attrs.jar</li>
+	<li>cglib-2.1.3.jar</li>
+	<li>commons-collections-2.1.1.jar</li>
+	<li>commons-logging-1.0.4.jar</li>
+	<li>dom4j-1.6.1.jar</li>
+	<li>ejb3-persistence.jar</li>
+	<li>hibernate-annotations.jar</li>
+	<li>hibernate-commons-annotations.jar</li>
+	<li>hibernate-validator.jar</li>
+	<li>hibernate3.jar</li>
+	<li>hsqldb.jar</li>
+	<li>jta.jar</li>
+</ul>
+并且确保/tmp目录（或者C:\tmp之类）可写，或者修改hibernate.properties中hsqldb存储文件的设置。
+对于Apache Tomcat，请使用6.0及以上版本，之前版本没有正确分离服务器根和web应用的commons-logging配置，这将导致无限递归。
+
+访问demo/index.html使用这个范例。用Selenium访问demo/test/index.html可以进行测试。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2 id=codec>数据编解码</h2>
+
+<p>数据可以编码成字符串，以便传递给Javascript、Actionscript进行处理。可以从字符串中解码出数据。
+可以被编解码的数据包括：
+<table>
+	<tr><th>Java<th>Javascript<th>Actionscript 3</tr>
+	<tr><td>null<td>null undefined(只编码)<td>null undefined(只编码)</tr>
+	<tr><td>boolean Boolean<td>boolean<td>Boolean</tr>
+	<tr><td>int long(部分) float double Integer Long(部分) Float Double Number(作为long)<td>number<td>Number int</tr>
+	<tr><td>String Clob<td>string<td>String</tr>
+	<tr><td>Date Calendar(只编码)<td>Date<td>Date</tr>
+	<tr><td>boolean[] int[] long[] &lt;T&gt;T[] Collection&lt;T&gt;<td>Array<td>Array</tr>
+	<tr><td>其他Object Map&lt;String,Object&gt;<td>其他Object(非Function Boolean Number String)<td>其他Object(非Class Function)</tr>
+</table>
+其中，字符串是Unicode字符集，但不能包含一个特殊字符：'\x10'（即\u0010），Objot编解码时使用了这个特殊字符。
+
+<p>Objot支持单继承类，Java端可以为类和属性指定别名。
+列表、对象之间可以任意引用，构成的整个数据图都可以被编解码。
+可以定义规则，只处理局部（子图）。规则针对 被编解码的数据 和 相关上下文类 设定。
+
+<p>第一次编解码某个类的对象时，会生成bytecode来访问这个类，后续编解码这个类的对象时，不再有任何reflection，优化了效率。
+
+<!--****************************************************************************************-->
+
+<h3>public class <i>objot.codec.Codec</i></h3>
+
+<p>编解码。
+
+<h5>public StringBuilder <i>enc</i>(Object o, Class&lt;?&gt; rukeKey) throws Exception</h5>
+编码，使用的规则与 每个编码的数据 及key相关。非线程安全。
+
+<h5>public Object <i>dec</i>(char[] s, Class&lt;?&gt; cla, Class&lt;?&gt; ruleKey) throws Exception<br>
+public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class&lt;?&gt; cla, Class&lt;?&gt; ruleKey)</h5>
+解码，使用的规则与 每个解码的数据 及key相关。返回数据图的根，如果根不符合cla，则抛出异常。
+被解码的字符串范围是[sBegin,sEnd1)
+
+<h5>protected String <i>name</i>(Object o, Class&lt;?&gt; c) throws Exception</h5>
+编码时指定名字。<code>c == o.getClass()</code>，即可给每个类，也可以给每个对象指定不同的名字。默认是：
+<pre>return o instanceof HashMap ? "" : c.getName();</pre>
+
+<h5>protected Object <i>byName</i>(String name) throws Exception</h5>
+解码时，根据名字得到对象，或者对象的类（生成的字节码会调用默认构造函数）。默认是：
+<pre>return name.length() == 0 ? HashMap.class : Class.forName(name);</pre>
+
+<h5>protected boolean <i>arrayForList</i>() throws Exception</h5>
+Java端[]和Collection都编码为列表，解码时，如果根据上下文难以确定[]还是Collection，就由此方法确定。
+默认是<code>true</code>
+
+<h5>protected Collection&lt;Object&gt; <i>newList</i>(Class&lt;?&gt; c, int len) throws Exception</h5>
+根据类和列表长度创建解码的Collection。默认是：
+<pre>return c.isAssignableFrom(ArrayList.class) ? new ArrayList&lt;Object&gt;(len)
+	: new HashSet&lt;Object&gt;(len);</pre>
+
+<h5>protected long <i>beLong</i>(long l) throws Exception</h5>
+编码long时检查值，并返回这个值。默认对超出-4503599627370496L至4503599627370496L（+-52bit）的值，抛异常。
+因为Javascript和Actionscript中number只有52bit精度（IEEE754）。
+
+<!--****************************************************************************************-->
+
+<h3>public @interface <i>objot.codec.Enc</i>, <i>objot.codec.Yes</i>, <i>objot.codec.No</i></h3>
+
+<p>表示被标记的field、getter需要编码。
+field、getter都必须public，getter可以是<code>getName()</code>也可以是<code>name()</code>这样的形式。
+
+<p>可以设置参数，对应于Codec.enc的key参数，作为编码规则：对应哪些key时需要编码，哪些禁止编码。
+规则在后的优先。
+
+<pre>@Enc(A.class) public String getName() { return name; }
+@Enc({Yes.class, A.class}) public String name() { return name; }</pre>
+表示：当key为A类或子类时，需要编码；其他则禁止编码。
+
+<pre>@Enc({A.class, B.class}) public String name;</pre>
+表示：当key为B类或子类时，需要编码；当key为A类或子类时，需要编码；其他则禁止编码。
+
+<pre>@Enc({No.class, C.class}) public String name;</pre>
+表示：当key为C类或子类时，禁止编码；其他则需要编码。
+
+<pre>@Enc({No.class, C.class, Yes.class, A.class}) public String name;</pre>
+表示：当key为A类或子类时，需要编码；当key为C类或子类时，禁止编码；其他则需要编码。
+
+<pre>@Enc({D.class, Yes.class, A.class, B.class, No.class, C.class}) public String name;</pre>
+表示：当key为C类或子类时，禁止编码；当key为B类、A类或子类时，需要编码；当key为D类或子类时，禁止编码；其他则需要编码。
+
+<p>当标记类时，其规则作用于类的各field、getter的@Enc、@EncDec的前端，对@Dec不起作用。
+
+<pre>@Enc({A.class, No.class}) public class Foo {
+	@Enc(C.class) public String name;
+	public String name2;
+}</pre>
+对于name，当key为C类或子类时，禁止编码；当key为A类或子类时，需要编码；其他则禁止编码。
+而name2，则不编码。
+
+<!--****************************************************************************************-->
+
+<h3>public @interface <i>objot.codec.Dec</i>, <i>objot.codec.EncDec</i></h3>
+
+<p>@Dec与@Enc类似，表示被标记的field、setter允许解码。
+field、setter都必须public，setter可以是<code>setName(String v)</code>也可以是<code>name(String v)</code>这样的形式。
+@EncDec表示@Enc和@Dec的组合。
+
+<p>当在类上标记@Dec时，其规则作用于各个field、setter的@Dec、@EncDec的前端，对@Enc不起作用。
+当在类上标记@EncDec时，其规则作用于各个field、getter、setter的@Enc、@Dec、@EncDec的前端。
+
+<p>标记了@EncDec，就不能再标记@Enc和@Dec，但@Enc和@Dec可以一起标记。
+
+<!--****************************************************************************************-->
+
+<h3>public @interface <i>objot.codec.NameEnc</i>, <i>objot.codec.NameDec</i>, <i>objot.codec.Name</i></h3>
+
+<p>@NameEnc标记在field、getter上，表示编码时的名字，而不是field、getter名本身。
+@NameDec标记在field、setter上，表示解码时的名字。
+@Name表示@NameEnc和@NameDec的组合。
+
+<p>标记了@Name，就不能再标记@NameEnc和@NameDec，但@NameEnc和@NameDec可以一起标记。
+
+<p>结合使用规则、别名，可以针对不同需求，给数据进行不同的编码。例如：
+<pre>package demo; ...
+public class User {
+	@EncDec // 对于任何key，均可编解码
+	public Integer id;
+
+	protected String name;
+
+	@Enc({DoUser.class, DoChat.class})
+	public String name() {
+		return name;
+	}
+	@Dec({DoSign.class, DoUser.class})
+	public void name(String v) {
+		name = v;
+	}
+
+	@Dec(DoUser.class)
+	public List&lt;User&gt; friends;
+
+	@Enc(DoUser.class) // key为DoUser类或子类，需编码
+	@Name("friends") // 编码名称为friends，因为不可解码，所以解码名称没有意思
+	public List&lt;User&gt; friends_;
+}
+</pre>
+
+<p>编解码前，先创建Codec对象：
+<pre>Codec codec = new Codec();</pre>
+或创建Codec子类对象，并可改变默认行为：
+<pre>Codec codec = new Codec() {
+	// 加上包名
+	@Override
+	protected Object byName(String name) throws Exception {
+		return name.length() == 0 ? HashMap.class : Class.forName("demo.".concat(name));
+	}
+	// 去掉包名
+	@Override
+	protected String name(Object o, Class&lt;?&gt; c) throws Exception {
+		return o instanceof HashMap ? "" : objot.util.Class2.selfName(c);
+	}
+}
+</pre>
+
+<p>然后用这个codec对象来编解码：
+<pre>User u1 = new User();
+u1.id = 1;
+u1.name = "user1";
+u1.friends = new ArrayList&lt;User&gt;();
+User u2 = new User();
+u2.id = 2;
+u2.name = "user2";
+u2.friends = new ArrayList&lt;User&gt;();
+...
+u1.friends.add(u1);
+u1.friends.add(u2);
+u2.friends.add(...);
+...
+u1.friends_ = u1.friends; // 设置临时数据
+CharSequence s = codec.enc(u1, DoUser.class); // 编码u1，规则key为DoUser类
+u1.friends_ = null; // 清除临时数据
+v1 = codec.dec(s.toString().toCharArray(), Object.class, DoUser.class);
+	// 规则key为DoUser，解码为v1，限制v1的类必须是Object
+</pre>
+只有u1设置了friends_，因此编码u1时，只有u1的friends_以friends的名字编码。
+解码时，只有v1具有friends属性，因为编码字符串中，只有u1有friends数据。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2 id=aspect>AOP</h2>
+
+<p>Objot利用bytecode合成子类，实现AOP。
+
+<!--****************************************************************************************-->
+
+<h3>public abstract class <i>objot.aspect.Aspect</i></h3>
+
+<p>各个aspect的直接父类。各个aspect子类weave后，合成为target类的子类。
+所有对aspect子类的引用（例如常量、类型、方法等）全部被替换成 对target子类的引用。
+aspect子类中的所有field、method（除了aspect方法）都一一合成为target子类的field、method。
+
+<h5>&lt;init&gt;()</h5>
+aspect子类的构造函数weave后，依据target类的各个构造函数，合成为target子类的各个构造函数。
+
+<h5>protected abstract void <i>aspect</i>() throws Throwable</h5>
+aspect的具体实现。aspect方法weave后，依据各个target方法，合成为各个override方法。
+参数和返回类型 被替换成target方法的参数和返回类型。
+this对象被替换成target对象。
+
+<!--****************************************************************************************-->
+
+<h3>public static class <i>objot.aspect.Aspect.Target</i></h3>
+
+<p>在Aspect.aspect中，与target方法相关的功能。
+在aspect之外（未weave）直接调用都抛出AbstractMethodError异常。
+weave后，被替换成常量或字节码。
+
+<h5>public static String <i>getName()</i></h5>
+target方法的名字。
+
+<h5>public static String <i>getDescript()</i></h5>
+target方法的描述符。
+
+<h5>public static String <i>getDescript()</i></h5>
+target方法的描述符。
+
+<h5>public static String <i>getTarget()</i></h5>
+target方法的描述符。
+
+<h5>public static &lt;T&gt;T <i>getThis()</i></h5>
+target对象，== aspect方法中的this。
+
+<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getClazz()</i></h5>
+target类。
+
+<h5>public static void <i>invoke()</i></h5>
+执行target方法，参数不变。可以多次执行。
+
+<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getReturnClass()</i></h5>
+target方法的返回类。
+
+<h5>public static &lt;T&gt;T <i>getReturn()</i></h5>
+target方法的返回值，原始类型为其box值，void为null。
+必须在invoke()之后执行，注意try finally等情况，否则加载target子类时抛出某个Error异常。
+
+<h5>public static void <i>setReturn(Object o)</i></h5>
+指定返回值，原始类型为其box值，void必须为null。
+可以在invoke()之前执行，但invoke()执行后的返回值优先。
+如果invoke()不执行且非void，则必须指定一个返回值，否则加载target子类时抛出某个Error异常。
+
+<h5>public static &lt;T&gt;T <i>getData()</i></h5>
+获得为本override方法指定的数据。参见objot.aspect.Weaver.doWeave。
+
+<!--****************************************************************************************-->
+
+<h3>public abstract class <i>objot.aspect.Weaver</i></h3>
+
+<p>合成target子类。
+
+<h5>public Weaver(Class... aspectClasses) throws Exception</h5>
+创建一个weaver，指定aspect。指定多个aspect则合成多个target子类，在前的aspect在最外层，target在最内层。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2>IOC</h2>
+
+<p>依赖注入是一个有利于服务构建的重要模式，Objot提供了超轻量的基于bytecode的高效容器来实现依赖注入。
+
+<!--****************************************************************************************-->
+
+<h3>容器内的代码</h3>
+
+<p>绑定到容器objot.container.Container上的类，都可以简单地获得依赖注入模式的好处：
+<pre>public class A {
+	@Inject 
+	public B b;
+	private C c;
+	private D d;
+	private E e;
+
+	@Inject
+	public A(C v) { c = v; }
+	@Inject
+	public void d(D v, E u) { d = v; e = u; }
+}  
+</pre>
+这个类所需要的4个依赖都是通过注入获得的。
+通过容器创建A的对象时，容器会调用A的构造方法传入C的对象，然后给b赋值，再调用d方法注入D和E的对象。
+
+<p>被依赖的类也需要绑定到容器上，同时也可以使用依赖注入：
+<pre>public class B {
+	@Inject
+	public C c;
+}
+@Inject.New
+public class C {
+	@Inject
+	public A a;
+	@Inject
+	public D d;
+}
+@Inject.Single
+public class D {
+	@Inject
+	public B b;
+	@Inject
+	public E e;
+}
+</pre>
+这样在创建A对象时，会先创建C对象，而这会导致创建D、B、E对象，于是所有需要的对象都在容器中创建了。
+其中C对象有@Inject.New，表示每次需要注入C对象时，总是先创建一个新的C对象。
+而D对象有@Inject.Single，表示注入的D对象在这个容器中总是同一个，就是容器内的Singleton，默认就是@Inject.Single。
+
+<p>
+// @Inject public C(A v) { a = v; } 这里对A依赖会导致循环依赖，要用field
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2>服务Service</h2>
+
+<p>参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
+根据使用的Java框架和平台，可以用不同的方式来构建服务，Objot本身提供了轻量的依赖注入容器，轻量的切面支持，和轻量的Servlet包装，范例还使用了JUnit。
+
+<!--****************************************************************************************-->
+
+<h3>服务端Service</h3>
+
+<p>配置web.xml：
+<pre>&lt;servlet&gt;
+	&lt;servlet-name&gt;servlet&lt;/servlet-name&gt;
+	&lt;servlet-class&gt;objot.servlet.ObjotServlet&lt;/servlet-class&gt;
+	&lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+&lt;/servlet&gt;
+&lt;servlet-mapping&gt;
+	&lt;servlet-name&gt;servlet&lt;/servlet-name&gt;
+	&lt;url-pattern&gt;/service/*&lt;/url-pattern&gt;
+&lt;/servlet-mapping&gt;
+&lt;welcome-file-list&gt;
+	&lt;welcome-file&gt;index.html&lt;/welcome-file&gt;
+	&lt;welcome-file&gt;servlet&lt;/welcome-file&gt;
+&lt;/welcome-file-list&gt;
+</pre>
+在服务类中定义服务方法：
+<pre>package demo; ...
+public class DoSign {
+	@Service // 公开的服务
+	public static User in(User u) throws Exception {...} // static
+}
+</pre>
+无@Service的方法不能通过ObjotServlet访问。
+以/objot为根部署到服务器中。
+
+<p>浏览端可以使用此服务：
+<pre>$http('/objot/service/demo.DoSign-in', 30000,
+	$enc(new demo.User('name', 'password'), DoSign),
+	function (code, res) {
+		if (code == 0)
+			alert($dec(res, DoSign).id);
+	}
+);
+</pre>
+
+<!--****************************************************************************************-->
+
+<h3>与数据层集成</h3>
+
+<p>首先定义几个annotation表示服务是否忽略身份验证，是否忽略数据层事务：
+<pre>@Retention(RetentionPolicy.RUNTIME)
+public @interface SignAny {
+}
+@Retention(RetentionPolicy.RUNTIME)
+public @interface TransacAny {
+}
+</pre>
+
+<p>再定义公共的服务父类：
+<pre>package demo; ...
+public class Do {
+	protected Session data; // Hibernate Session
+	protected HttpSession http; // Servlet Session
+	protected Integer me; // 当前登入用户id
+
+	... // 对Hibernate Session的一些包装
+	public static void validate(Object o) throws Exception {...} // 检查对象
+	...
+	static ... // 其他供服务使用的公共方法
+}
+</pre>
+各服务类继承Do：
+<pre>
+public class DoSign extends Do {
+	@Service
+	@Signed(need = false)
+	public static User in(User u, Do $) throws Exception { // $用做当前服务的相关环境
+		validate(u); // 用Do的公共方法检查u对象
+		$.find1(User.class, "name", u.name); // 用Do的Hibernate包装访问数据层
+		...
+}
+</pre>
+服务定义为static，简化不同服务类中的方法相互调用。
+将Do的实例对象做为服务的参数，简化服务方法中访问当前服务相关环境。
+
+<p>继承ObjotServlet和ObjotServlet使用的Serve，加入Hibernate相关代码：
+<pre>package demo; ...
+public final class Servlet extends ObjotServlet {
+	SessionFactory dataFac; // Hibernate Session工厂
+	@Override
+	public void init() throws Exception {
+		codec = new Codec() { // SO类名转换
+			@Override
+			protected Class&lt;?&gt; classByName(String name) throws Exception {
+				return Class.forName("demo.".concat(name));
+			}
+			@Override
+			protected String className(Class<?> c) throws Exception {
+				return c.getName().substring(c.getName().lastIndexOf('.') + 1);
+			}
+		};
+		dataFac = ... // 创建Hibernate SessionFactory
+	}
+	@Override
+	protected Serve serviceConfig(String name, HttpServletRequest req,
+		HttpServletResponse res) throws Exception {
+		return new S().init(codec, name); // 根据URL的服务name创建Serve子类对象
+	}
+
+	class S extends Serve {
+		boolean sign;
+		boolean tran;
+		@Override
+		public S init(String claName, String methName) throws Exception {
+			super.init("demo.".concat(claName), methName); // 定义服务名转换
+			sign = meth.getAnnotation(SignAny.class) == null;
+			tran = meth.getAnnotation(TransacAny.class) == null;
+			return this;
+		}
+		@Override
+		public CharSequence go(char[] Q, HttpServletRequest req, HttpServletResponse res)
+			throws ErrThrow, Exception { // 处理服务请求
+			Do $ = new Do(); // 创建环境对象
+			$.http = req.getSession();
+			if (sign)
+				DoSign.me($); // 检查身份是否已验证
+			try {
+				if (tran) {
+					$.data = Servlet.this.dataFac.openSession(); // 建立Hibernate Session
+					$.data.beginTransaction(); // 开始数据层事务
+				}
+				CharSequence S;
+				if (Q == null) // 如果没有请求内容
+					S = go(null, req, res, $); // 通过Serve调用服务，参数为($)
+				else // 对应服务类解码请求，通过Serve调用服务，参数为(起点对象,$)
+					S = go(null, req, res, codec.dec(Q, reqClas[0], cla), $);
+				if (tran)
+					$.data.getTransaction().commit();
+				return S;
+			}
+			catch (InvalidStateException e) { // Hibernate Validator相关异常
+				throw Do.err(new Errs(e.getInvalidValues()));
+			}
+			finally {
+				if ($.data != null &amp;&amp; $.data.getTransaction().isActive())
+					try {
+						$.data.getTransaction().rollback(); // 中止事务
+					}
+					catch (Throwable e) {
+						Servlet.this.log(e);
+					}
+				if ($.data != null &amp;&amp; $.data.isOpen())
+					try {
+						$.data.close(); // 关闭Hibernate Session
+					}
+					catch (Throwable e) {
+						Servlet.this.log(e);
+					}
+			}
+		}
+	}
+}
+</pre>
+这样，服务就可以在Hibernate环境中执行。
+因为Serve中调用服务后就已做编码，关闭Hibernate Session时不会导致lazy fetch相关问题。
+
+<!--****************************************************************************************-->
+
+<h3>与Guice等容器集成</h3>
+
+<p>与Guice等容器集成，可以利用IOC，AOP等特性优化架构，具体内容参见范例源代码。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2>视图View</h2>
+
+<p>服务端不需要构建视图，浏览端请参考<a href=guide-zh.html>《Objot 版本20 指南》</a>。
+但是可以通过不同的Servlet配置使面向服务的Objot和其他包含视图的框架共存。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+</body>
+</html>
