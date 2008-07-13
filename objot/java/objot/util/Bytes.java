@@ -59,7 +59,7 @@ public class Bytes
 		return end1Bi - beginBi;
 	}
 
-	public int lastBi()
+	public int lastI()
 	{
 		return end1Bi - beginBi - 1;
 	}
@@ -96,9 +96,10 @@ public class Bytes
 		Math2.range(begin, end1, bs.length);
 		if (end1Bi - beginBi != end1 - begin)
 			return false;
-		for (int i = beginBi, bsi = begin; bsi < end1; i++, bsi++)
-			if (bytes[i] != bs[bsi])
-				return false;
+		if (bytes != bs || beginBi != begin)
+			for (int i = beginBi, bsi = begin; bsi < end1; i++, bsi++)
+				if (bytes[i] != bs[bsi])
+					return false;
 		return true;
 	}
 
@@ -112,9 +113,10 @@ public class Bytes
 		Math2.range(begin, end1, bs.end1Bi - bs.beginBi);
 		if (end1Bi - beginBi != end1 - begin)
 			return false;
-		for (int i = beginBi, bsi = begin + bs.beginBi; i < end1Bi; i++, bsi++)
-			if (bytes[i] != bs.bytes[bsi])
-				return false;
+		if (bytes != bs.bytes || beginBi != begin + bs.beginBi)
+			for (int i = beginBi, bsi = begin + bs.beginBi; i < end1Bi; i++, bsi++)
+				if (bytes[i] != bs.bytes[bsi])
+					return false;
 		return true;
 	}
 

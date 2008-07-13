@@ -84,9 +84,10 @@ public class Objects<T>
 		Math2.range(begin, end1, s.length);
 		if (end1I - beginI != end1 - begin)
 			return false;
-		for (int i = beginI, si = begin; si < end1; i++, si++)
-			if (objs[i] != s[si])
-				return false;
+		if (objs != s || beginI != begin)
+			for (int i = beginI, si = begin; si < end1; i++, si++)
+				if (objs[i] != s[si])
+					return false;
 		return true;
 	}
 
@@ -100,9 +101,10 @@ public class Objects<T>
 		Math2.range(begin, end1, s.end1I - s.beginI);
 		if (end1I - beginI != end1 - begin)
 			return false;
-		for (int i = beginI, si = begin + s.beginI; i < end1I; i++, si++)
-			if (objs[i] != s.objs[si] && (objs[i] == null || !objs[i].equals(s.objs[si])))
-				return false;
+		if (objs != s.objs || beginI != begin + s.beginI)
+			for (int i = beginI, si = begin + s.beginI; i < end1I; i++, si++)
+				if (objs[i] != s.objs[si] && (objs[i] == null || !objs[i].equals(s.objs[si])))
+					return false;
 		return true;
 	}
 

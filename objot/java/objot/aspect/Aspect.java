@@ -9,20 +9,21 @@ import objot.util.Bytes;
 import objot.util.Class2;
 
 
-/** All references to subclass will be replaced to the weaved class (target subclass) */
+/**
+ * All references to subclass will be replaced to the weaved class (target subclass). All
+ * fields and methods will be in the weaved class (target subclass).
+ */
 public abstract class Aspect
 {
-
 	/**
-	 * keyword "this" is the weaved object (== target object) not this asepct. All fields
-	 * and methods in this aspect will be in the weaved object (== target object). Return
-	 * must be after {@link Target#invoke()}
+	 * keyword "this" is the weaved object (== target object) not this asepct. Return must
+	 * be after {@link Target#invoke()}
 	 */
 	protected abstract void aspect() throws Throwable;
 
 	static final Bytes NAME_aspect = Bytecode.utf("aspect");
 
-	/** The methods need aspects */
+	/** About target method */
 	public static class Target
 	{
 		/**

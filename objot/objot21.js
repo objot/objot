@@ -69,7 +69,7 @@ $class.enc = function (clazz, forClass, encs) {
 
 //********************************************************************************************//
 
-/** encode object graph to string, following the encoding rules
+/** encode data graph to string, following the encoding rules
  * @param forClass rule key or subclass of rule key */
 $enc = function (o, forClass) {
 	var t = typeof o,
@@ -165,7 +165,7 @@ $enc = function (o, forClass) {
 		return x
 	}
 
-/** decode string to object graph, objects are created without ctors
+/** decode string to data graph, objects are created without ctors
  * @param byName function(name) { return objectByName }, null for default
  * @param ok function(objectDecoded) {} */
 $dec = function (s, byName, ok) {
@@ -642,7 +642,7 @@ $http.form = function (url, time, req, done, data, form) {
  * @return same as $http */
 $Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form) {
 	var h = (form ? $http.form : $http)
-		($Do.url + url, $Do.timeout, req, $Do.done, undefined, form)
+		($Do.url + url + $Do.urlPost, $Do.timeout, req, $Do.done, undefined, form)
 	h.$hint = hint, h.$t3 = this3, h.$3 = done3,
 		h.$t2 = this2, h.$2 = done2, h.$t1 = this1, h.$1 = done1
 	return h
@@ -661,6 +661,8 @@ $Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form) 
 
 /** url prefix */
 $Do.url = ''
+/** url postfix */
+$Do.urlPost = ''
 /** default timeout ms */
 $Do.timeout = 30000
 /** @see $dec */
@@ -763,7 +765,7 @@ $Http = function (box, h, show, prog) {
 			(b = hb[1]).firstChild.title = h.$hint + ' ' + p + '. stop?',
 			b.firstChild.nextSibling && b.lastChild.tx(h.$hint + ' ' + p)
 		$.defer(0, $http,
-			[$Do.url + '$prog$?' + h.$.name, $Do.timeout, '', $Http.prog, hb], 4000);
+			[$Do.url + '$prog$?' + h.$.name, $Do.timeout, '', $Http.prog, hb], 3000);
 	}
 
 /** make a box as error widget

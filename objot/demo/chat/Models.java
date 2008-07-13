@@ -47,7 +47,7 @@ public class Models
 		@Override
 		protected String name(Object o, Class<?> c) throws Exception
 		{
-			if (c == HashMap.class)
+			if (o instanceof HashMap)
 				return "";
 			return Class2.selfName(c);
 		}
