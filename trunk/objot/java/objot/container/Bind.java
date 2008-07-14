@@ -23,6 +23,10 @@ public class Bind
 	/** actual class, null iff static object */
 	Clazz c;
 
+	Bind()
+	{
+	}
+
 	/**
 	 * bind to the class
 	 * 

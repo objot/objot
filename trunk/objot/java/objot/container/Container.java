@@ -24,10 +24,10 @@ public abstract class Container
 	/** thread-safe */
 	public final Container rootParent()
 	{
-		Container c = this;
-		while (c.parent != NULL)
-			c = c.parent;
-		return c;
+		Container n = this;
+		while (n.parent != NULL)
+			n = n.parent;
+		return n;
 	}
 
 	/** create container with null parent, thread-safe. */
@@ -49,8 +49,8 @@ public abstract class Container
 	}
 
 	/**
-	 * create container with parents created recursively until the specified one,
-	 * thread-safe
+	 * create container with parents created recursively until the specified one shared as
+	 * parent, thread-safe
 	 * 
 	 * @param until must be one of the true parents, or RuntimeException thrown
 	 */
@@ -64,8 +64,8 @@ public abstract class Container
 	}
 
 	/**
-	 * create container with parents created recursively until the specified one,
-	 * thread-safe
+	 * create container with parents created recursively until the specified one replaced
+	 * by the another one as parent, thread-safe
 	 * 
 	 * @param until must be one of the true parents, or RuntimeException thrown
 	 */
@@ -79,7 +79,9 @@ public abstract class Container
 	}
 
 	/**
-	 * get an instance of the class, or get this container.
+	 * create a {@link Inject.New} instance, or get the {@link Inject.Single} instance, or
+	 * get this container, or get the static object, or get the {@link Inject.Set}
+	 * instance, or get in parent.
 	 * 
 	 * @see Factory#create(Container, boolean)
 	 * @throws ClassCastException if the class is not found in this and parents, or a
@@ -87,8 +89,14 @@ public abstract class Container
 	 */
 	public final <T>T get(Class<T> c)
 	{
-		int i = index(c);
-		return i > 0 ? this.<T>get0(i) : i < 0 ? this.<T>create0(i, parent) : parent.get(c);
+		for (Container n = this;; n = n.parent)
+		{
+			int i = n.index(c);
+			if (i > 0)
+				return n.<T>get0(i);
+			if (i < 0)
+				return n.<T>create0(i, parent);
+		}
 	}
 
 	/**
@@ -102,26 +110,35 @@ public abstract class Container
 	 */
 	public final <T>T create(Class<T> c)
 	{
-		int i = index(c);
-		return i != 0 ? this.<T>create0(i, parent) : parent.create(c);
+		for (Container n = this;; n = n.parent)
+		{
+			int i = n.index(c);
+			if (i != 0)
+				return n.<T>create0(i, parent);
+		}
 	}
 
 	/**
-	 * set an instance of the class in {@link Inject.Set} mode, or set in parent.
+	 * set an instance of the class in {@link Inject.Set} or {@link Inject.Single} mode,
+	 * or set in parent.
 	 * 
 	 * @see Factory#create(Container, boolean)
 	 * @throws ClassCastException if the class is not found in this or parents, or the
 	 *             instance is not of the bound class
-	 * @throws UnsupportedOperationException if the class is not {@link Inject.Set} mode
+	 * @throws UnsupportedOperationException if the class is not {@link Inject.Set} or
+	 *             {@link Inject.Single} mode
 	 */
 	public final <T>T set(Class<T> c, T o)
 	{
-		int i = index(c);
-		if (i == 0)
-			return parent.set(c, o);
-		if (set0(i, o))
-			return o;
-		throw new UnsupportedOperationException();
+		for (Container n = this;; n = n.parent)
+		{
+			int i = n.index(c);
+			if (i != 0)
+				if (n.set0(i, o))
+					return o;
+				else
+					throw new UnsupportedOperationException();
+		}
 	}
 
 	/** @return whether class is bound in this container */
@@ -133,8 +150,12 @@ public abstract class Container
 	/** @return self or parent container which binds the class, null if no binding */
 	public Container contain(Class<?> c)
 	{
-		int i = index(c);
-		return i != 0 ? this : parent.contain(c);
+		for (Container n = this;; n = n.parent)
+		{
+			int i = n.index(c);
+			if (i != 0)
+				return n;
+		}
 	}
 
 	Container parent;
@@ -156,6 +177,8 @@ public abstract class Container
 	 *      return 0; // not found
 	 *   default: return 0; // not found
 	 * }</pre>
+	 * 
+	 * @return >0 for cachable, <0 for creation or not cachable
 	 */
 	abstract int index(Class<?> c);
 
@@ -172,10 +195,10 @@ public abstract class Container
 	 *   2: return oss[2][0]; // bind to static object
 	 *   3: return o3 != null ? o3 : create0(i, null); // {@link Inject.Single}
 	 *   4: if (o4 != null) return o4; // cache, degraded if bind to null in parents
-	 *      for (Container c = parent; ; c = c.parent) { // less stack usage than recursive  
-	 *        int j = c.index(X.class);
-	 *        if (j > 0) return o4 = c.get0(j); 
-	 *        if (j < 0) return c.create0(j, this); // include {@link Inject.Set} in parent
+	 *      for (Container n = parent; ; n = n.parent) { // less stack usage than recursive  
+	 *        int j = n.index(X.class); // never be {@link Container}
+	 *        if (j > 0) return o4 = n.get0(j); 
+	 *        if (j < 0) return n.create0(j, this); // include {@link Inject.Set} in parent
 	 *      } // bind to parent
 	 *   default: return null; // never happen
 	 * }</pre>
@@ -207,9 +230,9 @@ public abstract class Container
 	 *      if (parentOrSingle == null)
 	 *        o4 = o; // save {@link Inject.Single}
 	 *      ...
-	 *   6: for (Container c = parent; ; c = c.parent) { // less stack usage than recursive  
-	 *        int j = c.index(X.class);
-	 *        if (j != 0) return c.create0(j, this); // include {@link Inject.Set} in parent
+	 *   6: for (Container n = parent; ; n = n.parent) { // less stack usage than recursive  
+	 *        int j = n.index(X.class); // never be {@link Container}
+	 *        if (j != 0) return n.create0(j, this); // include {@link Inject.Set} in parent
 	 *      } // bind to parent
 	 *   default: return null; // never happen
 	 * }</pre>
@@ -237,11 +260,11 @@ public abstract class Container
 	 * <pre>
 	 * switch(i) {
 	 *   -3: o3 = (A)o; return true; // {@link Inject.Single}
-	 *   6: for (Container c = parent; ; c = c.parent) { // less stack usage than recursive  
-	 *        int j = c.index(X.class);
-	 *        if (j != 0) return c.set0(j, o);
+	 *   6: for (Container n = parent; ; n = n.parent) { // less stack usage than recursive  
+	 *        int j = n.index(X.class); // never be {@link Container}
+	 *        if (j != 0) return n.set0(j, o);
 	 *      } // bind to parent
-	 *   default: return false;
+	 *   default: return false; // others
 	 * }</pre>
 	 */
 	boolean set0(int index, Object o)

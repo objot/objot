@@ -146,7 +146,7 @@ public class CodecServlet
 		else if (hq.getQueryString() != null)
 			q = URLDecoder.decode(hq.getQueryString(), "UTF-8").toCharArray();
 
-		Container c = con.create(con.parent());
+		Container c = con.create(Container.class);
 		c.set(HttpServletRequest.class, hq);
 		c.set(HttpServletResponse.class, hp);
 		c.set(HttpSession.class, hq.getSession());

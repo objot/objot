@@ -12,8 +12,8 @@ Improvements
   * encode and decode single primitive data
   * multi service parameters 
   * bytecode parser and generator
-  * ultralight, fast and powerful IOC container
-  * ultralight, fast and powerful AOP implementation
+  * ultralight, very fast and powerful IOC container
+  * ultralight, very fast and powerful AOP implementation
   * file upload
   * upload progress notification
   * documents
@@ -21,6 +21,10 @@ Improvements
   * many minor improvements
   * change to the GNU Library General Public License version 2 
 
+Todo
+  * codec: configure without annotations
+  * IOC: provider mode
+  * AOP: inherit all annotations from target method
 
 == Objot 版本 21 ==
 
@@ -48,4 +52,9 @@ Objot支持Java 5、Javascript、Actionscript 3，
   * 错误修复
   * 许多细节改进
   * 采用GNU Library GPL版本2许可模式
+
+后续改进：
+  * 编解码：无annotation的配置
+  * IOC: 支持provider模式
+  * AOP: 继承target方法的全部annotation
  
