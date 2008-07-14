@@ -12,7 +12,7 @@
 <style>
 	body	{ padding:0; margin:1em; background:white; line-height:1.4; font-family:sans-serif; }
 	h2		{ margin:3em 0 1em; padding:0 0 0.2ex; border-bottom:0.3ex solid #cdf; color:#730; }
-	h3		{ margin:2em 0 1em; padding:0 0 0.1ex 1em; border-bottom:0.2ex solid #cdf; color:#730; }
+	h3		{ margin:3em 0 1em; padding:0 0 0.1ex 1em; border-bottom:0.2ex solid #cdf; color:#730; }
 	h4		{ margin:2em 0 1em 3ex; padding:0; color:#015; }
 	h5		{ margin:2em 0 1em 3ex; padding:0; color:#032; }
 	a:link		{ color: #04e; text-decoration:none; }
@@ -111,14 +111,14 @@
 <h5>public Object <i>dec</i>(char[] s, Class&lt;?&gt; cla, Class&lt;?&gt; ruleKey) throws Exception<br>
 public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class&lt;?&gt; cla, Class&lt;?&gt; ruleKey)</h5>
 解码，使用的规则与 每个解码的数据 及key相关。返回数据图的根，如果根不符合cla，则抛出异常。
-被解码的字符串范围是[sBegin,sEnd1)
+被解码的字符串范围是[sBegin,sEnd1)。非线程安全。
 
 <h5>protected String <i>name</i>(Object o, Class&lt;?&gt; c) throws Exception</h5>
 编码时指定名字。<code>c == o.getClass()</code>，即可给每个类，也可以给每个对象指定不同的名字。默认是：
 <pre>return o instanceof HashMap ? "" : c.getName();</pre>
 
 <h5>protected Object <i>byName</i>(String name) throws Exception</h5>
-解码时，根据名字得到对象，或者对象的类（生成的字节码会调用默认构造函数）。默认是：
+解码时，根据名字得到对象，或者对象的类（生成的bytecode会调用默认构造函数）。默认是：
 <pre>return name.length() == 0 ? HashMap.class : Class.forName(name);</pre>
 
 <h5>protected boolean <i>arrayForList</i>() throws Exception</h5>
@@ -264,7 +264,10 @@ v1 = codec.dec(s.toString().toCharArray(), Object.class, DoUser.class);
 
 <h2 id=aspect>AOP</h2>
 
-<p>Objot利用bytecode合成子类，实现AOP。
+<p>Objot利用bytecode合成子类，实现轻量、快速而强大的AOP。
+允许使用常规的编程模式进行aspect编写，比before、after、catch那样分离的方式更加灵活。
+合成后，执行以local变量为主，没有reflection，效率比许多interception方式要高。
+配置是代码性的，可以自行编写adapter等，支持annotation、file等配置形式，可以将业务代码与Objot完全分离。
 
 <!--****************************************************************************************-->
 
@@ -275,12 +278,13 @@ v1 = codec.dec(s.toString().toCharArray(), Object.class, DoUser.class);
 aspect子类中的所有field、method（除了aspect方法）都一一合成为target子类的field、method。
 
 <h5>&lt;init&gt;()</h5>
-aspect子类的构造函数weave后，依据target类的各个构造函数，合成为target子类的各个构造函数。
+aspect子类的构造方法weave后，依据target类的各个构造方法，合成为target子类的各个构造方法。
 
 <h5>protected abstract void <i>aspect</i>() throws Throwable</h5>
-aspect的具体实现。aspect方法weave后，依据各个target方法，合成为各个override方法。
+aspect的具体实现。此具体aspect方法weave后，依据各个target方法，合成为各个override方法。
 参数和返回类型 被替换成target方法的参数和返回类型。
 this对象被替换成target对象。
+aspect方法可以抛出任何异常，给调用者，即使target方法没有声明。
 
 <!--****************************************************************************************-->
 
@@ -288,52 +292,90 @@ this对象被替换成target对象。
 
 <p>在Aspect.aspect中，与target方法相关的功能。
 在aspect之外（未weave）直接调用都抛出AbstractMethodError异常。
-weave后，被替换成常量或字节码。
+weave后，被替换成常量或指令。
 
-<h5>public static String <i>getName()</i></h5>
+<h5>public static String <i>getName</i>()</h5>
 target方法的名字。
 
-<h5>public static String <i>getDescript()</i></h5>
+<h5>public static String <i>getDescript</i>()</h5>
 target方法的描述符。
 
-<h5>public static String <i>getDescript()</i></h5>
+<h5>public static String <i>getDescript</i>()</h5>
 target方法的描述符。
 
-<h5>public static String <i>getTarget()</i></h5>
+<h5>public static String <i>getTarget</i>()</h5>
 target方法的描述符。
 
-<h5>public static &lt;T&gt;T <i>getThis()</i></h5>
+<h5>public static &lt;T&gt;T <i>getThis</i>()</h5>
 target对象，== aspect方法中的this。
 
-<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getClazz()</i></h5>
+<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getClazz</i>()</h5>
 target类。
 
-<h5>public static void <i>invoke()</i></h5>
+<h5>public static void <i>invoke</i>()</h5>
 执行target方法，参数不变。可以多次执行。
 
-<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getReturnClass()</i></h5>
+<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getReturnClass</i>()</h5>
 target方法的返回类。
 
-<h5>public static &lt;T&gt;T <i>getReturn()</i></h5>
+<h5>public static &lt;T&gt;T <i>getReturn</i>()</h5>
 target方法的返回值，原始类型为其box值，void为null。
 必须在invoke()之后执行，注意try finally等情况，否则加载target子类时抛出某个Error异常。
 
-<h5>public static void <i>setReturn(Object o)</i></h5>
+<h5>public static void <i>setReturn</i>(Object o)</h5>
 指定返回值，原始类型为其box值，void必须为null。
 可以在invoke()之前执行，但invoke()执行后的返回值优先。
 如果invoke()不执行且非void，则必须指定一个返回值，否则加载target子类时抛出某个Error异常。
 
-<h5>public static &lt;T&gt;T <i>getData()</i></h5>
+<h5>public static &lt;T&gt;T <i>getData</i>()</h5>
 获得为本override方法指定的数据。参见objot.aspect.Weaver.doWeave。
 
 <!--****************************************************************************************-->
 
 <h3>public abstract class <i>objot.aspect.Weaver</i></h3>
 
-<p>合成target子类。
+<p>合成target子类。合成后没有额外的reflection。
 
-<h5>public Weaver(Class... aspectClasses) throws Exception</h5>
+<h5>public <i>Weaver</i>(Class... aspectClasses) throws Exception</h5>
 创建一个weaver，指定aspect。指定多个aspect则合成多个target子类，在前的aspect在最外层，target在最内层。
+
+<h5>public synchronized &lt;T&gt;Class&lt;T&gt; <i>weave</i>(Class&lt;T&gt; target) throws Exception</h5>
+合成target子类。target类不能是Aspect或子类，不能是原始类、接口、abstract或final类。
+必须有至少一个public或protected的构造方法。合成的每个target子类分别在每个aspect的package中。
+返回的类是最外层的target子类。
+
+<h5>protected abstract Object <i>doWeave</i>(Class&lt;? extends Aspect&gt; ac, Method m) throws Exception</h5>
+针对每个aspect和每个target方法的组合，判断是否需要weave，并指定一个数据。
+如果返回this（即Weaver对象本身），表示不要weave；返回其他则weave，并作为override方法的相关数据，供<code>Target.getData()</code>使用。
+
+<p>可以在doWeave方法中编写配置文件访问代码，从而支持文件式配置；也可以编写标记访问代码，从而支持标记式配置。例如：
+<pre>Weaver w = new Weaver(SignAspect.class, TransactionAspect.class) {
+	@Override
+	protected Object doWeave(Class&lt;? extends Aspect&gt; ac, Method m) throws Exception {
+		if (ac == SignAspect.class)
+			return m.isAnnotationPresent(Sign.class) ? this : null;
+		if (ac == TransactionAspect.class)
+			return m.isAnnotationPresent(Transaction.class) ? this
+				: new TransactionAspect.Config(m.getAnnotation(Transaction.class));
+		return this;
+	}
+};
+</pre>或者：
+<pre>Weaver w = new Weaver(/* 全部可能的aspect */) {
+	{
+		// 读取配置文件
+	}
+	@Override
+	protected Object doWeave(Class&lt;? extends Aspect&gt; ac, Method m) throws Exception {
+		// 根据m从配置文件中寻找相关配置
+		// 如果无相关配置，则返回 this
+		// 找到配置，则进一步判断需要weave的aspect，与ac比较
+		// 相同，则创建数据，并返回
+		// 无相同的，则返回this
+	}
+};
+</pre>
+
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -341,7 +383,59 @@ target方法的返回值，原始类型为其box值，void为null。
 
 <h2>IOC</h2>
 
-<p>依赖注入是一个有利于服务构建的重要模式，Objot提供了超轻量的基于bytecode的高效容器来实现依赖注入。
+<p>Objot提供了轻量的基于bytecode的高效容器来实现IOC。
+支持多种绑定模式，创建容器后没有reflection。
+配置是代码性的，可以自行编写adapter等，支持annotation、file等配置形式，可以将业务代码与Objot完全分离。
+
+<!--****************************************************************************************-->
+
+<h3>public abstract class <i>Container</i></h3>
+
+<p>各个容器的父类，子类是由bytecode合成的容器。各个容器对象可以组成层次关系，相互为父子关系。
+
+<h5>public final Container <i>parent</i>()</h5>
+本容器的父容器。null表示没有父容器。线程安全。
+
+<h5>public final Container <i>rootParent</i>()</h5>
+本容器的根容器（即最上层的父容器）。如果没有父容器，则返回自身。线程安全。
+
+<h5>public final Container <i>create</i>()</h5>
+创建副本（与本容器配置相同的容器）。此副本无父容器。线程安全。
+
+<h5>public final Container <i>create</i>(Container parent_)</h5>
+创建副本，并且指定父容器。线程安全。
+
+<h5>public final Container <i>createBubble</i>()</h5>
+创建本容器、父容器、递归到根容器的每个副本，他们构成独立的层次。
+与<code>createBubble(null)</code>效果相同。线程安全。
+
+<h5>public final Container <i>createBubble</i>(Container until)</h5>
+创建本容器、父容器、递归 未 到容器until的每个副本，他们构成独立的层次，共享容器until为父容器。
+如果until不在本容器层次中，则抛出异常。线程安全。
+
+<h5>public final Container <i>createBubble</i>(Container until, Container to)</h5>
+创建本容器、父容器、递归 未 到容器until的每个副本，他们构成独立的层次，容器to替代until为父容器。
+如果until不在本容器层次中，则抛出异常。线程安全。
+
+<h5>public final &lt;T&gt;T <i>get</i>(Class&lt;T&gt; c)</h5>
+获取某个类的对象。对于Container.class，返回本容器。
+如果本容器没有绑定此类，则递归到父容器。
+
+<h5>public final &lt;T&gt;T <i>create</i>(Class&lt;T&gt; c)</h5>
+创建某个类的对象。对于Container.class，则创建副本，共享父容器。
+如果本容器没有绑定此类，则递归到父容器。
+
+<h5>public final &lt;T&gt;T <i>set</i>(Class&lt;T&gt; c, T o)</h5>
+设置某个类的对象，只能用于single模式和set模式的类绑定，其他则抛出异常。
+返回设置的对象。如果本容器没有绑定此类，则递归到父容器。
+
+<h5>public boolean <i>bound</i>(Class&lt;?&gt; c)</h5>
+判断本容器是否绑定了某个类。
+
+<h5>public Container <i>contain</i>(Class&lt;?&gt; c)</h5>
+返回绑定了某个类的本容器、父容器直到根容器。如果均无绑定，返回null。
+
+<p>get、create、set方法均可能抛出任何异常，特别是容器内部调用绑定类的方法时，由这些方法抛出。
 
 <!--****************************************************************************************-->
 

@@ -96,7 +96,7 @@ public final class Server
 					if (sess == null)
 						hse.setAttribute("container", sess = container.parent().create());
 				}
-			Container con = container.createBubble(container.parent(), sess);
+			Container con = container.create(sess);
 			Object ser = con.get(inf.cla);
 			invoke(inf, ser, req, begin, end1, extraReqs);
 			if (sess.get(Session.class).close)
