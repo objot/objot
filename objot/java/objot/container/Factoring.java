@@ -34,7 +34,6 @@ final class Factoring
 	Bytecode y;
 	Constants cons;
 	int createCi;
-	int nullCi;
 	int parentCi;
 	int indexCi;
 	int get0Ci;
@@ -68,7 +67,6 @@ final class Factoring
 		y.getProcs().addProc(Procedure.addCtor0(cons, superCi, 0));
 
 		createCi = cons.addProc(Container.M_create);
-		nullCi = cons.addField(Container.F_null);
 		parentCi = cons.addField(Container.F_parent);
 		indexCi = cons.addProc(Container.M_index);
 		get0Ci = cons.addProc(Container.M_get0);
@@ -128,7 +126,7 @@ final class Factoring
 		s.ins0(DUP);
 		int j = s.insJump(IFNOTNULL);
 		s.ins0(POP);
-		s.insU2(GETSTATIC, nullCi);
+		s.insU2(GETSTATIC, cons.addField(Container.F_null));
 		s.jumpHere(j);
 		s.insU2(PUTFIELD, parentCi);
 		if ( !lazy)
@@ -239,6 +237,12 @@ final class Factoring
 		s.ins0(ICONST0);
 		s.ins0(AALOAD); // oss[-i][0]
 		s.ins0(ARETURN);
+		int circle = s.addr;
+		int circleCi = cons.addClass(ClassCircularityError.class);
+		s.insU2(NEW, circleCi);
+		s.ins0(DUP);
+		s.insU2(INVOKESPECIAL, cons.addCtor0(circleCi));
+		s.ins0(ATHROW);
 
 		int maxParamN = 0;
 		for (int i = 1; i < csn; i++) // always actual bind
@@ -280,6 +284,12 @@ final class Factoring
 				{
 					s.ins0(ILOAD1);
 					int j = s.insJump(IFIL0);
+					if (c.t.ps.length > 0)
+					{ // never happen if ctor no parameter
+						s.ins0(ALOAD0);
+						s.insU2(GETFIELD, fCis[i]);
+						s.jump(s.insJump(IFNOTNULL), circle);
+					}
 					s.ins0(DUP);
 					s.ins0(ALOAD0);
 					s.ins0(SWAP); // o, this, o

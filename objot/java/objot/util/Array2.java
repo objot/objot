@@ -798,6 +798,14 @@ public class Array2
 		return c;
 	}
 
+	public static <T, C extends Collection<? super T>>C addTo(T[] s, int begin, int end1, C c)
+	{
+		Math2.range(begin, end1, s.length);
+		for (; begin < end1; begin++)
+			c.add(s[begin]);
+		return c;
+	}
+
 	/** @return current value or new value */
 	public static <K, V>V putAbsent(ConcurrentMap<K, V> m, K k, V v)
 	{

@@ -54,7 +54,7 @@ public class Factory
 		return this;
 	}
 
-	/** @param cla primitive forbidden */
+	/** @param cla {@link Container} subclasses and not public classes forbidden */
 	public final synchronized Factory bind(Class<?> cla)
 	{
 		Bind.Clazz c = classes.get(cla);
@@ -76,11 +76,11 @@ public class Factory
 				return this;
 
 			if (Mod2.match(cla, Mod2.ABSTRACT))
-				throw new IllegalArgumentException("abstract " + cla);
+				throw new IllegalArgumentException("abstract");
 			c.t = new Bind.T();
-			c.t.t = doBind(cla, cla.getDeclaredConstructors());
+			c.t.t = doBind(cla, cla.getConstructors());
 			if (c.t.t == null)
-				throw new IllegalArgumentException("no constructor " + cla);
+				throw new IllegalArgumentException("no constructor");
 			if (c.t.t.getDeclaringClass() != cla)
 				throw new IllegalArgumentException(c.t.t.getName() + " in another class");
 			if ( !Mod2.match(c.t.t, Mod2.PUBLIC, Mod2.STATIC))
@@ -142,7 +142,7 @@ public class Factory
 		catch (Throwable e)
 		{
 			classes.remove(cla);
-			throw new IllegalArgumentException("binding " + cla + " forbidden: "
+			throw new IllegalArgumentException("bind " + cla + " : "
 				+ (e.getMessage() != null ? e.getMessage() : ""), e);
 		}
 	}
@@ -166,7 +166,7 @@ public class Factory
 		for (Constructor<?> t: ts)
 			if (t.isAnnotationPresent(Inject.class))
 				return t;
-		return c.getDeclaredConstructor();
+		return c.getDeclaredConstructor(); // ctor without parameter
 	}
 
 	/**
@@ -277,7 +277,7 @@ public class Factory
 		{
 			if ( !Class2.castableBox(to.obj, b.cla))
 				// && (!b.cla.isArray() || !to.obj instanceof Integer))
-				throw new ClassCastException(b.cla + " obj: " + Class2.systemIdentity(to.obj));
+				throw new ClassCastException(b.cla + ": obj " + Class2.systemIdentity(to.obj));
 			// b.cla unchanged
 			b.mode = null;
 			b.obj = to.obj;
@@ -288,7 +288,7 @@ public class Factory
 			throw new ClassCastException(b.cla + ": " + to.cla);
 		if (b instanceof Bind.Clazz)
 			if (to.mode == null || to.mode.getDeclaringClass() != Inject.class)
-				throw new IllegalArgumentException(b.cla + " mode: " + to.mode);
+				throw new IllegalArgumentException(b.cla + ": mode " + to.mode);
 		bind(to.cla);
 		b.mode = to.mode;
 		b.b = classes.get(to.cla);
@@ -297,8 +297,7 @@ public class Factory
 	private Bind bindSpread(Bind b)
 	{
 		if (b.b != b)
-			if ((b.b = b.b.b) == b)
-				throw new IllegalArgumentException("circular bind : " + b.cla);
+			b.b = b.b.b; // never circular since must bind to self or subclass
 		return b;
 	}
 }
