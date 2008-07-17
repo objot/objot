@@ -213,7 +213,10 @@ public abstract class Container
 	 *
 	 *    3: if (o3 != null) return o3; // {@link Inject.Single}
 	 *   -3: B o = new B(...);
-	 *       if (i > 0) o3 = o;
+	 *       if (i > 0)
+	 *         if (o3 == null) o3 = o;
+	 *         else // multi {@link Inject.Single} by circular injection
+	 *           throw new {@link ClassCircularityError}();
 	 *       ...
 	 *    4:
 	 *   -4: A o = new A((A1)get0(41), get0(-42), (A3)oss[4][1]);

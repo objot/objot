@@ -25,6 +25,7 @@ import test.container.X.ParentSingle;
 import test.container.X.Set;
 import test.container.X.Single;
 import test.container.X.Single2;
+import test.container.X.SingleCircular;
 
 
 public class TestContainer
@@ -245,5 +246,19 @@ public class TestContainer
 		assertNotNull(o4);
 		assertNotSame(o.os, o4);
 		assertNotSame(o4, con.getNew(ParentSingle.class));
+	}
+
+	@Test
+	public void singleCircular() throws Exception
+	{
+		new Factory().bind(SingleCircular.class).create(null, true) //
+		.get(SingleCircular.class);
+	}
+
+	@Test(expected = ClassCircularityError.class)
+	public void singleCircularCtor() throws Exception
+	{
+		new Factory().bind(SingleCircular.class).create(null, true) //
+		.get(SingleCircular.Ctor.class);
 	}
 }

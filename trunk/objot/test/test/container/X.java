@@ -117,4 +117,18 @@ public interface X
 		@Inject
 		public New noInject;
 	}
+
+	public class SingleCircular
+	{
+		@Inject
+		public Ctor c;
+
+		public static class Ctor
+		{
+			@Inject
+			public Ctor(SingleCircular _)
+			{
+			}
+		}
+	}
 }
