@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import objot.container.Bind;
 import objot.container.Container;
 import objot.container.Factory;
+import objot.container.Inject;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -46,7 +47,7 @@ public class TestContainer
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return b.cla(c == X.class ? ParentSingle.class : b.cla);
+				return c == X.class ? b.cla(ParentSingle.class) : b;
 			}
 		}.create(null);
 		Factory f = new Factory()
@@ -63,24 +64,22 @@ public class TestContainer
 			@Override
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
-				return c == Object.class ? b.obj(parent) : c == Long.class ? b.obj(9L)
-					: b.mode(parent.bound(c) ? null : b.mode);
+				return c == Object.class ? b.obj(parent) : c == long.class ? b.obj(9L)
+					: b.mode(parent.bound(c) ? Inject.Parent.class : b.mode);
 			}
 
 			@Override
 			protected Object doBind(Class<?> cc, AccessibleObject fp, Class<?> c,
 				Type generic, Bind b) throws Exception
 			{
-				if (c == Integer.class)
+				if (c == int.class)
 					return b.obj( -1);
-				if (c == Long.class)
-					return b;
+				if (b.box == Long.class)
+					return null;
 				if (c == String.class && fp.isAnnotationPresent(Deprecated.class))
 					return b.obj(Deprecated.class.getName());
 				if (c == int[].class)
 					return b.obj(null);
-				if (c == long[].class)
-					return b.obj(65536);
 
 				if (cc == Single2.class)
 					if (c == Single.class)
@@ -95,7 +94,7 @@ public class TestContainer
 	}
 
 	Container con = con0.createBubble();
-	Container con2 = con.create(Container.class);
+	Container con2 = con.create();
 	Container conLazy = con0lazy.createBubble();
 
 	@Test(expected = ClassCastException.class)
@@ -107,7 +106,7 @@ public class TestContainer
 	@Test(expected = ClassCastException.class)
 	public void eager()
 	{
-		con.create();
+		con.create(null);
 	}
 
 	@Test
@@ -140,16 +139,14 @@ public class TestContainer
 		assertEquals( -1, o.new_);
 		assertEquals(9, o.obj);
 		assertSame(null, o.ints);
-		assertEquals(65536, o.longs.length);
 
 		New o1 = con.get(New.class);
 		assertNotSame(o, o1);
 		assertSame(o.con, o1.con);
 		assertSame(o.name, o1.name);
 		assertEquals(o.new_, o1.new_);
-		assertNotSame(o.longs, o1.longs);
 
-		New o2 = con.create(New.class);
+		New o2 = con.getNew(New.class);
 		assertNotSame(o, o2);
 		assertNotSame(o1, o2);
 		assertSame(o.con, o2.con);
@@ -169,7 +166,7 @@ public class TestContainer
 	@Test
 	public void single()
 	{
-		Single o0 = con.create(Single.class);
+		Single o0 = con.getNew(Single.class);
 		assertNotSame(o0, o0.s);
 
 		Single o = con.get(Single.class);
@@ -181,7 +178,7 @@ public class TestContainer
 		Single o1 = con.get(Single.class);
 		assertSame(o, o1);
 		assertNotSame(o.n, con.get(New.class));
-		assertNotSame(o1, con.create(Single.class));
+		assertNotSame(o1, con.getNew(Single.class));
 
 		Single o2 = con2.get(Single.class);
 		assertNotSame(o0, o2);
@@ -208,7 +205,7 @@ public class TestContainer
 		o2 = new Set();
 		assertSame(o2, con.set(Set.class, o2));
 		assertSame(o2, con.get(Set.class));
-		assertSame(o2, con.create(Set.class));
+		assertSame(o2, con.getNew(Set.class));
 		assertNull(o2.noInject);
 
 		New2 o3 = con.get(New2.class);
@@ -236,7 +233,7 @@ public class TestContainer
 		assertSame(o.os, o.on.x);
 		assertSame(o.os, o.os.x);
 
-		ChildSingle o2 = con.create(ChildSingle.class);
+		ChildSingle o2 = con.getNew(ChildSingle.class);
 		assertNotSame(o.on, o2.on);
 		assertSame(o.os, o2.os);
 		ChildSingle o3 = con2.get(ChildSingle.class);
@@ -244,9 +241,9 @@ public class TestContainer
 		assertNotSame(o2.on, o3.on);
 		assertSame(o.os, o3.os);
 
-		ParentSingle o4 = con.create(ParentSingle.class);
+		ParentSingle o4 = con.getNew(ParentSingle.class);
 		assertNotNull(o4);
 		assertNotSame(o.os, o4);
-		assertNotSame(o4, con.create(ParentSingle.class));
+		assertNotSame(o4, con.getNew(ParentSingle.class));
 	}
 }
