@@ -97,4 +97,27 @@ public class Parameter
 	{
 		return false;
 	}
+
+	@Override
+	public boolean equals(Object o)
+	{
+		if (o instanceof Parameter)
+		{
+			Parameter p = (Parameter)o;
+			return (proc == p.proc || proc.equals(p.proc)) && index == p.index;
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return proc.hashCode() ^ index;
+	}
+
+	@Override
+	public String toString()
+	{
+		return proc.toString() + '[' + index + ']';
+	}
 }

@@ -309,6 +309,20 @@ public class Instruction
 			insU2(LDCW, cons.putClass(c));
 	}
 
+	/** Stack: object --> narrowed object */
+	public final void insNarrow(Class<?> c)
+	{
+		if (c != Object.class)
+			insU2(CHECKCAST, cons.putClass(c));
+	}
+
+	/** Stack: object --> narrowed object */
+	public final void insNarrowBox(Class<?> c)
+	{
+		if (c != Object.class)
+			insU2(CHECKCAST, cons.putClass(Class2.boxTry(c, true)));
+	}
+
 	/** Stack: primitive value(s) or object --> object */
 	public final void insBox(Class<?> c)
 	{
