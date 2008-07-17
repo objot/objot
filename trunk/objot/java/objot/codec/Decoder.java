@@ -225,7 +225,7 @@ final class Decoder
 			return Class2.cast(false, cla);
 		else if (c == '>')
 			return Class2.cast(true, cla);
-		return Class2.cast(Num(num(), cla.isPrimitive() ? Class2.box(cla, true) : cla), cla);
+		return Class2.cast(Num(num(), Class2.boxTry(cla, true)), cla);
 	}
 
 	private Object ref() throws Exception
@@ -265,7 +265,7 @@ final class Decoder
 		else
 		{
 			l = ls = codec.newList(cla, len);
-			if ( !cla.isAssignableFrom(l.getClass()))
+			if ( !cla.isInstance(l))
 				throw new ClassCastException(l.getClass() + " forbidden for " + cla);
 		}
 

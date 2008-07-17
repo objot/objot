@@ -40,10 +40,9 @@ public class ServiceInfo
 				reqClas = Array2.subClone(qs, 0, qs.length - 1);
 			else
 				reqClas = qs;
-			reqBoxClas = reqClas.clone();
+			reqBoxClas = new Class[reqClas.length];
 			for (int i = 0; i < reqClas.length; i++)
-				if (reqClas[i].isPrimitive())
-					reqBoxClas[i] = Class2.box(reqClas[i], true);
+				reqBoxClas[i] = Class2.boxTry(reqClas[i], true);
 		}
 	}
 }

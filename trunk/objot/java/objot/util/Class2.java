@@ -41,19 +41,48 @@ public class Class2
 	@SuppressWarnings("unchecked")
 	public static <T>T cast(Object o, Class<T> c)
 	{
-		if (o == null || c.isAssignableFrom(o.getClass()))
+		if (o == null || c.isInstance(o))
 			return (T)o;
-		throw new RuntimeException(o.getClass().getCanonicalName() + " forbidden for "
+		throw new ClassCastException(o.getClass().getCanonicalName() + " forbidden for "
 			+ c.getCanonicalName());
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <T>T cast(Object o, Class<T> c, boolean nullable)
 	{
-		if (o == null && nullable || c.isAssignableFrom(o.getClass()))
+		if (o == null ? nullable : c.isInstance(o))
 			return (T)o;
-		throw new RuntimeException((o != null ? o.getClass().getCanonicalName() : "null")
+		throw new ClassCastException((o != null ? o.getClass().getCanonicalName() : "null")
 			+ " forbidden for " + c.getCanonicalName());
+	}
+
+	public static boolean castable(Object o, Class<?> c)
+	{
+		return !c.isPrimitive() && (o == null || c.isInstance(o));
+	}
+
+	public static boolean castableBox(Object o, Class<?> c)
+	{
+		if (c.isPrimitive())
+			if (o == null)
+				return false;
+			else if (c == int.class)
+				c = Integer.class;
+			else if (c == boolean.class)
+				c = Boolean.class;
+			else if (c == long.class)
+				c = Long.class;
+			else if (c == byte.class)
+				c = Byte.class;
+			else if (c == char.class)
+				c = Character.class;
+			else if (c == short.class)
+				c = Short.class;
+			else if (c == float.class)
+				c = Float.class;
+			else if (c == double.class)
+				c = Double.class;
+		return o == null || c.isInstance(o);
 	}
 
 	/**
@@ -66,26 +95,26 @@ public class Class2
 	 */
 	public static Class<?> box(Class<?> c, boolean boxVoid)
 	{
-		if (c == int.class)
-			return Integer.class;
-		else if (c == boolean.class)
-			return Boolean.class;
-		else if (c == long.class)
-			return Long.class;
-		else if (c == byte.class)
-			return Byte.class;
-		else if (c == char.class)
-			return Character.class;
-		else if (c == short.class)
-			return Short.class;
-		else if (c == float.class)
-			return Float.class;
-		else if (c == double.class)
-			return Double.class;
-		else if (c == void.class && boxVoid)
-			return Void.class;
-		else
-			throw new ClassCastException();
+		if (c.isPrimitive())
+			if (c == int.class)
+				return Integer.class;
+			else if (c == boolean.class)
+				return Boolean.class;
+			else if (c == long.class)
+				return Long.class;
+			else if (c == byte.class)
+				return Byte.class;
+			else if (c == char.class)
+				return Character.class;
+			else if (c == short.class)
+				return Short.class;
+			else if (c == float.class)
+				return Float.class;
+			else if (c == double.class)
+				return Double.class;
+			else if (c == void.class && boxVoid)
+				return Void.class;
+		throw new ClassCastException();
 	}
 
 	/**
@@ -98,6 +127,7 @@ public class Class2
 	 */
 	public static Class<?> unbox(Class<?> c, boolean unboxVoid)
 	{
+		c.getModifiers();
 		if (c == Integer.class)
 			return int.class;
 		else if (c == Boolean.class)
@@ -116,8 +146,67 @@ public class Class2
 			return double.class;
 		else if (c == Void.class && unboxVoid)
 			return void.class;
-		else
-			throw new ClassCastException();
+		throw new ClassCastException();
+	}
+
+	/**
+	 * Try to convert primitive class to box class.
+	 * 
+	 * @param boxVoid whether box void.class to Void.class
+	 * @return the box class, or original class if not primitive
+	 */
+	public static Class<?> boxTry(Class<?> c, boolean boxVoid)
+	{
+		if (c.isPrimitive())
+			if (c == int.class)
+				return Integer.class;
+			else if (c == boolean.class)
+				return Boolean.class;
+			else if (c == long.class)
+				return Long.class;
+			else if (c == byte.class)
+				return Byte.class;
+			else if (c == char.class)
+				return Character.class;
+			else if (c == short.class)
+				return Short.class;
+			else if (c == float.class)
+				return Float.class;
+			else if (c == double.class)
+				return Double.class;
+			else if (c == void.class && boxVoid)
+				return Void.class;
+		return c;
+	}
+
+	/**
+	 * Try to conver box class to primitive class.
+	 * 
+	 * @param unboxVoid whether unbox Void.class to void.class
+	 * @return the primitive class, or original class if not box
+	 */
+	public static Class<?> unboxTry(Class<?> c, boolean unboxVoid)
+	{
+		c.getModifiers();
+		if (c == Integer.class)
+			return int.class;
+		else if (c == Boolean.class)
+			return boolean.class;
+		else if (c == Long.class)
+			return long.class;
+		else if (c == Byte.class)
+			return byte.class;
+		else if (c == Character.class)
+			return char.class;
+		else if (c == Short.class)
+			return short.class;
+		else if (c == Float.class)
+			return float.class;
+		else if (c == Double.class)
+			return double.class;
+		else if (c == Void.class && unboxVoid)
+			return void.class;
+		return c;
 	}
 
 	// ********************************************************************************
