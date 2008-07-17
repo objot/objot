@@ -14,41 +14,41 @@ import objot.util.Class2;
 
 public class Bind
 {
-	/** primitive boxed, null if static object while binding */
+	/** null for static object */
 	public Class<?> cla;
-	/** null for parent */
+	/** box class, just for convenience */
+	public Class<?> box;
 	public Class<? extends Annotation> mode;
 	/** the static object */
 	public Object obj;
-	/** actual class, null iff static object */
-	Clazz c;
+	/**
+	 * actual bind.
+	 * <dd>if != this, mode ignored.
+	 * <dd>if == ({@link Clazz})this, null mode if static object after bind.
+	 * <dd>if == ({@link Bind})this, static object for fields and parameters.
+	 */
+	Bind b;
 
 	Bind()
 	{
 	}
 
-	/**
-	 * bind to the class
-	 * 
-	 * @param c_ primitives will be boxed
-	 */
-	public Bind cla(Class<?> c_)
+	/** bind to a class */
+	public Bind cla(Class<?> c)
 	{
-		cla = c_.isPrimitive() ? Class2.box(c_, false) : c_;
+		cla = c;
+		box = Class2.boxTry(cla, true);
 		return this;
 	}
 
-	/**
-	 * If {@link #cla} is the original binding class, bind it in the mode (e.g.
-	 * {@link Inject.New}, or bind to parent container if null
-	 */
+	/** bind in a mode, ignored if bind to other classes or bind fields or parameters */
 	public Bind mode(Class<? extends Annotation> m)
 	{
 		mode = m;
 		return this;
 	}
 
-	/** bind to the static object */
+	/** bind to a static object */
 	public Bind obj(Object o)
 	{
 		cla = null;
@@ -59,7 +59,7 @@ public class Bind
 	static final class Clazz
 		extends Bind
 	{
-		/** iif {@link #c} == this && {@link Inject.New} || {@link Inject.Single} */
+		/** iif actual bind && ({@link Inject.New} || {@link Inject.Single}) */
 		T t;
 		FM[] fms;
 
@@ -74,20 +74,21 @@ public class Bind
 		}
 	}
 
+	/** actual binds for {@link Factoring} */
 	static final class T
 	{
 		Constructor<?> t;
-		/** {@link #cla} should be original one for {@link Factoring} */
+		/** actual binds for {@link Factoring} */
 		Bind[] ps;
 	}
 
-	/** {@link #cla} should be original one for {@link Factoring} */
+	/** actual binds for {@link Factoring} */
 	static final class FM
 		extends Bind
 	{
 		Field f;
 		Method m;
-		/** {@link #cla} should be original one for {@link Factoring} */
+		/** actual binds for {@link Factoring} */
 		Bind[] ps;
 	}
 }
