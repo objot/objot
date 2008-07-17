@@ -48,4 +48,13 @@ public @interface Inject
 	public @interface Set
 	{
 	}
+
+	/** inject from parent container */
+	@Target(ElementType.TYPE)
+	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
+	@Documented
+	public @interface Parent
+	{
+	}
 }

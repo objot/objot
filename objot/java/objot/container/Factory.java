@@ -25,7 +25,7 @@ public class Factory
 	{
 		Bind.Clazz c = new Bind.Clazz();
 		c.cla = Container.class;
-		c.c = c;
+		c.b = c;
 		c.mode = c.cla.getAnnotation(Inject.Single.class).annotationType();
 		(classes = new HashMap<Class<?>, Bind.Clazz>()).put(c.cla, c);
 	}
@@ -38,14 +38,12 @@ public class Factory
 	public Factory(Class<? extends Annotation> defaultMode_)
 	{
 		defaultMode = defaultMode_;
-		if (defaultMode != null && defaultMode.getDeclaringClass() != Inject.class)
+		if (defaultMode == null || defaultMode.getDeclaringClass() != Inject.class)
 			throw new IllegalArgumentException("mode " + defaultMode);
 	}
 
 	public final synchronized boolean bound(Class<?> cla)
 	{
-		if (cla.isPrimitive())
-			cla = Class2.box(cla, false);
 		return classes.containsKey(cla);
 	}
 
@@ -62,12 +60,10 @@ public class Factory
 		Bind.Clazz c = classes.get(cla);
 		if (c != null)
 			return this;
-		if (cla.isPrimitive())
-			throw new IllegalArgumentException("binding " + cla + " forbidden: primitive");
-		if (cla != Container.class && Container.class.isAssignableFrom(cla))
-			throw new IllegalArgumentException("binding " + cla + " forbidden");
+		if (Container.class.isAssignableFrom(cla))
+			throw new IllegalArgumentException("concrete container " + cla);
 		if ( !Mod2.match(cla, Mod2.PUBLIC))
-			throw new IllegalArgumentException("binding " + cla + " forbidden: not-public");
+			throw new IllegalArgumentException("not-public " + cla);
 		try
 		{
 			classes.put(cla, c = new Bind.Clazz());
@@ -75,14 +71,16 @@ public class Factory
 			c.cla(cla).mode(a != null ? a.annotationType() : defaultMode);
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
 			doBind(cla, to);
-			to(false, c, to);
-			if (c.c != c || c.mode == null || c.mode == Inject.Set.class)
-				return this; // bind to other or set
+			to(c, to);
+			if (c.b != c || c.mode != Inject.New.class && c.mode != Inject.Single.class)
+				return this;
 
 			if (Mod2.match(cla, Mod2.ABSTRACT))
-				throw new IllegalArgumentException("abstract");
+				throw new IllegalArgumentException("abstract " + cla);
 			c.t = new Bind.T();
 			c.t.t = doBind(cla, cla.getDeclaredConstructors());
+			if (c.t.t == null)
+				throw new IllegalArgumentException("no constructor " + cla);
 			if (c.t.t.getDeclaringClass() != cla)
 				throw new IllegalArgumentException(c.t.t.getName() + " in another class");
 			if ( !Mod2.match(c.t.t, Mod2.PUBLIC, Mod2.STATIC))
@@ -92,8 +90,8 @@ public class Factory
 			for (int i = 0; i < ps.length; i++)
 			{
 				Bind b = c.t.ps[i] = new Bind().cla(ps[i].cla);
-				doBind(cla, ps[i], b.cla, ps[i].generic, to = new Bind().cla(b.cla));
-				to(ps[i].cla.isPrimitive(), b, to);
+				doBind(cla, ps[i], b.box, ps[i].generic, to = new Bind().cla(b.cla));
+				to(b, to);
 			}
 
 			@SuppressWarnings("unchecked")
@@ -119,7 +117,7 @@ public class Factory
 					f.f = (Field)fms[i];
 					f.cla(f.f.getType());
 					doBind(cla, f.f, f.cla, f.f.getGenericType(), to = new Bind().cla(f.cla));
-					to(f.f.getType().isPrimitive(), f, to);
+					to(f, to);
 				}
 				else
 				{
@@ -131,7 +129,7 @@ public class Factory
 					{
 						Bind b = m.ps[j] = new Bind().cla(ps[j].cla);
 						doBind(cla, ps[j], b.cla, ps[j].generic, to = new Bind().cla(b.cla));
-						to(ps[j].cla.isPrimitive(), b, to);
+						to(b, to);
 					}
 				}
 			return this;
@@ -154,6 +152,7 @@ public class Factory
 	 * dependences from {@link Inject.New} classes must be avoided since it causes stack
 	 * overflow.
 	 * 
+	 * @param c primitive unboxed where {@link Bind#box} boxed
 	 * @return ignored, just for convenience
 	 */
 	protected Object doBind(Class<?> c, Bind b) throws Exception
@@ -192,8 +191,9 @@ public class Factory
 	 * @param cc the binding class
 	 * @param fp {@link Field} or {@link Parameter}
 	 * @param c {@link Field#getType()} or {@link Parameter#cla}, same as
-	 *            {@link Bind#cla}, primitive boxed
+	 *            {@link Bind#cla}, primitive unboxed where {@link Bind#box} boxed
 	 * @param generic {@link Field#getGenericType()} or {@link Parameter#generic}
+	 * @param b {@link Bind#mode} ignored
 	 * @return ignored, just for convenience
 	 */
 	protected Object doBind(Class<?> cc, AccessibleObject fp, Class<?> c, Type generic, Bind b)
@@ -202,7 +202,7 @@ public class Factory
 		return null;
 	}
 
-	/** eager see {@link #create(Container, boolean)} */
+	/** eager, see {@link #create(Container, boolean)} */
 	public final Container create(Container parent) throws Exception
 	{
 		return create(parent, false);
@@ -233,33 +233,33 @@ public class Factory
 			cs[i++] = c;
 		for (boolean ok = true; !(ok = !ok);)
 			for (Bind.Clazz c: cs)
-				ok |= c != null && c.c != bindSpread(c).c;
+				ok |= c != null && c.b != bindSpread(c).b;
 		ArrayList<Object> os = new ArrayList<Object>();
 		for (Bind.Clazz c: cs)
 			if (c != null && c.os == null)
 			{
-				os.add(c.obj);
+				os.add(c.obj); // even if not static object
 				if (c.t != null)
 				{
 					for (Bind p: c.t.ps)
-						if (bindSpread(p).c == null)
-							os.add(p.obj);
+						if (bindSpread(p).b.mode == null)
+							os.add(p.b.obj);
 					c.maxParamN = c.t.ps.length;
 					for (Bind.FM fm: c.fms)
 						if (fm.m != null)
 						{
 							for (Bind p: fm.ps)
-								if (bindSpread(p).c == null)
-									os.add(p.obj);
+								if (bindSpread(p).b.mode == null)
+									os.add(p.b.obj);
 							c.maxParamN = Math.max(c.maxParamN, fm.ps.length);
 						}
-						else if (bindSpread(fm).c == null)
+						else if (bindSpread(fm).b.mode == null)
 							os.add(fm.obj);
 				}
 				c.os = os.toArray();
 				os.clear();
 			}
-		con = new Factoring().create(cs, lazy_); // parent not inited
+		con = new Factoring().create(cs, lazy_); // nothing inited
 		bindN = cs.length - 1;
 		lazy = lazy_;
 		return con.create(parent);
@@ -271,36 +271,34 @@ public class Factory
 	private boolean lazy;
 	private Container con;
 
-	/** @param b its {@link Bind#cla} may be unboxed */
-	private void to(boolean primitive, Bind b, Bind to) throws Exception
+	private void to(Bind b, Bind to) throws Exception
 	{
 		if (to.cla == null)
-			if (to.obj == null || b.cla.isAssignableFrom(to.obj.getClass())
-				|| b.cla.isArray() && to.obj instanceof Integer)
-				b.obj = to.obj; // b.cla unchanged
-			else
-				throw new ClassCastException(b.cla + ": " + Class2.systemIdentity(to.obj));
-		else
 		{
-			if ( !b.cla.isAssignableFrom(to.cla))
-				throw new ClassCastException(b.cla + ": " + to.cla);
-			if (to.mode != null && to.mode.getDeclaringClass() != Inject.class)
-				throw new IllegalArgumentException("mode " + to.mode);
-			bind(to.cla);
-			b.c = classes.get(to.cla);
-			b.mode = to.mode;
+			if ( !Class2.castableBox(to.obj, b.cla))
+				// && (!b.cla.isArray() || !to.obj instanceof Integer))
+				throw new ClassCastException(b.cla + " obj: " + Class2.systemIdentity(to.obj));
+			// b.cla unchanged
+			b.mode = null;
+			b.obj = to.obj;
+			b.b = b;
+			return;
 		}
-		if (primitive)
-			b.cla = Class2.unbox(b.cla, false);
+		if ( !b.cla.isAssignableFrom(to.cla))
+			throw new ClassCastException(b.cla + ": " + to.cla);
+		if (b instanceof Bind.Clazz)
+			if (to.mode == null || to.mode.getDeclaringClass() != Inject.class)
+				throw new IllegalArgumentException(b.cla + " mode: " + to.mode);
+		bind(to.cla);
+		b.mode = to.mode;
+		b.b = classes.get(to.cla);
 	}
 
 	private Bind bindSpread(Bind b)
 	{
-		if (b.c != b && b.c != null)
-		{
-			b.obj = b.c.obj;
-			b.c = b.c.c;
-		}
+		if (b.b != b)
+			if ((b.b = b.b.b) == b)
+				throw new IllegalArgumentException("circular bind : " + b.cla);
 		return b;
 	}
 }
