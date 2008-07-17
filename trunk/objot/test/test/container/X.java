@@ -40,8 +40,6 @@ public interface X
 		public long obj;
 		@Inject
 		public int[] ints;
-		@Inject
-		public long[] longs;
 
 		@Inject
 		public New(@Deprecated

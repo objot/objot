@@ -74,7 +74,7 @@ public class Services
 			protected Object doBind(Class<?> c, Bind b) throws Exception
 			{
 				if (sess.bound(c))
-					return b.mode(null);
+					return b.mode(Inject.Parent.class);
 				if (c == Codec.class)
 					return b.obj(codec);
 				return c.isSynthetic() ? b : b.cla(w.weave(c));
