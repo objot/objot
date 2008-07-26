@@ -37,7 +37,7 @@ public class Services
 			CharSequence v = codec != null ? codec.enc(true, null) : null;
 
 			@Override
-			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
+			protected Object forWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
 				if ( !m.isAnnotationPresent(Service.class))
 					return this;
@@ -63,7 +63,7 @@ public class Services
 			}
 
 			@Override
-			protected Object doBind(Class<?> c, Bind b) throws Exception
+			protected Object forBind(Class<?> c, Bind b) throws Exception
 			{
 				return c == SessionFactory.class ? b.obj(hib) : b;
 			}
@@ -71,7 +71,7 @@ public class Services
 		Factory req = new Factory()
 		{
 			@Override
-			protected Object doBind(Class<?> c, Bind b) throws Exception
+			protected Object forBind(Class<?> c, Bind b) throws Exception
 			{
 				if (sess.bound(c))
 					return b.mode(Inject.Parent.class);

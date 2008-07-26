@@ -70,7 +70,7 @@ public class Factory
 			Annotation a = Class2.annoExclusive(cla, Inject.class);
 			c.cla(cla).mode(a != null ? a.annotationType() : defaultMode);
 			Bind to = new Bind().cla(c.cla).mode(c.mode);
-			doBind(cla, to);
+			forBind(cla, to);
 			to(c, to);
 			if (c.b != c || c.mode != Inject.New.class && c.mode != Inject.Single.class)
 				return this;
@@ -78,7 +78,7 @@ public class Factory
 			if (Mod2.match(cla, Mod2.ABSTRACT))
 				throw new IllegalArgumentException("abstract");
 			c.t = new Bind.T();
-			c.t.t = doBind(cla, cla.getConstructors());
+			c.t.t = forBind(cla, cla.getConstructors());
 			if (c.t.t == null)
 				throw new IllegalArgumentException("no constructor");
 			if (c.t.t.getDeclaringClass() != cla)
@@ -90,14 +90,14 @@ public class Factory
 			for (int i = 0; i < ps.length; i++)
 			{
 				Bind b = c.t.ps[i] = new Bind().cla(ps[i].cla);
-				doBind(cla, ps[i], b.box, ps[i].generic, to = new Bind().cla(b.cla));
+				forBind(cla, ps[i], b.box, ps[i].generic, to = new Bind().cla(b.cla));
 				to(b, to);
 			}
 
 			@SuppressWarnings("unchecked")
 			ArrayList<AccessibleObject> fms0 = (ArrayList)Class2.fields(cla, 0, 0, 0);
 			fms0.addAll(Class2.methods(cla, 0, 0, 0));
-			AccessibleObject[] fms = doBind(cla, Array2.from(fms0, AccessibleObject.class));
+			AccessibleObject[] fms = forBind(cla, Array2.from(fms0, AccessibleObject.class));
 			fms0.clear();
 			for (AccessibleObject fm: fms)
 				if (fm != null)
@@ -116,7 +116,7 @@ public class Factory
 					Bind.FM f = c.fms[i] = new Bind.FM();
 					f.f = (Field)fms[i];
 					f.cla(f.f.getType());
-					doBind(cla, f.f, f.cla, f.f.getGenericType(), to = new Bind().cla(f.cla));
+					forBind(cla, f.f, f.cla, f.f.getGenericType(), to = new Bind().cla(f.cla));
 					to(f, to);
 				}
 				else
@@ -128,7 +128,7 @@ public class Factory
 					for (int j = 0; j < ps.length; j++)
 					{
 						Bind b = m.ps[j] = new Bind().cla(ps[j].cla);
-						doBind(cla, ps[j], b.cla, ps[j].generic, to = new Bind().cla(b.cla));
+						forBind(cla, ps[j], b.cla, ps[j].generic, to = new Bind().cla(b.cla));
 						to(b, to);
 					}
 				}
@@ -155,13 +155,13 @@ public class Factory
 	 * @param c primitive unboxed where {@link Bind#box} boxed
 	 * @return ignored, just for convenience
 	 */
-	protected Object doBind(Class<?> c, Bind b) throws Exception
+	protected Object forBind(Class<?> c, Bind b) throws Exception
 	{
 		return null;
 	}
 
 	/** choose a constructor for creation and injection */
-	protected Constructor<?> doBind(Class<?> c, Constructor<?>[] ts) throws Exception
+	protected Constructor<?> forBind(Class<?> c, Constructor<?>[] ts) throws Exception
 	{
 		for (Constructor<?> t: ts)
 			if (t.isAnnotationPresent(Inject.class))
@@ -176,7 +176,7 @@ public class Factory
 	 * @return array of field and method, each need injection, or of null to ignore that
 	 *         field or method
 	 */
-	protected AccessibleObject[] doBind(Class<?> c, AccessibleObject[] fms) throws Exception
+	protected AccessibleObject[] forBind(Class<?> c, AccessibleObject[] fms) throws Exception
 	{
 		for (int i = 0; i < fms.length; i++)
 			if ( !fms[i].isAnnotationPresent(Inject.class))
@@ -196,7 +196,7 @@ public class Factory
 	 * @param b {@link Bind#mode} ignored
 	 * @return ignored, just for convenience
 	 */
-	protected Object doBind(Class<?> cc, AccessibleObject fp, Class<?> c, Type generic, Bind b)
+	protected Object forBind(Class<?> cc, AccessibleObject fp, Class<?> c, Type generic, Bind b)
 		throws Exception
 	{
 		return null;

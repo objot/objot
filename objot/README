@@ -22,7 +22,7 @@ Improvements
   * change to the GNU Library General Public License version 2 
 
 Todo
-  * codec: configure without annotations
+  * codec: configuration without annotations
   * IOC: provider mode
   * AOP: inherit all annotations from target method
 
@@ -57,4 +57,3 @@ Objot支持Java 5、Javascript、Actionscript 3，
   * 编解码：无annotation的配置
   * IOC: 支持provider模式
   * AOP: 继承target方法的全部annotation
- 
