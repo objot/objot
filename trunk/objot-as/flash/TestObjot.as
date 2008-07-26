@@ -2,17 +2,20 @@
 {
 
 import flash.display.Sprite;
+import flash.utils.describeType;
+import flash.utils.getQualifiedClassName;
+import flash.utils.getQualifiedSuperclassName;
+import objot.codec.Codec;
+import objot.util.Class2;
+import flash.utils.getDefinitionByName;
+import flash.utils.Dictionary;
+import flash.events.IEventDispatcher;
 
-import objot.Codec;
-import objot.Util;
 
-
-public class TestObjot extends Sprite 
+public class TestObjot extends Sprite
 {
 	public function TestObjot()
 	{
-		Util.cinit(Codec);
 	}
 }
-
 }
