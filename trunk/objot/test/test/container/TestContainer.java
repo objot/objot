@@ -46,7 +46,7 @@ public class TestContainer
 			}
 
 			@Override
-			protected Object doBind(Class<?> c, Bind b) throws Exception
+			protected Object forBind(Class<?> c, Bind b) throws Exception
 			{
 				return c == X.class ? b.cla(ParentSingle.class) : b;
 			}
@@ -63,14 +63,14 @@ public class TestContainer
 			}
 
 			@Override
-			protected Object doBind(Class<?> c, Bind b) throws Exception
+			protected Object forBind(Class<?> c, Bind b) throws Exception
 			{
 				return c == Object.class ? b.obj(parent) : c == long.class ? b.obj(9L)
 					: b.mode(parent.bound(c) ? Inject.Parent.class : b.mode);
 			}
 
 			@Override
-			protected Object doBind(Class<?> cc, AccessibleObject fp, Class<?> c,
+			protected Object forBind(Class<?> cc, AccessibleObject fp, Class<?> c,
 				Type generic, Bind b) throws Exception
 			{
 				if (c == int.class)

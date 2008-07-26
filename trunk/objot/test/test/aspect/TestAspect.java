@@ -28,7 +28,7 @@ public class TestAspect
 		weaved = new Weaver(A2.class, A1.class)
 		{
 			@Override
-			protected Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception
+			protected Object forWeave(Class<? extends Aspect> ac, Method m) throws Exception
 			{
 				if (m.getDeclaringClass() == Object.class)
 					return this;

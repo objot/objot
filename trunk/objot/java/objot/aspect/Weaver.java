@@ -84,7 +84,7 @@ public abstract class Weaver
 			ArrayList<Object> aos = new ArrayList<Object>();
 			for (Method m: ms)
 			{
-				Object o = doWeave(acs[ax], m);
+				Object o = forWeave(acs[ax], m);
 				if (o != this)
 				{
 					if (Mod2.match(m, Mod2.FRIEND_PRIVATE | Mod2.FINAL | Mod2.P.NOTOBJECT))
@@ -107,7 +107,7 @@ public abstract class Weaver
 	}
 
 	/** @return this {@link Weaver} not to weave the method with the aspect, other to weave */
-	protected abstract Object doWeave(Class<? extends Aspect> ac, Method m) throws Exception;
+	protected abstract Object forWeave(Class<? extends Aspect> ac, Method m) throws Exception;
 
 	private byte[] make(Class<?> target, Bytes ab, String name, Class<?> sup,
 		ArrayList<Constructor<?>> ts, ArrayList<Method> ms)

@@ -27,27 +27,27 @@ public abstract class Aspect
 	public static class Target
 	{
 		/**
-		 * @return a static object specified by {@link Weaver#doWeave} per target per
-		 *         weaved class
+		 * @return a static object specified by {@link Weaver#forWeave} per target method
+		 *         per weaved class
 		 */
 		public static <T>T getData()
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return target name */
+		/** @return target method name */
 		public static String getName()
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return target descriptor */
+		/** @return target method descriptor */
 		public static String getDescript()
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return target class name + '.' + target name + target descriptor */
+		/** @return target class name + '.' + target method name + target method descriptor */
 		public static String getTarget()
 		{
 			throw new AbstractMethodError();
@@ -65,20 +65,20 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
-		/** Invoke target with parameters which may be modified. */
+		/** Invoke target method with the parameters. */
 		public static void invoke() throws Throwable
 		{
 			throw new AbstractMethodError();
 		}
 
-		/** @return target return class */
+		/** @return target method return class */
 		public static <T>Class<T> getReturnClass()
 		{
 			throw new AbstractMethodError();
 		}
 
 		/**
-		 * get target return value, primitive boxed, null for void, must after
+		 * get target method return value, primitive boxed, null for void, must after
 		 * {@link #invoke()}
 		 */
 		public static <T>T getReturn()

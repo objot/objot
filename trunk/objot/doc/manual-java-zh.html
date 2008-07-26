@@ -8,7 +8,7 @@
 <html>
 <head>
 <meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
-<title>Objot 版本21 Java端指南</title>
+<title>Objot 版本21 Java端手册</title>
 <style>
 	body	{ padding:0; margin:3ex; background:white; line-height:1.4; font-family:sans-serif; }
 	h2		{ margin:3em 0 1em; padding:0 0 0.2ex; border-bottom:0.5ex solid #bcf; color:#730; }
@@ -29,7 +29,7 @@
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
-<h1	align=center><a href=http://objot.info>Objot</a> 版本21 Java端指南</h1>
+<h1	align=center><a href=http://objot.info>Objot</a> 版本21 Java端手册</h1>
 <hr>
 
 <p>版权所有2007-2008蔡倩彦，采用GNU LibraryGPL 版本2许可模式。
@@ -72,7 +72,7 @@
 并且确保/tmp目录（或者C:\tmp之类）可写，或者修改hibernate.properties中hsqldb存储文件的设置。
 对于Apache Tomcat，请使用6.0及以上版本，之前版本没有正确分离服务器根和web应用的commons-logging配置，这将导致无限递归。
 
-访问demo/index.html使用这个范例。用Selenium访问demo/test/index.html可以进行测试。
+访问demo/index.html。用Selenium访问demo/test/index.html可以进行测试。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
@@ -289,6 +289,7 @@ aspect的具体实现。此具体aspect方法weave后，依据各个target方法
 参数和返回类型 被替换成target方法的参数和返回类型。
 this对象被替换成target对象。
 aspect方法可以抛出任何异常，给调用者，即使target方法没有声明。
+target方法的调试信息指向aspect方法，因此不影响源代码调试。
 
 <!--****************************************************************************************-->
 
@@ -332,7 +333,7 @@ target方法的返回值，原始类型为其box值，void为null。
 如果invoke()不执行且非void，则必须指定一个返回值，否则加载target子类时抛出某个Error异常。
 
 <h5>public static &lt;T&gt;T <i>getData</i>()</h5>
-获得为本override方法指定的数据。参见objot.aspect.Weaver.doWeave。
+获得为本override方法指定的数据。参见objot.aspect.Weaver.forWeave。
 
 <!--****************************************************************************************-->
 
@@ -349,7 +350,7 @@ target方法的返回值，原始类型为其box值，void为null。
 必须有至少一个public或protected的构造方法。合成的每个target子类分别在每个aspect的package中。
 返回的类是最外层的target子类。
 
-<h5>protected abstract Object <i>doWeave</i>(Class&lt;? extends Aspect&gt; ac, Method m) throws Exception</h5>
+<h5>protected abstract Object <i>forWeave</i>(Class&lt;? extends Aspect&gt; ac, Method m) throws Exception</h5>
 针对每个aspect和每个target方法的组合，判断是否需要weave，并指定一个数据。
 如果返回this（即Weaver对象本身），表示不要weave。
 返回其他则weave，并作为override方法的相关数据，供<code>Target.getData()</code>使用，每个aspect每个target方法的组合一个数据。
@@ -358,10 +359,10 @@ target方法的返回值，原始类型为其box值，void为null。
 
 <h3>灵活的配置</h3>
 
-<p>可以在doWeave方法中编写标记访问代码，从而支持标记式配置。例如：
+<p>可以在forWeave方法中编写标记访问代码，从而支持标记式配置。例如：
 <pre>Weaver w = new Weaver(SignAspect.class, TransactionAspect.class) {
 	@Override
-	protected Object doWeave(Class&lt;? extends Aspect&gt; ac, Method m)
+	protected Object forWeave(Class&lt;? extends Aspect&gt; ac, Method m)
 			throws Exception {
 		if (ac == SignAspect.class)
 			return m.isAnnotationPresent(Sign.class) ? this : null;
@@ -377,7 +378,7 @@ target方法的返回值，原始类型为其box值，void为null。
 <pre>// 读取配置文件
 Weaver w = new Weaver(/* 配置中列举的全部aspect */) {
 	@Override
-	protected Object doWeave(Class&lt;? extends Aspect&gt; ac, Method m)
+	protected Object forWeave(Class&lt;? extends Aspect&gt; ac, Method m)
 			throws Exception {
 		// 根据m从配置文件中寻找相关配置
 		// 如果无相关配置，则返回 this
@@ -471,7 +472,7 @@ parent模式的类，每次注入都从父容器获取，或者从可能的缓�
 
 <h3>public class objot.container.<i>Factory</i></h3>
 
-<p>容器工厂。通过bind()和doBind()完成配置，然后合成容器。
+<p>容器工厂。通过bind()和forBind()完成配置，然后合成容器。
 
 <h5>public <i>Factory</i>()</h5>
 默认的注入模式为single。默认绑定Container类为容器自身，single模式。
@@ -489,13 +490,13 @@ parent模式的类，每次注入都从父容器获取，或者从可能的缓�
 <h5>public final synchronized Factory <i>bind</i>(Class cla)</h5>
 绑定一个类。不能绑定Container的子类，不能绑定非public类，允许绑定原始类型。返回本工厂。
 
-<h5>protected Object <i>doBind</i>(Class c, Bind b) throws Exception</h5>
+<h5>protected Object <i>forBind</i>(Class c, Bind b) throws Exception</h5>
 配置一个类绑定。传入的Bind已经根据标记，设置了模式。
 可以绑定到另外一个类，可以指定注入模式，可以绑定到一个对象。
 对于原始类型，因为没有构造方法，只能使用set、parent模式，或者绑定box对象。
 返回值被忽略。默认是<code>return null;</code>
 
-<h5>protected Constructor <i>doBind</i>(Class c, Constructor[] ts) throws Exception</h5>
+<h5>protected Constructor <i>forBind</i>(Class c, Constructor[] ts) throws Exception</h5>
 配置构造方法。从类的所有构造方法中，选择一个返回。默认是：
 <pre>for (Constructor t: ts)
 	if (t.isAnnotationPresent(Inject.class))
@@ -504,7 +505,7 @@ return c.getDeclaredConstructor(); // 无参数的构造方法
 </pre>
 选择的构造方法必须是public not static。
 
-<h5>protected AccessibleObject[] <i>doBind</i>(Class c, AccessibleObject[] fms) throws Exception</h5>
+<h5>protected AccessibleObject[] <i>forBind</i>(Class c, AccessibleObject[] fms) throws Exception</h5>
 返回一个数组，由Field、Method、null组成，表示要按顺序注入field、方法，null跳过。
 传入的fms数组，是一个由全部field、然后全部方法组成的数组，包括继承下来的。默认是：
 <pre>for (int i = 0; i &lt; fms.length; i++)
@@ -514,7 +515,7 @@ return fms;
 </pre>
 选择的field、方法必须是public not static。
 
-<h5>protected Object <i>doBind</i>(Class cc, AccessibleObject fp, Class c, Type generic, Bind b) throws Exception</h5>
+<h5>protected Object <i>forBind</i>(Class cc, AccessibleObject fp, Class c, Type generic, Bind b) throws Exception</h5>
 为选择的构造方法、field、方法配置各个参数。
 cc为绑定类。fp为field，或方法参数objot.util.Parameter。
 c为field.getType()，或parameter.cla。
@@ -522,7 +523,7 @@ generic为field.getGenericType()，或parameter.generic。
 传入的Bind默认绑定到c类上。可以绑定到其他类，或绑定到一个对象。
 返回值被忽略。默认是<code>return null;</code>
 
-<p>绑定到其他类时，如果此类尚未配置绑定，则将在doBind方法返回后，由工厂主动绑定。
+<p>绑定到其他类时，如果此类尚未配置绑定，则将在forBind方法返回后，由工厂主动绑定。
 
 <p>注意：new模式的类之间不能循环依赖（例如A、B类相互引用，又都是new模式），否则注入时会导致无限递归，栈溢出。
 构造方法参数之间不能循环依赖（例如A类构造方法参数引用B类，B类构造方法参数引用A类），否则注入时会导致无限递归，栈溢出。
@@ -568,7 +569,7 @@ cla()返回对象自身。
 Container b = new Factory(Inject.Set.class).bind(A.class, B.class).create(null);
 </pre>
 
-<p>可以按需override几个Factory.doBind方法，自定义配置。
+<p>可以按需override几个Factory.forBind方法，自定义配置。
 例如单元测试test.container里的代码，以及文件式配置：
 <pre>
 // 读取配置文件
@@ -577,24 +578,24 @@ Container a = new Factory() {
 		bind(/* 配置中列举的类 */);
 	}
 	@Override
-	protected Object doBind(Class c, Bind b) throws Exception {
+	protected Object forBind(Class c, Bind b) throws Exception {
 		// 根据c从配置文件中寻找相关类
 		// 如无相关类，则返回null
 		// 找到类，则根据配置设置b，返回null
 	}
 	@Override
-	protected Constructor doBind(Class c, Constructor[] ts) throws Exception {
+	protected Constructor forBind(Class c, Constructor[] ts) throws Exception {
 		// 根据c从配置文件中寻找相关类（已找到）
 		// 根据配置返回类的构造方法
 	}
 	@Override
-	protected AccessibleObject[] doBind(Class c, AccessibleObject[] fms)
+	protected AccessibleObject[] forBind(Class c, AccessibleObject[] fms)
 		throws Exception {
 		// 根据c从配置文件中寻找相关类（已找到）
 		// 根据配置返回类的field、方法数组
 	}
 	@Override
-	protected Object doBind(Class cc, AccessibleObject fp, Class c, Type generic,
+	protected Object forBind(Class cc, AccessibleObject fp, Class c, Type generic,
 		Bind b) throws Exception {
 		// 根据cc、fp从配置文件中寻找相关field、方法（已找到）
 		// 根据配置设置b，返回null
@@ -625,7 +626,7 @@ Container a = new Factory() {
 <p>独立于传输协议的serivce调用处理。参考源代码，和范例的代码。
 
 <p>用Codec将调用的参数字符串解码成参数对象，用reflection调用service方法。
-将serivce方法返回对象做编码，返回字符串。对抛出的异常也做编码。
+将serivce方法返回对象做编码，返回字符串。抛出的异常默认编码为objot.util.Err。
 调用时可以指定上下文容器，用于获取外部数据，可以附加参数字符串之外的参数用于文件上传等功能。
 
 <p>通常编写子类，增加与持久会话、单次请求相对应的Container层次，并使用AOP辅助service方法。
@@ -644,6 +645,8 @@ Container a = new Factory() {
 <p>请求时，提供上下文容器，包含HttpServletRequest, HttpServletSession等供ServiceHandler处理。
 对于http文件上传，生成Input.Upload对象，即用于参数字符串提取和解码，也传递给ServiceHandler供serivce读取。
 对于返回byte[]和InputStream，ServiceHandler可以在上下文容器中设置字符串值，指定mime类型，默认是application/octet-stream。
+
+<p>对于进度查询使用固定的url格式，并返回进度文本。
 
 
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
