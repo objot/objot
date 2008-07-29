@@ -185,26 +185,26 @@ final class WeaveProc
 		if ( !cons.equalsUtf(cons.getCprocClass(ci), Weaver.TARGET_NAME))
 			return false;
 		Bytes name = cons.getUtf(cons.getCprocName(ci));
-		if (Targ.getData.utf.equals(name))
-			opGetData(pi, datasCi);
-		else if (Targ.getName.utf.equals(name))
-			opGetName();
-		else if (Targ.getDescript.utf.equals(name))
-			opGetDescript();
-		else if (Targ.getTarget.utf.equals(name))
-			opGetTarget();
-		else if (Targ.getThis.utf.equals(name))
-			opGetThis();
-		else if (Targ.getClazz.utf.equals(name))
-			opGetClazz();
+		if (Targ.data.utf.equals(name))
+			targData(pi, datasCi);
+		else if (Targ.name.utf.equals(name))
+			targName();
+		else if (Targ.descript.utf.equals(name))
+			targDescript();
+		else if (Targ.target.utf.equals(name))
+			targTarget();
+		else if (Targ.thiz.utf.equals(name))
+			targThiz();
+		else if (Targ.clazz.utf.equals(name))
+			targClazz();
 		else if (Targ.invoke.utf.equals(name))
-			opInvoke();
-		else if (Targ.getReturnClass.utf.equals(name))
-			opGetReturnClass();
+			targInvoke();
+		else if (Targ.returnClass.utf.equals(name))
+			targReturnClass();
 		else if (Targ.getReturn.utf.equals(name))
-			opGetReturn();
+			targGetReturn();
 		else if (Targ.setReturn.utf.equals(name))
-			opSetReturn();
+			targSetReturn();
 		else
 			throw new AssertionError();
 		return true;
@@ -225,7 +225,7 @@ final class WeaveProc
 			ws.copyFrom(ao, ad, adn);
 	}
 
-	private void opGetData(int pi, int datasCi)
+	private void targData(int pi, int datasCi)
 	{
 		ws.insU2(GETSTATIC, datasCi);
 		ws.insS2(SIPUSH, pi);
@@ -233,21 +233,21 @@ final class WeaveProc
 		wo.setStackN(wo.getStackN() + 1);
 	}
 
-	private void opGetName()
+	private void targName()
 	{
 		if (nameStrCi <= 0)
 			nameStrCi = cons.addString(wp.getNameCi());
 		ws.insU2(LDCW, nameStrCi);
 	}
 
-	private void opGetDescript()
+	private void targDescript()
 	{
 		if (descStrCi <= 0)
 			descStrCi = cons.addString(wp.getDescCi());
 		ws.insU2(LDCW, descStrCi);
 	}
 
-	private void opGetTarget()
+	private void targTarget()
 	{
 		if (targetStrCi <= 0)
 		{
@@ -262,17 +262,17 @@ final class WeaveProc
 		ws.insU2(LDCW, targetStrCi);
 	}
 
-	private void opGetThis()
+	private void targThiz()
 	{
 		ws.ins0(ALOAD0);
 	}
 
-	private void opGetClazz()
+	private void targClazz()
 	{
 		ws.insU2(LDCW, clazzCi);
 	}
 
-	private void opInvoke()
+	private void targInvoke()
 	{
 		ws.ins0(ALOAD0);
 		Bytes desc = cons.getUtf(wp.getDescCi());
@@ -290,12 +290,12 @@ final class WeaveProc
 		wo.setStackN(wo.getStackN() + 2 /* e.g. return long */+ wp.getParamLocalN());
 	}
 
-	private void opGetReturnClass()
+	private void targReturnClass()
 	{
 		ws.insLoad(returnCla);
 	}
 
-	private void opGetReturn()
+	private void targGetReturn()
 	{
 		if (returnCla == void.class)
 			ws.ins0(ACONSTNULL);
@@ -305,7 +305,7 @@ final class WeaveProc
 		ws.insBox(returnCla);
 	}
 
-	private void opSetReturn()
+	private void targSetReturn()
 	{
 		if (returnCla == void.class)
 			ws.ins0(POP);

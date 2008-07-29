@@ -30,7 +30,7 @@ public @interface Sign
 		@Override
 		protected void aspect() throws Throwable
 		{
-			Do s = Target.getThis();
+			Do s = Target.thiz();
 			if (s.sess.me <= 0)
 				throw Do.err(new ErrUnsigned("not signed in"));
 			Target.invoke();

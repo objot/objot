@@ -299,29 +299,26 @@ target方法的调试信息指向aspect方法，因此不影响源代码调试�
 在aspect之外（未weave）直接调用都抛出AbstractMethodError异常。
 weave后，被替换成常量或指令。
 
-<h5>public static String <i>getName</i>()</h5>
+<h5>public static String <i>name</i>()</h5>
 target方法的名字。
 
-<h5>public static String <i>getDescript</i>()</h5>
+<h5>public static String <i>descript</i>()</h5>
 target方法的描述符。
 
-<h5>public static String <i>getDescript</i>()</h5>
-target方法的描述符。
+<h5>public static String <i>target</i>()</h5>
+target方法的名字及描述符。
 
-<h5>public static String <i>getTarget</i>()</h5>
-target方法的描述符。
+<h5>public static &lt;T&gt;T <i>thiz</i>()</h5>
+target对象，== aspect方法的this。
 
-<h5>public static &lt;T&gt;T <i>getThis</i>()</h5>
-target对象，== aspect方法中的this。
-
-<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getClazz</i>()</h5>
+<h5>public static &lt;T&gt;Class&lt;T&gt; <i>clazz</i>()</h5>
 target类。
 
 <h5>public static void <i>invoke</i>()</h5>
 执行target方法，参数不变。可以多次执行。
 
-<h5>public static &lt;T&gt;Class&lt;T&gt; <i>getReturnClass</i>()</h5>
-target方法的返回类。
+<h5>public static &lt;T&gt;Class&lt;T&gt; <i>returnClass</i>()</h5>
+target方法声明的返回类。
 
 <h5>public static &lt;T&gt;T <i>getReturn</i>()</h5>
 target方法的返回值，原始类型为其box值，void为null。
@@ -329,10 +326,10 @@ target方法的返回值，原始类型为其box值，void为null。
 
 <h5>public static void <i>setReturn</i>(Object o)</h5>
 指定返回值，原始类型为其box值，void必须为null。
-可以在invoke()之前执行，但invoke()执行后的返回值优先。
+如果在invoke()之前执行，则invoke()执行后的返回值优先。
 如果invoke()不执行且非void，则必须指定一个返回值，否则加载target子类时抛出某个Error异常。
 
-<h5>public static &lt;T&gt;T <i>getData</i>()</h5>
+<h5>public static &lt;T&gt;T <i>data</i>()</h5>
 获得为本override方法指定的数据。参见objot.aspect.Weaver.forWeave。
 
 <!--****************************************************************************************-->

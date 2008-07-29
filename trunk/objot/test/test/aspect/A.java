@@ -51,16 +51,17 @@ class A1
 		A.ctor++;
 	}
 
+	@SuppressWarnings("cast")
 	@Override
 	protected void aspect() throws Throwable
 	{
-		A a = (A)getData();
-		a.name = getName();
-		a.desc = getDescript();
-		a.target = getTarget();
-		a.thiz = getThis();
-		a.clazz = getClazz();
-		a.returnC = getReturnClass();
+		A a = (A)data();
+		a.name = name();
+		a.desc = descript();
+		a.target = target();
+		a.thiz = thiz();
+		a.clazz = clazz();
+		a.returnC = returnClass();
 		invoke();
 		a.returnV = getReturn();
 		if (a.returnC == void.class)
@@ -85,8 +86,8 @@ class A2
 	@Override
 	protected void aspect() throws Throwable
 	{
-		A a = (A)Target.getData();
-		a.clazz = Target.getClazz();
+		A a = (A)Target.data();
+		a.clazz = Target.clazz();
 		try
 		{
 			Target.invoke();
