@@ -30,37 +30,37 @@ public abstract class Aspect
 		 * @return a static object specified by {@link Weaver#forWeave} per target method
 		 *         per weaved class
 		 */
-		public static <T>T getData()
+		public static <T>T data()
 		{
 			throw new AbstractMethodError();
 		}
 
 		/** @return target method name */
-		public static String getName()
+		public static String name()
 		{
 			throw new AbstractMethodError();
 		}
 
 		/** @return target method descriptor */
-		public static String getDescript()
+		public static String descript()
 		{
 			throw new AbstractMethodError();
 		}
 
 		/** @return target class name + '.' + target method name + target method descriptor */
-		public static String getTarget()
+		public static String target()
 		{
 			throw new AbstractMethodError();
 		}
 
 		/** @return same as "this" in {@link Aspect#aspect}, weaved and target object */
-		public static <T>T getThis()
+		public static <T>T thiz()
 		{
 			throw new AbstractMethodError();
 		}
 
 		/** @return target class */
-		public static <T>Class<T> getClazz()
+		public static <T>Class<T> clazz()
 		{
 			throw new AbstractMethodError();
 		}
@@ -71,8 +71,8 @@ public abstract class Aspect
 			throw new AbstractMethodError();
 		}
 
-		/** @return target method return class */
-		public static <T>Class<T> getReturnClass()
+		/** @return target method declaring return class */
+		public static <T>Class<T> returnClass()
 		{
 			throw new AbstractMethodError();
 		}
@@ -102,16 +102,7 @@ public abstract class Aspect
 
 	static enum Targ
 	{
-		getData,
-		getName,
-		getDescript,
-		getTarget,
-		getThis,
-		getClazz,
-		invoke,
-		getReturnClass,
-		getReturn,
-		setReturn;
+		data, name, descript, target, thiz, clazz, invoke, returnClass, getReturn, setReturn;
 
 		Bytes utf = Bytecode.utf(Class2.declaredMethod1(Target.class, name()).getName());
 	}

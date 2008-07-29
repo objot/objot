@@ -109,18 +109,18 @@ public @interface Transac
 		{
 			if (LOG.isDebugEnabled())
 				if (data.depth == 0)
-					LOG.debug("================ " + Target.getClazz().getName() + "-"
-						+ Target.getName() + " ================");
+					LOG.debug("================ " + Target.clazz().getName() + "-"
+						+ Target.name() + " ================");
 				else
-					LOG.debug("---------------- " + Target.getClazz().getName() + "-"
-						+ Target.getName() + " ----------------");
+					LOG.debug("---------------- " + Target.clazz().getName() + "-"
+						+ Target.name() + " ----------------");
 			if (data.depth == 0)
 				data.hib = factory.openSession();
 			boolean ok = false;
 			data.depth++;
 			try
 			{
-				begin((SessionImpl)data.hib, Target.<Config>getData(), Target.getTarget());
+				begin((SessionImpl)data.hib, Target.<Config>data(), Target.target());
 				Target.invoke();
 				data.flush();
 				ok = true;
