@@ -96,20 +96,23 @@
 
 <p>Objot支持单继承类，Java端可以为类和属性指定别名。
 列表、对象之间可以任意引用，构成的整个数据图都可以被编解码。
-可以定义规则，只处理局部（子图）。规则针对 被编解码的数据 和 相关上下文类 设定。
+
+<p>可以定义规则，只处理局部（子图）。规则针对 被编解码的数据 和 规则key 设定。
+规则、别名、对象创建等配置是代码性的，可以自行编写adapter等，支持annotation、file等配置形式，可以将业务代码与Objot完全分离。
 
 <p>第一次编解码某个类的对象时，会生成bytecode来访问这个类，后续编解码这个类的对象时，不再有任何reflection，优化了效率。
+
 
 <!--****************************************************************************************-->
 
 <h3>public class objot.codec.<i>Codec</i></h3>
 
-<p>编解码。
+<p>编解码。默认的规则配置代码采用annotation配置方式。
 
-<h5>public StringBuilder <i>enc</i>(Object o, Class rukeKey) throws Exception</h5>
+<h5>public StringBuilder <i>enc</i>(Object o, Object rukeKey) throws Exception</h5>
 编码，使用的规则与 每个编码的数据 及key相关。非线程安全。
 
-<h5>public Object <i>dec</i>(char[] s, Class cla, Class ruleKey) throws Exception<br>
+<h5>public Object <i>dec</i>(char[] s, Class cla, Object ruleKey) throws Exception<br>
 public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class cla, Class ruleKey)</h5>
 解码，使用的规则与 每个解码的数据 及key相关。返回数据图的根，如果根不符合cla，则抛出异常。
 被解码的字符串范围是[sBegin,sEnd1)。非线程安全。
@@ -119,11 +122,16 @@ public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class cla, Class ruleK
 默认是：<pre>return o instanceof HashMap ? "" : c.getName();</pre>
 
 <h5>protected Object <i>byName</i>(String name) throws Exception</h5>
-解码时，根据名字得到对象，或者对象的类（生成的bytecode会调用默认构造函数）。默认是：
+解码时，根据名字得到对象，或者对象的类（生成的bytecode会调用默认构造方法）。默认是：
 <pre>return name.length() == 0 ? HashMap.class : Class.forName(name);</pre>
 
-<h5>protected boolean <i>arrayForList</i>() throws Exception</h5>
-Java端[]和Collection都编码为列表，解码时，如果根据上下文难以确定[]还是Collection，就由此方法确定。
+<h5>protected long <i>beLong</i>(long l) throws Exception</h5>
+编码long时检查值，并返回这个值。
+默认对超出-4503599627370496L至4503599627370496L（+-52bit）的值抛异常。
+因为Javascript和Actionscript中数值只有52bit精度（IEEE754）。
+
+<h5>protected boolean <i>arrayForList</i>;</h5>
+Java端[]和Collection都编码为列表，解码时，如果根据上下文不能确定[]还是Collection，就由此field确定。
 默认是<code>true</code>
 
 <h5>protected Collection&lt;Object&gt; <i>newList</i>(Class c, int len) throws Exception</h5>
@@ -131,10 +139,28 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文难�
 <pre>return c.isAssignableFrom(ArrayList.class) ? new ArrayList&lt;Object&gt;(len)
 	: new HashSet&lt;Object&gt;(len);</pre>
 
-<h5>protected long <i>beLong</i>(long l) throws Exception</h5>
-编码long时检查值，并返回这个值。
-默认对超出-4503599627370496L至4503599627370496L（+-52bit）的值，抛异常。
-因为Javascript和Actionscript中number只有52bit精度（IEEE754）。
+<h5>protected Object <i>newObject</i>(Class c) throws Exception</h5>
+解码时创建对象。但是默认不调用此方法，而是直接调用类的无参数构造方法。
+如果需要由此方法来创建对象，参见clazz()、addClazz()。
+如果返回的对象不是类c的对象，将可能导致解码时抛出异常。
+
+<h5>protected Object <i>clazz</i>(Class c) throws Exception</h5>
+分析一个类，返回分析结果，用于编解码的处理。默认是：
+<pre>// 调用getClazz()，若已经分析过，则直接返回分析结果
+// 对c的每个field进行@Enc、@Dec等annotation分析
+// 对c的每个method进行@Enc、@Dec等annotation分析
+// 调用addClazz()，将分析的field,method情况传入，然后返回最终结果
+</pre>
+
+<h5>protected final Object <i>getClazz</i>(Class c) throws Exception</h5>
+返回类的分析结果，若尚未分析，则返回null。线程安全。
+
+<h5>protected Object <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
+对类做最后分析，添加并返回最终结果。
+ctor为true，则使用类的无参数构造方法来创建对象；为false，则调用newObject()来创建对象。
+encs为需要编码的属性信息，decs为需要解码的属性信息。
+decNames为解码属性名和信息的map，若为null则默认根据encs生成，不为null则重用这个map。
+线程安全。参见Property类。
 
 <!--****************************************************************************************-->
 
@@ -143,25 +169,24 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文难�
 <p>表示被标记的field、getter需要编码。
 field、getter都必须public，getter可以是<code>getName()</code>也可以是<code>name()</code>这样的形式。
 
-<p>可以设置参数，对应于Codec.enc的key参数，作为编码规则：对应哪些key时需要编码，哪些禁止编码。
-规则在后的优先。
+<p>可以设置参数，表示指定哪些key时需要编码，哪些禁止编码，作为编码规则。规则在后的优先。
 
 <pre>@Enc(A.class) public String getName() { return name; }
 @Enc({Yes.class, A.class}) public String name() { return name; }</pre>
-表示：当key为A类或子类时，需要编码；其他则禁止编码。
+表示：当key为A类或子类或对象时，需要编码；其他则禁止编码。
 
 <pre>@Enc({A.class, B.class}) public String name;</pre>
-表示：当key为B类或子类时，需要编码；当key为A类或子类时，需要编码；其他则禁止编码。
+表示：当key为B类或子类或对象时，需要编码；当key为A类或子类或对象时，需要编码；其他则禁止编码。
 
 <pre>@Enc({No.class, C.class}) public String name;</pre>
-表示：当key为C类或子类时，禁止编码；其他则需要编码。
+表示：当key为C类或子类或对象时，禁止编码；其他则需要编码。
 
 <pre>@Enc({No.class, C.class, Yes.class, A.class}) public String name;</pre>
-表示：当key为A类或子类时，需要编码；当key为C类或子类时，禁止编码；其他则需要编码。
+表示：当key为A类或子类或对象时，需要编码；当key为C类或子类或对象时，禁止编码；其他则需要编码。
 
 <pre>@Enc({D.class, Yes.class, A.class, B.class, No.class, C.class})
 public String name;</pre>
-表示：当key为C类或子类时，禁止编码；当key为B类、A类或子类时，需要编码；当key为D类或子类时，禁止编码；其他则需要编码。
+表示：当key为C类或子类或对象时，禁止编码；当key为B类、A类或子类或对象时，需要编码；当key为D类或子类或对象时，禁止编码；其他则需要编码。
 
 <p>当标记类时，其规则作用于类的各field、getter的@Enc、@EncDec的前端，对@Dec不起作用。
 
@@ -169,7 +194,7 @@ public String name;</pre>
 	@Enc(C.class) public String name;
 	public String name2;
 }</pre>
-对于name，当key为C类或子类时，禁止编码；当key为A类或子类时，需要编码；其他则禁止编码。
+对于name，当key为C类或子类或对象时，禁止编码；当key为A类或子类或对象时，需要编码；其他则禁止编码。
 而name2，则不编码。
 
 <!--****************************************************************************************-->
@@ -195,6 +220,54 @@ field、setter都必须public，setter可以是<code>setName(String v)</code>也
 
 <p>标记了@Name，就不能再标记@NameEnc和@NameDec，但@NameEnc和@NameDec可以一起标记。
 
+<!--****************************************************************************************-->
+
+<h3>public abstract class <i>Property</i></h3>
+
+<p>关于属性编解码的信息。
+
+<h5>protected Class <i>out</i>;</h5>
+属性所在的declaring类。
+
+<h5>protected Field <i>field</i>;</h5>
+field属性，非field则为null。
+
+<h5>protected Method <i>method</i>;</h5>
+method属性，非method则为null。
+
+<h5>protected String <i>name</i>;</h5>
+属性名。
+默认是<code>field.getName</code>或<code>Class2.propertyOrName(method, enc)</code>。
+
+<h5>protected Class <i>cla</i>;</h5>
+属性的类。
+默认是<code>field.getType</code>、<code>method.getReturnType</code>或<code>method.getParameterTypes()[0]</code>。
+
+<h5>protected Class <i>listElem</i>;</h5>
+如果是Collection，表示元素的类。默认是
+<pre>Class2.typeParamClass(
+	field != null ? field.getGenericType()
+	: enc ? method.getGenericReturnType()
+		: method.getGenericParameterTypes()[0],
+	0, Object.class);
+</pre>
+
+<h5>protected <i>Property</i>(AccessibleObject fm, boolean enc)</h5>
+默认构造方法，根据fm（必须为Field或Method）、enc设置各个默认值。
+
+<h5>protected void <i>into</i>(Map&lt;String, Property&gt; map)</h5>
+将本属性信息放入一个map中，若已有同名的属性，抛出异常。
+
+<h5>protected abstract boolean <i>allowEnc</i>(Object ruleKey) throws Exception;</h5>
+对应规则key，判断本属性是否允许编码。
+
+<h5>protected abstract boolean <i>allowDec</i>(Object ruleKey) throws Exception;</h5>
+对应规则key，判断本属性是否允许解码。
+
+<!--****************************************************************************************-->
+
+<h3>灵活的配置</h3>
+
 <p>结合使用规则、别名，可以针对不同需求，给数据进行不同的编码。例如：
 <pre>package demo; ...
 public class User {
@@ -215,9 +288,44 @@ public class User {
 	@Dec(DoUser.class)
 	public List&lt;User&gt; friends;
 
-	@Enc(DoUser.class) // key为DoUser类或子类，需编码
+	@Enc(DoUser.class) // key为DoUser类或子类或对象，需编码
 	@Name("friends") // 编码名称为friends，因为不可解码，所以解码名称没有意思
 	public List&lt;User&gt; friends_;
+}
+</pre>
+
+<p>也可以编写访问配置文件的代码，从而支持文件式配置。例如：
+<pre>// 读取配置文件
+// 根据配置文件生成 相关类的创建模式，例如 使用IOC和AOP创建
+Codec c = new Codec() {
+	@Override
+	protected Object newObject(Class c) {
+		// 根据已生成的创建模式创建c的对象
+	}
+	@Override
+	protected Object clazz(Class c) throws Exception {
+		Object z = getClazz(c); if (z != null) return z;
+		Property[] encs, decs;
+		// 根据c从配置文件中寻找相关配置
+		// 如果无相关配置，则抛出异常，或者return super.clazz(c)
+		// 找到配置，则根据编码配置，依次创建Prop类，生成encs数组
+		// 找到配置，则根据解码配置，依次创建Prop类，生成decs数组
+		return addClazz(c, false, encs, decs, null);
+	}
+};
+class Prop extends Property {
+	Prop(AccessibleObject fm, boolean enc) throws Exception {
+		super(fm, enc);
+		// 其他属性分析工作
+	}
+	@Override
+	protected boolean allowEnc(Object ruleKey) throws Exception {
+		// 根据key判断是否允许编码本属性
+	}
+	@Override
+	protected boolean allowDec(Object ruleKey) throws Exception {
+		// 根据key判断是否允许解码本属性
+	}
 }
 </pre>
 
@@ -236,6 +344,7 @@ public class User {
 	protected String name(Object o, Class&lt;?&gt; c) throws Exception {
 		return o instanceof HashMap ? "" : objot.util.Class2.selfName(c);
 	}
+	// override newObject, clazz, addClazz 等方法，即可采用不同的配置方式 
 }
 </pre>
 
@@ -263,14 +372,16 @@ v1 = codec.dec(s.toString().toCharArray(), Object.class, DoUser.class);
 解码时，只有v1具有friends属性，因为编码字符串中，只有u1有friends数据。
 
 
+
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
 <h2 id=aspect>AOP</h2>
 
 <p>Objot利用bytecode合成子类，实现轻量、快速而强大的AOP。
-允许使用常规的编程模式进行aspect编写，比before、after、catch那样分离的方式更加灵活。
 合成后，执行以local变量为主，没有reflection，效率比许多interception方式要高。
+
+<p>允许使用常规的编程模式进行aspect编写，比before、after、catch那样分离的方式更加灵活。
 配置是代码性的，可以自行编写adapter等，支持annotation、file等配置形式，可以将业务代码与Objot完全分离。
 
 <!--****************************************************************************************-->
@@ -350,7 +461,7 @@ target方法的返回值，原始类型为其box值，void为null。
 <h5>protected abstract Object <i>forWeave</i>(Class&lt;? extends Aspect&gt; ac, Method m) throws Exception</h5>
 针对每个aspect和每个target方法的组合，判断是否需要weave，并指定一个数据。
 如果返回this（即Weaver对象本身），表示不要weave。
-返回其他则weave，并作为override方法的相关数据，供<code>Target.getData()</code>使用，每个aspect每个target方法的组合一个数据。
+返回其他则weave，并作为override方法的相关数据，供<code>Target.data()</code>使用，每个aspect每个target方法的组合一个数据。
 
 <!--****************************************************************************************-->
 
@@ -371,7 +482,7 @@ target方法的返回值，原始类型为其box值，void为null。
 };
 </pre>
 
-<p>也可以编写配置文件访问代码，从而支持文件式配置。例如：
+<p>也可以编写访问配置文件的代码，从而支持文件式配置。例如：
 <pre>// 读取配置文件
 Weaver w = new Weaver(/* 配置中列举的全部aspect */) {
 	@Override
@@ -393,8 +504,9 @@ Weaver w = new Weaver(/* 配置中列举的全部aspect */) {
 <h2>IOC</h2>
 
 <p>Objot提供了轻量的基于bytecode的高效容器来实现IOC。
-支持多种注入模式，为对象作用域的控制提供了相当灵活的方式。
 合成子类后，创建容器没有reflection，没有线程同步，注入过程中也没有hash计算，效率很高。
+
+<p>支持多种注入模式，为对象作用域的控制提供了相当灵活的方式。
 配置是代码性的，可以自行编写adapter等，支持annotation、file等配置形式，可以将业务代码与Objot完全分离。
 
 <!--****************************************************************************************-->

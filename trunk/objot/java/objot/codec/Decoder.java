@@ -32,7 +32,6 @@ final class Decoder
 	private Object[] refs;
 	private long numl;
 	private double numd;
-	private boolean arrayForList;
 
 	/** @param ruleKey_ null is Object.class */
 	Decoder(Codec o, Class<?> ruleKey_, char[] s, int sBegin, int sEnd1)
@@ -48,7 +47,6 @@ final class Decoder
 	/** @param cla null is Object.class */
 	Object go(Class<?> cla) throws Exception
 	{
-		arrayForList = codec.arrayForList();
 		refs = Array2.OBJECTS0;
 		by = bBegin - 1;
 		bxy();
@@ -249,7 +247,7 @@ final class Decoder
 		Collection<Object> ls = null;
 
 		if (cla == Object.class)
-			cla = arrayForList ? Object[].class : ArrayList.class;
+			cla = codec.arrayForList ? Object[].class : ArrayList.class;
 		if (cla.isArray())
 		{
 			elem = cla.getComponentType();
@@ -308,8 +306,8 @@ final class Decoder
 		bxy();
 		Object o = codec.byName(name);
 		Class<?> cla = o instanceof Class ? (Class<?>)o : o.getClass();
-		Clazz z = codec.clazz(cla);
-		o = cla == o ? z.object() : o;
+		Clazz z = (Clazz)codec.clazz(cla);
+		o = cla == o ? z.object(codec) : o;
 		if ( !cla0.isAssignableFrom(cla))
 			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
 				+ cla0.getCanonicalName());
@@ -334,7 +332,7 @@ final class Decoder
 			Property p = z.decs.get(n);
 			if (p != null)
 			{
-				if ( !p.allow(ruleKey))
+				if ( !p.allowDec(ruleKey))
 					throw new RuntimeException("decoding " + o.getClass().getCanonicalName()
 						+ "." + n + " forbidden for " + ruleKey.getCanonicalName());
 				Object v = this;

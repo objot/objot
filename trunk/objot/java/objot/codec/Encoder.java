@@ -20,7 +20,7 @@ final class Encoder
 	private static final int HASH_MASK = 255;
 
 	private Codec codec;
-	private Class<?> ruleKey;
+	private Object ruleKey;
 	/** data as key in data graph */
 	private Object[][] objs;
 	/**
@@ -35,10 +35,10 @@ final class Encoder
 	private StringBuilder str;
 
 	/** @param ruleKey_ null is Object.class */
-	Encoder(Codec o, Class<?> ruleKey_)
+	Encoder(Codec o, Object ruleKey_)
 	{
 		codec = o;
-		ruleKey = ruleKey_ != null ? ruleKey_ : Object.class;
+		ruleKey = ruleKey_;
 		str = new StringBuilder(1000);
 	}
 
@@ -133,7 +133,7 @@ final class Encoder
 					refs(v);
 			return;
 		}
-		codec.clazz(o.getClass()).encodeRefs(this, o, ruleKey);
+		((Clazz)codec.clazz(o.getClass())).encodeRefs(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
@@ -220,7 +220,7 @@ final class Encoder
 		split().append('{');
 		split().append(codec.name(o, o.getClass()));
 		ref(o);
-		codec.clazz(o.getClass()).encode(this, o, ruleKey);
+		((Clazz)codec.clazz(o.getClass())).encode(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				value(pv.getKey(), pv.getValue());
