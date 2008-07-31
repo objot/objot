@@ -10,6 +10,7 @@ import java.util.Map;
 import objot.bytecode.Bytecode;
 import objot.bytecode.Instruction;
 import objot.bytecode.Procedure;
+import objot.util.Array2;
 import objot.util.Bytes;
 import objot.util.Class2;
 import objot.util.Mod2;
@@ -23,8 +24,8 @@ abstract class Clazz
 	Property[] encs;
 	Map<String, Property> decs;
 
-	static Clazz make(Class<?> c, boolean ctor, Property[] es, Property[] ds,
-		Map<String, Property> dNames) throws Exception
+	static Clazz make(Class<?> c, Property[] es, Property[] ds, Map<String, Property> dNames)
+		throws Exception
 	{
 		String name = Clazz.class.getName() + "$$" + c.getName().replace('.', '$');
 		Bytecode y = new Bytecode();
@@ -42,7 +43,14 @@ abstract class Clazz
 			makeEncode(y, es, classCi, encsCi, allowCi, nameCi);
 			makeEncodeRefs(y, es, classCi, encsCi, allowCi);
 		}
-		makeObject(y, classCi, ctor);
+		try
+		{
+			c.getDeclaredConstructor(Array2.CLASSES0);
+			makeObject(y, classCi);
+		}
+		catch (NoSuchMethodException e)
+		{
+		}
 		if (ds.length > 0)
 		{
 			makeDecode(y, ds, classCi, 0);
@@ -202,32 +210,26 @@ abstract class Clazz
 		y.getProcs().addProc(p);
 	}
 
-	/** Example: <code>return new A();</code> */
-	abstract Object object(Codec codec);
+	/** Example: <code>return new A();</code> if nullary constructor found */
+	Object object(Codec codec) throws Exception
+	{
+		throw new InstantiationException();
+	}
 
 	static final Bytes NAME_object = Bytecode.utf("object");
 	static final Bytes DESC_object = Bytecode.utf(Class2.descript(Class2.declaredMethod1(
 		Clazz.class, "object")));
 
-	private static void makeObject(Bytecode y, int classCi, boolean ctor)
+	private static void makeObject(Bytecode y, int classCi)
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_object));
 		p.setDescCi(p.cons.addUtf(DESC_object));
 		Instruction s = new Instruction(p.cons, 250);
-		if (ctor)
-		{
-			s.insU2(NEW, classCi);
-			s.ins0(DUP);
-			s.insU2(INVOKESPECIAL, p.cons.addCtor0(classCi));
-		}
-		else
-		{
-			s.ins0(ALOAD1);
-			s.insU2(LDCW, classCi);
-			s.insU2(INVOKEVIRTUAL, p.cons.addProc(Codec.M_newObject));
-		}
+		s.insU2(NEW, classCi);
+		s.ins0(DUP);
+		s.insU2(INVOKESPECIAL, p.cons.addCtor0(classCi));
 		s.ins0(ARETURN);
 		p.getCode().setIns(s, false);
 		p.getCode().setLocalN(2);
