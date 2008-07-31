@@ -55,7 +55,7 @@ public class Codec
 	 * Get object or class by name, must be thread safe, {@link HashMap} for "" by default
 	 * 
 	 * @param name may be ""
-	 * @return class for creating, otherwise for reusing
+	 * @return object, or class which nullary constructor will be called
 	 */
 	protected Object byName(String name) throws Exception
 	{
@@ -101,15 +101,6 @@ public class Codec
 	}
 
 	/**
-	 * create object of the class, create by default constructor without parameter through
-	 * bytecode by default.
-	 */
-	protected Object newObject(Class<?> c) throws Exception
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	/**
 	 * analyze a class
 	 * 
 	 * @return the return value of {@link #getClazz} or {@link #addClazz}
@@ -147,7 +138,7 @@ public class Codec
 			if (d != null)
 				new PropertyAnno(m, null, d, null, false).into(ds_);
 		}
-		return addClazz(c, true, //
+		return addClazz(c, //
 			Array2.from(es_.values(), Property.class), //
 			Array2.from(ds_.values(), Property.class), //
 			ds_);
@@ -159,11 +150,8 @@ public class Codec
 		return clazzs.get(c);
 	}
 
-	/**
-	 * @param ctor if create object by constructor, or by {@link #newObject}
-	 * @return the info of the class beiing analyzed
-	 */
-	protected Object addClazz(Class<?> c, boolean ctor, Property[] encs, Property[] decs,
+	/** @return the info of the class beiing analyzed */
+	protected Object addClazz(Class<?> c, Property[] encs, Property[] decs,
 		Map<String, Property> decNames) throws Exception
 	{
 		for (int i = 0; i < decs.length; i++)
@@ -177,13 +165,11 @@ public class Codec
 			for (Property d: decs)
 				decNames.put(d.name, d);
 		}
-		Clazz z = Clazz.make(c, ctor, encs, decs, decNames);
+		Clazz z = Clazz.make(c, encs, decs, decNames);
 		clazzs.put(c, z);
 		return z;
 	}
 
 	private final ConcurrentHashMap<Class<?>, Object> clazzs //
 	= new ConcurrentHashMap<Class<?>, Object>(64, 0.8f, 32);
-
-	static final Method M_newObject = Class2.declaredMethod1(Codec.class, "newObject");
 }

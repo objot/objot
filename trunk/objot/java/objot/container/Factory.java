@@ -166,7 +166,7 @@ public class Factory
 		for (Constructor<?> t: ts)
 			if (t.isAnnotationPresent(Inject.class))
 				return t;
-		return c.getDeclaredConstructor(); // ctor without parameter
+		return c.getDeclaredConstructor(); // nullary ctor
 	}
 
 	/**
@@ -196,8 +196,8 @@ public class Factory
 	 * @param b {@link Bind#mode} ignored
 	 * @return ignored, just for convenience
 	 */
-	protected Object forBind(Class<?> cc, AccessibleObject fp, Class<?> c, Type generic, Bind b)
-		throws Exception
+	protected Object forBind(Class<?> cc, AccessibleObject fp, Class<?> c, Type generic,
+		Bind b) throws Exception
 	{
 		return null;
 	}

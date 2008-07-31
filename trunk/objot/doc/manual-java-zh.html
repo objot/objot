@@ -122,7 +122,7 @@ public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class cla, Class ruleK
 默认是：<pre>return o instanceof HashMap ? "" : c.getName();</pre>
 
 <h5>protected Object <i>byName</i>(String name) throws Exception</h5>
-解码时，根据名字得到对象，或者对象的类（生成的bytecode会调用默认构造方法）。默认是：
+解码时，根据名字得到对象，或者对象的类（生成的bytecode会调用无参数构造方法）。默认是：
 <pre>return name.length() == 0 ? HashMap.class : Class.forName(name);</pre>
 
 <h5>protected long <i>beLong</i>(long l) throws Exception</h5>
@@ -139,11 +139,6 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 <pre>return c.isAssignableFrom(ArrayList.class) ? new ArrayList&lt;Object&gt;(len)
 	: new HashSet&lt;Object&gt;(len);</pre>
 
-<h5>protected Object <i>newObject</i>(Class c) throws Exception</h5>
-解码时创建对象。但是默认不调用此方法，而是直接调用类的无参数构造方法。
-如果需要由此方法来创建对象，参见clazz()、addClazz()。
-如果返回的对象不是类c的对象，将可能导致解码时抛出异常。
-
 <h5>protected Object <i>clazz</i>(Class c) throws Exception</h5>
 分析一个类，返回分析结果，用于编解码的处理。默认是：
 <pre>// 调用getClazz()，若已经分析过，则直接返回分析结果
@@ -157,7 +152,6 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 
 <h5>protected Object <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
 对类做最后分析，添加并返回最终结果。
-ctor为true，则使用类的无参数构造方法来创建对象；为false，则调用newObject()来创建对象。
 encs为需要编码的属性信息，decs为需要解码的属性信息。
 decNames为解码属性名和信息的map，若为null则默认根据encs生成，不为null则重用这个map。
 线程安全。参见Property类。
@@ -299,8 +293,8 @@ public class User {
 // 根据配置文件生成 相关类的创建模式，例如 使用IOC和AOP创建
 Codec c = new Codec() {
 	@Override
-	protected Object newObject(Class c) {
-		// 根据已生成的创建模式创建c的对象
+	protected Object byName(String name) throws Exception {
+		// 根据已生成的创建模式和name创建对象
 	}
 	@Override
 	protected Object clazz(Class c) throws Exception {
@@ -344,7 +338,7 @@ class Prop extends Property {
 	protected String name(Object o, Class&lt;?&gt; c) throws Exception {
 		return o instanceof HashMap ? "" : objot.util.Class2.selfName(c);
 	}
-	// override newObject, clazz, addClazz 等方法，即可采用不同的配置方式 
+	// override clazz, addClazz 等方法，即可采用不同的配置方式 
 }
 </pre>
 
