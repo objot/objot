@@ -15,7 +15,7 @@ public class Err
 		hint = hint_;
 	}
 
-	public static function th(x:Object):void
+	public static function th(x:Object)
 	{
 		throw x as Error || new Error(x);	
 	}

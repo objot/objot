@@ -6,9 +6,9 @@ package objot.util
 {
 
 
-public class Str
+public class String2
 {
-	public function Str()
+	protected function String2()
 	{
 		throw Error('singleton');
 	}
