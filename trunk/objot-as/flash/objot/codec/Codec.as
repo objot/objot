@@ -8,17 +8,58 @@ import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
 import objot.util.Class2;
-import objot.util.Str;
+import objot.util.String2;
 import objot.util.Err;
 
 
 public class Codec
 {
-	/** add encoding rules to a class. former rules are overrided by later rules.
- 	 * (@param key. @param encs what to encode, all if null)... */
-	public static function addRule(c:Class, key_:Class, encs:Array):void
+	private var rules:Dictionary;
+	private var key:Class;
+	private var refX:int;
+	private var encRefs:Dictionary;
+
+	public function Codec(sameRule:Codec = null)
 	{
-		var s:Array = c.$Codec$rule || (c.$Codec$rule = []);
+		rules = sameRule ? sameRule.rules : new Dictionary();
+	}
+
+
+	/**
+	 * Get object by name, {} for '' by default
+	 * 
+	 * @param name may be ''
+	 * @return object of class for the name
+	 */
+	protected function byName(name:String):Object
+	{
+		if (name == '')
+			return {};
+		return new (getDefinitionByName(name));
+	}
+
+	protected function decoded(o:Object):void
+	{
+	}
+
+	/**
+	 * Get object name, '' for Object and Function by default
+	 * 
+	 * @param c the object class
+	 * @return could be ''
+	 */
+	protected function name(o:Object, c:Class):String
+	{
+		if (c == Object || c == null)
+			return '';
+		return getQualifiedClassName(c);
+	}
+
+	/** add encoding rules to a class/function, former rules are overrided by later rules.
+ 	 * (@param key. @param encs what to encode, all if null)... */
+	public function encRule(cf:Object, key_:Class, encs:Array):void
+	{
+		var s:Array = rules[cf] || (rules[cf] = []);
 		for (var x:int = 1; x < arguments.length; )
 		{
 			s.push(Class(arguments[x++]));
@@ -28,51 +69,14 @@ public class Codec
 			{
 				for (var y:int = 0; y < encs.length; y++)
 					if ( !(encs[y] is String))
-						throw new Error(Str.s(encs) + ' must no contain ' + Str.s(encs[y]));
+						throw new Error(String2.s(encs) +
+							' must no contain ' + String2.s(encs[y]));
 				s.push(encs);
 			}
 			else
-				throw new TypeError(Str.s(encs) + ' must be array or null');
+				throw new TypeError(String2.s(encs) + ' must be array or null');
 		}
 	}
-
-	public function Codec()
-	{
-	}
-
-	/**
-	 * Get object or class by name, Object for '' by default
-	 * 
-	 * @param name may be ''
-	 * @return class for creating, otherwise for reusing
-	 */
-	protected function byName(name:String):Object
-	{
-		if (name.length == 0)
-			return Object;
-		return getDefinitionByName(name);
-	}
-
-	protected function decoded(o:Object):void
-	{
-	}
-
-	/**
-	 * Get object or class name, '' for Object by default
-	 * 
-	 * @param c the object class
-	 * @return could be ''
-	 */
-	protected function name(o:Object, c:Class):String
-	{
-		if (c == Object)
-			return '';
-		return getQualifiedClassName(c);
-	}
-
-	private var key:Class;
-	private var refX:int;
-	private var encRefs:Dictionary;
 
 	/** encode object graph to string, following the encoding rules. */
 	public function enc(o:Object, ruleKey:Class):String
@@ -86,7 +90,7 @@ public class Codec
 			{
 				s = [o is Array ? '[' : '{'];
 				key = ruleKey, refX = 0, encRefs = new Dictionary();
-				encRef(o) || Err.th(Str.s(o)
+				encRef(o) || Err.th(String2.s(o)
 					+ ' must not be null, String, Boolean, Number, Class, Function, Dictionary');
 				o is Array ? encL(o as Array, s, 1) : encO(o, s, 1);
 			}
@@ -106,10 +110,10 @@ public class Codec
 			return true;
 		var l = o is Array, enc:Array, p:Object;
 		P: {
-			G: if ( !l && (enc = o.constructor.$Codec$rule))
+			G: if ( !l && (enc = rules[o.constructor]))
 			{
 				for (var g:int = enc.length - 2; g >= 0; g -= 2)
-					if (Class2.extend(key, enc[g]))
+					if (Class2.sub(key, enc[g]))
 					{
 						if ((enc = enc[g + 1]))
 						{
@@ -117,7 +121,7 @@ public class Codec
 								if ((p = enc[n]) in o)
 									if ((p = o[p]) is String)
 										p.indexOf('\x10') < 0
-										|| Err.th(Str.s(p) + ' must NOT contain \\x10');
+										|| Err.th(String2.s(p) + ' must NOT contain \\x10');
 									else
 										encRef(p);
 							break P;
@@ -130,7 +134,7 @@ public class Codec
 				if (l || o.hasOwnProperty(y))
 					if ((p = o[y]) is String)
 						p.indexOf('\x10') < 0
-						|| Err.th(Str.s(p) + ' must NOT contain \\x10');
+						|| Err.th(String2.s(p) + ' must NOT contain \\x10');
 					else
 						encRef(p);
 		}
@@ -165,15 +169,15 @@ public class Codec
 
 	private function encO(o:Object, s:Array, x:int):int
 	{
-		s[x++] = name(o, o.constructor);
+		s[x++] = name(o, o.constructor as Class);
 		var enc:Array, p:String, v:Object;
 		if (encRefs[o])
 			s[x++] = ':', s[x++] = encRefs[o] = String(++refX);
 		P: {
-			G: if ((enc = o.constructor.$Codec$rule))
+			G: if ((enc = rules[o.constructor]))
 			{
 				for (var g:int = enc.length - 2; g >= 0; g -= 2)
-					if (Class2.extend(key, enc[g]))
+					if (Class2.sub(key, enc[g]))
 					{
 						if ((enc = enc[g + 1]))
 						{
@@ -234,7 +238,7 @@ public class Codec
 
 	private var decRefs:Array = [];
 
-	/** decode string to object graph, objects are created without constructors. */
+	/** decode string to object graph. */
 	public function dec(str:String):Object
 	{
 		try
@@ -251,10 +255,10 @@ public class Codec
 				case '>': s.o = true; break;
 				case '*': s.o = new Date(s[x++] - 0); break;
 				case 'NaN': s.o = NaN; break;
-				default: isNaN(s.o = Number(v)) && Err.th('illegal number ' + Str.s(v));
+				default: isNaN(s.o = Number(v)) && Err.th('illegal number ' + String2.s(v));
 			}
 			if (x < s.length)
-				Err.th('end expected but ' + Str.s(s[x]));
+				Err.th('end expected but ' + String2.s(s[x]));
 			else if (x > s.length)
 				Err.th('end unexpected');
 		}
@@ -282,7 +286,7 @@ public class Codec
 				case '{': x = decO(s, x); o[i] = s.o; break;
 				case '=': o[i] = decRefs[s[x++]]; break;
 				case 'NaN': o[i] = NaN; break;
-				default: isNaN(o[i] = Number(v)) && Err.th('illegal number ' + Str.s(v));
+				default: isNaN(o[i] = Number(v)) && Err.th('illegal number ' + String2.s(v));
 			}
 		s.o = o;
 		return x;
@@ -290,8 +294,6 @@ public class Codec
 
 	private function decO(s:Array, x:int):int {
 		var o:Object = byName(s[x++]), p:Object, v:Object;
-		if (o is Class)
-			o = new o();
 		if (s[x] === ':')
 			decRefs[s[++x]] = o, x++;
 		while (x >= s.length ? Err.th('} expected but end') : (p = s[x++]) !== '}')
@@ -305,7 +307,7 @@ public class Codec
 				case '{': x = decO(s, x); o[p] = s.o; break;
 				case '=': o[p] = decRefs[s[x++]]; break;
 				case 'NaN': o[p] = NaN; break;
-				default: isNaN(o[p] = Number(v)) && Err.th('illegal number ' + Str.s(v));
+				default: isNaN(o[p] = Number(v)) && Err.th('illegal number ' + String2.s(v));
 			}
 		decoded(s.o = o);
 		return x;
