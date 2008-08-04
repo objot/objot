@@ -18,21 +18,23 @@ import objot.util.Mod2;
 import static objot.bytecode.Opcode.*;
 
 
-abstract class Clazz
+public abstract class Clazz
 {
 	static final Field F_encs = Class2.declaredField(Clazz.class, "encs");
-	Property[] encs;
+	protected Property[] encs;
 	Map<String, Property> decs;
 
 	static Clazz make(Class<?> c, Property[] es, Property[] ds, Map<String, Property> dNames)
 		throws Exception
 	{
-		String name = Clazz.class.getName() + "$$" + c.getName().replace('.', '$');
+		String name = c.getName().startsWith("java.") //
+			? Clazz.class.getName() + "$$" + c.getName().replace('.', '$') //
+			: c.getName().concat("$$Codec");
 		Bytecode y = new Bytecode();
-		y.head.setModifier(Mod2.FINAL | Mod2.SYNTHETIC);
+		y.head.setModifier(Mod2.PUBLIC | Mod2.FINAL | Mod2.SYNTHETIC);
 		y.head.setClassCi(y.cons.addClass(y.cons.addUcs(Class2.pathName(name))));
 		y.head.setSuperCi(y.cons.addClass(Clazz.class));
-		y.getProcs().addProc(Procedure.addCtor0(y.cons, y.head.getSuperCi(), 0));
+		y.getProcs().addProc(Procedure.addCtor0(y.cons, y.head.getSuperCi(), Mod2.PUBLIC));
 
 		int classCi = y.cons.addClass(c);
 		if (es.length > 0)
@@ -65,6 +67,10 @@ abstract class Clazz
 		return z;
 	}
 
+	protected Clazz()
+	{
+	}
+
 	/**
 	 * Example:
 	 * 
@@ -78,7 +84,7 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	void encodeRefs(Encoder e, Object o, Object ruleKey)
+	protected void encodeRefs(Encoder e, Object o, Object ruleKey)
 	{
 	}
 
@@ -99,7 +105,7 @@ abstract class Clazz
 	 * ...
 	 * </pre>
 	 */
-	void encode(Encoder e, Object o, Object ruleKey)
+	protected void encode(Encoder e, Object o, Object ruleKey)
 	{
 	}
 
@@ -111,7 +117,7 @@ abstract class Clazz
 		int allowCi)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Mod2.FINAL);
+		p.setModifier(Mod2.PROTECTED | Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encodeRefs));
 		p.setDescCi(p.cons.addUtf(DESC_encodeRefs));
 		Instruction s = new Instruction(p.cons, 250);
@@ -152,7 +158,7 @@ abstract class Clazz
 		int allowCi, int nameCi)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Mod2.FINAL);
+		p.setModifier(Mod2.PROTECTED | Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_encode));
 		p.setDescCi(p.cons.addUtf(DESC_encode));
 		Instruction s = new Instruction(y.cons, 250);
@@ -211,7 +217,7 @@ abstract class Clazz
 	}
 
 	/** Example: <code>return new A();</code> if nullary constructor found */
-	Object object(Codec codec) throws Exception
+	protected Object object(Codec codec) throws Exception
 	{
 		throw new InstantiationException();
 	}
@@ -223,7 +229,7 @@ abstract class Clazz
 	private static void makeObject(Bytecode y, int classCi)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Mod2.FINAL);
+		p.setModifier(Mod2.PROTECTED | Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_object));
 		p.setDescCi(p.cons.addUtf(DESC_object));
 		Instruction s = new Instruction(p.cons, 250);
@@ -249,12 +255,12 @@ abstract class Clazz
 	 *   default: throw new ClassCastException();
 	 * }</pre>
 	 */
-	abstract void decode(Object o, int x, Object v);
+	protected abstract void decode(Object o, int x, Object v);
 
-	abstract void decode(Object o, int x, long v);
+	protected abstract void decode(Object o, int x, long v);
 
 	/** includes floats */
-	abstract void decode(Object o, int x, double v);
+	protected abstract void decode(Object o, int x, double v);
 
 	static final Bytes NAME_decode = Bytecode.utf("decode");
 	static final Bytes DESC_decode = Bytecode.utf(Class2.descript( //
@@ -267,7 +273,7 @@ abstract class Clazz
 	private static void makeDecode(Bytecode y, Property[] ds, int classCi, int type)
 	{
 		Procedure p = new Procedure(y.cons);
-		p.setModifier(Mod2.FINAL);
+		p.setModifier(Mod2.PROTECTED | Mod2.FINAL);
 		p.setNameCi(p.cons.addUtf(NAME_decode));
 		p.setDescCi(p.cons.addUtf(type == 0 ? DESC_decode : type == 1 ? DESC_decodeL
 			: DESC_decodeD));

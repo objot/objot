@@ -18,7 +18,7 @@ public abstract class Property
 	protected Class<?> out;
 	protected Field field;
 	protected Method method;
-	protected String name;
+	public String name;
 	protected Class<?> cla;
 	protected Class<?> listElem;
 
@@ -58,9 +58,9 @@ public abstract class Property
 		map.put(name, this);
 	}
 
-	protected abstract boolean allowEnc(Object ruleKey) throws Exception;
+	public abstract boolean allowEnc(Object ruleKey) throws Exception;
 
-	protected abstract boolean allowDec(Object ruleKey) throws Exception;
+	public abstract boolean allowDec(Object ruleKey) throws Exception;
 
 	int index;
 	boolean clob;

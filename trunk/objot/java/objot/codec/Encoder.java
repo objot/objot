@@ -15,7 +15,7 @@ import objot.util.Array2;
 import objot.util.Class2;
 
 
-final class Encoder
+public final class Encoder
 {
 	private static final int HASH_MASK = 255;
 
@@ -64,7 +64,7 @@ final class Encoder
 	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value",
 		String.class, Object.class);
 
-	void value(String name, Object v) throws Exception
+	public void value(String name, Object v) throws Exception
 	{
 		if (name != null)
 			split().append(name);
@@ -114,7 +114,7 @@ final class Encoder
 
 	@SuppressWarnings("unchecked")
 	/** visit the data graph */
-	void refs(Object o) throws Exception
+	public void refs(Object o) throws Exception
 	{
 		if (o instanceof String && ((String)o).indexOf(Codec.S) >= 0)
 			throw new RuntimeException("String must not contain the split char");
@@ -237,7 +237,7 @@ final class Encoder
 	static final Method M_valueInt = Class2.declaredMethod(Encoder.class, "value",
 		String.class, int.class);
 
-	void value(String name, int v)
+	public void value(String name, int v)
 	{
 		if (name != null)
 			split().append(name);
@@ -247,7 +247,7 @@ final class Encoder
 	static final Method M_valueLong = Class2.declaredMethod(Encoder.class, "value",
 		String.class, long.class);
 
-	void value(String name, long v) throws Exception
+	public void value(String name, long v) throws Exception
 	{
 		if (name != null)
 			split().append(name);
@@ -257,7 +257,7 @@ final class Encoder
 	static final Method M_valueBool = Class2.declaredMethod(Encoder.class, "value",
 		String.class, boolean.class);
 
-	void value(String name, boolean v)
+	public void value(String name, boolean v)
 	{
 		if (name != null)
 			split().append(name);
@@ -267,7 +267,7 @@ final class Encoder
 	static final Method M_valueFloat = Class2.declaredMethod(Encoder.class, "value",
 		String.class, float.class);
 
-	void value(String name, float v)
+	public void value(String name, float v)
 	{
 		if (name != null)
 			split().append(name);
@@ -277,7 +277,7 @@ final class Encoder
 	static final Method M_valueDouble = Class2.declaredMethod(Encoder.class, "value",
 		String.class, double.class);
 
-	void value(String name, double v)
+	public void value(String name, double v)
 	{
 		if (name != null)
 			split().append(name);

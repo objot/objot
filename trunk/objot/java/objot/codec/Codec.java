@@ -22,6 +22,18 @@ import objot.util.Mod2;
 public class Codec
 {
 	public static final char S = '\20'; // Ctrl-P in vim
+	private final ConcurrentHashMap<Class<?>, Object> clazzs;
+
+	public Codec()
+	{
+		clazzs = new ConcurrentHashMap<Class<?>, Object>(64, 0.8f, 32);
+	}
+
+	/** keep same class analysis with another codec */
+	public Codec(Codec sameClazz)
+	{
+		clazzs = sameClazz.clazzs;
+	}
 
 	/**
 	 * @param o the whole encoded data graph must keep unchanged since the references
@@ -118,7 +130,7 @@ public class Codec
 			Dec d = f.getAnnotation(Dec.class);
 			EncDec gs = f.getAnnotation(EncDec.class);
 			if ((e != null || d != null || gs != null)
-				&& Mod2.match(f, Mod2.STATIC | Mod2.NOT_PUBLIC))
+				&& Mod2.match(f, Mod2.STATIC | Mod2.PRIVATE))
 				throw new IllegalArgumentException("encoding/decoding " + Mod2.toString(f)
 					+ f + " forbidden");
 			if (e != null || gs != null)
@@ -130,7 +142,7 @@ public class Codec
 		{
 			Enc e = m.getAnnotation(Enc.class);
 			Dec d = m.getAnnotation(Dec.class);
-			if ((e != null || d != null) && Mod2.match(m, Mod2.STATIC | Mod2.NOT_PUBLIC))
+			if ((e != null || d != null) && Mod2.match(m, Mod2.STATIC | Mod2.PRIVATE))
 				throw new IllegalArgumentException("encoding/decoding " + Mod2.toString(m)
 					+ m + " forbidden");
 			if (e != null)
@@ -169,7 +181,4 @@ public class Codec
 		clazzs.put(c, z);
 		return z;
 	}
-
-	private final ConcurrentHashMap<Class<?>, Object> clazzs //
-	= new ConcurrentHashMap<Class<?>, Object>(64, 0.8f, 32);
 }
