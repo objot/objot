@@ -86,13 +86,13 @@ final class PropertyAnno
 	}
 
 	@Override
-	protected boolean allowEnc(Object ruleKey)
+	public boolean allowEnc(Object ruleKey)
 	{
 		return ruleKey instanceof Class ? allow((Class<?>)ruleKey) : allow(ruleKey);
 	}
 
 	@Override
-	protected boolean allowDec(Object ruleKey)
+	public boolean allowDec(Object ruleKey)
 	{
 		return ruleKey instanceof Class ? allow((Class<?>)ruleKey) : allow(ruleKey);
 	}

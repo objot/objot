@@ -110,15 +110,16 @@
 <p>编解码。默认的规则配置代码采用annotation配置方式。
 
 <h5>public StringBuilder <i>enc</i>(Object o, Object rukeKey) throws Exception</h5>
-编码，使用的规则与 每个编码的数据 及key相关。非线程安全。
+编码，使用的规则与 每个编码的对象 及ruleKey相关。非线程安全。
 
 <h5>public Object <i>dec</i>(char[] s, Class cla, Object ruleKey) throws Exception<br>
 public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class cla, Class ruleKey)</h5>
-解码，使用的规则与 每个解码的数据 及key相关。返回数据图的根，如果根不符合cla，则抛出异常。
+解码，使用的规则与 每个解码的对象 及ruleKey相关。返回数据图的根。
+对根的解码将参照cla，如果不能符合cla，则抛出异常。
 被解码的字符串范围是[sBegin,sEnd1)。非线程安全。
 
 <h5>protected String <i>name</i>(Object o, Class c) throws Exception</h5>
-编码时指定名字。<code>c == o.getClass()</code>，即可给每个类，也可以给每个对象指定不同的名字。
+编码时指定名字。<code>c == o.getClass()</code>，既可给每个类，也可以给每个对象指定不同的名字。
 默认是：<pre>return o instanceof HashMap ? "" : c.getName();</pre>
 
 <h5>protected Object <i>byName</i>(String name) throws Exception</h5>
@@ -155,6 +156,12 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 encs为需要编码的属性信息，decs为需要解码的属性信息。
 decNames为解码属性名和信息的map，若为null则默认根据encs生成，不为null则重用这个map。
 线程安全。参见Property类。
+
+<h5>public <i>Codec</i>()</h5>
+默认构造方法。类分析结果独立于其他Codec对象。
+
+<h5>public <i>Codec</i>(Codec sameClazz)</h5>
+构造方法。类分析结果和s指定Codec共用，并保持相同。
 
 <!--****************************************************************************************-->
 
