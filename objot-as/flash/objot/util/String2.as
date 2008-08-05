@@ -8,7 +8,7 @@ package objot.util
 
 public class String2
 {
-	protected function String2()
+	public function String2()
 	{
 		throw Error('singleton');
 	}

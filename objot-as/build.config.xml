@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <flex-config>
 	<metadata>
-		<title>Test Objot</title>
+		<title>Objot</title>
 		<description>http://objot.info</description>
 		<publisher>Qianyan Cai</publisher>
 		<creator>Qianyan Cai</creator>
@@ -16,7 +16,7 @@
 		</source-path>
 		<actionscript-file-encoding>utf-8</actionscript-file-encoding>
 		<include-libraries>
-			<!-- <library>path</library> -->
+			<!-- <library>lib</library> -->
 		</include-libraries>
 
 		<as3>true</as3>
@@ -32,6 +32,8 @@
 
 		<!-- Bindable, Managed, ChangeEvent, NonCommittingChangeEvent, Transient are for Flex -->
 		<keep-as3-metadata>
+			<name>Enc</name>
+			<name>EncDynamic</name>
 		</keep-as3-metadata>
 
 		<!-- generate accessible swf -->

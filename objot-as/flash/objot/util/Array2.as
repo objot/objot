@@ -4,8 +4,7 @@
 //
 package objot.util
 {
-	import flash.utils.getQualifiedClassName;
-	
+import flash.utils.getQualifiedClassName;
 
 
 public class Array2
@@ -26,7 +25,8 @@ public class Array2
 		return s;
 	}
 
-	public static function map(to:Object, s:Array, propKey:String, propValue:String = null):Object
+	public static function map(to:Object, s:Array, propKey:String, propValue:String = null)
+		:Object
 	{
 		if (propKey != null)
 			if (propValue != null)
