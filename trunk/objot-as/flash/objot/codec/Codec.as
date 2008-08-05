@@ -7,15 +7,16 @@ package objot.codec
 import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
+
 import objot.util.Class2;
-import objot.util.String2;
 import objot.util.Err;
+import objot.util.String2;
 
 
 public class Codec
 {
-	private var rules:Dictionary;
-	private var key:Class;
+	protected var rules:Dictionary;
+	private var key:Object;
 	private var refX:int;
 	private var encRefs:Dictionary;
 
@@ -55,43 +56,39 @@ public class Codec
 		return getQualifiedClassName(c);
 	}
 
-	/** add encoding rules to a class/function, former rules are overrided by later rules.
- 	 * (@param key. @param encs what to encode, all if null)... */
-	public function encRule(cf:Object, key_:Class, encs:Array):void
+	public function clazz(cf:Object):Rule
 	{
-		var s:Array = rules[cf] || (rules[cf] = []);
-		for (var x:int = 1; x < arguments.length; )
-		{
-			s.push(Class(arguments[x++]));
-			if ((encs = arguments[x++]) === null)
-				s.push(null);
-			else if (encs is Array)
-			{
-				for (var y:int = 0; y < encs.length; y++)
-					if ( !(encs[y] is String))
-						throw new Error(String2.s(encs) +
-							' must no contain ' + String2.s(encs[y]));
-				s.push(encs);
-			}
-			else
-				throw new TypeError(String2.s(encs) + ' must be array or null');
-		}
+		var r:Rule = rules[cf];
+		if (r)
+			return r;
+		r = new Rule;
+		cf is Function ? r.initFunc(Function(cf)) : r.initClass(Class(cf));
+		return rules[cf] = r;
 	}
 
-	/** encode object graph to string, following the encoding rules. */
-	public function enc(o:Object, ruleKey:Class):String
+	/** encode object graph to string, following the rules. */
+	public function enc(o:Object, ruleKey:Object):String
 	{
-		var s:Array =
-			o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
-			: o is Number ? [String(o)] : o is String ? ['', o]
-			: o is Date ? ['*', o.getTime()] : null;
-		if ( !s)
+		var s:Array;
+		if (o == null)
+			s = [','];
+		else if (o === false)
+			s = ['<'];
+		else if (o === true)
+			s = ['>'];
+		else if (o is Number)
+			s = [String(o)];
+		else if (o is String)
+			s = ['', o];
+		else if (o is Date)
+			s = ['*', (o as Date).getTime()];
+		else
 			try
 			{
 				s = [o is Array ? '[' : '{'];
 				key = ruleKey, refX = 0, encRefs = new Dictionary();
-				encRef(o) || Err.th(String2.s(o)
-					+ ' must not be null, String, Boolean, Number, Class, Function, Dictionary');
+				encRef(o) || Err.th(String2.s(o) +
+					' must not be null, String, Boolean, Number, Class, Function, Dictionary');
 				o is Array ? encL(o as Array, s, 1) : encO(o, s, 1);
 			}
 			finally
@@ -108,35 +105,29 @@ public class Codec
 			return false;
 		if (o is Date || (encRefs[o] = o in encRefs)) // check and set multi reference flag
 			return true;
-		var l = o is Array, enc:Array, p:Object;
-		P: {
-			G: if ( !l && (enc = rules[o.constructor]))
-			{
-				for (var g:int = enc.length - 2; g >= 0; g -= 2)
-					if (Class2.sub(key, enc[g]))
-					{
-						if ((enc = enc[g + 1]))
-						{
-							for (var n:int = 0; n < enc.length; n++)
-								if ((p = enc[n]) in o)
-									if ((p = o[p]) is String)
-										p.indexOf('\x10') < 0
-										|| Err.th(String2.s(p) + ' must NOT contain \\x10');
-									else
-										encRef(p);
-							break P;
-						}
-						break G;
-					}
-				break P;
-			}
-			for (var y in o)
-				if (l || o.hasOwnProperty(y))
-					if ((p = o[y]) is String)
-						p.indexOf('\x10') < 0
-						|| Err.th(String2.s(p) + ' must NOT contain \\x10');
+		var p:String, v:Object;
+		if (o is Array)
+			for each (p in o as Array)
+				if ((v = o[p]) is String)
+					v.indexOf('\x10') < 0 || Err.th(String2.s(v) + ' must NOT contain \\x10');
+				else
+					encRef(v);
+		else
+		{
+			var r:Rule = clazz(o.constructor);
+			for each (p in r.enc(key))
+				if ((v = o[p]) is String)
+					v.indexOf('\x10') < 0 || Err.th(String2.s(v) + ' must NOT contain \\x10');
+				else
+					encRef(v);
+			if (r.encDynamic(key))
+				for (p in o)
+					if (o.hasOwnProperty(p))
+					if ((v = o[p]) is String)
+						v.indexOf('\x10') < 0
+							|| Err.th(String2.s(v) + ' must NOT contain \\x10');
 					else
-						encRef(p);
+						encRef(v);
 		}
 		return true;
 	}
@@ -156,7 +147,7 @@ public class Codec
 			else if (v is String)
 				s[x++] = '', s[x++] = v;
 			else if (v is Date)
-				s[x++] = '*', s[x++] = v.getTime();
+				s[x++] = '*', s[x++] = (v as Date).getTime();
 			else if (encRefs[v] is String)
 				s[x++] = '=', s[x++] = encRefs[v];
 			else if (v is Array)
@@ -170,48 +161,35 @@ public class Codec
 	private function encO(o:Object, s:Array, x:int):int
 	{
 		s[x++] = name(o, o.constructor as Class);
-		var enc:Array, p:String, v:Object;
+		var s:Array, r:Rule, p:String, v:Object;
 		if (encRefs[o])
 			s[x++] = ':', s[x++] = encRefs[o] = String(++refX);
-		P: {
-			G: if ((enc = rules[o.constructor]))
+		r = clazz(o.constructor);
+		for each (p in r.enc(key))
+			if (v = o[p], !(v is Class) && !(v is Function))
 			{
-				for (var g:int = enc.length - 2; g >= 0; g -= 2)
-					if (Class2.sub(key, enc[g]))
-					{
-						if ((enc = enc[g + 1]))
-						{
-							for (var n:int = 0; n < enc.length; n++)
-								if ((p = enc[n]) in o)
-								if ( !((v = o[p]) is Function))
-								{
-									s[x++] = p;
-									if (v == null)
-										s[x++] = ',';
-									else if (v is Boolean)
-										s[x++] = v ? '>' : '<';
-									else if (v is Number)
-										s[x++] = String(v); 
-									else if (v is String)
-										s[x++] = '', s[x++] = v;
-									else if (v is Date)
-										s[x++] = '*', s[x++] = v.getTime();
-									else if (encRefs[v] is String)
-										s[x++] = '=', s[x++] = encRefs[v];
-									else if (v is Array)
-										s[x++] = '[', x = encL(v as Array, s, x);
-									else
-										s[x++] = '{', x = encO(v, s, x);
-								}
-							break P;
-						}
-						break G;
-					}
-				break P;
+				s[x++] = p;
+				if (v == null)
+					s[x++] = ',';
+				else if (v is Boolean)
+					s[x++] = v ? '>' : '<';
+				else if (v is Number)
+					s[x++] = String(v); 
+				else if (v is String)
+					s[x++] = '', s[x++] = v;
+				else if (v is Date)
+					s[x++] = '*', s[x++] = (v as Date).getTime();
+				else if (encRefs[v] is String)
+					s[x++] = '=', s[x++] = encRefs[v];
+				else if (v is Array)
+					s[x++] = '[', x = encL(v as Array, s, x);
+				else
+					s[x++] = '{', x = encO(v, s, x);
 			}
+		if (r.encDynamic(key))
 			for (p in o)
 				if (o.hasOwnProperty(p))
-				if ( !((v = o[p]) is Function))
+				if (v = o[p], !(v is Class) && !(v is Function))
 				{
 					s[x++] = p;
 					if (v == null)
@@ -223,7 +201,7 @@ public class Codec
 					else if (v is String)
 						s[x++] = '', s[x++] = v;
 					else if (v is Date)
-						s[x++] = '*', s[x++] = v.getTime();
+						s[x++] = '*', s[x++] = (v as Date).getTime();
 					else if (encRefs[v] is String)
 						s[x++] = '=', s[x++] = encRefs[v];
 					else if (v is Array)
@@ -231,7 +209,6 @@ public class Codec
 					else
 						s[x++] = '{', x = encO(v, s, x);
 				}
-		}
 		s[x++] = '}';
 		return x;
 	}

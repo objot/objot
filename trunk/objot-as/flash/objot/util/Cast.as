@@ -4,8 +4,7 @@
 //
 package objot.util
 {
-	import flash.utils.getQualifiedClassName;
-	
+import flash.utils.getQualifiedClassName;
 
 
 public class Cast
