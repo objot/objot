@@ -11,7 +11,7 @@ import flash.utils.getQualifiedClassName;
 import flash.utils.getQualifiedSuperclassName;
 
 
-public class Class2
+public class Class2 extends Metas
 {
 	public var cla:Class;
 
@@ -64,15 +64,11 @@ public class Class2
 	/** [ Method ] */
 	public var allMethods:Array;
 
-	/** [ Meta ]*/
-	public var metas:Array;
-
-	/** { name: Meta } */
-	public var metaz:Object;
-
 	public function Class2()
 	{
 	}
+
+	protected static const clas:Dictionary = new Dictionary;
 
 	/**
 	 * run static init code, make getDefinitionByName available,
@@ -80,9 +76,10 @@ public class Class2
 	 */
 	public static function init(c:Class):Class2
 	{
-		if (c.$)
-			return c.$;
-		var d:Class2 = c.$ = new Class2;
+		var d:Class2 = clas[c];
+		if (d)
+			return d;
+		d = new Class2;
 		d.cla = c;
 		d.name = getQualifiedClassName(c);
 		d.selfName = d.name.replace(/.*::/, '');
@@ -97,14 +94,14 @@ public class Class2
 		d.superz = Array2.map(Array2.map({}, d.extens, '$name'), d.interfaces, '$name');
 		d.superNamez = Dictionary(Array2.map(Array2.map(new Dictionary(),
 			d.extens, null, '$name'), d.interfaces, null, '$name'));
-		Prop.props(c, xf, false, d.props = [], d.propz = []);
-		Prop.props(c, x, true, d.staticProps = [], d.staticPropz = []);
-		Method.methods(c, xf, false, d.methods = [], d.methodz = {});
-		Method.methods(c, x, true, d.staticMethods = [], d.staticMethodz = {});
+		Prop.props(d, xf, false, d.props = [], d.propz = []);
+		Prop.props(d, x, true, d.staticProps = [], d.staticPropz = []);
+		Method.methods(d, xf, false, d.methods = [], d.methodz = {});
+		Method.methods(d, x, true, d.staticMethods = [], d.staticMethodz = {});
 		d.allProps = d.props.concat(d.staticProps);
 		d.allMethods = d.methods.concat(d.staticMethods);
-		Meta.metas(xf, d.metas = [], d.metaz = {});
-		return d;
+		Meta.metas(d, xf, d.metas = [], d.metaz = {});
+		return clas[c] = d;
 	}
 
 	/** getDefinitionByName, null for void, Object for * */

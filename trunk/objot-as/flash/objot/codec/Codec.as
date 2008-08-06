@@ -115,7 +115,7 @@ public class Codec
 		else
 		{
 			var r:Rule = clazz(o.constructor);
-			for each (p in r.enc(key))
+			for each (p in r.encProps(key))
 				if ((v = o[p]) is String)
 					v.indexOf('\x10') < 0 || Err.th(String2.s(v) + ' must NOT contain \\x10');
 				else
@@ -165,7 +165,7 @@ public class Codec
 		if (encRefs[o])
 			s[x++] = ':', s[x++] = encRefs[o] = String(++refX);
 		r = clazz(o.constructor);
-		for each (p in r.enc(key))
+		for each (p in r.encProps(key))
 			if (v = o[p], !(v is Class) && !(v is Function))
 			{
 				s[x++] = p;

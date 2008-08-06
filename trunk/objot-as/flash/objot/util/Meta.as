@@ -8,6 +8,8 @@ package objot.util
 
 public class Meta
 {
+	public var on:Metas;
+
 	public var name:String;
 
 	/** [ { name, value } ] */
@@ -16,17 +18,18 @@ public class Meta
 	/** { name: value } */
 	public var argz:Object;
 
-	public function Meta(x:XML)
+	public function Meta(o:Metas, x:XML)
 	{
+		on = o;
 		name = String(x.@name);
 		MetaArg.args(x, args = [], argz = {});
 	}
 
-	public static function metas(x:XML, s:Array, z:Object = null):Array
+	public static function metas(o:Metas, x:XML, s:Array, z:Object = null):Array
 	{
 		for each (x in x.metadata)
 		{
-			var m:Meta = new Meta(x);
+			var m:Meta = new Meta(o, x);
 			s && (s[s.length] = m);
 			z && (z[m.name] = m);
 		}
