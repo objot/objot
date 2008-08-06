@@ -306,7 +306,7 @@ final class Decoder
 		bxy();
 		Object o = codec.byName(name);
 		Class<?> cla = o instanceof Class ? (Class<?>)o : o.getClass();
-		Clazz z = (Clazz)codec.clazz(cla);
+		Clazz z = codec.clazz(cla);
 		o = cla == o ? z.object(codec) : o;
 		if ( !cla0.isAssignableFrom(cla))
 			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "

@@ -18,6 +18,7 @@ public abstract class Property
 	protected Class<?> out;
 	protected Field field;
 	protected Method method;
+	/** for {@link Clazz} subclass */
 	public String name;
 	protected Class<?> cla;
 	protected Class<?> listElem;

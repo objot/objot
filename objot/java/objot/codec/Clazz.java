@@ -29,7 +29,7 @@ public abstract class Clazz
 	{
 		String name = c.getName().startsWith("java.") //
 			? Clazz.class.getName() + "$$" + c.getName().replace('.', '$') //
-			: c.getName().concat("$$Codec");
+			: c.getName() + "$$Codec" + (c.hashCode() ^ Clazz.class.hashCode());
 		Bytecode y = new Bytecode();
 		y.head.setModifier(Mod2.PUBLIC | Mod2.FINAL | Mod2.SYNTHETIC);
 		y.head.setClassCi(y.cons.addClass(y.cons.addUcs(Class2.pathName(name))));

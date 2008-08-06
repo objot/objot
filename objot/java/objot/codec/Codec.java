@@ -22,11 +22,11 @@ import objot.util.Mod2;
 public class Codec
 {
 	public static final char S = '\20'; // Ctrl-P in vim
-	private final ConcurrentHashMap<Class<?>, Object> clazzs;
+	private final ConcurrentHashMap<Class<?>, Clazz> clazzs;
 
 	public Codec()
 	{
-		clazzs = new ConcurrentHashMap<Class<?>, Object>(64, 0.8f, 32);
+		clazzs = new ConcurrentHashMap<Class<?>, Clazz>(64, 0.8f, 32);
 	}
 
 	/** keep same class analysis with another codec */
@@ -117,9 +117,9 @@ public class Codec
 	 * 
 	 * @return the return value of {@link #getClazz} or {@link #addClazz}
 	 */
-	protected Object clazz(Class<?> c) throws Exception
+	public Clazz clazz(Class<?> c) throws Exception
 	{
-		Object z = getClazz(c);
+		Clazz z = getClazz(c);
 		if (z != null)
 			return z;
 		HashMap<String, Property> es_ = new HashMap<String, Property>();
@@ -157,13 +157,13 @@ public class Codec
 	}
 
 	/** @return the info of the analyzed class, or null if not analyzed */
-	protected final Object getClazz(Class<?> c)
+	protected final Clazz getClazz(Class<?> c)
 	{
 		return clazzs.get(c);
 	}
 
 	/** @return the info of the class beiing analyzed */
-	protected Object addClazz(Class<?> c, Property[] encs, Property[] decs,
+	protected Clazz addClazz(Class<?> c, Property[] encs, Property[] decs,
 		Map<String, Property> decNames) throws Exception
 	{
 		for (int i = 0; i < decs.length; i++)

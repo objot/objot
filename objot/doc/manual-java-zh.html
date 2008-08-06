@@ -140,18 +140,18 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 <pre>return c.isAssignableFrom(ArrayList.class) ? new ArrayList&lt;Object&gt;(len)
 	: new HashSet&lt;Object&gt;(len);</pre>
 
-<h5>protected Object <i>clazz</i>(Class c) throws Exception</h5>
-分析一个类，返回分析结果，用于编解码的处理。默认是：
+<h5>public Clazz <i>clazz</i>(Class c) throws Exception</h5>
+分析一个类，返回分析结果，用于编解码的处理。既可能在编解码时被动调用，也可以主动调用。默认是：
 <pre>// 调用getClazz()，若已经分析过，则直接返回分析结果
 // 对c的每个field进行@Enc、@Dec等annotation分析
 // 对c的每个method进行@Enc、@Dec等annotation分析
 // 调用addClazz()，将分析的field,method情况传入，然后返回最终结果
 </pre>
 
-<h5>protected final Object <i>getClazz</i>(Class c) throws Exception</h5>
+<h5>protected final Clazz <i>getClazz</i>(Class c) throws Exception</h5>
 返回类的分析结果，若尚未分析，则返回null。线程安全。
 
-<h5>protected Object <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
+<h5>protected Clazz <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
 对类做最后分析，添加并返回最终结果。
 encs为需要编码的属性信息，decs为需要解码的属性信息。
 decNames为解码属性名和信息的map，若为null则默认根据encs生成，不为null则重用这个map。
@@ -168,7 +168,7 @@ decNames为解码属性名和信息的map，若为null则默认根据encs生成�
 <h3>public @interface objot.codec.<i>Enc, Yes, No</i></h3>
 
 <p>表示被标记的field、getter需要编码。
-field、getter都必须public，getter可以是<code>getName()</code>也可以是<code>name()</code>这样的形式。
+field、getter不能是private，getter可以是<code>getName()</code>也可以是<code>name()</code>这样的形式。
 
 <p>可以设置参数，表示指定哪些key时需要编码，哪些禁止编码，作为编码规则。规则在后的优先。
 
@@ -203,7 +203,7 @@ public String name;</pre>
 <h3>public @interface objot.codec.<i>Dec, EncDec</i></h3>
 
 <p>@Dec与@Enc类似，表示被标记的field、setter允许解码。
-field、setter都必须public，setter可以是<code>setName(String v)</code>也可以是<code>name(String v)</code>这样的形式。
+field、setter不能是private，setter可以是<code>setName(String v)</code>也可以是<code>name(String v)</code>这样的形式。
 @EncDec表示@Enc和@Dec的组合。
 
 <p>当在类上标记@Dec时，其规则作用于各个field、setter的@Dec、@EncDec的前端，对@Enc不起作用。
@@ -753,7 +753,7 @@ Container a = new Factory() {
 否则当做byte[]或InputStream，直接输出。
 
 <p>请求时，提供上下文容器，包含HttpServletRequest, HttpServletSession等供ServiceHandler处理。
-对于http文件上传，生成Input.Upload对象，即用于参数字符串提取和解码，也传递给ServiceHandler供serivce读取。
+对于http文件上传，生成Input.Upload对象，既用于参数字符串提取和解码，也传递给ServiceHandler供serivce读取。
 对于返回byte[]和InputStream，ServiceHandler可以在上下文容器中设置字符串值，指定mime类型，默认是application/octet-stream。
 
 <p>对于进度查询使用固定的url格式，并返回进度文本。
