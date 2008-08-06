@@ -23,16 +23,17 @@ public class Rule
 	protected var encDsn:Boolean;
 	protected var encDs:Dictionary;
 
-	public function initFunc(f:Function):void
+	public function initFunc(f:Function):Rule
 	{
 		func = f;
 		encsn = false;
 		(encs = new Dictionary)[null] = [];
 		encDsn = false;
 		(encDs = new Dictionary)[null] = -1;
+		return this;
 	}
 
-	public function initClass(c:Class):void
+	public function initClass(c:Class):Rule
 	{
 		cla = c;
 		encsn = false;
@@ -68,10 +69,11 @@ public class Rule
 		a0 = encs[null];
 		for each (var e:Array in encs)
 			e != a0 && (e.splice(e.length, 0, a0), encsn = true);
+		return this;
 	}
 
 	/** @return [ property name ] */
-	public function enc(ruleKey:Object):Array
+	public function encProps(ruleKey:Object):Array
 	{
 		return (encsn
 			&& encs[ruleKey is Class ? Class2.init(Class(ruleKey)).selfName : ruleKey]

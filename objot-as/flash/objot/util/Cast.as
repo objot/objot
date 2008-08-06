@@ -14,7 +14,7 @@ public class Cast
 		throw Error('singleton');
 	}
 
-	public static function array(x):Array
+	public static function arr(x):Array
 	{
 		return x;
 	}

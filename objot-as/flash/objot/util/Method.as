@@ -6,8 +6,10 @@ package objot.util
 {
 
 
-public class Method
+public class Method extends Metas
 {
+	public var cla2:Class2;
+
 	public var name:String;
 
 	public var type:Class;
@@ -20,23 +22,18 @@ public class Method
 	/** [ Param ] */
 	public var params:Array;
 
-	/** [ Meta ] */
-	public var metas:Array;
-
-	/** { name: Meta } */
-	public var metaz:Object;
-
-	public function Method(c:Class, x:XML, sta:Boolean)
+	public function Method(c:Class2, x:XML, sta:Boolean)
 	{
+		cla2 = c;
 		name = String(x.@name),
 		type = Class2.byName(x.@returnType),
-		on = c.$.superz[x.@declaredBy] || c,
+		on = c.superz[x.@declaredBy] || c.cla,
 		static = sta;
-		Param.params(x, params = []);
-		Meta.metas(x, metas = [], metaz = {});
+		Param.params(this, x, params = []);
+		Meta.metas(this, x, metas = [], metaz = {});
 	}
 
-	public static function methods(c:Class, x:XML, sta:Boolean, s:Array, z:Object = null)
+	public static function methods(c:Class2, x:XML, sta:Boolean, s:Array, z:Object = null)
 		:Array
 	{
 		for each (x in x.method)
