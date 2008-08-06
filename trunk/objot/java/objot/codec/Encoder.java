@@ -133,7 +133,7 @@ public final class Encoder
 					refs(v);
 			return;
 		}
-		((Clazz)codec.clazz(o.getClass())).encodeRefs(this, o, ruleKey);
+		codec.clazz(o.getClass()).encodeRefs(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
@@ -220,7 +220,7 @@ public final class Encoder
 		split().append('{');
 		split().append(codec.name(o, o.getClass()));
 		ref(o);
-		((Clazz)codec.clazz(o.getClass())).encode(this, o, ruleKey);
+		codec.clazz(o.getClass()).encode(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
 				value(pv.getKey(), pv.getValue());
