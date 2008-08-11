@@ -46,12 +46,7 @@ public class Bytes
 
 	public Bytes(InputStream i, boolean close) throws IOException
 	{
-		int len = 0;
-		do
-			ensureByteN((end1Bi += len) + i.available() + 1);
-		while ((len = i.read(bytes, end1Bi, bytes.length - end1Bi)) > 0);
-		if (close)
-			i.close();
+		inputFull(i, close);
 	}
 
 	public int byteN()
@@ -77,13 +72,6 @@ public class Bytes
 		Math2.range(destBi, destBi + bn, dest.end1Bi - dest.beginBi);
 		System.arraycopy(bytes, bi + beginBi, dest.bytes, destBi + dest.beginBi, bn);
 		return destBi + bn;
-	}
-
-	public int copyFrom(int bi, byte[] src, int srcBi, int bn)
-	{
-		Math2.range(bi, bi + bn, end1Bi - beginBi);
-		System.arraycopy(src, srcBi, bytes, bi + beginBi, bn);
-		return bi + bn;
 	}
 
 	public final boolean equals(byte[] bs)
@@ -304,16 +292,42 @@ public class Bytes
 
 	// ********************************************************************************
 
+	public int copyFrom(int bi, byte[] src, int srcBi, int bn)
+	{
+		Math2.range(bi, bi + bn, end1Bi - beginBi);
+		System.arraycopy(src, srcBi, bytes, bi + beginBi, bn);
+		return bi + bn;
+	}
+
+	/** {@link #beginBi} unchanged, call {@link #ensureByteN} if necessary */
+	public int inputFull(InputStream i, boolean close) throws IOException
+	{
+		end1Bi = beginBi;
+		int len = 0;
+		do
+			ensureByteN((end1Bi += len) + i.available() + 1 - beginBi);
+		while ((len = i.read(bytes, end1Bi, bytes.length - end1Bi)) > 0);
+		if (close)
+			i.close();
+		return end1Bi - beginBi;
+	}
+
 	public Bytes ensureByteN(int n)
 	{
-		bytes = Array2.ensureN(bytes, beginBi + n);
+		n += beginBi;
+		if (n < 0)
+			throw new InvalidLengthException();
+		bytes = Array2.ensureN(bytes, n);
 		return this;
 	}
 
 	public Bytes addByteN(int n)
 	{
-		bytes = Array2.ensureN(bytes, end1Bi + n);
-		end1Bi += n;
+		n += end1Bi;
+		if (n < 0)
+			throw new InvalidLengthException();
+		bytes = Array2.ensureN(bytes, n);
+		end1Bi = n;
 		return this;
 	}
 

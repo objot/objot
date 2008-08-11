@@ -67,13 +67,6 @@ public class Objects<T>
 		return destI + n;
 	}
 
-	public int copyFrom(int i, T[] src, int srcI, int n)
-	{
-		Math2.range(i, i + n, end1I - beginI);
-		System.arraycopy(src, srcI, objs, i + beginI, n);
-		return i + n;
-	}
-
 	public final boolean equals(T[] s)
 	{
 		return equals(s, 0, s.length);
@@ -141,16 +134,29 @@ public class Objects<T>
 
 	// ********************************************************************************
 
+	public int copyFrom(int i, T[] src, int srcI, int n)
+	{
+		Math2.range(i, i + n, end1I - beginI);
+		System.arraycopy(src, srcI, objs, i + beginI, n);
+		return i + n;
+	}
+
 	public Objects<T> ensureN(int n)
 	{
-		objs = Array2.ensureN(objs, beginI + n);
+		n += beginI;
+		if (n < 0)
+			throw new InvalidLengthException();
+		objs = Array2.ensureN(objs, n);
 		return this;
 	}
 
 	public Objects<T> addN(int n)
 	{
-		objs = Array2.ensureN(objs, end1I + n);
-		end1I += n;
+		n += end1I;
+		if (n < 0)
+			throw new InvalidLengthException();
+		objs = Array2.ensureN(objs, n);
+		end1I = n;
 		return this;
 	}
 

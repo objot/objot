@@ -65,13 +65,6 @@ public class Ints
 		return destI + n;
 	}
 
-	public int copyFrom(int i, int[] src, int srcI, int n)
-	{
-		Math2.range(i, i + n, end1I - beginI);
-		System.arraycopy(src, srcI, ints, i + beginI, n);
-		return i + n;
-	}
-
 	public final boolean equals(int[] s)
 	{
 		return equals(s, 0, s.length);
@@ -201,16 +194,29 @@ public class Ints
 
 	// ********************************************************************************
 
+	public int copyFrom(int i, int[] src, int srcI, int n)
+	{
+		Math2.range(i, i + n, end1I - beginI);
+		System.arraycopy(src, srcI, ints, i + beginI, n);
+		return i + n;
+	}
+
 	public Ints ensureN(int n)
 	{
-		ints = Array2.ensureN(ints, beginI + n);
+		n += beginI;
+		if (n < 0)
+			throw new InvalidLengthException();
+		ints = Array2.ensureN(ints, n);
 		return this;
 	}
 
 	public Ints addN(int n)
 	{
-		ints = Array2.ensureN(ints, end1I + n);
-		end1I += n;
+		n += end1I;
+		if (n < 0)
+			throw new InvalidLengthException();
+		ints = Array2.ensureN(ints, n);
+		end1I = n;
 		return this;
 	}
 
