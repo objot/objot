@@ -65,13 +65,6 @@ public class Longs
 		return destI + n;
 	}
 
-	public int copyFrom(int i, long[] src, int srcI, int n)
-	{
-		Math2.range(i, i + n, end1I - beginI);
-		System.arraycopy(src, srcI, longs, i + beginI, n);
-		return i + n;
-	}
-
 	public final boolean equals(long[] s)
 	{
 		return equals(s, 0, s.length);
@@ -140,16 +133,29 @@ public class Longs
 
 	// ********************************************************************************
 
+	public int copyFrom(int i, long[] src, int srcI, int n)
+	{
+		Math2.range(i, i + n, end1I - beginI);
+		System.arraycopy(src, srcI, longs, i + beginI, n);
+		return i + n;
+	}
+
 	public Longs ensureN(int n)
 	{
-		longs = Array2.ensureN(longs, beginI + n);
+		n += beginI;
+		if (n < 0)
+			throw new InvalidLengthException();
+		longs = Array2.ensureN(longs, n);
 		return this;
 	}
 
 	public Longs addN(int n)
 	{
-		longs = Array2.ensureN(longs, end1I + n);
-		end1I += n;
+		n += end1I;
+		if (n < 0)
+			throw new InvalidLengthException();
+		longs = Array2.ensureN(longs, n);
+		end1I = n;
 		return this;
 	}
 

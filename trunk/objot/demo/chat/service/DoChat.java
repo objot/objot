@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Blob;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class DoChat
 		if ((Integer)_.uniqueResult() == 0)
 			throw err("You must be his/her friend");
 		c.datime = new Date();
-		if (smiley != null && smiley.available() > 0)
+		while (smiley != null && smiley.available() > 0)
 		{
 			final Bytes b = new Bytes(smiley, false);
 			final ByteArrayInputStream in = new ByteArrayInputStream(b.bytes, b.beginBi,
@@ -137,7 +138,10 @@ public class DoChat
 				}
 			};
 			s.type = smiley.type();
-			c.smiley = s;
+			if (c.smileys == null)
+				c.smileys = new ArrayList<Smiley>();
+			c.smileys.add(s);
+			smiley.next();
 		}
 		data.save(c);
 		return c;

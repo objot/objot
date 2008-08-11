@@ -115,6 +115,12 @@ DoChat.post = function (form, In, text, This, done) {
 DoChat.smiley = function (s) {
 	return $img('src', $Do.url + 'DoChat-smiley?' + $enc(s.id, this), 'border', 0);
 }
+DoChat.smileys = function (m, ss) {
+	if (ss)
+		for (var i = 0; i < ss.length; i++)
+			m.add(DoChat.smiley(ss[i]));
+	return m;
+}
 
 //********************************************************************************************//
 
@@ -330,7 +336,9 @@ _Chats = function (chatss, oppoUser) {
 		this.chats = $d('c', 'chats'),
 		this._post = $lns('c', 'post'),
 		this.submit = $bn('c', 'do', 'click', this.doPost, this).tx('Post'),
-		this.smiley = $.form().add($inp('type', 'file', 'name', 'smiley'))
+		this.smileys = $.form().add(
+			$inp('type', 'file', 'name', 'smiley'),
+			$inp('type', 'file', 'name', 'smiley'))
 	);
 	this.doInact();
 }
@@ -339,7 +347,7 @@ _Chats.prototype = {
 	doInact: function () {
 		this.tab.cla(0, 'tabAct');
 		this.chats.show(false), this._post.show(false);
-		this.submit.show(false), this.smiley.show(false);
+		this.submit.show(false), this.smileys.show(false);
 	},
 	doAct: function () {
 		var a = this.chatss.active;
@@ -347,7 +355,7 @@ _Chats.prototype = {
 			a && a.doInact();
 	 		this.tab.cla(0, 'tabNew').cla('tabAct');
 	 		this.chats.show(true), this._post.show(true).focus();
-	 		this.submit.show(true), this.smiley.show(true);
+	 		this.submit.show(true), this.smileys.show(true);
 			this.chatss.active = this;
 		}
 	},
@@ -361,9 +369,7 @@ _Chats.prototype = {
 		d = $s('c', 'datime' + c).tx(d.getFullYear() + '-' + (d.getMonth() + 1)
 			+ '-' + d.getDate() + ' ' + d.toLocaleTimeString());
 		this.chats.add(d, $s('c', 'name' + c).tx(chat.out.name),
-			$d('c', 'text' + c).tx(chat.text, true).add(
-				chat.smiley ? DoChat.smiley(chat.smiley) : 0
-			));
+			DoChat.smileys($d('c', 'text' + c).tx(chat.text, true), chat.smileys));
 		d.scrollIntoView();
 		out && (this.outDatime = chat.datime);
 		if (this.chatss.active != this)
@@ -373,7 +379,7 @@ _Chats.prototype = {
 	doPost: function () {
 		this.post = this._post.tx();
 		$Http(this.chatss.http,
-			DoChat.post(this.smiley, this.oppo, this.post, this, this.donePost), 1, 1);
+			DoChat.post(this.smileys, this.oppo, this.post, this, this.donePost), 1, 1);
 	},
 	donePost: function (ok, err) {
 		if (ok) {
