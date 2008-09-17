@@ -127,7 +127,7 @@ public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class cla, Class ruleK
 <pre>return name.length() == 0 ? HashMap.class : Class.forName(name);</pre>
 
 <h5>protected long <i>beLong</i>(long l) throws Exception</h5>
-编码long时检查值，并返回这个值。
+编码long时（包括日期时间的毫秒数）检查值，并返回这个值。
 默认对超出-4503599627370496L至4503599627370496L（+-52bit）的值抛异常。
 因为Javascript和Actionscript中数值只有52bit精度（IEEE754）。
 
@@ -137,8 +137,8 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 
 <h5>protected Collection&lt;Object&gt; <i>newList</i>(Class c, int len) throws Exception</h5>
 根据类和列表长度创建解码的Collection。默认是：
-<pre>return c.isAssignableFrom(ArrayList.class) ? new ArrayList&lt;Object&gt;(len)
-	: new HashSet&lt;Object&gt;(len);</pre>
+<pre>return c.isAssignableFrom(HashSet.class) ? new HashSet&lt;Object&gt;(len)
+	: new ArrayList&lt;Object&gt;(len);</pre>
 
 <h5>public Clazz <i>clazz</i>(Class c) throws Exception</h5>
 分析一个类，返回分析结果，用于编解码的处理。既可能在编解码时被动调用，也可以主动调用。默认是：

@@ -370,8 +370,9 @@ public class Input
 			long m = 0;
 			while (m < n && available() > 0)
 			{
-				long x = Math.min(n - m, avail);
+				int x = (int)Math.min(n - m, avail);
 				in.begin += x;
+				avail -= x;
 				m += x;
 			}
 			return m;

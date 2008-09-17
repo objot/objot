@@ -80,6 +80,25 @@ public final class Field
 		end1Bi = 8;
 	}
 
+	public Field(Constants c, int constantCi_)
+	{
+		super(null, 0);
+		cons = c;
+		ensureByteN(16);
+		write0u2(0, 0); // modifier
+		write0u2(2, 0); // nameCi
+		write0u2(4, 0); // descCi
+		attrN = 1;
+		write0u2(6, attrN); // attrN
+		attrBi = 8;
+		constantBi = 8;
+		constantCi = constantCi_;
+		write0u2(8, cons.putUtf(Bytecode.CONSTANT_VALUE)); // attr name ci
+		write0u4(10, 2); // attr length
+		write0u2(14, constantCi);
+		end1Bi = 16;
+	}
+
 	public int getModifier()
 	{
 		return modifier;

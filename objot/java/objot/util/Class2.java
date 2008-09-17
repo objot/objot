@@ -327,8 +327,9 @@ public class Class2
 	{
 		StringBuilder d = new StringBuilder(31);
 		d.append('(');
-		for (Object p: params)
-			d.append(p instanceof Class ? descript((Class<?>)p) : (String)p);
+		if (params != null)
+			for (Object p: params)
+				d.append(p instanceof Class ? descript((Class<?>)p) : (String)p);
 		d.append(')');
 		d.append(Return instanceof Class ? descript((Class<?>)Return) : (String)Return);
 		return d.toString();
@@ -650,7 +651,7 @@ public class Class2
 	// ********************************************************************************
 
 	@SuppressWarnings("unchecked")
-	public static final Annotation annoExclusive(AnnotatedElement o, Class<?>[] cs)
+	public static final Annotation annoExclusive(AnnotatedElement o, Class<?>... cs)
 	{
 		Annotation a0 = null;
 		for (Annotation a: o.getDeclaredAnnotations())

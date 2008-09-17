@@ -87,9 +87,9 @@ public final class Encoder
 		else if (v instanceof Number)
 			split().append(((Number)v).longValue());
 		else if (v instanceof Date)
-			split(split().append('*')).append(((Date)v).getTime());
+			split(split().append('*')).append(codec.beLong(((Date)v).getTime()));
 		else if (v instanceof Calendar)
-			split(split().append('*')).append(((Calendar)v).getTimeInMillis());
+			split(split().append('*')).append(codec.beLong(((Calendar)v).getTimeInMillis()));
 		else
 		{
 			if (objs == null)

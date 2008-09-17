@@ -49,8 +49,8 @@ $class = function (codec, ctor, sup, proto) {
 	return c
 }
 /** add encoding rules to the class. former rules are overrided by later rules
- * (@param forClass key. @param encs what to encode, all if null)... */
-$class.enc = function (clazz, forClass, encs) {
+ * (@param key a class. @param encs what to encode, all if null)... */
+$class.enc = function (clazz, key, encs) {
 	clazz.$encs || (clazz.$encs = [])
 	for (var x = 1; x < arguments.length; ) {
 		clazz.$encs.push($.f(arguments[x++]))
@@ -70,15 +70,15 @@ $class.enc = function (clazz, forClass, encs) {
 //********************************************************************************************//
 
 /** encode data graph to string, following the encoding rules
- * @param forClass rule key or subclass of rule key */
-$enc = function (o, forClass) {
+ * @param ruleKey a rule key or its subclass */
+$enc = function (o, ruleKey) {
 	var t = typeof o,
 	s = o == null ? [','] : o === false ? ['<'] : o === true ? ['>']
 		: t == 'number' ? [String(o)] : t == 'string' ? ['', o]
 		: o instanceof Date ? ['*', +o] : 0
 	if (!s) {
 		s = [o instanceof Array ? '[' : ($.o(o), '{')]
-		s.clazz = $.f(forClass), s.refX = 0
+		s.clazz = $.f(ruleKey), s.refX = 0
 		try {
 			$enc.ref(o), o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1)
 		} catch(e) {
@@ -319,7 +319,6 @@ $h1 = _('h1')
 $h2 = _('h2')
 $h3 = _('h3')
 $h4 = _('h4')
-$bn = _('button')
 $inp = _('input')
 $sel = _('select')
 $opt = _('option')
@@ -332,14 +331,17 @@ $chk = _('checkbox')
 $rad = _('radio')
 delete _
 }
-/** <a>... without action */
+/** without action */
 $a0 = function () {
 	return $dom($doms('a', arguments), 'href', 'ob:'+Math.random(), 'click', Boolean, window)
+}
+$bn = function () {
+	return $dom($doms('button', arguments), 'click', Boolean, window)
 }
 
 /** create a text node, single line, multi whitespace reserved. */
 $tx = function (singleLine) {
-	return $D.createTextNode(singleLine.replace(/  /g, ' \u00a0'))
+	return $D.createTextNode(String(singleLine).replace(/  /g, ' \u00a0'))
 }
 
 //********************************************************************************************//
@@ -378,20 +380,21 @@ $dom.rem = function (index, len) {
 /** like rem() and recursively trigger 'des' event then detach all handlers
  * @return this */
 $dom.des = function (index, len) {
-	if (arguments.length == 0)
-		this.nodeType == 1 && (index = 0,
-			this.ondes && this.ondes({type:'des', target:this, stop:$}), this.$on = 0),
-		this.parentNode && this.parentNode.removeChild(this)
-	if (index === true)
+	if (arguments.length == 0 && (y = this))
+		do while (y = (x = y).firstChild);
+		while (y = x.parentNode, y && y.removeChild(x),
+			x.ondes && x.ondes({type:'des', target:x, stop:$}), x.$on && (x.$on = 0),
+			x != this)
+	else if (index === true)
 		$.o(this.parentNode).replaceChild(len, this),
 		this.des ? this.des() : $dom.des.call(this)
 	else if (typeof index == 'number') {
 		var s = this.childNodes
 		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null
-		for (var x = s[index], y; x != len; x = y)
+		for (var y, x = s[index]; x != len; x = y)
 			y = x.nextSibling, x.des ? x.des() : $dom.des.call(x)
 	} else
-		for (var x = 0, y; x < arguments.length; x++)
+		for (x = 0; x < arguments.length; x++)
 			(y = arguments[x]).des ? y.des() : $dom.des.call(y)
 	return this
 }
@@ -792,21 +795,24 @@ $Err.noStack = false
 /** overlay document with a layer containing an inner box
  * @return the popup layer */
 $Pop = function (inner) {
-	var box = $d('c', 'Pop',
-		's', 'position:fixed;z-index:10000; width:100%;height:100%; top:0;left:0').add(
-		$d('c', 'Pop-back', 's', 'position:absolute; width:100%;height:100%'),
-		$d('s', 'overflow:auto;position:absolute; width:100%;height:100%').add(
+	var box = $d('c', 'Pop').add(
+		$d('c', 'Pop-back', 's', 'width:100%;height:100%'),
+		$d('s', 'overflow:auto;position:absolute;width:100%;height:100%;left:0;top:0').add(
 			$tab('s', 'width:100%;height:100%').add($tb().add($tr().add(
-				$td('s', 'vertical-align:middle').attr('align', 'center').add(inner)
+				$td('s', 'vertical-align:middle').add(
+					$tab('s', 'width:auto;height:auto', 'align', 'center').add(
+						$tb().add($tr().add($td().add(inner)))))
 			)))
 		)
 	)
 	$ie && box.add(0, $.opacity(
-		$dom('iframe', 's', 'position:absolute; width:100%;height:100%'), 0))
-	if ($ie == 6)
-		box.attach('des', function () { box.style.cssText = 'display:none' })
-		.style.cssText += ';top:expression(documentElement.scrollTop)'
-			+ ';left:expression(documentElement.scrollLeft);position:absolute;'
+		$dom('iframe', 's', 'position:absolute;width:100%;height:100%'), 0))
+	$dom(box, 's', $ie == 6 ? 'position:absolute;z-index:10000'
+	+ ';width:expression(documentElement.clientWidth)'
+	+ ';height:expression(documentElement.clientHeight)'
+	+ ';top:expression(documentElement.scrollTop)'
+	+ ';left:expression(documentElement.scrollLeft)'
+	: 'position:fixed;z-index:10000; width:100%;height:100%; top:0;left:0')
 	return $B.add(box), box
 }
 
