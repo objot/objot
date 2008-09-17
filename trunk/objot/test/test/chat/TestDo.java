@@ -77,10 +77,12 @@ public class TestDo
 	{
 		if (expect instanceof Id && o instanceof Id)
 		{
-			expect = ((Id<?>)expect).id();
-			o = ((Id<?>)o).id();
+			if ( !expect.getClass().isAssignableFrom(o.getClass()))
+				fail("expected class : " + expect.getClass() + " but was : " + o.getClass());
+			Assert.assertEquals(((Id<?>)expect).id(), ((Id<?>)o).id());
 		}
-		Assert.assertEquals(expect, o);
+		else
+			Assert.assertEquals(expect, o);
 	}
 
 	public static final int BAG = 0;
@@ -102,8 +104,9 @@ public class TestDo
 		expect = sort(mode, expect);
 		o = sort(mode, o);
 		for (int i = 0; i < expect.length; i++)
-			if ((expect[i] == null ^ o[i] == null) //
-				|| o[i] != null && expect[i].id() != o[i].id())
+			if ((expect[i] == null ^ o[i] == null) || o[i] != null
+				&& !expect[i].getClass().isAssignableFrom(o[i].getClass())
+				&& expect[i].id() != o[i].id())
 				fail("array first differed element [" + i + "]; expected:<"
 					+ (expect[i] == null ? null : expect[i] + ",id=" + expect[i].id())
 					+ "> but was:<" //

@@ -89,7 +89,10 @@ public class Codec
 		return c.getName();
 	}
 
-	/** check long value, not too large for Javascript and Actionscript */
+	/**
+	 * check long value (and datime milliseconds), not too large for Javascript and
+	 * Actionscript
+	 */
 	protected long beLong(long l) throws Exception
 	{
 		if (l < -4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
@@ -108,8 +111,8 @@ public class Codec
 	 */
 	protected Collection<Object> newList(Class<?> c, int len) throws Exception
 	{
-		return c.isAssignableFrom(ArrayList.class) ? new ArrayList<Object>(len)
-			: new HashSet<Object>(len);
+		return c.isAssignableFrom(HashSet.class) ? new HashSet<Object>(len)
+			: new ArrayList<Object>(len);
 	}
 
 	/**

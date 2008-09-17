@@ -91,8 +91,20 @@ public final class Procedure
 		end1Bi = bi;
 	}
 
-	/** empty procedure, with exceptions and code, without signature and attribute */
+	/**
+	 * empty procedure, with exceptions and code and annotaions, without signature and
+	 * attribute
+	 */
 	public Procedure(Constants c)
+	{
+		this(c, true);
+	}
+
+	/**
+	 * empty procedure, with exceptions and code (may and annotations), without signature
+	 * and attribute
+	 */
+	public Procedure(Constants c, boolean anno)
 	{
 		super(null, 0);
 		cons = c;
@@ -101,7 +113,7 @@ public final class Procedure
 		write0u2(2, 0); // nameCi
 		write0u2(4, 0); // descCi
 		paramN = -1;
-		attrN = 4;
+		attrN = anno ? 4 : 2;
 		write0u2(6, attrN);
 		attrBi = 8;
 		int i = attrBi;
@@ -111,18 +123,21 @@ public final class Procedure
 		i += 6;
 		write0u2(i, 0); // exceptionN
 		i += 2;
-		annosBi = i;
-		write0u2(i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
-		write0u4(i + 2, 2); // attr length
-		i += 6;
-		write0u2(i, 0); // annoN
-		i += 2;
-		annoHidesBi = i;
-		write0u2(i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
-		write0u4(i + 2, 2); // attr length
-		i += 6;
-		write0u2(i, 0); // annoHideN
-		i += 2;
+		if (anno)
+		{
+			annosBi = i;
+			write0u2(i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
+			write0u4(i + 2, 2); // attr length
+			i += 6;
+			write0u2(i, 0); // annoN
+			i += 2;
+			annoHidesBi = i;
+			write0u2(i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
+			write0u4(i + 2, 2); // attr length
+			i += 6;
+			write0u2(i, 0); // annoHideN
+			i += 2;
+		}
 		codeBi = i;
 		write0u2(i, cons.putUtf(Bytecode.CODE)); // attr name ci
 		write0u4(i + 2, 12); // attr length
@@ -156,7 +171,7 @@ public final class Procedure
 		Procedure p = new Procedure(c);
 		int nameCi = c.addUtf(CTOR_NAME_);
 		int descCi = params.length == 0 ? c.addUtf(VOID_DESC_) : c.addUcs(Class2.descript(
-			params, void.class));
+			void.class, params));
 		p.setModifier(modifier);
 		p.setNameCi(nameCi);
 		p.setDescCi(descCi);
@@ -186,7 +201,7 @@ public final class Procedure
 		Procedure p = new Procedure(c);
 		int nameCi = c.putUtf(CTOR_NAME_);
 		int descCi = params.length == 0 ? c.putUtf(VOID_DESC_) : c.putUcs(Class2.descript(
-			params, void.class));
+			void.class, params));
 		p.setModifier(modifier);
 		p.setNameCi(nameCi);
 		p.setDescCi(descCi);
