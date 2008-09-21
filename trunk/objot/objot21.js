@@ -246,23 +246,27 @@ $http = function (url, time, req, done, data) {
 		if (!r) return
 		try { var s = r.status, t } catch (_) {} // Firefox issue
 		s = s == 200 ? (t = r.responseText) ? 0 : 1000 : s || 1000
-		stop(on, s, s ? s == 1000 ? 'Network Failure' : r.statusText : t)
+		stop(on, s, s ? s == 1000 ? $http.net : r.statusText : t)
 	}
 	function stop(o, a, b) {
 		if (!r) return
 		try { r.onreadystatechange = null, r.abort() } catch(_) {}
 		r = null, clearTimeout(time)
 		try {
-			done(o == on ? a : -1, o == on ? b : 'stop', data), done = data = null
+			done(o == on ? a : -1, o == on ? b : $http.stop, data), done = data = null
 		} catch(_) {
 			throw done = data = null, _
 		}
 	}
-	try { r.send(req) } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
+	try { r.send(req) } catch(_) { $.defer(0, stop, [on, 1000, $http.off]) } // IE
 	data === undefined && (data = stop), url = req = null
-	time = time > 0 && setTimeout(function () { stop(on, 1, 'timeout') }, time)
+	time = time > 0 && setTimeout(function () { stop(on, 1, $http.time) }, time)
 	return stop
 }
+$http.net = 'Network Failure'
+$http.off = 'Offline'
+$http.time = 'Timeout'
+$http.stop = ''
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -283,7 +287,7 @@ $dom = function (domOrName, prop, value) {
  * @param from the index props start from, 0 if missing */
 $doms = function (domOrName, props, from) {
 	var m = typeof domOrName == 'string' ? $D.createElement(domOrName) : $.o(domOrName)
-	m !== window || $throw('apply $dom or $doms to window forbidden')
+	m !== window || $throw('apply $dom(s) to window forbidden')
 	$fos ? m.constructor.$on || delete $.copy(m.constructor.prototype, $dom).prototype
 		: $.copy(m, $dom)
 	for (var v, p, x = from || 0; x < props.length; x++) {
@@ -380,21 +384,20 @@ $dom.rem = function (index, len) {
 /** like rem() and recursively trigger 'des' event then detach all handlers
  * @return this */
 $dom.des = function (index, len) {
-	if (arguments.length == 0 && (y = this))
-		do while (y = (x = y).firstChild);
-		while (y = x.parentNode, y && y.removeChild(x),
-			x.ondes && x.ondes({type:'des', target:x, stop:$}), x.$on && (x.$on = 0),
-			x != this)
+	if (arguments.length == 0 && (x = this.parentNode) && x.removeChild(this))
+		for (var s = [this], y = 0; y < s.length; x = s[y++],
+			x.ondes && x.ondes({type:'des', target:x, stop:$}), x.$on && (x.$on = 0))
+			while ((x = s[y].firstChild) && x.nodeType == 1)
+				s[y].removeChild(x), s.push(x);
 	else if (index === true)
 		$.o(this.parentNode).replaceChild(len, this),
 		this.des ? this.des() : $dom.des.call(this)
 	else if (typeof index == 'number') {
-		var s = this.childNodes
-		index < 0 && (index = 0), len = len > 0 ? s[index + len] : null
-		for (var y, x = s[index]; x != len; x = y)
+		s = this.childNodes, index < 0 && (index = 0), len = len > 0 ? s[index + len] : null
+		for (x = s[index]; x != len; x = y)
 			y = x.nextSibling, x.des ? x.des() : $dom.des.call(x)
 	} else
-		for (x = 0; x < arguments.length; x++)
+		for (var x = 0; x < arguments.length; x++)
 			(y = arguments[x]).des ? y.des() : $dom.des.call(y)
 	return this
 }
@@ -609,34 +612,36 @@ $class(true, 'Errs', Err)
 $http.form = function (url, time, req, done, data, form) {
 	$.s(req), $.f(done), form.action = $.s(url)
 	form.firstChild.$t && form.firstChild.des()
-	form.firstChild.tx(req, true)
-	var r = $.iframe(form, '$t', new Date(), 'load', on, 0, [on], 'des', stop).show(false)
+	var x = form.firstChild.tx(req, true),
+		r = $.iframe(form, '$t', new Date(), 'load', on, 0, [on], 'des', stop).show(false)
 	function on(e, b) {
 		if (!r) return
 		try { b = r.contentWindow.document.body } catch (_) {
-			return stop(on, 2000, 'Network or Server Failure')
+			return stop(on, 1100, $http.formNet)
 		}
 		if (e == on || r.readyState == 'complete')
 			(b = b.firstChild).id == 'objot' ? stop(on, 0, $dom(b).tx())
-				: stop(on, 900, '400-500') 
+				: stop(on, 900, $http.n200) 
 		else
-			time > 0 && new Date() - r.$t > time && stop(on, 1, 'timeout');
+			time > 0 && new Date() - r.$t > time && stop(on, 1, $http.time);
 	}
 	function stop(o, a, b, R) {
 		if (!r) return;
-		R = r, stop.$ = r = null, R.nextSibling.tx(''), clearInterval(t)
+		R = r, stop.$ = r = null, x.tx(''), clearInterval(t)
 		try { R.src = 'about:blank', R.des() } catch(_) {}
 		try {
-			done(o == on ? a : -1, o == on ? b : 'stop', data), done = data = null
+			done(o == on ? a : -1, o == on ? b : $http.stop, data), done = data = null
 		} catch(_) {
 			throw done = data = null, _
 		}
 	}
-	try { form.submit() } catch(_) { $.defer(0, stop, [on, 1000, 'Offline']) } // IE
+	try { form.submit() } catch(_) { $.defer(0, stop, [on, 1000, $http.off]) } // IE
 	data === undefined && (data = stop), stop.$ = r
 	var t = setInterval(on, 500)
 	return stop
 }
+$http.formNet = 'Network or Server Failure'
+$http.n200 = '400-500'
 
 /** $http wrapped with hint and several callback functions
  * @param url prepended by $Do.Url
@@ -656,11 +661,12 @@ $Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form) 
 		if (code == 0)
 			(p = $dec(p, $Do.byName, $Do.decoded)) instanceof Err ? err = p : ok = p
 		else if (code > 0)
-			err = new Err('HTTP Error ' + code + ' ' + p);
+			err = $Do.err(code, p);
 		h.$t1 !== undefined && h.$1.call(h.$t1, ok, err, h)
 		h.$t2 !== undefined && h.$2.call(h.$t2, ok, err, h)
 		h.$t3 !== undefined && h.$3.call(h.$t3, ok, err, h)
 	}
+$Do.err = function (code, p) { return new Err('HTTP Error ' + code + ' ' + p) }
 
 /** url prefix */
 $Do.url = ''
@@ -765,11 +771,12 @@ $Http = function (box, h, show, prog) {
 		if (!(h = hb[0]).$) return
 		if (code == 0 && p)
 			h.$.$t = new Date(),
-			(b = hb[1]).firstChild.title = h.$hint + ' ' + p + '. stop?',
+			(b = hb[1]).firstChild.title = h.$hint + ' ' + p + $Http.stop,
 			b.firstChild.nextSibling && b.lastChild.tx(h.$hint + ' ' + p)
 		$.defer(0, $http,
 			[$Do.url + '$prog$?' + h.$.name, $Do.timeout, '', $Http.prog, hb], 3000);
 	}
+$Http.stop = '. stop?'
 
 /** make a box as error widget
  * @param err Err, Errs or string

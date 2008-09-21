@@ -72,10 +72,22 @@ public final class Encoder
 		if (v == null)
 			split().append(',');
 		else if (v instanceof CharSequence)
-			split(split()).append((CharSequence)v);
+		{
+			CharSequence s = (CharSequence)v;
+			for (int l = s.length(), i = 0; i < l; i++)
+				if (s.charAt(i) == Codec.S)
+					throw new RuntimeException("String must not contain the split char");
+			split(split()).append(s);
+		}
 		else if (v instanceof Clob)
-			split(split()).append(((Clob)v).getSubString(1, //
-				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE)));
+		{
+			String s = ((Clob)v).getSubString(1, (int)Math.min(((Clob)v).length(),
+				Integer.MAX_VALUE));
+			for (int l = s.length(), i = 0; i < l; i++)
+				if (s.charAt(i) == Codec.S)
+					throw new RuntimeException("String must not contain the split char");
+			split(split()).append(s);
+		}
 		else if (v instanceof Boolean)
 			split().append((Boolean)v ? '>' : '<');
 		else if (v instanceof Double)
@@ -116,9 +128,10 @@ public final class Encoder
 	/** visit the data graph */
 	public void refs(Object o) throws Exception
 	{
-		if (o instanceof String && ((String)o).indexOf(Codec.S) >= 0)
-			throw new RuntimeException("String must not contain the split char");
-		if (o == null || ref(o, -1) < 0 /* multi references */)
+		if (o == null || o instanceof CharSequence || o instanceof Clob
+			|| o instanceof Boolean || o instanceof Number || o instanceof Date
+			|| o instanceof Calendar //
+			|| ref(o, -1) < 0 /* multi references */)
 			return;
 		if (o instanceof Collection)
 		{

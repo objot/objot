@@ -13,7 +13,7 @@ import java.util.Map;
 import objot.util.Class2;
 
 
-public abstract class Property
+public class Property
 {
 	protected Class<?> out;
 	protected Field field;
@@ -24,7 +24,7 @@ public abstract class Property
 	protected Class<?> listElem;
 
 	/** @param fm field or method */
-	protected Property(AccessibleObject fm, boolean enc)
+	public Property(AccessibleObject fm, boolean enc)
 	{
 		if (fm instanceof Field)
 		{
@@ -51,7 +51,7 @@ public abstract class Property
 	 * 
 	 * @throws RuntimeException if there is a exist property with same name
 	 */
-	protected void into(Map<String, Property> map)
+	public void into(Map<String, Property> map)
 	{
 		Property p = map.get(name);
 		if (p != null)
@@ -59,9 +59,15 @@ public abstract class Property
 		map.put(name, this);
 	}
 
-	public abstract boolean allowEnc(Object ruleKey) throws Exception;
+	public boolean allowEnc(Object ruleKey) throws Exception
+	{
+		return true;
+	}
 
-	public abstract boolean allowDec(Object ruleKey) throws Exception;
+	public boolean allowDec(Object ruleKey) throws Exception
+	{
+		return true;
+	}
 
 	int index;
 	boolean clob;

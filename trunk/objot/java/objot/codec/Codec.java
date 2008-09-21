@@ -165,8 +165,8 @@ public class Codec
 		return clazzs.get(c);
 	}
 
-	/** @return the info of the class beiing analyzed */
-	protected Clazz addClazz(Class<?> c, Property[] encs, Property[] decs,
+	/** @return the info of the class being analyzed */
+	protected final Clazz addClazz(Class<?> c, Property[] encs, Property[] decs,
 		Map<String, Property> decNames) throws Exception
 	{
 		for (int i = 0; i < decs.length; i++)

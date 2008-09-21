@@ -151,7 +151,7 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 <h5>protected final Clazz <i>getClazz</i>(Class c) throws Exception</h5>
 返回类的分析结果，若尚未分析，则返回null。线程安全。
 
-<h5>protected Clazz <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
+<h5>protected final Clazz <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
 对类做最后分析，添加并返回最终结果。
 encs为需要编码的属性信息，decs为需要解码的属性信息。
 decNames为解码属性名和信息的map，若为null则默认根据encs生成，不为null则重用这个map。
@@ -223,7 +223,7 @@ field、setter不能是private，setter可以是<code>setName(String v)</code>�
 
 <!--****************************************************************************************-->
 
-<h3>public abstract class <i>Property</i></h3>
+<h3>public class <i>Property</i></h3>
 
 <p>关于属性编解码的信息。
 
@@ -253,17 +253,17 @@ method属性，非method则为null。
 	0, Object.class);
 </pre>
 
-<h5>protected <i>Property</i>(AccessibleObject fm, boolean enc)</h5>
+<h5>public <i>Property</i>(AccessibleObject fm, boolean enc)</h5>
 默认构造方法，根据fm（必须为Field或Method）、enc设置各个默认值。
 
-<h5>protected void <i>into</i>(Map&lt;String, Property&gt; map)</h5>
+<h5>public void <i>into</i>(Map&lt;String, Property&gt; map)</h5>
 将本属性信息放入一个map中，若已有同名的属性，抛出异常。
 
-<h5>protected abstract boolean <i>allowEnc</i>(Object ruleKey) throws Exception;</h5>
-对应规则key，判断本属性是否允许编码。
+<h5>protected boolean <i>allowEnc</i>(Object ruleKey) throws Exception;</h5>
+对应规则key，判断本属性是否允许编码。默认是true。
 
-<h5>protected abstract boolean <i>allowDec</i>(Object ruleKey) throws Exception;</h5>
-对应规则key，判断本属性是否允许解码。
+<h5>protected boolean <i>allowDec</i>(Object ruleKey) throws Exception;</h5>
+对应规则key，判断本属性是否允许解码。默认是true。
 
 <!--****************************************************************************************-->
 
