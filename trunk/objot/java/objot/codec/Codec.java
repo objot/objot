@@ -48,7 +48,7 @@ public class Codec
 	 * @param cla null is Object.class
 	 * @param ruleKey null is Object.class
 	 */
-	public Object dec(char[] s, Class<?> cla, Class<?> ruleKey) throws Exception
+	public <T>T dec(char[] s, Class<T> cla, Class<?> ruleKey) throws Exception
 	{
 		return new Decoder(this, ruleKey, s, 0, s.length).go(cla);
 	}

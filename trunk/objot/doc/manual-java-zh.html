@@ -112,8 +112,8 @@
 <h5>public StringBuilder <i>enc</i>(Object o, Object rukeKey) throws Exception</h5>
 编码，使用的规则与 每个编码的对象 及ruleKey相关。非线程安全。
 
-<h5>public Object <i>dec</i>(char[] s, Class cla, Object ruleKey) throws Exception<br>
-public Object <i>dec</i>(char[] s, int sBegin, int sEnd1, Class cla, Class ruleKey)</h5>
+<h5>public &lt;T&gt;T <i>dec</i>(char[] s, Class&lt;T&gt; cla, Object ruleKey) throws Exception<br>
+public &lt;T&gt;T <i>dec</i>(char[] s, int sBegin, int sEnd1, Class&lt;T&gt; cla, Class ruleKey)</h5>
 解码，使用的规则与 每个解码的对象 及ruleKey相关。返回数据图的根。
 对根的解码将参照cla，如果不能符合cla，则抛出异常。
 被解码的字符串范围是[sBegin,sEnd1)。非线程安全。
@@ -639,10 +639,10 @@ generic为field.getGenericType()，或parameter.generic。
 构造方法参数之间不能循环依赖（例如A类构造方法参数引用B类，B类构造方法参数引用A类），否则注入时会导致无限递归，栈溢出。
 对于single模式的类，可能因为构造方法中循环依赖而重复创建，容器发现这种情况后会抛出异常。
 
-<h5>public final Container <i>create</i>(Container parent) throws Exception</h5>
+<h5>public final Container <i>create</i>(Container parent)</h5>
 合成容器子类，并创建容器对象。指定父容器。容器创建采用eager模式。
 
-<h5>public final Container <i>create</i>(Container parent, boolean lazy_) throws Exception</h5>
+<h5>public final Container <i>create</i>(Container parent, boolean lazy_)</h5>
 合成容器子类，并创建容器对象。指定父容器。指定容器创建的模式。
 推荐eager模式：容器创建时，也创建每个single模式的对象，这样Container.get和注入就是线程安全的。
 但对于从父容器获取的对象，线程安全取决于父容器。
@@ -664,7 +664,7 @@ cla()返回对象自身。
 <h5>public Class&lt;? extends Annotation&gt; <i>mode</i></h5>
 <h5>public Bind <i>mode</i>(Class&lt;? extends Annotation&gt; m)</h5>
 获取预判断的注入模式，可以改变注入模式。
-如果绑定到其他类，或绑定到对象，或配置field、方法参数，则设置的模式将被忽略。
+如果绑定到其他类，或绑定到对象，或配置field、方法参数时，此模式将被忽略。
 
 <h5>public Object <i>obj</i></h5>
 <h5>public Bind <i>obj</i>(Object o)</h5>

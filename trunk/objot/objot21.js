@@ -388,17 +388,16 @@ $dom.des = function (index, len) {
 		for (var s = [this], y = 0; y < s.length; x = s[y++],
 			x.ondes && x.ondes({type:'des', target:x, stop:$}), x.$on && (x.$on = 0))
 			while ((x = s[y].firstChild) && x.nodeType == 1)
-				s[y].removeChild(x), s.push(x);
+				s[y].removeChild(x), s.push(x)
 	else if (index === true)
-		$.o(this.parentNode).replaceChild(len, this),
-		this.des ? this.des() : $dom.des.call(this)
+		$.o(this.parentNode).replaceChild(len, this), $dom.des.call(this)
 	else if (typeof index == 'number') {
 		s = this.childNodes, index < 0 && (index = 0), len = len > 0 ? s[index + len] : null
 		for (x = s[index]; x != len; x = y)
-			y = x.nextSibling, x.des ? x.des() : $dom.des.call(x)
+			y = x.nextSibling, $dom.des.call(x)
 	} else
 		for (var x = 0; x < arguments.length; x++)
-			(y = arguments[x]).des ? y.des() : $dom.des.call(y)
+			$dom.des.call(arguments[x])
 	return this
 }
 
@@ -815,10 +814,10 @@ $Pop = function (inner) {
 	$ie && box.add(0, $.opacity(
 		$dom('iframe', 's', 'position:absolute;width:100%;height:100%'), 0))
 	$dom(box, 's', $ie == 6 ? 'position:absolute;z-index:10000'
-	+ ';width:expression(documentElement.clientWidth)'
-	+ ';height:expression(documentElement.clientHeight)'
-	+ ';top:expression(documentElement.scrollTop)'
-	+ ';left:expression(documentElement.scrollLeft)'
+	+ ';width:expression(documentElement && documentElement.clientWidth)'
+	+ ';height:expression(documentElement && documentElement.clientHeight)'
+	+ ';top:expression(documentElement && documentElement.scrollTop)'
+	+ ';left:expression(documentElement && documentElement.scrollLeft)'
 	: 'position:fixed;z-index:10000; width:100%;height:100%; top:0;left:0')
 	return $B.add(box), box
 }
