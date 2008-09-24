@@ -81,6 +81,7 @@ final class Factoring
 
 		Class<Container> c = Class2.<Container>load(Container.class.getClassLoader(), name,
 			y.normalize());
+		// y.printTo(System.out, 0, 0, 100);
 		Class2.declaredField(c, NAME_oss).set(null, oss);
 		return c.newInstance(); // nothing inited
 	}
@@ -238,10 +239,11 @@ final class Factoring
 		s.ins0(AALOAD); // oss[-i][0]
 		s.ins0(ARETURN);
 		int circle = s.addr;
-		int circleCi = cons.addClass(ClassCircularityError.class);
-		s.insU2(NEW, circleCi);
-		s.ins0(DUP);
-		s.insU2(INVOKESPECIAL, cons.addCtor0(circleCi));
+		s.insU2(NEW, cons.addClass(ClassCircularityError.class));
+		s.ins0(DUPI);
+		s.ins0(SWAP);
+		s.insU2(INVOKESPECIAL, cons.addProc(Class2.ctor(ClassCircularityError.class,
+			String.class)));
 		s.ins0(ATHROW);
 
 		int maxParamN = 0;
@@ -288,7 +290,10 @@ final class Factoring
 					{ // never happen if ctor no parameter
 						s.ins0(ALOAD0);
 						s.insU2(GETFIELD, fCis[i]);
-						s.jump(s.insJump(IFNOTNULL), circle);
+						int jj = s.insJump(IFNULL);
+						s.insU2(LDCW, cons.addString(c.cla.getName()));
+						s.jump(s.insJump(GOTO), circle);
+						s.jumpHere(jj);
 					}
 					s.ins0(DUP);
 					s.ins0(ALOAD0);

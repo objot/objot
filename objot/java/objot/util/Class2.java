@@ -353,12 +353,12 @@ public class Class2
 	{
 		String n = m.getName();
 		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class //
-			|| !n.startsWith("get") || n.length() < 4 || Character.isLowerCase(n.charAt(3))))
+			|| !n.startsWith("get") || n.length() <= 3 || Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid getter: " + m);
 		if ( !get && (m.getParameterTypes().length != 1 || m.getReturnType() != void.class //
-			|| !n.startsWith("set") || n.length() < 4 || Character.isLowerCase(n.charAt(3))))
+			|| !n.startsWith("set") || n.length() <= 3 || Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid setter: " + m);
-		if (Character.isUpperCase(n.charAt(4)))
+		if (n.length() > 4 && Character.isUpperCase(n.charAt(4)))
 			return n.substring(3);
 		else
 			return Character.toLowerCase(n.charAt(3)) + n.substring(4);
@@ -374,10 +374,10 @@ public class Class2
 		if ( !get && (m.getParameterTypes().length != 1 //
 			|| n.startsWith("get") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
 			throw new RuntimeException("invalid setter: " + m);
-		if (n.length() < 4 || !n.startsWith(get ? "get" : "set")
+		if (n.length() <= 3 || !n.startsWith(get ? "get" : "set")
 			|| Character.isLowerCase(n.charAt(3)))
 			return n;
-		if (Character.isUpperCase(n.charAt(4)))
+		if (n.length() > 4 && Character.isUpperCase(n.charAt(4)))
 			return n.substring(3);
 		else
 			return Character.toLowerCase(n.charAt(3)) + n.substring(4);
@@ -525,6 +525,32 @@ public class Class2
 	{
 		return a.getName().equals(b.getName())
 			&& Arrays.equals(a.getParameterTypes(), b.getParameterTypes());
+	}
+
+	/** excludes {@link Mod2.P#CINIT} */
+	public static <T>Constructor<T> ctor(Class<T> c, Class<?>... params)
+	{
+		try
+		{
+			return c.getConstructor(params != null ? params : Array2.CLASSES0);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	/** excludes {@link Mod2.P#CINIT} */
+	public static <T>Constructor<T> declaredCtor(Class<T> c, Class<?>... params)
+	{
+		try
+		{
+			return c.getDeclaredConstructor(params != null ? params : Array2.CLASSES0);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw new RuntimeException(e);
+		}
 	}
 
 	public static <T extends AccessibleObject>T accessible(final T o)

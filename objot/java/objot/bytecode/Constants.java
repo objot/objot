@@ -988,6 +988,16 @@ public final class Constants
 		return putRef(TAG_STRING, strCi, TAG_UTF);
 	}
 
+	public int addString(String str)
+	{
+		return addRef(TAG_STRING, addUcs(str), TAG_UTF);
+	}
+
+	public int putString(String str)
+	{
+		return putRef(TAG_STRING, putUcs(str), TAG_UTF);
+	}
+
 	public void setRef2(int ci, byte tag, int ref1Ci, byte ref1Tag, int ref2Ci, byte ref2Tag)
 	{
 		getTag(ci, tag);

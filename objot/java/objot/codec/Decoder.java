@@ -45,7 +45,8 @@ final class Decoder
 	}
 
 	/** @param cla null is Object.class */
-	Object go(Class<?> cla) throws Exception
+	@SuppressWarnings("unchecked")
+	<T>T go(Class<T> cla) throws Exception
 	{
 		refs = Array2.OBJECTS0;
 		by = bBegin - 1;
@@ -54,7 +55,7 @@ final class Decoder
 		if (by < bEnd1)
 			throw new RuntimeException("termination expected but " + (char)(bs[by] & 0xFF)
 				+ " at " + by);
-		return o;
+		return (T)o;
 	}
 
 	private int bxy()
@@ -369,7 +370,7 @@ final class Decoder
 						v = Num(num(), null);
 					throw new RuntimeException(o.getClass().getCanonicalName() + "." + n
 						+ " : " + (v != null ? v.getClass().getCanonicalName() : "null")
-						+ " forbidden for " + p.cla);
+						+ " forbidden for " + p.cla, e);
 				}
 			}
 			else if (m != null)

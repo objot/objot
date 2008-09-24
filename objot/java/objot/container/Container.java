@@ -216,7 +216,7 @@ public abstract class Container
 	 *       if (i > 0)
 	 *         if (o3 == null) o3 = o;
 	 *         else // multi {@link Inject.Single} by circular injection
-	 *           throw new {@link ClassCircularityError}();
+	 *           throw new {@link ClassCircularityError}("B");
 	 *       ...
 	 *    4:
 	 *   -4: A o = new A((A1)get0(41), get0(-42), (A3)oss[4][1]);
