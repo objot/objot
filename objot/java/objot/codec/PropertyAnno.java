@@ -27,9 +27,9 @@ final class PropertyAnno
 			throw new RuntimeException("duplicate "
 				+ (enc ? Enc.class.getName() : Dec.class.getName()) + " for " + p);
 
-		Enc ce = enc ? out.getAnnotation(Enc.class) : null;
-		Dec cd = enc ? null : out.getAnnotation(Dec.class);
-		EncDec ced = out.getAnnotation(EncDec.class);
+		Enc ce = enc ? in.getAnnotation(Enc.class) : null;
+		Dec cd = enc ? null : in.getAnnotation(Dec.class);
+		EncDec ced = in.getAnnotation(EncDec.class);
 		Class<?>[] ocs;
 		if (ced == null)
 			ocs = ce != null ? ce.value() : cd != null ? cd.value() : Array2.CLASSES0;
@@ -37,7 +37,7 @@ final class PropertyAnno
 			ocs = ced.value();
 		else
 			throw new RuntimeException("duplicate "
-				+ (enc ? Enc.class.getName() : Dec.class.getName()) + " for " + out);
+				+ (enc ? Enc.class.getName() : Dec.class.getName()) + " for " + in);
 
 		NameEnc ne = enc ? p.getAnnotation(NameEnc.class) : null;
 		NameDec nd = enc ? null : p.getAnnotation(NameDec.class);
@@ -86,13 +86,13 @@ final class PropertyAnno
 	}
 
 	@Override
-	public boolean allowEnc(Object ruleKey)
+	public boolean encodable(Object o, Object ruleKey)
 	{
 		return ruleKey instanceof Class ? allow((Class<?>)ruleKey) : allow(ruleKey);
 	}
 
 	@Override
-	public boolean allowDec(Object ruleKey)
+	public boolean decodable(Object o, Object ruleKey)
 	{
 		return ruleKey instanceof Class ? allow((Class<?>)ruleKey) : allow(ruleKey);
 	}

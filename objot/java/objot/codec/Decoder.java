@@ -310,8 +310,7 @@ final class Decoder
 		Clazz z = codec.clazz(cla);
 		o = cla == o ? z.object(codec) : o;
 		if ( !cla0.isAssignableFrom(cla))
-			throw new RuntimeException(cla.getCanonicalName() + " forbidden for "
-				+ cla0.getCanonicalName());
+			throw new RuntimeException(cla.getName() + " forbidden for " + cla0.getName());
 		Map<String, Object> m = o instanceof Map ? (Map)o : null;
 
 		if (chr() == ':')
@@ -333,9 +332,9 @@ final class Decoder
 			Property p = z.decs.get(n);
 			if (p != null)
 			{
-				if ( !p.allowDec(ruleKey))
-					throw new RuntimeException("decoding " + o.getClass().getCanonicalName()
-						+ "." + n + " forbidden for " + ruleKey.getCanonicalName());
+				if ( !p.decodable(o, ruleKey))
+					throw new RuntimeException("decoding " + o.getClass().getName() + "." + n
+						+ " forbidden for " + ruleKey.getName());
 				Object v = this;
 				try
 				{
@@ -368,9 +367,9 @@ final class Decoder
 				{
 					if (v == this)
 						v = Num(num(), null);
-					throw new RuntimeException(o.getClass().getCanonicalName() + "." + n
-						+ " : " + (v != null ? v.getClass().getCanonicalName() : "null")
-						+ " forbidden for " + p.cla, e);
+					throw new RuntimeException(o.getClass().getName() + "." + n + " : "
+						+ (v != null ? v.getClass().getName() : "null") + " forbidden for "
+						+ p.cla, e);
 				}
 			}
 			else if (m != null)
@@ -394,7 +393,7 @@ final class Decoder
 					m.put(n, Num(num(), null));
 			// not found
 			else if (p == null)
-				throw new RuntimeException(o.getClass().getCanonicalName() + "." + n
+				throw new RuntimeException(o.getClass().getName() + "." + n
 					+ " not found or not decodable");
 		}
 		return o;

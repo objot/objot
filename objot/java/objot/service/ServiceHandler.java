@@ -146,7 +146,7 @@ public abstract class ServiceHandler
 			StringBuilder s = new StringBuilder("can not apply (");
 			for (int p = 0; p < qs.length; p++)
 				s.append(p == 0 ? "" : ", ").append(
-					qs[p] == null ? "null" : qs[p].getClass().getCanonicalName());
+					qs[p] == null ? "null" : qs[p].getClass().getName());
 			s.append(") to ").append(inf.name);
 			s.append(e.getMessage() != null ? " : " : "").append(
 				e.getMessage() != null ? e.getMessage() : "");

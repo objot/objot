@@ -4,10 +4,10 @@
 //
 package objot.bytecode;
 
+import java.io.PrintStream;
+
 import objot.util.Array2;
 import objot.util.Math2;
-
-import java.io.PrintStream;
 
 
 public final class Code

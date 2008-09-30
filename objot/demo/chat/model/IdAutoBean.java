@@ -8,8 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.MappedSuperclass;
 
-import objot.codec.Enc;
 import objot.codec.Dec;
+import objot.codec.Enc;
 
 
 @MappedSuperclass

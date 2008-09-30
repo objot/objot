@@ -80,7 +80,7 @@ public class CodecServlet
 
 	public String getServletInfo()
 	{
-		return getClass().getCanonicalName();
+		return getClass().getName();
 	}
 
 	public void service(ServletRequest hReq, ServletResponse hResp)

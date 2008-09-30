@@ -4,11 +4,11 @@
 //
 package chat;
 
-import objot.util.Class2;
-
 import java.lang.reflect.Method;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+
+import objot.util.Class2;
 
 import chat.model.Id;
 import chat.model.IdAuto;

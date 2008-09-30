@@ -302,14 +302,26 @@ public class Bytes
 	/** {@link #beginBi} unchanged, call {@link #ensureByteN} if necessary */
 	public int inputFull(InputStream i, boolean close) throws IOException
 	{
-		end1Bi = beginBi;
-		int len = 0;
-		do
-			ensureByteN((end1Bi += len) + i.available() + 1 - beginBi);
-		while ((len = i.read(bytes, end1Bi, bytes.length - end1Bi)) > 0);
-		if (close)
-			i.close();
-		return end1Bi - beginBi;
+		try
+		{
+			end1Bi = beginBi;
+			int len = 0;
+			do
+				ensureByteN((end1Bi += len) + i.available() + 1 - beginBi);
+			while ((len = i.read(bytes, end1Bi, bytes.length - end1Bi)) > 0);
+			return end1Bi - beginBi;
+		}
+		finally
+		{
+			if (close)
+				try
+				{
+					i.close();
+				}
+				catch (Throwable e)
+				{
+				}
+		}
 	}
 
 	public Bytes ensureByteN(int n)
