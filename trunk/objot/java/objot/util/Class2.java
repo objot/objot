@@ -43,8 +43,7 @@ public class Class2
 	{
 		if (o == null || c.isInstance(o))
 			return (T)o;
-		throw new ClassCastException(o.getClass().getCanonicalName() + " forbidden for "
-			+ c.getCanonicalName());
+		throw new ClassCastException(o.getClass().getName() + " forbidden for " + c.getName());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -52,8 +51,8 @@ public class Class2
 	{
 		if (o == null ? nullable : c.isInstance(o))
 			return (T)o;
-		throw new ClassCastException((o != null ? o.getClass().getCanonicalName() : "null")
-			+ " forbidden for " + c.getCanonicalName());
+		throw new ClassCastException((o != null ? o.getClass().getName() : "null")
+			+ " forbidden for " + c.getName());
 	}
 
 	public static boolean castable(Object o, Class<?> c)

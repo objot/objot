@@ -40,10 +40,10 @@ public abstract class Clazz
 		if (es.length > 0)
 		{
 			int encsCi = y.cons.addField(F_encs);
-			int allowCi = y.cons.addProc(Property.M_allowEnc);
+			int ableCi = y.cons.addProc(Property.M_encodable);
 			int nameCi = y.cons.addField(Property.F_name);
-			makeEncode(y, es, classCi, encsCi, allowCi, nameCi);
-			makeEncodeRefs(y, es, classCi, encsCi, allowCi);
+			makeEncode(y, es, classCi, encsCi, ableCi, nameCi);
+			makeEncodeRefs(y, es, classCi, encsCi, ableCi);
 		}
 		try
 		{
@@ -78,9 +78,9 @@ public abstract class Clazz
 	 * {@link Property}[] es = {@link #encs};
 	 * A a = (A)o; // shouldn't cause ClassCastException
 	 * // no property 0
-	 * if (es[1].{@link Property#allowEnc}(ruleKey) e.{@link Encoder#refs}(a.f1);
+	 * if (es[1].{@link Property#encodable}(o, ruleKey) e.{@link Encoder#refs}(a.f1);
 	 * // no property 1
-	 * if (es[3].{@link Property#allowEnc}(ruleKey)) e.{@link Encoder#refs}(a.m3());
+	 * if (es[3].{@link Property#encodable}(o, ruleKey)) e.{@link Encoder#refs}(a.m3());
 	 * ...
 	 * </pre>
 	 */
@@ -98,9 +98,9 @@ public abstract class Clazz
 	 * <pre>
 	 * {@link Property}[] es = {@link #encs};
 	 * A a = (A)o; // shouldn't cause ClassCastException
-	 * if (es[0].{@link Property#allowEnc}(ruleKey))
+	 * if (es[0].{@link Property#encodable}(o, ruleKey))
 	 *   e.{@link Encoder#value(String, int)}(es[0].{@link Property#name}, a.f0);
-	 * if (es[1].{@link Property#allowEnc}(ruleKey))
+	 * if (es[1].{@link Property#encodable}(o, ruleKey))
 	 *   e.{@link Encoder#value(String, Object)}(es[1].{@link Property#name}, a.m1());
 	 * ...
 	 * </pre>
@@ -114,7 +114,7 @@ public abstract class Clazz
 		Clazz.class, "encode")));
 
 	private static void makeEncodeRefs(Bytecode y, Property[] es, int classCi, int encsCi,
-		int allowCi)
+		int ableCi)
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Mod2.PROTECTED | Mod2.FINAL);
@@ -135,8 +135,9 @@ public abstract class Clazz
 				s.ins0(DUP);
 				s.insS2(SIPUSH, i);
 				s.ins0(AALOAD); // property
+				s.ins0(ALOAD2);
 				s.ins0(ALOAD3);
-				s.insU2(INVOKEVIRTUAL, allowCi);
+				s.insU2(INVOKEVIRTUAL, ableCi);
 				int if0 = s.insJump(IFIE0);
 				s.ins0(ALOAD1);
 				s.insU1(ALOAD, 4); // object
@@ -155,7 +156,7 @@ public abstract class Clazz
 	}
 
 	private static void makeEncode(Bytecode y, Property[] es, int classCi, int encsCi,
-		int allowCi, int nameCi)
+		int ableCi, int nameCi)
 	{
 		Procedure p = new Procedure(y.cons);
 		p.setModifier(Mod2.PROTECTED | Mod2.FINAL);
@@ -181,8 +182,9 @@ public abstract class Clazz
 			s.ins0(AALOAD); // property
 			s.ins0(DUP); // property
 			s.insU1(ASTORE, 5); // property
+			s.ins0(ALOAD2);
 			s.ins0(ALOAD3);
-			s.insU2(INVOKEVIRTUAL, allowCi);
+			s.insU2(INVOKEVIRTUAL, ableCi);
 			int if0 = s.insJump(IFIE0);
 			s.ins0(ALOAD1);
 			s.insU1(ALOAD, 5); // property

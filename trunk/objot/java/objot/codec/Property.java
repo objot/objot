@@ -15,7 +15,7 @@ import objot.util.Class2;
 
 public class Property
 {
-	protected Class<?> out;
+	protected Class<?> in;
 	protected Field field;
 	protected Method method;
 	/** for {@link Clazz} subclass */
@@ -29,14 +29,14 @@ public class Property
 		if (fm instanceof Field)
 		{
 			field = (Field)fm;
-			out = field.getDeclaringClass();
+			in = field.getDeclaringClass();
 			name = field.getName();
 			cla = field.getType();
 		}
 		else
 		{
 			method = (Method)fm;
-			out = method.getDeclaringClass();
+			in = method.getDeclaringClass();
 			name = Class2.propertyOrName(method, enc);
 			cla = enc ? method.getReturnType() : method.getParameterTypes()[0];
 		}
@@ -59,12 +59,12 @@ public class Property
 		map.put(name, this);
 	}
 
-	public boolean allowEnc(Object ruleKey) throws Exception
+	public boolean encodable(Object o, Object ruleKey) throws Exception
 	{
 		return true;
 	}
 
-	public boolean allowDec(Object ruleKey) throws Exception
+	public boolean decodable(Object o, Object ruleKey) throws Exception
 	{
 		return true;
 	}
@@ -72,5 +72,5 @@ public class Property
 	int index;
 	boolean clob;
 	static final Field F_name = Class2.declaredField(Property.class, "name");
-	static final Method M_allowEnc = Class2.declaredMethod1(Property.class, "allowEnc");
+	static final Method M_encodable = Class2.declaredMethod1(Property.class, "encodable");
 }

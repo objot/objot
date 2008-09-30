@@ -146,6 +146,7 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 // 对c的每个field进行@Enc、@Dec等annotation分析
 // 对c的每个method进行@Enc、@Dec等annotation分析
 // 调用addClazz()，将分析的field,method情况传入，然后返回最终结果
+// 默认使用PropertyAnno表示属性信息，请参考源代码
 </pre>
 
 <h5>protected final Clazz <i>getClazz</i>(Class c) throws Exception</h5>
@@ -259,11 +260,11 @@ method属性，非method则为null。
 <h5>public void <i>into</i>(Map&lt;String, Property&gt; map)</h5>
 将本属性信息放入一个map中，若已有同名的属性，抛出异常。
 
-<h5>protected boolean <i>allowEnc</i>(Object ruleKey) throws Exception;</h5>
-对应规则key，判断本属性是否允许编码。默认是true。
+<h5>protected boolean <i>encodable</i>(Object o, Object ruleKey) throws Exception;</h5>
+对应规则key，判断对象o的本属性是否允许编码。默认是true。
 
-<h5>protected boolean <i>allowDec</i>(Object ruleKey) throws Exception;</h5>
-对应规则key，判断本属性是否允许解码。默认是true。
+<h5>protected boolean <i>decodable</i>(Object o, Object ruleKey) throws Exception;</h5>
+对应规则key，判断对象o的本属性是否允许解码。默认是true。
 
 <!--****************************************************************************************-->
 

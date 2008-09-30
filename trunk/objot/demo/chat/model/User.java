@@ -10,10 +10,10 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 
+import objot.codec.Dec;
 import objot.codec.Enc;
 import objot.codec.EncDec;
 import objot.codec.NameEnc;
-import objot.codec.Dec;
 
 import org.hibernate.annotations.Proxy;
 
