@@ -24,12 +24,14 @@ public abstract class Clazz
 	protected Property[] encs;
 	Map<String, Property> decs;
 
-	static Clazz make(Class<?> c, Property[] es, Property[] ds, Map<String, Property> dNames)
-		throws Exception
+	static Clazz make(Codec cd, Class<?> c, Property[] es, Property[] ds,
+		Map<String, Property> dNames) throws Exception
 	{
 		String name = c.getName().startsWith("java.") //
-			? Clazz.class.getName() + "$$" + c.getName().replace('.', '$') //
-			: c.getName() + "$$Codec" + (c.hashCode() ^ Clazz.class.hashCode());
+			? cd.getClass().getName() + "$$" + cd.hashCode() + '$'
+				+ c.getName().replace('.', '$') //
+			: c.getName() + "$$" + cd.hashCode() + '$'
+				+ cd.getClass().getName().replace('.', '$');
 		Bytecode y = new Bytecode();
 		y.head.setModifier(Mod2.PUBLIC | Mod2.FINAL | Mod2.SYNTHETIC);
 		y.head.setClassCi(y.cons.addClass(y.cons.addUcs(Class2.pathName(name))));

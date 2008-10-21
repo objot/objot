@@ -118,7 +118,8 @@ public class Codec
 	/**
 	 * analyze a class
 	 * 
-	 * @return the return value of {@link #getClazz} or {@link #addClazz}
+	 * @return the return value of {@link #getClazz} or
+	 *         {@link #addClazz(Class, Property[], Property[], Map)} or {{@link #addClazz(Class, Map, Map, Map)}
 	 */
 	public Clazz clazz(Class<?> c) throws Exception
 	{
@@ -153,10 +154,7 @@ public class Codec
 			if (d != null)
 				new PropertyAnno(m, null, d, null, false).into(ds_);
 		}
-		return addClazz(c, //
-			Array2.from(es_.values(), Property.class), //
-			Array2.from(ds_.values(), Property.class), //
-			ds_);
+		return addClazz(c, es_, ds_, ds_);
 	}
 
 	/** @return the info of the analyzed class, or null if not analyzed */
@@ -180,8 +178,16 @@ public class Codec
 			for (Property d: decs)
 				decNames.put(d.name, d);
 		}
-		Clazz z = Clazz.make(c, encs, decs, decNames);
+		Clazz z = Clazz.make(this, c, encs, decs, decNames);
 		clazzs.put(c, z);
 		return z;
+	}
+
+	/** @return the info of the class being analyzed */
+	protected final Clazz addClazz(Class<?> c, Map<?, Property> encs, Map<?, Property> decs,
+		Map<String, Property> decNames) throws Exception
+	{
+		return addClazz(c, Array2.from(encs.values(), Property.class), //
+			Array2.from(decs.values(), Property.class), decNames);
 	}
 }
