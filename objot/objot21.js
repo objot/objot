@@ -381,7 +381,7 @@ $dom.rem = function (index, len) {
 			this.removeChild(arguments[x])
 	return this
 }
-/** like rem() and recursively trigger 'des' event then detach all handlers
+/** like rem() and recursively trigger 'des' event and detach all handlers
  * @return this */
 $dom.des = function (index, len) {
 	if (arguments.length == 0 && (x = this.parentNode) && x.removeChild(this))
@@ -419,8 +419,8 @@ $dom.cla = function (clazz) {
 	this.className = cs.join(' ')
 	return this
 }
-/** getAttribute if no argument, removeAttribute if v === null, or setAttribute
- * @return attribute if no argument, or this */
+/** getAttribute if no value, removeAttribute if v === null, or setAttribute
+ * @return attribute or this */
 $dom.attr = function (a, v) {
 	if (arguments.length <= 1)
 		return this.getAttribute(a, 2/*exact value in ie*/)
@@ -433,24 +433,27 @@ $dom.attr = function (a, v) {
  * @param multiLine if reserved. @return text if no argument, or this */
 $dom.tx = $fos ? function (v, multiLine) {
 	if (this.tagName.toLowerCase() == 'textarea')
-		return arguments.length == 0 ? this.value :
-			(this.value = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this)
+		return arguments.length == 0 ? this.value : ($dom.des.call(this, 0),
+			this.value = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this)
 	if (arguments.length == 0)
 		return this.textContent;
 	v = String(v).replace(/  /g, '\u00a0 ')
-	if (multiLine && v.indexOf('\n') >= 0) {
-		v = v.split('\n')
-		this.textContent = v.length > 0 ? v[0] : ''
-		for (var x = 1; x < v.length; x++)
-			this.appendChild($D.createElement('br')).textContent = '\n', // \n for getting
-			this.appendChild($D.createTextNode(v[x]))
-	} else
-		this.textContent = v
+	$dom.des.call(this, 0)
+	if (!multiLine || v.indexOf('\n') < 0)
+		return this.textContent = v, this
+	v = v.split('\n')
+	this.textContent = v[0] || ''
+	for (var x = 1; x < v.length; x++)
+		this.appendChild($D.createElement('br')).textContent = '\n',
+		this.appendChild($D.createTextNode(v[x]))
 	return this
 } : function (v, multiLine) {
-	return arguments.length == 0 ? this.tagName.toLowerCase() == 'textarea' ?
-		this.value.replace(/\r\n/g, '\n') : this.innerText :
-		(this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this)
+	if (arguments.length == 0)
+		return this.tagName.toLowerCase() == 'textarea'
+			? this.value.replace(/\r\n/g, '\n') : this.innerText
+	$dom.des.call(this, 0)
+	this.innerText = multiLine ? String(v) : String(v).replace(/\n/g, ' ')
+	return this
 }
 /** get style.display != 'none', or set style.display, or switch style.display if v === 0
  * @return true/false if no argument, or this */
