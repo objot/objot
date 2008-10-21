@@ -152,11 +152,13 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 <h5>protected final Clazz <i>getClazz</i>(Class c) throws Exception</h5>
 返回类的分析结果，若尚未分析，则返回null。线程安全。
 
-<h5>protected final Clazz <i>addClazz</i>(Class c, boolean ctor, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
+<h5>protected final Clazz <i>addClazz</i>(Class c, Property[] encs, Property[] decs, Map&lt;String, Property&gt; decNames) throws Exception<br>
+protected final Clazz <i>addClazz</i>(Class c, Map&lt;?, Property&gt; encs, Map&lt;?, Property&gt; decs, Map&lt;String, Property&gt; decNames) throws Exception</h5>
 对类做最后分析，添加并返回最终结果。
 encs为需要编码的属性信息，decs为需要解码的属性信息。
 decNames为解码属性名和信息的map，若为null则默认根据encs生成，不为null则重用这个map。
 线程安全。参见Property类。
+
 
 <h5>public <i>Codec</i>()</h5>
 默认构造方法。类分析结果独立于其他Codec对象。
