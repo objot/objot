@@ -31,7 +31,7 @@
 		<verbose-stacktraces>false</verbose-stacktraces>
 
 		<keep-all-type-selectors>false</keep-all-type-selectors>
-		<!-- Bindable, Managed, ChangeEvent, NonCommittingChangeEvent, Transient are for Flex -->
+		<!-- Embed, Bindable, Managed, ChangeEvent, NonCommittingChangeEvent, Transient are for Flex -->
 		<keep-as3-metadata>
 			<name>Enc</name>
 			<name>EncDynamic</name>
