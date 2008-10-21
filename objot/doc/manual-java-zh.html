@@ -323,11 +323,11 @@ class Prop extends Property {
 		// 其他属性分析工作
 	}
 	@Override
-	protected boolean allowEnc(Object ruleKey) throws Exception {
+	protected boolean encodable(Object o, Object ruleKey) throws Exception {
 		// 根据key判断是否允许编码本属性
 	}
 	@Override
-	protected boolean allowDec(Object ruleKey) throws Exception {
+	protected boolean decodable(Object o, Object ruleKey) throws Exception {
 		// 根据key判断是否允许解码本属性
 	}
 }
