@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app
+	version="2.4"
+	xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+	http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+	<display-name>Chat - Objot demo for java</display-name>
+
+	<servlet>
+		<servlet-name>servlet</servlet-name>
+		<servlet-class>chat.service.Servlet</servlet-class>
+		<init-param>
+			<param-name>verbose</param-name>
+			<param-value>1</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>servlet</servlet-name>
+		<url-pattern>/service/*</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>servlet</welcome-file>
+	</welcome-file-list>
+
+	<session-config>
+		<session-timeout>3</session-timeout>
+	</session-config>
+
+</web-app>

@@ -1,0 +1,299 @@
+//
+// Copyright 2007-2008 Qianyan Cai
+// Under the terms of the GNU Lesser General Public License version 2.1
+//
+package objot.codec;
+
+import java.lang.reflect.Method;
+import java.sql.Clob;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+
+import objot.util.Array2;
+import objot.util.Class2;
+
+
+public final class Encoder
+{
+	private static final int HASH_MASK = 255;
+
+	private Codec codec;
+	private Object ruleKey;
+	/** data as key in data graph */
+	private Object[][] objs;
+	/**
+	 * reference number as value in data graph.
+	 * <dd>0: be refered only once, no reference number
+	 * <dd><0: be refered many times, need a reference number
+	 * <dd>>0: reference number
+	 */
+	private int[][] refs;
+	/** the number of used reference numbers */
+	private int refn;
+	private StringBuilder str;
+
+	/** @param ruleKey_ null is Object.class */
+	Encoder(Codec o, Object ruleKey_)
+	{
+		codec = o;
+		ruleKey = ruleKey_;
+		str = new StringBuilder(1000);
+	}
+
+	StringBuilder go(Object o) throws Exception
+	{
+		refn = 0;
+		value(null, o); // including initializtion
+		return str;
+	}
+
+	private StringBuilder split()
+	{
+		if (str.length() > 0)
+			str.append(Codec.S);
+		return str;
+	}
+
+	private StringBuilder split(StringBuilder s)
+	{
+		return str.append(Codec.S);
+	}
+
+	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value",
+		String.class, Object.class);
+
+	public void value(String name, Object v) throws Exception
+	{
+		if (name != null)
+			split().append(name);
+		int ref;
+		if (v == null)
+			split().append(',');
+		else if (v instanceof CharSequence)
+		{
+			CharSequence s = (CharSequence)v;
+			for (int l = s.length(), i = 0; i < l; i++)
+				if (s.charAt(i) == Codec.S)
+					throw new RuntimeException("String must not contain the split char");
+			split(split()).append(s);
+		}
+		else if (v instanceof Clob)
+		{
+			String s = ((Clob)v).getSubString(1, (int)Math.min(((Clob)v).length(),
+				Integer.MAX_VALUE));
+			for (int l = s.length(), i = 0; i < l; i++)
+				if (s.charAt(i) == Codec.S)
+					throw new RuntimeException("String must not contain the split char");
+			split(split()).append(s);
+		}
+		else if (v instanceof Boolean)
+			split().append((Boolean)v ? '>' : '<');
+		else if (v instanceof Double)
+			split().append((double)(Double)v);
+		else if (v instanceof Float)
+			split().append((float)(Float)v);
+		else if (v instanceof Long)
+			split().append(codec.beLong((Long)v));
+		else if (v instanceof Number)
+			split().append(((Number)v).longValue());
+		else if (v instanceof Date)
+			split(split().append('*')).append(codec.beLong(((Date)v).getTime()));
+		else if (v instanceof Calendar)
+			split(split().append('*')).append(codec.beLong(((Calendar)v).getTimeInMillis()));
+		else
+		{
+			if (objs == null)
+			{
+				objs = new Object[HASH_MASK + 1][32];
+				refs = new int[HASH_MASK + 1][32];
+				refs(v);
+			}
+			else if ((ref = ref(v, 0)) > 0)
+			{
+				split(split().append('=')).append(ref);
+				return;
+			}
+			if (v instanceof Collection || v.getClass().isArray())
+				list(v);
+			else
+				object(v);
+		}
+	}
+
+	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
+
+	@SuppressWarnings("unchecked")
+	/** visit the data graph */
+	public void refs(Object o) throws Exception
+	{
+		if (o == null || o instanceof CharSequence || o instanceof Clob
+			|| o instanceof Boolean || o instanceof Number || o instanceof Date
+			|| o instanceof Calendar //
+			|| ref(o, -1) < 0 /* multi references */)
+			return;
+		if (o instanceof Collection)
+		{
+			for (Object v: (Collection<?>)o)
+				refs(v);
+			return;
+		}
+		if (o.getClass().isArray())
+		{
+			if ( !o.getClass().getComponentType().isPrimitive())
+				for (Object v: (Object[])o)
+					refs(v);
+			return;
+		}
+		codec.clazz(o.getClass()).encodeRefs(this, o, ruleKey);
+		if (o instanceof Map)
+			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
+				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
+					refs(pv.getValue());
+	}
+
+	/**
+	 * get reference number of the object.
+	 * 
+	 * @param r 0: return the number, <0: refer the object, >0: assign a number if need
+	 * @return 0: no number, <0: need a number, >0: the number
+	 */
+	private int ref(Object o, int r)
+	{
+		int h = (System.identityHashCode(o) >> 3) & HASH_MASK;
+		Object[] s = objs[h];
+		int x;
+		for (x = 0; s[x] != null; x++)
+			if (o == s[x])
+				if (r == 0)
+					return refs[h][x];
+				else if (r < 0)
+					return refs[h][x] = -1;
+				else
+					return refs[h][x] >= 0 ? refs[h][x] : (refs[h][x] = ++refn);
+		if (r < 0)
+		{
+			s[x] = o;
+			objs[h] = Array2.ensureN(s, x + 2);
+			refs[h] = Array2.ensureN(refs[h], x + 2);
+		}
+		return 0;
+	}
+
+	private void list(Object o) throws Exception
+	{
+		split().append('[');
+		if (o instanceof Collection)
+		{
+			Collection<?> l = (Collection<?>)o;
+			split().append(l.size());
+			ref(o);
+			for (Object v: l)
+				value(null, v);
+		}
+		else if (o instanceof boolean[])
+		{
+			boolean[] l = (boolean[])o;
+			split().append(l.length);
+			ref(o);
+			for (boolean v: l)
+				split().append(v ? '>' : '<');
+		}
+		else if (o instanceof int[])
+		{
+			int[] l = (int[])o;
+			split().append(l.length);
+			ref(o);
+			for (int v: l)
+				split().append(v);
+		}
+		else if (o instanceof long[])
+		{
+			long[] l = (long[])o;
+			split().append(l.length);
+			ref(o);
+			for (long v: l)
+				split().append(codec.beLong(v));
+		}
+		else
+		{
+			Object[] l = (Object[])o;
+			split().append(l.length);
+			ref(o);
+			for (Object v: l)
+				value(null, v);
+		}
+		split().append(']');
+	}
+
+	@SuppressWarnings("unchecked")
+	private void object(Object o) throws Exception
+	{
+		split().append('{');
+		split().append(codec.name(o, o.getClass()));
+		ref(o);
+		codec.clazz(o.getClass()).encode(this, o, ruleKey);
+		if (o instanceof Map)
+			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
+				value(pv.getKey(), pv.getValue());
+		split().append('}');
+	}
+
+	private void ref(Object o)
+	{
+		int ref = ref(o, 1);
+		if (ref > 0)
+			split(split().append(':')).append(ref);
+	}
+
+	static final Method M_valueInt = Class2.declaredMethod(Encoder.class, "value",
+		String.class, int.class);
+
+	public void value(String name, int v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v);
+	}
+
+	static final Method M_valueLong = Class2.declaredMethod(Encoder.class, "value",
+		String.class, long.class);
+
+	public void value(String name, long v) throws Exception
+	{
+		if (name != null)
+			split().append(name);
+		split().append(codec.beLong(v));
+	}
+
+	static final Method M_valueBool = Class2.declaredMethod(Encoder.class, "value",
+		String.class, boolean.class);
+
+	public void value(String name, boolean v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v ? '>' : '<');
+	}
+
+	static final Method M_valueFloat = Class2.declaredMethod(Encoder.class, "value",
+		String.class, float.class);
+
+	public void value(String name, float v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v);
+	}
+
+	static final Method M_valueDouble = Class2.declaredMethod(Encoder.class, "value",
+		String.class, double.class);
+
+	public void value(String name, double v)
+	{
+		if (name != null)
+			split().append(name);
+		split().append(v);
+	}
+}
