@@ -16,11 +16,11 @@ Improvements
   * ultralight, very fast and powerful AOP implementation
   * file upload
   * upload progress notification
-  * multi service parameters 
+  * multi service parameters
   * documents
   * many bug fixes
   * many minor improvements
-  * change to the GNU Lesser General Public License version 2.1 
+  * change to the GNU Lesser General Public License version 2.1
 
 Todo
   * IOC: provider mode
@@ -52,7 +52,7 @@ Objot支持Java 5、Javascript、Actionscript 3，
   * 文档更新
   * 错误修复
   * 许多细节改进
-  * 采用GNU Library GPL版本2许可模式
+  * 采用GNU LGPL版本2.1许可模式
 
 后续改进：
   * IOC: 支持provider模式
