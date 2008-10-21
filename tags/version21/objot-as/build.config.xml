@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flex-config>
+	<metadata>
+		<title>Objot</title>
+		<description>http://objot.info</description>
+		<publisher>Qianyan Cai</publisher>
+		<creator>Qianyan Cai</creator>
+		<language>en</language>
+	</metadata>
+
+	<compiler>
+		<!--<locale>en_US</locale>-->
+
+		<source-path>
+			<path-element>flash</path-element>
+		</source-path>
+		<actionscript-file-encoding>utf-8</actionscript-file-encoding>
+		<include-libraries>
+			<!-- <library>lib</library> -->
+		</include-libraries>
+
+		<as3>true</as3>
+		<!-- ECMAScript 3 prototype chain -->
+		<es>false</es>
+		<strict>true</strict>
+		<optimize>true</optimize>
+
+		<!-- false by default for mxmlc, true by default for compc -->
+		<debug>true</debug>
+		<!-- Show stack traces for uncaught errors -->
+		<verbose-stacktraces>false</verbose-stacktraces>
+
+		<keep-all-type-selectors>false</keep-all-type-selectors>
+		<!-- Embed, Bindable, Managed, ChangeEvent, NonCommittingChangeEvent, Transient are for Flex -->
+		<keep-as3-metadata>
+			<name>Enc</name>
+			<name>EncDynamic</name>
+		</keep-as3-metadata>
+
+		<!-- generate accessible swf -->
+		<accessible>false</accessible>
+		<!-- Generate generated/*.as during mxml translation -->
+		<keep-generated-actionscript>false</keep-generated-actionscript>
+
+		<!-- CSS or SWC files as Flex theme -->
+		<theme>
+			<!-- <filename></filename> -->
+		</theme>
+		<fonts>
+			<!-- Use FlashType embedded fonts, which provides greater clarity for small fonts -->
+			<flash-type>false</flash-type>
+			<!-- Cached embedded font faces -->
+			<max-cached-fonts>20</max-cached-fonts>
+			<!-- Cache characters for each font face -->
+			<max-glyphs-per-face>1000</max-glyphs-per-face>
+			<!-- Defines ranges that can be used across multiple font-face declarations. -->
+			<!-- See flash-unicode-table.xml -->
+			<languages>
+				<language-range>
+					<lang>All</lang>
+					<range>U+0000-U+FFFF</range>
+				</language-range>
+			</languages>
+			<!-- Compiler font manager classes in policy resolution order-->
+			<managers>
+				<manager-class>flash.fonts.JREFontManager</manager-class>
+				<manager-class>flash.fonts.BatikFontManager</manager-class>
+			</managers>
+			<local-fonts-snapshot></local-fonts-snapshot>
+		</fonts>
+
+		<show-actionscript-warnings>true</show-actionscript-warnings>
+		<!-- Data binding warning -->
+		<show-binding-warnings>true</show-binding-warnings>
+		<show-deprecation-warnings>true</show-deprecation-warnings>
+		<warn-array-tostring-changes>false</warn-array-tostring-changes>
+		<warn-assignment-within-conditional>true</warn-assignment-within-conditional>
+		<!-- Possibly invalid Array cast operation. -->
+		<warn-bad-array-cast>true</warn-bad-array-cast>
+		<!-- Non-Boolean value used where a Boolean value was expected. -->
+		<warn-bad-bool-assignment>true</warn-bad-bool-assignment>
+		<!-- Invalid Date cast operation. -->
+		<warn-bad-date-cast>true</warn-bad-date-cast>
+		<!-- Unknown method. -->
+		<warn-bad-es3-type-method>true</warn-bad-es3-type-method>
+		<!-- Unknown property. -->
+		<warn-bad-es3-type-prop>true</warn-bad-es3-type-prop>
+		<!-- Illogical comparison with NaN. note that NaN != NaN. -->
+		<warn-bad-nan-comparison>true</warn-bad-nan-comparison>
+		<!-- Impossible assignment to null. -->
+		<warn-bad-null-assignment>true</warn-bad-null-assignment>
+		<!-- Illogical comparison with null. -->
+		<warn-bad-null-comparison>true</warn-bad-null-comparison>
+		<!-- Illogical comparison with undefined.  Only untyped or * typed variables can be undefined. -->
+		<warn-bad-undefined-comparison>true</warn-bad-undefined-comparison>
+		<!-- Boolean() returns false in AS3, and undefined in AS2 -->
+		<warn-boolean-constructor-with-no-args>
+			false
+		</warn-boolean-constructor-with-no-args>
+		<!-- __resolve is no longer supported. -->
+		<warn-changes-in-resolve>false</warn-changes-in-resolve>
+		<!-- Class is sealed.  It cannot have members added to it dynamically. -->
+		<warn-class-is-sealed>false</warn-class-is-sealed>
+		<!-- Constant not initialized. -->
+		<warn-const-not-initialized>true</warn-const-not-initialized>
+		<warn-constructor-returns-value>true</warn-constructor-returns-value>
+		<warn-deprecated-event-handler-error>true</warn-deprecated-event-handler-error>
+		<!-- Unsupported AS2 function. -->
+		<warn-deprecated-function-error>true</warn-deprecated-function-error>
+		<!-- Unsupported AS2 property. -->
+		<warn-deprecated-property-error>true</warn-deprecated-property-error>
+		<warn-duplicate-argument-names>true</warn-duplicate-argument-names>
+		<warn-duplicate-variable-def>true</warn-duplicate-variable-def>
+		<!-- in random order -->
+		<warn-for-var-in-changes>false</warn-for-var-in-changes>
+		<warn-import-hides-class>true</warn-import-hides-class>
+		<warn-instance-of-changes>false</warn-instance-of-changes>
+		<warn-internal-error>true</warn-internal-error>
+		<!-- _level is no longer supported. See flash.display package. -->
+		<warn-level-not-supported>true</warn-level-not-supported>
+		<!-- visibility -->
+		<warn-missing-namespace-decl>false</warn-missing-namespace-decl>
+		<!-- Negative value will become a large positive value when assigned to a uint data type. -->
+		<warn-negative-uint-literal>true</warn-negative-uint-literal>
+		<warn-no-constructor>false</warn-no-constructor>
+		<warn-no-explicit-super-call-in-constructor>
+			false
+		</warn-no-explicit-super-call-in-constructor>
+		<warn-no-type-decl>false</warn-no-type-decl>
+		<warn-number-from-string-changes>false</warn-number-from-string-changes>
+		<!-- See bound method and function closure -->
+		<warn-scoping-change-in-this>false</warn-scoping-change-in-this>
+		<!-- Inefficient use of += on a TextField.-->
+		<warn-slow-text-field-addition>true</warn-slow-text-field-addition>
+		<!-- Possible missing parentheses. -->
+		<warn-unlikely-function-value>true</warn-unlikely-function-value>
+		<!-- Possible usage of the AS2 XML class. -->
+		<warn-xml-class-has-changed>true</warn-xml-class-has-changed>
+	</compiler>
+
+	<!-- Runtime shared libraries will be loaded before application start -->
+	<runtime-shared-libraries>
+		<!--<url>string</url>
+			<url>string</url>-->
+	</runtime-shared-libraries>
+
+	<use-network>true</use-network>
+
+</flex-config>
