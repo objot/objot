@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<actionScriptProperties mainApplicationPath="TestObjot.as" version="1">
+  <compiler additionalCompilerArguments="-load-config=../build.config.xml" copyDependentFiles="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersion="9.0.0" htmlPlayerVersionCheck="true" outputFolderPath="" sourceFolderPath="flash" strict="true" warn="true">
+    <compilerSourcePath/>
+    <libraryPath>
+      <libraryPathEntry kind="3" linkType="2" path="${FRAMEWORKS}/libs/playerglobal.swc"/>
+    </libraryPath>
+    <sourceAttachmentPath/>
+  </compiler>
+  <applications>
+    <application path="TestObjot.as"/>
+  </applications>
+  <buildCSSFiles/>
+</actionScriptProperties>
