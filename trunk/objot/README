@@ -1,7 +1,7 @@
 == Objot version 21 ==
 
 Objot is a lightweight service oriented library for efficient web development,
- based on Java 5, Javascript, Actionscript3 etc.
+ based on Java 5, Javascript, Actionscript 3 etc.
 
 Supports Firefox 3, Firefox 2, IE 7, IE 6, Opera 9.5 and Safari 3.1 and Adobe 
  Flash Player 9
@@ -24,7 +24,7 @@ Improvements
 
 Todo
   * IOC: provider mode
-  * AOP: inherit all annotations from target method
+  * AOP: inherit all annotations from target methods
 
 == Objot 版本 21 ==
 
