@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<web-app version="2.4">
+
+	<display-name>Chat - Objot demo for java</display-name>
+
+	<servlet>
+		<servlet-name>servlet</servlet-name>
+		<servlet-class>chat.Servlet</servlet-class>
+		<init-param>
+			<param-name>data.test</param-name>
+			<!-- true (or system parameter -Ddata.test) to use testing database -->
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>servlet</servlet-name>
+		<url-pattern>/service/*</url-pattern>
+	</servlet-mapping>
+
+	<session-config>
+		<session-timeout>3</session-timeout>
+	</session-config>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+
+</web-app>
