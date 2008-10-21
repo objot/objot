@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Copyright 2007 Qianyan Cai
+// Under the terms of The GNU General Public License version 2
+//
+-->
+<html>
+<head>
+<meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
+</head>
+<body>
+<table border=1>
+	<tr><th>doUser
+	<tr><td>setTimeout				<td>5000				<td>
+	<tr><td>open					<td>/objot/service/test	<td>
+	<tr><td>waitForTextPresent		<td>Ok					<td>
+	<tr><td>open					<td>/objotweb/demo/		<td>
+	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>b
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
+	<tr><td>refresh						<td>				<td>
+	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForText	<td>css=#Me > div.name				<td>a
+
+	<tr><th>update
+	<tr><td>type		<td>css=#Me input					<td>b
+	<tr><td>click		<td>css=#Me a[title="Add"]			<td>
+	<tr><td>waitForText	<td>css=#Me a.name:nth-child(3)		<td>b
+	<tr><td>click		<td>css=#Me a:contains("Reload")	<td>
+	<tr><td>waitForText	<td>css=#Me a.name:first-child		<td>a
+	<tr><td>waitForText	<td>css=#Me a.name:nth-child(3)		<td>b
+
+
+	<tr><th>update2
+	<tr><td>click		<td>css=#Me a.do:nth-child(2)		<td>
+	<tr><td>waitForText	<td>css=#Me a.name:first-child		<td>b
+	<tr><td>assertElementNotPresent	<td>css=#Me a.name:nth-child(3)	<td>
+	<tr><td>click		<td>css=#Me a:contains("Reload")	<td>
+	<tr><td>waitForText	<td>css=#Me a.name:first-child		<td>b
+	<tr><td>assertElementNotPresent	<td>css=#Me a.name:nth-child(3)	<td>
+	<tr><td>click		<td>css=#Me a.do:nth-child(2)		<td>
+	<tr><td>waitForElementNotPresent	<td>css=#Me a.name	<td>
+	<tr><td>click		<td>css=#Me a:contains("Reload")	<td>
+	<tr><td>waitForElementNotPresent	<td>css=#Me a.name	<td>
+
+	<tr><th>get
+	<tr><td>type		<td>css=#Me input					<td>no
+	<tr><td>click		<td>css=#Me a[title="Add"]			<td>
+	<tr><td>waitForElementPresent	<td>css=#Me .ERR		<td>
+	<tr><td>type		<td>css=#Me input					<td>
+	<tr><td>click		<td>css=#Me a[title="Add"]			<td>
+	<tr><td>waitForElementPresent	<td>css=#Me .ERR		<td>
+</table>
+</body>
+</html>

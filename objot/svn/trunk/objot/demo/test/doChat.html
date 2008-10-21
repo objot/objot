@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Copyright 2007-2008 Qianyan Cai
+// Under the terms of the GNU Lesser General Public License version 2.1
+//
+-->
+<html>
+<head>
+<meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
+</head>
+<body>
+<table border=1>
+	<tr><th>doChat
+	<tr><td>setTimeout				<td>5000				<td>
+	<tr><td>open					<td>../../service/test	<td>
+	<tr><td>waitForTextPresent		<td>ok					<td>
+	<tr><td>open					<td>../					<td>
+	<tr><td>waitForElementPresent	<td>id=SignIn			<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>b
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForElementNotPresent	<td>id=SignIn		<td>
+	<tr><td>refresh						<td>				<td>
+	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForText	<td>css=#Me > div.name				<td>a
+
+	<tr><th>post_meToMe
+	<tr><td>click		<td>css=#Me a.name:first-child		<td>
+	<tr><td>assertText	<td>css=#Chatss .tabAct				<td>a
+	<tr><td>type		<td>css=#Chatss .post				<td>pa
+	<tr><td>click		<td>css=#Chatss button				<td>
+	<tr><td>waitForText	<td>css=#Chatss div.text			<td>pa
+
+	<tr><th>post_notFriends
+	<tr><td>type		<td>css=#Me input					<td>b
+	<tr><td>click		<td>css=#Me .do a[title="Chat"]		<td>
+	<tr><td>waitForText	<td>css=#Chatss .tabAct				<td>b
+	<tr><td>type		<td>css=#Chatss .post:nth-child(6)	<td>pb
+	<tr><td>click		<td>css=#Chatss button:nth-child(7)	<td>
+	<tr><td>waitForElementPresent	<td>css=#Chatss .Err	<td>
+
+	<tr><th>post_fromFriend
+	<tr><td>type		<td>css=#Me input					<td>b
+	<tr><td>click		<td>css=#Me a[title="Add"]			<td>
+	<tr><td>waitForText	<td>css=#Me a.name:nth-child(3)		<td>b
+	<tr><td>refresh						<td>				<td>
+	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>b
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>b
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForText	<td>css=#Me > div.name				<td>b
+	<tr><td>type		<td>css=#Me input					<td>a
+	<tr><td>click		<td>css=#Me .do a[title="Chat"]		<td>
+	<tr><td>waitForText	<td>css=#Chatss .tabAct				<td>a
+	<tr><td>type		<td>css=#Chatss .post				<td>pb
+	<tr><td>click		<td>css=#Chatss button				<td>
+	<tr><td>waitForText	<td>css=#Chatss div.text			<td>pb
+
+	<tr><th>read
+	<tr><td>refresh						<td>				<td>
+	<tr><td>waitForElementPresent		<td>id=SignIn		<td>
+	<tr><td>type		<td>css=#SignIn input[type="text"]	<td>a
+	<tr><td>type		<td>css=#SignIn input[type="password"]	<td>a
+	<tr><td>click		<td>css=#SignIn button				<td>
+	<tr><td>waitForText	<td>css=#Chatss .tabAct				<td>a
+	<tr><td>waitForText	<td>css=#Chatss div[class="text out"]	<td>pa
+	<tr><td>click		<td>css=#Chatss .tab:nth-child(2)		<td>
+	<tr><td>waitForText	<td>css=#Chatss div[class="text in"]	<td>pb
+</table>
+</body>
+</html>
