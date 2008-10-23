@@ -4,6 +4,7 @@
 //
 package chat.service;
 
+import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Map;
@@ -40,6 +41,7 @@ public abstract class Do
 	public String respType;
 
 	@Retention(RetentionPolicy.RUNTIME)
+	@Inherited
 	public @interface Service
 	{
 	}

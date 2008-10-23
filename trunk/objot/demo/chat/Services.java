@@ -28,11 +28,11 @@ import chat.service.Do.Service;
 public class Services
 {
 	/** @return container of services which parent is for session */
-	public static Container build(final Codec codec, final SessionFactory hib)
-		throws Exception
+	public static Container build(final Codec codec, final SessionFactory hib,
+		final boolean test) throws Exception
 	{
 		final Weaver w = new Weaver(Sign.As.class, Transac.As.class, EncAs.class,
-			ByteAs.class)
+			ResultAs.class)
 		{
 			CharSequence v = codec != null ? codec.enc(true, null) : null;
 
@@ -44,12 +44,24 @@ public class Services
 				if (ac == Sign.As.class)
 					return m.isAnnotationPresent(Sign.Any.class) ? this : null;
 				if (ac == Transac.As.class)
-					return new Transac.Config(m);
-				if (m.getReturnType() == byte[].class
+					return m.isAnnotationPresent(Transac.Any.class) ? this
+						: new Transac.Config(m);
+				if (codec == null || m.getReturnType() == byte[].class
 					|| InputStream.class.isAssignableFrom(m.getReturnType()))
-					return ac == ByteAs.class ? null : this;
-				if (codec != null && ac == EncAs.class)
+					return ac == ResultAs.class ? null : this;
+				if (ac == EncAs.class)
 					return m.getReturnType() == void.class ? v : null;
+				return this;
+			}
+		};
+		final Weaver testW = new Weaver(TestAs.class)
+		{
+			@Override
+			protected Object forWeave(Class<? extends Aspect> ac, Method m) throws Exception
+			{
+				if (m.getDeclaringClass().isSynthetic()
+					&& Mod2.match(m, Mod2.P.OBJECT, Mod2.PUBLIC_PROTECT, Mod2.FINAL))
+					return null;
 				return this;
 			}
 		};
@@ -77,7 +89,9 @@ public class Services
 					return b.mode(Inject.Parent.class);
 				if (c == Codec.class)
 					return b.obj(codec);
-				return c.isSynthetic() ? b : b.cla(w.weave(c));
+				if (c.isSynthetic())
+					return b;
+				return b.cla(test ? testW.weave(w.weave(c)) : w.weave(c));
 			}
 		}.bind(Codec.class);
 		for (Class<?> c: Class2.packageClasses(Do.class))
@@ -107,7 +121,7 @@ public class Services
 		}
 	}
 
-	static final class ByteAs
+	static final class ResultAs
 		extends Aspect
 	{
 		@Inject
@@ -122,6 +136,21 @@ public class Services
 			if (in)
 				return;
 			data.result = Target.getReturn();
+		}
+	}
+
+	static final class TestAs
+		extends Aspect
+	{
+		@Inject
+		public Data data;
+
+		@Override
+		protected void aspect() throws Throwable
+		{
+			data.result = null;
+			data.rollbackOnly = false;
+			Target.invoke();
 		}
 	}
 }

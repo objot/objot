@@ -28,7 +28,7 @@ import chat.service.Data;
 
 public @interface Transac
 {
-	/** no transaction or any transaction, {@link Data#hib} still available */
+	/** no transaction or any transaction, {@link Data#hib} may not available */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Any
@@ -42,7 +42,7 @@ public @interface Transac
 	{
 	}
 
-	/** read committed isolation or higher */
+	/** read committed isolation or higher, by default */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Commit
@@ -50,7 +50,7 @@ public @interface Transac
 		boolean readonly() default false;
 	}
 
-	/** repeatable read isolation or higher, by default */
+	/** repeatable read isolation or higher */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.METHOD)
 	public @interface Repeat
@@ -74,19 +74,19 @@ public @interface Transac
 		public Config(AnnotatedElement o)
 		{
 			Annotation a = Class2.annoExclusive(o, Transac.class);
-			if (a instanceof Commit)
+			if (a instanceof Repeat)
 			{
-				iso = TRANSACTION_READ_COMMITTED;
-				read = ((Commit)a).readonly();
+				iso = TRANSACTION_REPEATABLE_READ;
+				read = ((Repeat)a).readonly();
 			}
 			else if (a instanceof Serial)
 			{
 				iso = TRANSACTION_SERIALIZABLE;
 				read = ((Serial)a).readonly();
 			}
-			else if ( !(a instanceof Any))
+			else
 			{
-				iso = TRANSACTION_REPEATABLE_READ;
+				iso = TRANSACTION_READ_COMMITTED;
 				read = a != null && (a instanceof Readonly || ((Commit)a).readonly());
 			}
 		}
@@ -106,14 +106,14 @@ public @interface Transac
 		@Override
 		protected void aspect() throws Throwable
 		{
+			boolean hib = data.hib == null;
 			if (LOG.isDebugEnabled())
-				if (data.result == null)
+				if (hib)
 					LOG.debug("================ " + Target.clazz().getName() + "-"
 						+ Target.name() + " ================");
 				else
 					LOG.debug("---------------- " + Target.clazz().getName() + "-"
 						+ Target.name() + " ----------------");
-			boolean hib = data.hib == null;
 			if (hib)
 				data.hib = factory.openSession();
 			boolean ok = false;
@@ -126,20 +126,25 @@ public @interface Transac
 			}
 			finally
 			{
+				if ( !ok)
+					data.rollbackOnly = true;
 				if (hib)
 				{
 					if (data.hib.getTransaction().isActive())
-						try
-						{
-							if (ok)
-								data.hib.getTransaction().commit();
-							else
-								data.hib.getTransaction().rollback();
-						}
-						catch (Throwable e)
-						{
-							LOG.warn(e);
-						}
+						if (ok && data.rollbackOnly)
+							throw new Exception("rollback-only required by inner transaction");
+						else
+							try
+							{
+								if (ok)
+									data.hib.getTransaction().commit();
+								else
+									data.hib.getTransaction().rollback();
+							}
+							catch (Throwable e)
+							{
+								LOG.warn(e);
+							}
 					if (data.hib.isOpen())
 						try
 						{
@@ -167,9 +172,10 @@ public @interface Transac
 			if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
 				throw new Exception(target + ": transaction must be writable");
 			if (con.iso > hib.getJDBCContext().borrowConnection().getTransactionIsolation())
-				throw new Exception(target + ": isolation must be at least "
-					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
-						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
+				throw new Exception(target
+					+ ": isolation must be at least "
+					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable"
+						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read"
 							: "read committed"));
 		}
 	}
