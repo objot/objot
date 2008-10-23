@@ -49,7 +49,7 @@ public class Services
 					|| InputStream.class.isAssignableFrom(m.getReturnType()))
 					return ac == ByteAs.class ? null : this;
 				if (codec != null && ac == EncAs.class)
-					return m.getReturnType() == void.class ? v : codec;
+					return m.getReturnType() == void.class ? v : null;
 				return this;
 			}
 		};
@@ -89,15 +89,21 @@ public class Services
 	static final class EncAs
 		extends Aspect
 	{
+		@Inject
+		public Data data;
+		@Inject
+		public Codec codec;
+
 		@Override
 		protected void aspect() throws Throwable
 		{
+			boolean in = data.result != null;
+			data.result = this;
 			Target.invoke();
-			if (Target.<Do>thiz().data.depth != 1)
+			if (in)
 				return;
-			Object r = Target.data();
-			Target.<Do>thiz().data.result = //
-			r instanceof Codec ? ((Codec)r).enc(Target.getReturn(), Target.clazz()) : r;
+			CharSequence v = Target.data();
+			data.result = v != null ? v : codec.enc(Target.getReturn(), Target.clazz());
 		}
 	}
 
@@ -110,8 +116,10 @@ public class Services
 		@Override
 		protected void aspect() throws Throwable
 		{
+			boolean in = data.result != null;
+			data.result = this;
 			Target.invoke();
-			if (data.depth != 1)
+			if (in)
 				return;
 			data.result = Target.getReturn();
 		}
