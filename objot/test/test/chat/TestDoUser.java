@@ -26,7 +26,7 @@ public class TestDoUser
 		u = new User();
 		u.name = u.password = "a";
 		doUser.doSign.inUp(u);
-		u1 = doUser.doUser.me();
+		u1 = doUser.me();
 		u1.friends_ = null;
 	}
 

@@ -128,7 +128,7 @@ public abstract class Container
 	}
 
 	/**
-	 * set an instance of the class in {@link Inject.Single} mode, or try in parent.
+	 * set an instance of the class in {@link Inject.Set} mode, or try in parent.
 	 * 
 	 * @see Factory#create(Container, boolean)
 	 * @throws ClassCastException if {@link #contain} false, or maybe any exception while

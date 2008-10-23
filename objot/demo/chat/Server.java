@@ -57,7 +57,7 @@ public final class Server
 		}
 		codec = Models.CODEC;
 		dataFactory = Models.build(dataTest).buildSessionFactory();
-		container = Services.build(codec, dataFactory);
+		container = Services.build(codec, dataFactory, false);
 		return this;
 	}
 

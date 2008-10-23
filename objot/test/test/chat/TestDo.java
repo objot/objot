@@ -38,7 +38,8 @@ public class TestDo
 	public static void beforeAll() throws Exception
 	{
 		Locale.setDefault(Locale.ENGLISH);
-		container0 = Services.build(Models.CODEC, Models.build(true).buildSessionFactory());
+		container0 = Services.build(Models.CODEC, Models.build(true).buildSessionFactory(),
+			true);
 		dataInit = new ModelsCreate(true);
 		dataInit.create(true, 1);
 		dataInit.print = false;
