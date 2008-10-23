@@ -87,8 +87,7 @@ public @interface Transac
 			else if ( !(a instanceof Any))
 			{
 				iso = TRANSACTION_REPEATABLE_READ;
-				read = a == null ? false : a instanceof Readonly ? true
-					: ((Repeat)a).readonly();
+				read = a != null && (a instanceof Readonly || ((Commit)a).readonly());
 			}
 		}
 	}
@@ -108,16 +107,16 @@ public @interface Transac
 		protected void aspect() throws Throwable
 		{
 			if (LOG.isDebugEnabled())
-				if (data.depth == 0)
+				if (data.result == null)
 					LOG.debug("================ " + Target.clazz().getName() + "-"
 						+ Target.name() + " ================");
 				else
 					LOG.debug("---------------- " + Target.clazz().getName() + "-"
 						+ Target.name() + " ----------------");
-			if (data.depth == 0)
+			boolean hib = data.hib == null;
+			if (hib)
 				data.hib = factory.openSession();
 			boolean ok = false;
-			data.depth++;
 			try
 			{
 				begin((SessionImpl)data.hib, Target.<Config>data(), Target.target());
@@ -127,8 +126,7 @@ public @interface Transac
 			}
 			finally
 			{
-				data.depth--;
-				if (data.depth <= 0)
+				if (hib)
 				{
 					if (data.hib.getTransaction().isActive())
 						try
@@ -159,17 +157,16 @@ public @interface Transac
 		private static void begin(SessionImpl hib, Config con, String target)
 			throws Exception
 		{
-			if (con.iso <= 0)
-				return;
 			if ( !hib.getTransaction().isActive())
 			{
 				hib.getJDBCContext().borrowConnection().setReadOnly(con.read);
 				hib.getJDBCContext().borrowConnection().setTransactionIsolation(con.iso);
 				hib.beginTransaction();
+				return;
 			}
-			else if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
+			if ( !con.read && hib.getJDBCContext().borrowConnection().isReadOnly())
 				throw new Exception(target + ": transaction must be writable");
-			else if (con.iso > hib.getJDBCContext().borrowConnection().getTransactionIsolation())
+			if (con.iso > hib.getJDBCContext().borrowConnection().getTransactionIsolation())
 				throw new Exception(target + ": isolation must be at least "
 					+ (con.iso == TRANSACTION_SERIALIZABLE ? "serializable" //
 						: con.iso == TRANSACTION_REPEATABLE_READ ? "repeatable read" //
