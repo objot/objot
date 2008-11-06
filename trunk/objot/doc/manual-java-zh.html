@@ -113,7 +113,7 @@
 编码，使用的规则与 每个编码的对象 及ruleKey相关。非线程安全。
 
 <h5>public &lt;T&gt;T <i>dec</i>(char[] s, Class&lt;T&gt; cla, Object ruleKey) throws Exception<br>
-public &lt;T&gt;T <i>dec</i>(char[] s, int sBegin, int sEnd1, Class&lt;T&gt; cla, Class ruleKey)</h5>
+public &lt;T&gt;T <i>dec</i>(char[] s, int sBegin, int sEnd1, Class&lt;T&gt; cla, Object ruleKey)</h5>
 解码，使用的规则与 每个解码的对象 及ruleKey相关。返回数据图的根。
 对根的解码将参照cla，如果不能符合cla，则抛出异常。
 被解码的字符串范围是[sBegin,sEnd1)。非线程安全。
@@ -293,7 +293,7 @@ public class User {
 	public List&lt;User&gt; friends;
 
 	@Enc(DoUser.class) // key为DoUser类或子类或对象，需编码
-	@Name("friends") // 编码名称为friends，因为不可解码，所以解码名称没有意思
+	@Name("friends") // 编码名称为friends，因为不可解码，所以解码名称没有意义
 	public List&lt;User&gt; friends_;
 }
 </pre>
@@ -693,7 +693,7 @@ Container a = new Factory() {
 	@Override
 	protected Object forBind(Class c, Bind b) throws Exception {
 		// 根据c从配置文件中寻找相关类
-		// 如无相关类，则返回null
+		// 如无相关类，则抛出异常
 		// 找到类，则根据配置设置b，返回null
 	}
 	@Override
