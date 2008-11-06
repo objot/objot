@@ -51,7 +51,7 @@ class A1
 		A.ctor++;
 	}
 
-	@SuppressWarnings("cast")
+	@SuppressWarnings("all")
 	@Override
 	protected void aspect() throws Throwable
 	{

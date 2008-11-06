@@ -1,8 +1,9 @@
-#Fri Mar 21 03:00:45 GMT 2008
+#Mon Nov 03 12:29:47 HKT 2008
 cleanup.add_default_serial_version_id=true
 cleanup.add_generated_serial_version_id=false
 cleanup.add_missing_annotations=true
 cleanup.add_missing_deprecated_annotations=true
+cleanup.add_missing_methods=false
 cleanup.add_missing_nls_tags=false
 cleanup.add_missing_override_annotations=false
 cleanup.add_serial_version_id=false
@@ -11,10 +12,13 @@ cleanup.always_use_parentheses_in_expressions=false
 cleanup.always_use_this_for_non_static_field_access=false
 cleanup.always_use_this_for_non_static_method_access=false
 cleanup.convert_to_enhanced_for_loop=false
+cleanup.correct_indentation=false
 cleanup.format_source_code=true
+cleanup.format_source_code_changes_only=false
 cleanup.make_local_variable_final=true
 cleanup.make_parameters_final=false
 cleanup.make_private_fields_final=true
+cleanup.make_type_abstract_if_missing_method=false
 cleanup.make_variable_declarations_final=false
 cleanup.never_use_blocks=true
 cleanup.never_use_parentheses_in_expressions=true
@@ -45,7 +49,7 @@ cleanup.use_this_for_non_static_field_access=false
 cleanup.use_this_for_non_static_field_access_only_if_necessary=true
 cleanup.use_this_for_non_static_method_access=false
 cleanup.use_this_for_non_static_method_access_only_if_necessary=true
-cleanup_profile=_Objot
+cleanup_profile=_objot
 cleanup_settings_version=2
 eclipse.preferences.version=1
 editor_save_participant_org.eclipse.jdt.ui.postsavelistener.cleanup=true

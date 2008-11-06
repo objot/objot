@@ -48,7 +48,7 @@ public class Codec
 	 * @param cla null is Object.class
 	 * @param ruleKey null is Object.class
 	 */
-	public <T>T dec(char[] s, Class<T> cla, Class<?> ruleKey) throws Exception
+	public <T>T dec(char[] s, Class<T> cla, Object ruleKey) throws Exception
 	{
 		return new Decoder(this, ruleKey, s, 0, s.length).go(cla);
 	}
@@ -57,7 +57,7 @@ public class Codec
 	 * @param cla null is Object.class
 	 * @param ruleKey null is Object.class
 	 */
-	public Object dec(char[] s, int sBegin, int sEnd1, Class<?> cla, Class<?> ruleKey)
+	public Object dec(char[] s, int sBegin, int sEnd1, Class<?> cla, Object ruleKey)
 		throws Exception
 	{
 		return new Decoder(this, ruleKey, s, sBegin, sEnd1).go(cla);
@@ -119,7 +119,8 @@ public class Codec
 	 * analyze a class
 	 * 
 	 * @return the return value of {@link #getClazz} or
-	 *         {@link #addClazz(Class, Property[], Property[], Map)} or {{@link #addClazz(Class, Map, Map, Map)}
+	 *         {@link #addClazz(Class, Property[], Property[], Map)} or {
+	 *         {@link #addClazz(Class, Map, Map, Map)}
 	 */
 	public Clazz clazz(Class<?> c) throws Exception
 	{

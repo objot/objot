@@ -23,7 +23,7 @@ import objot.util.Math2;
 final class Decoder
 {
 	private Codec codec;
-	private Class<?> ruleKey;
+	private Object ruleKey;
 	private char[] bs;
 	private int bBegin;
 	private int bEnd1;
@@ -34,7 +34,7 @@ final class Decoder
 	private double numd;
 
 	/** @param ruleKey_ null is Object.class */
-	Decoder(Codec o, Class<?> ruleKey_, char[] s, int sBegin, int sEnd1)
+	Decoder(Codec o, Object ruleKey_, char[] s, int sBegin, int sEnd1)
 	{
 		codec = o;
 		ruleKey = ruleKey_ != null ? ruleKey_ : Object.class;
@@ -94,7 +94,7 @@ final class Decoder
 				return new StringReader(s);
 			}
 
-			@SuppressWarnings("unused")
+			@SuppressWarnings("all")
 			public Reader getCharacterStream(long pos, long length)
 			{
 				throw new UnsupportedOperationException();
@@ -146,7 +146,7 @@ final class Decoder
 				throw new UnsupportedOperationException();
 			}
 
-			@SuppressWarnings("unused")
+			@SuppressWarnings("all")
 			public void free()
 			{
 			}
@@ -235,7 +235,7 @@ final class Decoder
 		return refs[i];
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("all")
 	private Object list(Class<?> cla, Class<?> elem) throws Exception
 	{
 		final int len = numi(num());
@@ -334,7 +334,7 @@ final class Decoder
 			{
 				if ( !p.decodable(o, ruleKey))
 					throw new RuntimeException("decoding " + o.getClass().getName() + "." + n
-						+ " forbidden for " + ruleKey.getName());
+						+ " forbidden for " + ruleKey);
 				Object v = this;
 				try
 				{

@@ -58,7 +58,7 @@ public abstract class Weaver
 			abs[i] = Class2.classFile(acs[i]);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("all")
 	public synchronized <T>Class<T> weave(Class<T> target) throws Exception
 	{
 		if (Aspect.class.isAssignableFrom(target))
