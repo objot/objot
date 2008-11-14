@@ -17,7 +17,7 @@
 	<target name="flash">
 		<java classpath="${flex.home}/lib" jar="${flex.home}/lib/compc.jar" fork="true">
 			<arg value="-load-config=build.config.xml" />
-			<arg value="-external-library-path=${flex.home}/frameworks/libs/playerglobal.swc" />
+			<arg value="-external-library-path=${flex.home}/frameworks/libs/player/playerglobal.swc" />
 			<arg value="-include-sources=${.source.flash}/objot" />
 			<arg value="-output=${.archive}" />
 		</java>
