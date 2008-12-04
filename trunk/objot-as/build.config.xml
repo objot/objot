@@ -35,6 +35,8 @@
 		<keep-as3-metadata>
 			<name>Enc</name>
 			<name>EncDynamic</name>
+			<name>SWF</name>
+			<name>Embed</name>
 		</keep-as3-metadata>
 
 		<!-- generate accessible swf -->

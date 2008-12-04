@@ -137,8 +137,14 @@ Java端[]和Collection都编码为列表，解码时，如果根据上下文不�
 
 <h5>protected Collection&lt;Object&gt; <i>newList</i>(Class c, int len) throws Exception</h5>
 根据类和列表长度创建解码的Collection。默认是：
-<pre>return c.isAssignableFrom(HashSet.class) ? new HashSet&lt;Object&gt;(len)
+<pre>return Set.class.isAssignableFrom(c) ? new HashSet&lt;Object&gt;(len)
 	: new ArrayList&lt;Object&gt;(len);</pre>
+
+<h5>protected void <i>undecodable</i>(Object o, String prop, Object ruleKey)</h5>
+在对象o上找不到属性prop，或不能解码属性prop时，调用本方法。默认是抛出RuntimeException。
+
+<h5>protected void <i>lostValue</i>(Object o, String prop, Object ruleKey, Object value) throws Exception</h5>
+当调用notFound时没有异常抛出，则调用本方法，value为属性值。默认不做任何处理，直接返回。
 
 <h5>public Clazz <i>clazz</i>(Class c) throws Exception</h5>
 分析一个类，返回分析结果，用于编解码的处理。既可能在编解码时被动调用，也可以主动调用。默认是：

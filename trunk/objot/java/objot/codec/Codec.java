@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import objot.util.Array2;
@@ -104,15 +105,31 @@ public class Codec
 	protected boolean arrayForList = true;
 
 	/**
-	 * by default, {@link ArrayList} for list and object, otherwise {@link HashSet} which
-	 * is not recommended for ORM
+	 * by default, {@link Collection} for list and object
 	 * 
 	 * @param c collection class, not element class
 	 */
 	protected Collection<Object> newList(Class<?> c, int len) throws Exception
 	{
-		return c.isAssignableFrom(HashSet.class) ? new HashSet<Object>(len)
+		return Set.class.isAssignableFrom(c) ? new HashSet<Object>(len)
 			: new ArrayList<Object>(len);
+	}
+
+	/**
+	 * called if the property not found on the object or can't decode it
+	 * 
+	 * @throws RuntimeException by default
+	 */
+	protected void undecodable(Object o, String prop, Object ruleKey) throws Exception
+	{
+		throw new RuntimeException(o.getClass().getName() + "." + prop
+			+ " not found or not decodable");
+	}
+
+	/** pick up the property value if {@link #undecodable} doesn't throw */
+	protected void lostValue(Object o, String prop, Object ruleKey, Object value)
+		throws Exception
+	{
 	}
 
 	/**
