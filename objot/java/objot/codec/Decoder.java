@@ -10,7 +10,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.sql.Clob;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -248,7 +247,7 @@ final class Decoder
 		Collection<Object> ls = null;
 
 		if (cla == Object.class)
-			cla = codec.arrayForList ? Object[].class : ArrayList.class;
+			cla = codec.arrayForList ? Object[].class : Collection.class;
 		if (cla.isArray())
 		{
 			elem = cla.getComponentType();
@@ -329,13 +328,13 @@ final class Decoder
 			if (c == 0 || c == '[' || c == '{' || c == '=' || c == '*' || c == '/')
 				bxy();
 
+			Object v = null;
 			Property p = z.decs.get(n);
 			if (p != null)
 			{
 				if ( !p.decodable(o, ruleKey))
 					throw new RuntimeException("decoding " + o.getClass().getName() + "." + n
 						+ " forbidden for " + ruleKey);
-				Object v = this;
 				try
 				{
 					if (c == 0)
@@ -354,7 +353,7 @@ final class Decoder
 						z.decode(o, p.index, v = false);
 					else if (c == '>')
 						z.decode(o, p.index, v = true);
-					else if (p.cla == int.class)
+					else if ((v = this) != null && p.cla == int.class)
 						z.decode(o, p.index, numi(num()));
 					else if (p.cla == long.class)
 						z.decode(o, p.index, numl(num()));
@@ -372,29 +371,33 @@ final class Decoder
 						+ p.cla, e);
 				}
 			}
-			else if (m != null)
+			else
+			{
+				if (m == null) // not found
+					codec.undecodable(o, n, ruleKey);
 				if (c == 0)
-					m.put(n, str());
+					v = str();
 				else if (c == '[')
-					m.put(n, list(Object.class, Object.class));
+					v = list(Object.class, Object.class);
 				else if (c == '{')
-					m.put(n, object(Object.class));
+					v = object(Object.class);
 				else if (c == '=')
-					m.put(n, ref());
+					v = ref();
 				else if (c == '*')
-					m.put(n, new Date(numl(num())));
+					v = new Date(numl(num()));
 				else if (c == ',')
-					m.put(n, null);
+					v = null;
 				else if (c == '<')
-					m.put(n, false);
+					v = false;
 				else if (c == '>')
-					m.put(n, true);
+					v = true;
 				else
-					m.put(n, Num(num(), null));
-			// not found
-			else if (p == null)
-				throw new RuntimeException(o.getClass().getName() + "." + n
-					+ " not found or not decodable");
+					v = Num(num(), null);
+				if (m == null)
+					codec.lostValue(o, n, ruleKey, v);
+				else
+					m.put(n, v);
+			}
 		}
 		return o;
 	}

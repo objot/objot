@@ -12,7 +12,7 @@ public class Meta
 
 	public var name:String;
 
-	/** [ { name, value } ] */
+	/** [ MetaArg ] */
 	public var args:Array;
 
 	/** { name: value } */

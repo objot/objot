@@ -81,7 +81,7 @@ public class Codec
 		else if (o is String)
 			s = ['', o];
 		else if (o is Date)
-			s = ['*', (o as Date).getTime()];
+			s = ['*', (o as Date).time];
 		else
 			try
 			{
@@ -147,7 +147,7 @@ public class Codec
 			else if (v is String)
 				s[x++] = '', s[x++] = v;
 			else if (v is Date)
-				s[x++] = '*', s[x++] = (v as Date).getTime();
+				s[x++] = '*', s[x++] = (v as Date).time;
 			else if (encRefs[v] is String)
 				s[x++] = '=', s[x++] = encRefs[v];
 			else if (v is Array)
@@ -178,7 +178,7 @@ public class Codec
 				else if (v is String)
 					s[x++] = '', s[x++] = v;
 				else if (v is Date)
-					s[x++] = '*', s[x++] = (v as Date).getTime();
+					s[x++] = '*', s[x++] = (v as Date).time;
 				else if (encRefs[v] is String)
 					s[x++] = '=', s[x++] = encRefs[v];
 				else if (v is Array)
@@ -201,7 +201,7 @@ public class Codec
 					else if (v is String)
 						s[x++] = '', s[x++] = v;
 					else if (v is Date)
-						s[x++] = '*', s[x++] = (v as Date).getTime();
+						s[x++] = '*', s[x++] = (v as Date).time;
 					else if (encRefs[v] is String)
 						s[x++] = '=', s[x++] = encRefs[v];
 					else if (v is Array)
