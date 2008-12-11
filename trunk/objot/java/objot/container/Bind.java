@@ -23,9 +23,11 @@ public class Bind
 	public Object obj;
 	/**
 	 * actual bind.
+	 * <dl>
 	 * <dd>if != this, mode ignored.
 	 * <dd>if == ({@link Clazz})this, null mode if static object after bind.
 	 * <dd>if == ({@link Bind})this, static object for fields and parameters.
+	 * </dl>
 	 */
 	Bind b;
 

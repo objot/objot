@@ -190,8 +190,8 @@ public class Factory
 	 * 
 	 * @param cc the binding class
 	 * @param fp {@link Field} or {@link Parameter}
-	 * @param c {@link Field#getType()} or {@link Parameter#cla}, same as
-	 *            {@link Bind#cla}, primitive unboxed where {@link Bind#box} boxed
+	 * @param c {@link Field#getType()} or {@link Parameter#cla}, same as {@link Bind#cla}
+	 *            , primitive unboxed where {@link Bind#box} boxed
 	 * @param generic {@link Field#getGenericType()} or {@link Parameter#generic}
 	 * @param b {@link Bind#mode} ignored
 	 * @return ignored, just for convenience
@@ -214,10 +214,10 @@ public class Factory
 	 * <dt>eager, recommended
 	 * <dd>all instances in {@link Inject.Single} mode are created while creating
 	 * container. thread safe, but for the classes bound to parent container, it depends
-	 * on parent.</dd>
+	 * on parent.
 	 * <dt>lazy
 	 * <dd>all instances in {@link Inject.Single} mode are created at first demand, not
-	 * thread safe.</dd>
+	 * thread safe.
 	 * </dl>
 	 * Note that circular dependences from constructor parameters or {@link Inject.New}
 	 * classes must be avoided since it causes stack overflow.

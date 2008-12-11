@@ -92,8 +92,8 @@ public final class AnnoParams
 	}
 
 	/**
-	 * @return the index(<code>param << 32L | anno & 0xFFFFFFFFL</code>) of
-	 *         annotation found, negative for not found.
+	 * @return the index(<code>param << 32L | anno & 0xFFFFFFFFL</code>) of annotation
+	 *         found, negative for not found.
 	 */
 	public static long searchAnno(AnnoParams as,
 		Class<? extends java.lang.annotation.Annotation> anno)

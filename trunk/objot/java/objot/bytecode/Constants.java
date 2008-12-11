@@ -14,7 +14,10 @@ import objot.util.Class2;
 import objot.util.InvalidValueException;
 
 
-/** All UTFs in this class are no-null-character UTF. All names of class are internal form. */
+/**
+ * All UTFs in this class are no-null-character UTF-8. All names of class are internal
+ * form.
+ */
 public final class Constants
 	extends Element
 {

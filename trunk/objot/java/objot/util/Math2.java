@@ -116,8 +116,7 @@ public class Math2
 	}
 
 	/**
-	 * @throws InvalidLengthException if <code>len < min</code> or
-	 *             <code>len > max</code>
+	 * @throws InvalidLengthException if <code>len < min</code> or <code>len > max</code>
 	 */
 	public static void length(int len, int min, int max)
 	{
@@ -126,8 +125,7 @@ public class Math2
 	}
 
 	/**
-	 * @throws InvalidLengthException if <code>len < min</code> or
-	 *             <code>len > max</code>
+	 * @throws InvalidLengthException if <code>len < min</code> or <code>len > max</code>
 	 */
 	public static void length(long len, long min, long max)
 	{
@@ -517,8 +515,7 @@ public class Math2
 	}
 
 	/**
-	 * @return <code>x - modFloor(x, block)</code>, or {@link Long#MIN_VALUE} if
-	 *         overflow
+	 * @return <code>x - modFloor(x, block)</code>, or {@link Long#MIN_VALUE} if overflow
 	 * @throws IllegalArgumentException if block < 0
 	 */
 	public static long blockFloorOver(long x, long block)

@@ -90,9 +90,10 @@
 	<tr><td>String Clob<td>string<td>String</tr>
 	<tr><td>Date Calendar(只编码)<td>Date<td>Date</tr>
 	<tr><td>boolean[] int[] long[] &lt;T&gt;T[] Collection&lt;T&gt;<td>Array<td>Array</tr>
-	<tr><td>其他Object Map&lt;String,Object&gt;<td>其他Object(非Function Boolean Number String)<td>其他Object(非Class Function)</tr>
+	<tr><td>其他Object Map&lt;String,T&gt;<td>其他Object(非Function Boolean Number String)<td>其他Object(非Class Function)</tr>
 </table>
 其中，字符串是Unicode字符集，但不能包含一个特殊字符：'\x10'（即\u0010），Objot编解码时使用了这个特殊字符。
+java.util.Map的属性名也不能包含特殊字符，但Objot不做检查。
 
 <p>Objot支持单继承类，Java端可以为类和属性指定别名。
 列表、对象之间可以任意引用，构成的整个数据图都可以被编解码。
