@@ -59,11 +59,13 @@ public class Property
 		map.put(name, this);
 	}
 
+	/** @param o the object having this property to be encoded */
 	public boolean encodable(Object o, Object ruleKey) throws Exception
 	{
 		return true;
 	}
 
+	/** @param o the object having this property to be decoded */
 	public boolean decodable(Object o, Object ruleKey) throws Exception
 	{
 		return true;

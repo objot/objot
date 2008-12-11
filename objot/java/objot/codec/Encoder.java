@@ -25,9 +25,11 @@ public final class Encoder
 	private Object[][] objs;
 	/**
 	 * reference number as value in data graph.
+	 * <dl>
 	 * <dd>0: be refered only once, no reference number
-	 * <dd><0: be refered many times, need a reference number
-	 * <dd>>0: reference number
+	 * <dd>&lt;0: be refered many times, need a reference number
+	 * <dd>&gt;0: reference number
+	 * </dl>
 	 */
 	private int[][] refs;
 	/** the number of used reference numbers */
@@ -124,8 +126,8 @@ public final class Encoder
 
 	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
 
-	@SuppressWarnings("unchecked")
 	/** visit the data graph */
+	@SuppressWarnings("unchecked")
 	public void refs(Object o) throws Exception
 	{
 		if (o == null || o instanceof CharSequence || o instanceof Clob

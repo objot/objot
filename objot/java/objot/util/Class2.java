@@ -352,10 +352,10 @@ public class Class2
 	{
 		String n = m.getName();
 		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class //
-			|| !n.startsWith("get") || n.length() <= 3 || Character.isLowerCase(n.charAt(3))))
+			|| n.length() <= 3 || !n.startsWith("get")))
 			throw new RuntimeException("invalid getter: " + m);
 		if ( !get && (m.getParameterTypes().length != 1 || m.getReturnType() != void.class //
-			|| !n.startsWith("set") || n.length() <= 3 || Character.isLowerCase(n.charAt(3))))
+			|| n.length() <= 3 || !n.startsWith("set")))
 			throw new RuntimeException("invalid setter: " + m);
 		if (n.length() > 4 && Character.isUpperCase(n.charAt(4)))
 			return n.substring(3);
@@ -367,14 +367,11 @@ public class Class2
 	public static String propertyOrName(Method m, boolean get)
 	{
 		String n = m.getName();
-		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class //
-		|| n.startsWith("set") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
+		if (get && (m.getParameterTypes().length > 0 || m.getReturnType() == void.class))
 			throw new RuntimeException("invalid getter: " + m);
-		if ( !get && (m.getParameterTypes().length != 1 //
-			|| n.startsWith("get") && n.length() > 3 && !Character.isLowerCase(n.charAt(3))))
+		if ( !get && m.getParameterTypes().length != 1)
 			throw new RuntimeException("invalid setter: " + m);
-		if (n.length() <= 3 || !n.startsWith(get ? "get" : "set")
-			|| Character.isLowerCase(n.charAt(3)))
+		if (n.length() <= 3 || !n.startsWith(get ? "get" : "set"))
 			return n;
 		if (n.length() > 4 && Character.isUpperCase(n.charAt(4)))
 			return n.substring(3);
@@ -497,8 +494,8 @@ public class Class2
 
 	/**
 	 * find all matched methods including those inherited and not-overriden from super
-	 * classes. excludes {@link Mod2.P#INITER}. methods in super class are before those
-	 * in sub class, the overriden methods are replaced in their original position
+	 * classes. excludes {@link Mod2.P#INITER}. methods in super class are before those in
+	 * sub class, the overriden methods are replaced in their original position
 	 */
 	public static ArrayList<Method> methods(Class<?> c, int andMods, int orMods, int noMods)
 	{
