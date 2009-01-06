@@ -90,7 +90,7 @@ public class Factory
 			for (int i = 0; i < ps.length; i++)
 			{
 				Bind b = c.t.ps[i] = new Bind().cla(ps[i].cla);
-				forBind(cla, ps[i], b.box, ps[i].generic, to = new Bind().cla(b.cla));
+				forBind(cla, ps[i], b.cla, ps[i].generic, to = new Bind().cla(b.cla));
 				to(b, to);
 			}
 
@@ -190,8 +190,8 @@ public class Factory
 	 * 
 	 * @param cc the binding class
 	 * @param fp {@link Field} or {@link Parameter}
-	 * @param c {@link Field#getType()} or {@link Parameter#cla}, same as {@link Bind#cla}
-	 *            , primitive unboxed where {@link Bind#box} boxed
+	 * @param c {@link Field#getType()} or {@link Parameter#cla}, same as unboxed
+	 *            {@link Bind#cla} where {@link Bind#box} boxed
 	 * @param generic {@link Field#getGenericType()} or {@link Parameter#generic}
 	 * @param b {@link Bind#mode} ignored
 	 * @return ignored, just for convenience
@@ -242,18 +242,18 @@ public class Factory
 				if (c.t != null)
 				{
 					for (Bind p: c.t.ps)
-						if (bindSpread(p).b.mode == null)
+						if (bindSpread(p).b == p)
 							os.add(p.b.obj);
 					c.maxParamN = c.t.ps.length;
 					for (Bind.FM fm: c.fms)
 						if (fm.m != null)
 						{
 							for (Bind p: fm.ps)
-								if (bindSpread(p).b.mode == null)
+								if (bindSpread(p).b == p)
 									os.add(p.b.obj);
 							c.maxParamN = Math.max(c.maxParamN, fm.ps.length);
 						}
-						else if (bindSpread(fm).b.mode == null)
+						else if (bindSpread(fm).b == fm)
 							os.add(fm.obj);
 				}
 				c.os = os.toArray();

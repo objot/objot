@@ -65,7 +65,7 @@ public class TestContainer
 			@Override
 			protected Object forBind(Class<?> c, Bind b) throws Exception
 			{
-				return c == Object.class ? b.obj(parent) : c == long.class ? b.obj(9L)
+				return c == Object.class ? b.obj(parent) : b.box == Long.class ? b.obj(9L)
 					: b.mode(parent.bound(c) ? Inject.Parent.class : b.mode);
 			}
 
