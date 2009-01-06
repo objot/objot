@@ -42,8 +42,7 @@ public interface X
 		public int[] ints;
 
 		@Inject
-		public New(@Deprecated
-		String name_)
+		public New(@Deprecated String name_)
 		{
 			name = name_;
 		}
@@ -64,8 +63,7 @@ public interface X
 		public Set t;
 
 		@Inject
-		public New2(@Deprecated
-		String name_)
+		public New2(@Deprecated String name_)
 		{
 			super(name_);
 		}

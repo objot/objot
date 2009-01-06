@@ -24,6 +24,7 @@ import static objot.bytecode.Opcode.*;
 final class Factoring
 {
 	private static final String NAME_oss = "oss";
+	private static final int PRINT = Integer.getInteger("objot.container.print", -1);
 
 	/** [0] == null */
 	Bind.Clazz[] cs;
@@ -81,7 +82,8 @@ final class Factoring
 
 		Class<Container> c = Class2.<Container>load(Container.class.getClassLoader(), name,
 			y.normalize());
-		// y.printTo(System.out, 0, 0, 100);
+		if (PRINT >= 0)
+			y.printTo(System.out, 0, 0, PRINT);
 		Class2.declaredField(c, NAME_oss).set(null, oss);
 		return c.newInstance(); // nothing inited
 	}
