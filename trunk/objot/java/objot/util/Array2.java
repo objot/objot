@@ -1,5 +1,5 @@
 //
-// Copyright 2007-2008 Qianyan Cai
+// Copyright 2007-2009 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 package objot.util;
@@ -630,7 +630,7 @@ public class Array2
 	{
 		if (n <= s.length)
 			return s;
-		byte[] a = new byte[Math2.max((int)(s.length * 1.4f + 2.5f), n, 12)];
+		byte[] a = new byte[Math2.max(s.length + (s.length >> 1) + 4, n, 12)];
 		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
@@ -639,7 +639,7 @@ public class Array2
 	{
 		if (n <= s.length)
 			return s;
-		int[] a = new int[Math2.max((int)(s.length * 1.5f + 2.5f), n, 4)];
+		int[] a = new int[Math2.max(s.length + (s.length >> 1) + 4, n, 4)];
 		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
@@ -648,7 +648,7 @@ public class Array2
 	{
 		if (n <= s.length)
 			return s;
-		long[] a = new long[Math2.max((int)(s.length * 1.5f + 2.5f), n, 4)];
+		long[] a = new long[Math2.max(s.length + (s.length >> 1) + 4, n, 4)];
 		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
@@ -657,7 +657,7 @@ public class Array2
 	{
 		if (n <= s.length)
 			return s;
-		T[] a = news(s, Math2.max((int)(s.length * 1.5f + 2.5f), n, 4));
+		T[] a = news(s, Math2.max(s.length + (s.length >> 1) + 4, n, 4));
 		System.arraycopy(s, 0, a, 0, s.length);
 		return a;
 	}
