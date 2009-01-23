@@ -1,5 +1,5 @@
 //
-// Copyright 2007-2008 Qianyan Cai
+// Copyright 2007-2009 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 package objot.codec;
@@ -11,18 +11,18 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
-import objot.util.Array2;
 import objot.util.Class2;
 
 
 public final class Encoder
 {
-	private static final int HASH_MASK = 255;
-
 	private Codec codec;
 	private Object ruleKey;
 	/** data as key in data graph */
-	private Object[][] objs;
+	private Object[] objs;
+	private int objn;
+	private int mask;
+	private int threshold;
 	/**
 	 * reference number as value in data graph.
 	 * <dl>
@@ -31,7 +31,7 @@ public final class Encoder
 	 * <dd>&gt;0: reference number
 	 * </dl>
 	 */
-	private int[][] refs;
+	private int[] refs;
 	/** the number of used reference numbers */
 	private int refn;
 	private StringBuilder str;
@@ -108,8 +108,10 @@ public final class Encoder
 		{
 			if (objs == null)
 			{
-				objs = new Object[HASH_MASK + 1][32];
-				refs = new int[HASH_MASK + 1][32];
+				objs = new Object[256];
+				refs = new int[256];
+				mask = 255;
+				threshold = 192;
 				refs(v);
 			}
 			else if ((ref = ref(v, 0)) > 0)
@@ -163,22 +165,37 @@ public final class Encoder
 	 */
 	private int ref(Object o, int r)
 	{
-		int h = (System.identityHashCode(o) >> 3) & HASH_MASK;
-		Object[] s = objs[h];
-		int x;
-		for (x = 0; s[x] != null; x++)
-			if (o == s[x])
+		int x = System.identityHashCode(o) >> 3 & mask;
+		do
+			if (o == objs[x])
 				if (r == 0)
-					return refs[h][x];
+					return refs[x];
 				else if (r < 0)
-					return refs[h][x] = -1;
+					return refs[x] = -1;
 				else
-					return refs[h][x] >= 0 ? refs[h][x] : (refs[h][x] = ++refn);
+					return refs[x] >= 0 ? refs[x] : (refs[x] = ++refn);
+		while (objs[x = (x + 1) & mask] != null);
 		if (r < 0)
 		{
-			s[x] = o;
-			objs[h] = Array2.ensureN(s, x + 2);
-			refs[h] = Array2.ensureN(refs[h], x + 2);
+			objs[x] = o;
+			if (++objn == threshold)
+			{
+				Object[] os = new Object[objs.length << 1];
+				int[] rs = new int[os.length];
+				mask = objs.length - 1;
+				threshold = objs.length - (objs.length >> 2);
+				for (int i = objs.length - 1; i >= 0; i--)
+					if ((o = objs[i]) != null)
+					{
+						x = System.identityHashCode(o) >> 3 & mask;
+						while (os[x] != null)
+							x++;
+						os[x] = o;
+						rs[x] = refs[i];
+					}
+				objs = os;
+				refs = rs;
+			}
 		}
 		return 0;
 	}

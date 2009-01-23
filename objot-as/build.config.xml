@@ -8,6 +8,7 @@
 		<language>en</language>
 	</metadata>
 
+	<target-player>9.0.0</target-player>
 	<compiler>
 		<!--<locale>en_US</locale>-->
 
@@ -36,7 +37,6 @@
 			<name>Enc</name>
 			<name>EncDynamic</name>
 			<name>SWF</name>
-			<name>Embed</name>
 		</keep-as3-metadata>
 
 		<!-- generate accessible swf -->

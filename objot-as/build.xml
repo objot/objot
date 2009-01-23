@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 //
-// Copyright 2007-2008 Qianyan Cai
+// Copyright 2007-2009 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 -->
@@ -13,11 +13,14 @@
 	<property name=":" value="${path.separator}" />
 	<property name=".source.flash" value="flash" />
 	<property name=".archive" value="objot-as-${.version}.swc" />
+	<property name=".lib.player" value="${flex.home}/frameworks/libs/player/playerglobal.swc" />
+	<property name=".lib.player9" value="${flex.home}/frameworks/libs/player/9/playerglobal.swc" />
+	<available file="${.lib.player9}" property=".lib.player" value="${.lib.player9}"/>
 
 	<target name="flash">
 		<java classpath="${flex.home}/lib" jar="${flex.home}/lib/compc.jar" fork="true">
 			<arg value="-load-config=build.config.xml" />
-			<arg value="-external-library-path=${flex.home}/frameworks/libs/player/playerglobal.swc" />
+			<arg value="-external-library-path=${.lib.player}" />
 			<arg value="-include-sources=${.source.flash}/objot" />
 			<arg value="-output=${.archive}" />
 		</java>
