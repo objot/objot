@@ -174,7 +174,7 @@ public final class Encoder
 					return refs[x] = -1;
 				else
 					return refs[x] >= 0 ? refs[x] : (refs[x] = ++refn);
-		while (objs[x = (x + 1) & mask] != null);
+		while (objs[x = x + 1 & mask] != null);
 		if (r < 0)
 		{
 			objs[x] = o;
@@ -182,14 +182,14 @@ public final class Encoder
 			{
 				Object[] os = new Object[objs.length << 1];
 				int[] rs = new int[os.length];
-				mask = objs.length - 1;
-				threshold = objs.length - (objs.length >> 2);
+				mask = os.length - 1;
+				threshold = os.length - (os.length >> 2);
 				for (int i = objs.length - 1; i >= 0; i--)
 					if ((o = objs[i]) != null)
 					{
 						x = System.identityHashCode(o) >> 3 & mask;
 						while (os[x] != null)
-							x++;
+							x = x + 1 & mask;
 						os[x] = o;
 						rs[x] = refs[i];
 					}
