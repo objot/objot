@@ -13,9 +13,7 @@
 	<property name=":" value="${path.separator}" />
 	<property name=".source.flash" value="flash" />
 	<property name=".archive" value="objot-as-${.version}.swc" />
-	<property name=".lib.player" value="${flex.home}/frameworks/libs/player/playerglobal.swc" />
-	<property name=".lib.player9" value="${flex.home}/frameworks/libs/player/9/playerglobal.swc" />
-	<available file="${.lib.player9}" property=".lib.player" value="${.lib.player9}"/>
+	<property name=".lib.player" value="${flex.home}/frameworks/libs/player/9/playerglobal.swc" />
 
 	<target name="flash">
 		<java classpath="${flex.home}/lib" jar="${flex.home}/lib/compc.jar" fork="true">

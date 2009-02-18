@@ -31,12 +31,12 @@
 		<!-- Show stack traces for uncaught errors -->
 		<verbose-stacktraces>false</verbose-stacktraces>
 
-		<keep-all-type-selectors>false</keep-all-type-selectors>
-		<!-- Embed, Bindable, Managed, ChangeEvent, NonCommittingChangeEvent, Transient are for Flex -->
+		<!-- Embed, Bindable, Managed, ChangeEvent, etc -->
 		<keep-as3-metadata>
 			<name>Enc</name>
 			<name>EncDynamic</name>
 			<name>SWF</name>
+			<name>Embed</name>
 		</keep-as3-metadata>
 
 		<!-- generate accessible swf -->
@@ -62,6 +62,18 @@
 					<lang>All</lang>
 					<range>U+0000-U+FFFF</range>
 				</language-range>
+				<language-range>
+					<lang>Ascii</lang>
+					<range>U+0020-U+007F</range>
+				</language-range>
+				<language-range>
+					<lang>Latin</lang>
+					<range>U+0020,U+0041-U+005A,U+0061-U+007A,U+00A1-U+024F,U+1E00-U+1EFF,U+2000-U+206F,U+20A0-U+20CF,U+2100-U+2183</range>
+				</language-range>
+				<language-range>
+					<lang>Chinese</lang>
+					<range>U+3000-U+303F,U+3105-U+312C,U+31A0-U+31BF,U+4E00-U+9FAF,U+FF01-U+FF60,U+F900-U+FAFF,U+201C-U+201D,U+2018-U+2019,U+2014,U+2026,U+FFE5,U+00B7</range>
+				</language-range>
 			</languages>
 			<!-- Compiler font manager classes in policy resolution order-->
 			<managers>
@@ -76,6 +88,9 @@
 		<!-- Data binding warning -->
 		<show-binding-warnings>true</show-binding-warnings>
 		<show-deprecation-warnings>true</show-deprecation-warnings>
+		<!-- toggle whether warnings generated from unused type selectors are displayed -->
+		<show-unused-type-selector-warnings>true</show-unused-type-selector-warnings>
+
 		<warn-array-tostring-changes>false</warn-array-tostring-changes>
 		<warn-assignment-within-conditional>true</warn-assignment-within-conditional>
 		<!-- Possibly invalid Array cast operation. -->
@@ -94,7 +109,7 @@
 		<warn-bad-null-assignment>true</warn-bad-null-assignment>
 		<!-- Illogical comparison with null. -->
 		<warn-bad-null-comparison>true</warn-bad-null-comparison>
-		<!-- Illogical comparison with undefined.  Only untyped or * typed variables can be undefined. -->
+		<!-- Illogical comparison with undefined. Only untyped or * typed variables can be undefined. -->
 		<warn-bad-undefined-comparison>true</warn-bad-undefined-comparison>
 		<!-- Boolean() returns false in AS3, and undefined in AS2 -->
 		<warn-boolean-constructor-with-no-args>
@@ -103,7 +118,7 @@
 		<!-- __resolve is no longer supported. -->
 		<warn-changes-in-resolve>false</warn-changes-in-resolve>
 		<!-- Class is sealed.  It cannot have members added to it dynamically. -->
-		<warn-class-is-sealed>false</warn-class-is-sealed>
+		<warn-class-is-sealed>true</warn-class-is-sealed>
 		<!-- Constant not initialized. -->
 		<warn-const-not-initialized>true</warn-const-not-initialized>
 		<warn-constructor-returns-value>true</warn-constructor-returns-value>
@@ -142,10 +157,7 @@
 	</compiler>
 
 	<!-- Runtime shared libraries will be loaded before application start -->
-	<runtime-shared-libraries>
-		<!--<url>string</url>
-			<url>string</url>-->
-	</runtime-shared-libraries>
+	<runtime-shared-libraries></runtime-shared-libraries>
 
 	<use-network>true</use-network>
 
