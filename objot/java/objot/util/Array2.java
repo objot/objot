@@ -821,8 +821,8 @@ public class Array2
 			return s[0].toString();
 		StringBuilder j = new StringBuilder(100);
 		j.append(s[0]);
-		for (Object x: s)
-			j.append(deli).append(x.toString());
+		for (int i = 1; i < s.length; i++)
+			j.append(deli).append(s[i].toString());
 		return j;
 	}
 
@@ -836,7 +836,7 @@ public class Array2
 		if (begin == end1 - 1)
 			return s[begin].toString();
 		StringBuilder j = new StringBuilder(100);
-		j.append(s[begin].toString());
+		j.append(s[begin++].toString());
 		for (; begin < end1; begin++)
 			j.append(deli).append(s[begin].toString());
 		return j;
@@ -851,7 +851,7 @@ public class Array2
 		if ( !i.hasNext())
 			return x.toString();
 		StringBuilder j = new StringBuilder(100);
-		j.append(x.toString()).append(deli).append(i.next().toString());
+		j.append(x.toString());
 		while (i.hasNext())
 			j.append(deli).append(i.next().toString());
 		return j;

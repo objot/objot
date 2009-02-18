@@ -157,10 +157,10 @@ http是$Do也是$http的返回值。
 当done1出现错误，将传递给Javascript引擎，done2就不执行了，依此类推。
 
 <h5>$Do.err</i> = function (code, res)</h5>
-错误时，得到Err对象。默认是return new Err('HTTP Error ' + code + ' ' + p)
+错误时，得到Err对象。默认是return new Err('HTTP Error ' + code + ' ' + res)
 
 <h5><i>$Do.url</i> = ''<br>
-<i>$Do.urlPost</i> = ''</h5>
+<i>$Do.urlPost</i> = ''<br>
 <i>$Do.timeout</i> = 30000</h5>
 url的前缀和后缀，超时。
 
