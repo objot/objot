@@ -3,7 +3,7 @@
   <compiler additionalCompilerArguments="-load-config=../build.config.xml" copyDependentFiles="false" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersion="9.0.0" htmlPlayerVersionCheck="true" outputFolderPath="" sourceFolderPath="flash" strict="true" warn="true">
     <compilerSourcePath/>
     <libraryPath>
-      <libraryPathEntry kind="3" linkType="2" path="${FRAMEWORKS}/libs/playerglobal.swc"/>
+      <libraryPathEntry kind="1" linkType="2" path="${PROJECT_FRAMEWORKS}/libs/player/9/"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
