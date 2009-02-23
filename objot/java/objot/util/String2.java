@@ -65,7 +65,7 @@ public class String2
 	}
 
 	/**
-	 * @return {@link String#indexOf(String, int)} + sub length if found, or length if not
+	 * @return {@link String#indexOf(String, int)} + sub.length if found, or length if not
 	 *         found
 	 */
 	public static int indexAfter(String s, String sub, int begin)
@@ -96,6 +96,18 @@ public class String2
 	public static String sub(String s, String deli, int begin)
 	{
 		return sub(s, begin, index(s, deli, begin));
+	}
+
+	/** @return substring after the delimiter */
+	public static String subAfter(String s, char deli, int begin)
+	{
+		return s.substring(indexAfter(s, deli, begin), s.length());
+	}
+
+	/** @return substring after the delimiter */
+	public static String subAfter(String s, String deli, int begin)
+	{
+		return s.substring(indexAfter(s, deli, begin), s.length());
 	}
 
 	/** @return {@link String#indexOf(int, int)} if found, or length if not found */
