@@ -1,7 +1,10 @@
-#Tue Jan 08 12:42:28 GMT 2008
-DELEGATES_PREFERENCE=delegateValidatorListorg.eclipse.wst.xsd.core.internal.validation.eclipse.XSDDelegatingValidator\=org.eclipse.wst.xsd.core.internal.validation.eclipse.Validator;
-USER_BUILD_PREFERENCE=enabledBuildValidatorListorg.eclipse.wst.xml.core.internal.validation.eclipse.Validator;org.eclipse.wst.xsd.core.internal.validation.eclipse.XSDDelegatingValidator;org.eclipse.wst.dtd.core.internal.validation.eclipse.Validator;
-USER_MANUAL_PREFERENCE=enabledManualValidatorListorg.eclipse.wst.xml.core.internal.validation.eclipse.Validator;org.eclipse.wst.xsd.core.internal.validation.eclipse.XSDDelegatingValidator;org.eclipse.wst.dtd.core.internal.validation.eclipse.Validator;
-USER_PREFERENCE=overrideGlobalPreferencestruedisableAllValidationtrueversion1.1.101.v200706071630
+#Wed Feb 18 22:13:49 HKT 2009
+DELEGATES_PREFERENCE=delegateValidatorList
+USER_BUILD_PREFERENCE=enabledBuildValidatorList
+USER_MANUAL_PREFERENCE=enabledManualValidatorList
+USER_PREFERENCE=overrideGlobalPreferencestruedisableAllValidationtrueversion1.2.2.v200809050219
 eclipse.preferences.version=1
 instance/org.eclipse.core.net/org.eclipse.core.net.hasMigrated=true
+override=true
+suspend=true
+vf.version=3
