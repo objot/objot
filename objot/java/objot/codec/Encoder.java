@@ -255,7 +255,10 @@ public final class Encoder
 		codec.clazz(o.getClass()).encode(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
-				value(pv.getKey(), pv.getValue());
+				if (pv.getKey() != null)
+					value(pv.getKey(), pv.getValue());
+				else
+					throw new RuntimeException("property name is null");
 		split().append('}');
 	}
 
