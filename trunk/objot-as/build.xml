@@ -8,7 +8,7 @@
 <!-- requirement: add property 'flex.home' to Ant preference in workspace -->
 <project name="objot-as" default="all">
 
-	<property name=".version" value="21" />
+	<property name=".version" value="22" />
 
 	<property name=":" value="${path.separator}" />
 	<property name=".source.flash" value="flash" />
