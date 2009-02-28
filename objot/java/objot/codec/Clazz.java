@@ -28,9 +28,11 @@ public abstract class Clazz
 		Map<String, Property> dNames) throws Exception
 	{
 		String name = c.getName().startsWith("java.") //
-			? cd.getClass().getName() + "$$" + cd.hashCode() + '$'
+			? cd.getClass().getName() + "$$" //
+				+ (cd.hashCode() ^ Thread.currentThread().hashCode()) + '$' //
 				+ c.getName().replace('.', '$') //
-			: c.getName() + "$$" + cd.hashCode() + '$'
+			: c.getName() + "$$" //
+				+ (cd.hashCode() ^ Thread.currentThread().hashCode()) + '$' //
 				+ cd.getClass().getName().replace('.', '$');
 		Bytecode y = new Bytecode();
 		y.head.setModifier(Mod2.PUBLIC | Mod2.FINAL | Mod2.SYNTHETIC);
