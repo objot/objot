@@ -110,7 +110,8 @@ java.util.Map的属性名也不能包含特殊字符，但Objot不做检查。
 
 <p>编解码。默认的规则配置代码采用annotation配置方式。
 
-<h5>public StringBuilder <i>enc</i>(Object o, Object rukeKey) throws Exception</h5>
+<h5>public StringBuilder <i>enc</i>(Object o, Object rukeKey) throws Exception<br>
+public StringBuilder <i>enc</i>(Object o, Object rukeKey, StringBuilder s) throws Exception</h5>
 编码，使用的规则与 每个编码的对象 及ruleKey相关。非线程安全。
 
 <h5>public &lt;T&gt;T <i>dec</i>(char[] s, Class&lt;T&gt; cla, Object ruleKey) throws Exception<br>
@@ -131,6 +132,7 @@ public &lt;T&gt;T <i>dec</i>(char[] s, int sBegin, int sEnd1, Class&lt;T&gt; cla
 编码long时（包括日期时间的毫秒数）检查值，并返回这个值。
 默认对超出-4503599627370496L至4503599627370496L（+-52bit）的值抛异常。
 因为Javascript和Actionscript中数值只有52bit精度（IEEE754）。
+编码Number子类时（非Float、Double、Long），取longValue()值，但不检查。
 
 <h5>protected boolean <i>arrayForList</i>;</h5>
 Java端[]和Collection都编码为列表，解码时，如果根据上下文不能确定[]还是Collection，就由此field确定。

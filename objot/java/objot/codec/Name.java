@@ -13,7 +13,7 @@ import java.lang.annotation.Target;
 
 
 /** The encoded property name */
-@Target( { ElementType.TYPE, ElementType.FIELD })
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
