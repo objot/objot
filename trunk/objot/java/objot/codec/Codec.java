@@ -42,7 +42,16 @@ public class Codec
 	 */
 	public StringBuilder enc(Object o, Object ruleKey) throws Exception
 	{
-		return new Encoder(this, ruleKey).go(o);
+		return new Encoder(this, ruleKey, null).go(o);
+	}
+
+	/**
+	 * @param o the whole encoded data graph must keep unchanged since the references
+	 *            detection is not thread safe
+	 */
+	public StringBuilder enc(Object o, Object ruleKey, StringBuilder s) throws Exception
+	{
+		return new Encoder(this, ruleKey, s).go(o);
 	}
 
 	/**

@@ -43,7 +43,7 @@ $class = function (codec, ctor, sup, proto) {
 	}
 	$.ctor(c).$name = ctor
 	if (c.prototype.constructor != c)
-		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor));
+		$throw(ctor + ' inconsistent with ' + $S(c.prototype.constructor))
 	proto && $.copy(c.prototype, proto)
 	codec && ($.cs[ctor] = c)
 	return c
@@ -59,7 +59,7 @@ $class.enc = function (clazz, key, encs) {
 		else if (encs instanceof Array) {
 			for (var y = 0; y < encs.length; y++)
 				if (typeof encs[y] != 'string')
-					$throw($S(encs) + ' must not contain ' + $S(encs[y]));
+					$throw($S(encs) + ' must not contain ' + $S(encs[y]))
 			clazz.$encs.push(encs)
 		}
 		else
@@ -413,7 +413,7 @@ $dom.cla = function (clazz) {
 					if (clazz === 0)
 						cs.splice(y, 1)
 					else
-						continue X;
+						continue X
 			clazz === 0 || (cs[cs.length] = c)
 		}
 	this.className = cs.join(' ')
@@ -436,7 +436,7 @@ $dom.tx = $fos ? function (v, multiLine) {
 		return arguments.length == 0 ? this.value : ($dom.des.call(this, 0),
 			this.value = multiLine ? String(v) : String(v).replace(/\n/g, ' '), this)
 	if (arguments.length == 0)
-		return this.textContent;
+		return this.textContent
 	v = String(v).replace(/  /g, '\u00a0 ')
 	$dom.des.call(this, 0)
 	if (!multiLine || v.indexOf('\n') < 0)
@@ -550,7 +550,7 @@ $.ctor = function (c) {
 /** @return class (constructor) from class cache, or if $_$_ is true, eval() */
 $.c = function ($_$, $_$_, $_$$) {
 	if ($_$$ = $.cs[$_$])
-		return $_$$;
+		return $_$$
 	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found')
 	return typeof $_$_ == 'function' ? $.cs[$_$] = $_$_
 		: $throw($S($_$) + ' must be function')
@@ -625,10 +625,10 @@ $http.form = function (url, time, req, done, data, form) {
 			(b = b.firstChild).id == 'objot' ? stop(on, 0, $dom(b).tx())
 				: stop(on, 900, $http.n200) 
 		else
-			time > 0 && new Date() - r.$t > time && stop(on, 1, $http.time);
+			time > 0 && new Date() - r.$t > time && stop(on, 1, $http.time)
 	}
 	function stop(o, a, b, R) {
-		if (!r) return;
+		if (!r) return
 		R = r, stop.$ = r = null, x.tx(''), clearInterval(t)
 		try { R.src = 'about:blank', R.des() } catch(_) {}
 		try {
@@ -663,7 +663,7 @@ $Do = function (url, hint, req, this3, done3, this2, done2, this1, done1, form) 
 		if (code == 0)
 			(p = $dec(p, $Do.byName, $Do.decoded)) instanceof Err ? err = p : ok = p
 		else if (code > 0)
-			err = $Do.err(code, p);
+			err = $Do.err(code, p)
 		h.$t1 !== undefined && h.$1.call(h.$t1, ok, err, h)
 		h.$t2 !== undefined && h.$2.call(h.$t2, ok, err, h)
 		h.$t3 !== undefined && h.$3.call(h.$t3, ok, err, h)
@@ -720,7 +720,7 @@ $.opacity = $fos ? function (d, v) {
 } : function (d, v) {
 	var s = d.style, f = s.filter
 	if (v === undefined)
-		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1;
+		return f ? f.match(/opacity=([^)]*)/)[1] /100 : 1
 	s.zoom = 1, s.filter = f.replace(/alpha\([^)]*\)/g, '')
 		+ (v >= 1 ? '' : 'alpha(opacity=' + v * 100 + ')')
 	return d
@@ -730,7 +730,7 @@ $.opacity = $fos ? function (d, v) {
 $.disable = function (d, v) {
 	var r = d.disabled || d.readOnly
 	if (arguments.length == 1)
-		return r;
+		return r
 	r = v === 0 ? !r : v
 	var rr = d.tagName.toLowerCase()
 	rr = rr == 'textarea' || rr == 'input' && d.type == 'text'
@@ -776,7 +776,7 @@ $Http = function (box, h, show, prog) {
 			(b = hb[1]).firstChild.title = h.$hint + ' ' + p + $Http.stop,
 			b.firstChild.nextSibling && b.lastChild.tx(h.$hint + ' ' + p)
 		$.defer(0, $http,
-			[$Do.url + '$prog$?' + h.$.name, $Do.timeout, '', $Http.prog, hb], 3000);
+			[$Do.url + '$prog$?' + h.$.name, $Do.timeout, '', $Http.prog, hb], 3000)
 	}
 $Http.stop = '. stop?'
 

@@ -5,7 +5,7 @@
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 -->
-<project name="objot-java" default="all">
+<project name="objot-java" default="doc">
 
 	<property name=".version" value="22" />
 
@@ -62,7 +62,31 @@
 		</jar>
 	</target>
 
-	<target name="demo" depends="java.compile">
+	<target name="doc" depends="java">
+		<delete dir="${.target.doc.api}" />
+		<mkdir dir="${.target.doc.api}" />
+		<javadoc sourcepath="${.source.java}"
+		         access="protected"
+		         author="true"
+		         destdir="${.target.doc.api}"
+		         locale="en"
+		         nodeprecated="false"
+		         nodeprecatedlist="false"
+		         noindex="false"
+		         nonavbar="false"
+		         notree="false"
+		         packagenames="objot.**.**.**.**,java.**.**.**.**,javax.**.**.**.**"
+		         splitindex="true"
+		         use="true"
+		         verbose="false"
+		         version="true">
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.library}" />
+			</classpath>
+		</javadoc>
+	</target>
+
+	<target name="demo" depends="java">
 		<javac srcdir="${.source.demo}"
 		       destdir="${.target.compile}"
 		       fork="true"
@@ -85,30 +109,6 @@
 
 	<target name="test" depends="demo">
 		<!-- junit 4 library is in eclipse -->
-	</target>
-
-	<target name="doc" depends="java.compile">
-		<delete dir="${.target.doc.api}" />
-		<mkdir dir="${.target.doc.api}" />
-		<javadoc sourcepath="${.source.java}"
-		         access="protected"
-		         author="true"
-		         destdir="${.target.doc.api}"
-		         locale="en"
-		         nodeprecated="false"
-		         nodeprecatedlist="false"
-		         noindex="false"
-		         nonavbar="false"
-		         notree="false"
-		         packagenames="objot.**.**.**.**,java.**.**.**.**,javax.**.**.**.**"
-		         splitindex="true"
-		         use="true"
-		         verbose="false"
-		         version="true">
-			<classpath>
-				<fileset includes="**/*.jar" dir="${.library}" />
-			</classpath>
-		</javadoc>
 	</target>
 
 	<target name="all" depends="java,demo,test,doc" />

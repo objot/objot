@@ -206,4 +206,37 @@ public class String2
 			}
 		return utf;
 	}
+
+	/** @return begin + utf length */
+	public static int utf(CharSequence s, byte[] utf, int begin)
+	{
+		char c;
+		int len = s.length();
+		int ulen = begin;
+		for (int x = 0; x < len; x++)
+			if ((c = s.charAt(x)) < 0x80)
+				ulen++;
+			else if (c < 0x800)
+				ulen += 2;
+			else
+				ulen += 3;
+		if (ulen > utf.length)
+			throw new InvalidLengthException("utf too long");
+		int y = begin;
+		for (int x = 0; x < len; x++)
+			if ((c = s.charAt(x)) < 0x80)
+				utf[y++] = (byte)c;
+			else if (c < 0x800)
+			{
+				utf[y++] = (byte)(0xC0 | (c >>> 6) & 0x1F);
+				utf[y++] = (byte)(0x80 | c & 0x3F);
+			}
+			else
+			{
+				utf[y++] = (byte)(0xE0 | (c >>> 12) & 0x0F);
+				utf[y++] = (byte)(0x80 | (c >>> 6) & 0x3F);
+				utf[y++] = (byte)(0x80 | c & 0x3F);
+			}
+		return y;
+	}
 }

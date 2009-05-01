@@ -35,13 +35,14 @@ public final class Encoder
 	/** the number of used reference numbers */
 	private int refn;
 	private StringBuilder str;
+	private boolean split;
 
 	/** @param ruleKey_ null is Object.class */
-	Encoder(Codec o, Object ruleKey_)
+	Encoder(Codec o, Object ruleKey_, StringBuilder s)
 	{
 		codec = o;
 		ruleKey = ruleKey_;
-		str = new StringBuilder(1000);
+		str = s != null ? s : new StringBuilder(2000);
 	}
 
 	StringBuilder go(Object o) throws Exception
@@ -53,8 +54,10 @@ public final class Encoder
 
 	private StringBuilder split()
 	{
-		if (str.length() > 0)
+		if (split)
 			str.append(Codec.S);
+		else
+			split = true;
 		return str;
 	}
 
@@ -99,7 +102,7 @@ public final class Encoder
 		else if (v instanceof Long)
 			split().append(codec.beLong((Long)v));
 		else if (v instanceof Number)
-			split().append(((Number)v).longValue());
+			split().append(((Number)v).longValue()); // original value
 		else if (v instanceof Date)
 			split(split().append('*')).append(codec.beLong(((Date)v).getTime()));
 		else if (v instanceof Calendar)
