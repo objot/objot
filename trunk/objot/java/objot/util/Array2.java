@@ -653,6 +653,15 @@ public class Array2
 		return a;
 	}
 
+	public static char[] ensureN(char[] s, int n)
+	{
+		if (n <= s.length)
+			return s;
+		char[] a = new char[Math2.max(s.length + (s.length >> 1) + 4, n, 12)];
+		System.arraycopy(s, 0, a, 0, s.length);
+		return a;
+	}
+
 	public static <T>T[] ensureN(T[] s, int n)
 	{
 		if (n <= s.length)
@@ -692,6 +701,16 @@ public class Array2
 		return a;
 	}
 
+	public static char[] shrink(char[] s, int begin, int end1)
+	{
+		Math2.range(begin, end1, s.length);
+		if (end1 - begin == s.length)
+			return s;
+		char[] a = new char[end1 - begin];
+		System.arraycopy(s, begin, a, 0, end1 - begin);
+		return a;
+	}
+
 	public static <T>T[] shrink(T[] s, int begin, int end1)
 	{
 		Math2.range(begin, end1, s.length);
@@ -722,6 +741,14 @@ public class Array2
 	{
 		Math2.range(begin, end1, s.length);
 		long[] a = new long[end1 - begin];
+		System.arraycopy(s, begin, a, 0, end1 - begin);
+		return a;
+	}
+
+	public static char[] subClone(char[] s, int begin, int end1)
+	{
+		Math2.range(begin, end1, s.length);
+		char[] a = new char[end1 - begin];
 		System.arraycopy(s, begin, a, 0, end1 - begin);
 		return a;
 	}
@@ -765,6 +792,18 @@ public class Array2
 		if (b == null || b.length == 0)
 			return a;
 		long[] s = new long[a.length + b.length];
+		System.arraycopy(a, 0, s, 0, a.length);
+		System.arraycopy(b, 0, s, a.length, b.length);
+		return s;
+	}
+
+	public static char[] concat(char[] a, char[] b)
+	{
+		if (a == null || a.length == 0)
+			return maskNull(b);
+		if (b == null || b.length == 0)
+			return a;
+		char[] s = new char[a.length + b.length];
 		System.arraycopy(a, 0, s, 0, a.length);
 		System.arraycopy(b, 0, s, a.length, b.length);
 		return s;

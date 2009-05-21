@@ -130,7 +130,7 @@ public abstract class ServiceHandler
 			else if (inf.reqClas.length == 1)
 				qs = new Object[] { codec.dec(req, begin, end1, inf.reqBoxClas[0], inf.cla) };
 			else
-				qs = (Object[])codec.dec(req, begin, end1, Object[].class, inf.cla);
+				qs = codec.dec(req, begin, end1, Object[].class, inf.cla);
 		}
 		catch (Throwable e)
 		{

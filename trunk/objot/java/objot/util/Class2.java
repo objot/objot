@@ -381,6 +381,30 @@ public class Class2
 
 	// ********************************************************************************
 
+	public static Class<?> byName(String name)
+	{
+		try
+		{
+			return Class.forName(name);
+		}
+		catch (ClassNotFoundException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static Class<?> byName(String name, boolean init, ClassLoader loader)
+	{
+		try
+		{
+			return Class.forName(name, init, loader);
+		}
+		catch (ClassNotFoundException e)
+		{
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static Class<?> typeParamClass(Type t, int paramIndex, Class<?> Default)
 	{
 		if (t instanceof ParameterizedType)
