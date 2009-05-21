@@ -47,7 +47,6 @@ public final class Encoder
 
 	StringBuilder go(Object o) throws Exception
 	{
-		refn = 0;
 		value(null, o); // including initializtion
 		return str;
 	}
@@ -115,7 +114,8 @@ public final class Encoder
 				refs = new int[256];
 				mask = 255;
 				threshold = 192;
-				refs(v);
+				if (ref(v, -1) >= 0)
+					refsDo(v); // first reference
 			}
 			else if ((ref = ref(v, 0)) > 0)
 			{
@@ -129,35 +129,46 @@ public final class Encoder
 		}
 	}
 
-	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
-
-	/** visit the data graph */
 	@SuppressWarnings("unchecked")
-	public void refs(Object o) throws Exception
+	private void refsDo(Object o) throws Exception
 	{
-		if (o == null || o instanceof CharSequence || o instanceof Clob
-			|| o instanceof Boolean || o instanceof Number || o instanceof Date
-			|| o instanceof Calendar //
-			|| ref(o, -1) < 0 /* multi references */)
-			return;
 		if (o instanceof Collection)
 		{
 			for (Object v: (Collection<?>)o)
-				refs(v);
+				if ( !(v == null || v instanceof CharSequence || v instanceof Clob
+					|| v instanceof Boolean || v instanceof Number || v instanceof Date
+					|| v instanceof Calendar || ref(v, -1) < 0))
+					refsDo(v); // first reference
 			return;
 		}
 		if (o.getClass().isArray())
 		{
 			if ( !o.getClass().getComponentType().isPrimitive())
 				for (Object v: (Object[])o)
-					refs(v);
+					if ( !(v == null || v instanceof CharSequence || v instanceof Clob
+						|| v instanceof Boolean || v instanceof Number || v instanceof Date
+						|| v instanceof Calendar || ref(v, -1) < 0))
+						refsDo(v); // first reference
 			return;
 		}
 		codec.clazz(o.getClass()).encodeRefs(this, o, ruleKey);
 		if (o instanceof Map)
 			for (Map.Entry<String, Object> pv: ((Map<String, Object>)o).entrySet())
-				if (pv.getValue() != null && !pv.getValue().getClass().isPrimitive())
-					refs(pv.getValue());
+				if ((o = pv.getValue()) != null && !o.getClass().isPrimitive())
+					if ( !(o == null || o instanceof CharSequence || o instanceof Clob
+						|| o instanceof Boolean || o instanceof Number || o instanceof Date
+						|| o instanceof Calendar || ref(o, -1) < 0))
+						refsDo(o); // first reference
+	}
+
+	static final Method M_refs = Class2.declaredMethod1(Encoder.class, "refs");
+
+	public void refs(Object o) throws Exception
+	{
+		if ( !(o == null || o instanceof CharSequence || o instanceof Clob
+			|| o instanceof Boolean || o instanceof Number || o instanceof Date
+			|| o instanceof Calendar || ref(o, -1) < 0))
+			refsDo(o); // first reference
 	}
 
 	/**
@@ -174,9 +185,9 @@ public final class Encoder
 				if (r == 0)
 					return refs[x];
 				else if (r < 0)
-					return refs[x] = -1;
+					return refs[x] < 0 ? -1 : (refs[x] = ++refn | -1); // = -1
 				else
-					return refs[x] >= 0 ? refs[x] : (refs[x] = ++refn);
+					return refs[x] >= 0 ? refs[x] : (refs[x] = refn--);
 		while (objs[x = x + 1 & mask] != null);
 		if (r < 0)
 		{
@@ -190,7 +201,7 @@ public final class Encoder
 				for (int i = objs.length - 1; i >= 0; i--)
 					if ((o = objs[i]) != null)
 					{
-						x = System.identityHashCode(o) >> 3 & mask;
+						x = System.identityHashCode(o) >> 4 & mask;
 						while (os[x] != null)
 							x = x + 1 & mask;
 						os[x] = o;

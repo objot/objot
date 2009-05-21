@@ -551,9 +551,7 @@ $.ctor = function (c) {
 $.c = function ($_$, $_$_, $_$$) {
 	if ($_$$ = $.cs[$_$])
 		return $_$$
-	$_$_ = $_$_ ? eval($_$) : $throw($S($_$) + ' class not found')
-	return typeof $_$_ == 'function' ? $.cs[$_$] = $_$_
-		: $throw($S($_$) + ' must be function')
+	return $_$_ ? $.f(eval($_$)) : $throw($S($_$) + ' class not found')
 }
 	/* class cache */
 	$.cs = { '':Object }
