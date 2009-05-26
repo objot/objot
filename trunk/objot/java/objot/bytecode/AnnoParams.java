@@ -204,8 +204,7 @@ public final class AnnoParams
 		int bi = begin + 7;
 		for (int gi = 0; gi < paramN; gi++)
 		{
-			writeU2(bs, bi, annoNs[gi]);
-			bi += 2;
+			bi = writeU2(bs, bi, annoNs[gi]);
 			for (int ai = 0; ai < annoNs[gi]; ai++)
 				bi = annos[gi][ai].normalizeTo(bs, bi);
 		}

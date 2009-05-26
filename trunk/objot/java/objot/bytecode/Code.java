@@ -272,10 +272,10 @@ public final class Code
 
 		int bi = beginBi + 10;
 		int bbi = begin + 10;
-		writeU4(bs, bbi, addrN);
-		copyInsTo(0, bs, bbi + 4, addrN);
+		bbi = writeU4(bs, bbi, addrN);
+		copyInsTo(0, bs, bbi, addrN);
 		bi += 4 + addrN0;
-		bbi += 4 + addrN;
+		bbi += addrN;
 
 		if (catchs == null)
 		{
@@ -285,9 +285,8 @@ public final class Code
 		else
 			bbi = catchs.normalizeTo(bs, bbi);
 
-		writeU2(bs, bbi, attrN);
+		bbi = writeU2(bs, bbi, attrN);
 		bi = attrBi;
-		bbi += 2;
 		for (int an = attrN; an > 0; an--)
 		{
 			int bn = 6 + readU4(bytes, bi + 2);
