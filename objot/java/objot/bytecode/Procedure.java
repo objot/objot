@@ -118,36 +118,28 @@ public final class Procedure
 		attrBi = 8;
 		int i = attrBi;
 		exceptionsBi = i;
-		writeU2(bytes, i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
-		writeU4(bytes, i + 2, 2); // attr length
-		i += 6;
-		writeU2(bytes, i, 0); // exceptionN
-		i += 2;
+		i = writeU2(bytes, i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
+		i = writeU4(bytes, i, 2); // attr length
+		i = writeU2(bytes, i, 0); // exceptionN
 		if (anno)
 		{
 			annosBi = i;
-			writeU2(bytes, i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
-			writeU4(bytes, i + 2, 2); // attr length
-			i += 6;
-			writeU2(bytes, i, 0); // annoN
-			i += 2;
+			i = writeU2(bytes, i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
+			i = writeU4(bytes, i, 2); // attr length
+			i = writeU2(bytes, i, 0); // annoN
 			annoHidesBi = i;
-			writeU2(bytes, i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
-			writeU4(bytes, i + 2, 2); // attr length
-			i += 6;
-			writeU2(bytes, i, 0); // annoHideN
-			i += 2;
+			i = writeU2(bytes, i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
+			i = writeU4(bytes, i, 2); // attr length
+			i = writeU2(bytes, i, 0); // annoHideN
 		}
 		codeBi = i;
-		writeU2(bytes, i, cons.putUtf(Bytecode.CODE)); // attr name ci
-		writeU4(bytes, i + 2, 12); // attr length
-		i += 6;
-		writeU2(bytes, i, 0); // stackN
-		writeU2(bytes, i + 2, 0); // localN
-		writeU4(bytes, i + 4, 0); // addrN and ins
-		writeU2(bytes, i + 8, 0); // catchN
-		writeU2(bytes, i + 10, 0); // attrN
-		i += 12;
+		i = writeU2(bytes, i, cons.putUtf(Bytecode.CODE)); // attr name ci
+		i = writeU4(bytes, i, 12); // attr length
+		i = writeU2(bytes, i, 0); // stackN
+		i = writeU2(bytes, i, 0); // localN
+		i = writeU4(bytes, i, 0); // addrN and ins
+		i = writeU2(bytes, i, 0); // catchN
+		i = writeU2(bytes, i, 0); // attrN
 		end1Bi = i;
 	}
 
