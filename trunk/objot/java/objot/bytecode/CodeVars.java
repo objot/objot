@@ -27,9 +27,9 @@ public final class CodeVars
 		super(bs, beginBi_);
 		cons = c;
 		signature = signature_;
-		varN = read0u2(beginBi + 6);
+		varN = readU2(bytes, beginBi + 6);
 		end1Bi = beginBi + 8 + varN * 10;
-		if (end1Bi - beginBi - 6 != read0u4(beginBi + 2))
+		if (end1Bi - beginBi - 6 != readU4(bytes, beginBi + 2))
 			throw new ClassFormatError("inconsistent attribute length");
 	}
 
@@ -55,11 +55,11 @@ public final class CodeVars
 		int bi = beginBi + 8;
 		for (int i = 0; i < varN; i++)
 		{
-			beginAds[i] = read0u2(bi);
-			adNs[i] = read0u2(bi + 2);
-			nameCis[i] = read0u2(bi + 4);
-			descCis[i] = read0u2(bi + 6);
-			locals[i] = read0u2(bi + 8);
+			beginAds[i] = readU2(bytes, bi);
+			adNs[i] = readU2(bytes, bi + 2);
+			nameCis[i] = readU2(bytes, bi + 4);
+			descCis[i] = readU2(bytes, bi + 6);
+			locals[i] = readU2(bytes, bi + 8);
 			bi += 10;
 		}
 	}
@@ -187,7 +187,7 @@ public final class CodeVars
 	@Override
 	public int normalizeTo(byte[] bs, int begin)
 	{
-		writeU2(bs, begin, read0u2(beginBi));
+		writeU2(bs, begin, readU2(bytes, beginBi));
 		writeS4(bs, begin + 2, normalizeByteN() - 6);
 		writeU2(bs, begin + 6, varN);
 		if (beginAds == null)

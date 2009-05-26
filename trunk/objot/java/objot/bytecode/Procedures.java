@@ -22,7 +22,7 @@ public final class Procedures
 	{
 		super(bs, beginBi_);
 		cons = c;
-		procN = read0u2(beginBi);
+		procN = readU2(bytes, beginBi);
 		int bi = beginBi + 2;
 		for (int i = 0; i < procN; i++)
 			bi = Procedure.readEnd1Bi(bytes, bi);

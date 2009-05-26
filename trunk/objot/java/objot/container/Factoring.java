@@ -381,7 +381,7 @@ final class Factoring
 			// if (b.cla.isArray() && os[x] instanceof Integer)
 			// {
 			// int n = (Integer)os[x];
-			// if (n << 16 >> 16 == n)
+			// if ((short)n == n)
 			// s.insS2(SIPUSH, n);
 			// else
 			// s.insU2(LDCW, cons.addInt(n));

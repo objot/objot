@@ -21,9 +21,9 @@ public final class Exceptions
 	{
 		super(bs, beginBi_);
 		cons = c;
-		exceptionN = read0u2(beginBi + 6);
+		exceptionN = readU2(bytes, beginBi + 6);
 		end1Bi = beginBi + 8 + (exceptionN << 1);
-		if (end1Bi - beginBi - 6 != read0u4(beginBi + 2))
+		if (end1Bi - beginBi - 6 != readU4(bytes, beginBi + 2))
 			throw new ClassFormatError("inconsistent attribute length");
 	}
 
@@ -38,7 +38,7 @@ public final class Exceptions
 			return;
 		exceptionCis = new int[allocN(exceptionN)];
 		for (int i = 0; i < exceptionN; i++)
-			exceptionCis[i] = read0u2(beginBi + 8 + (i << 1));
+			exceptionCis[i] = readU2(bytes, beginBi + 8 + (i << 1));
 	}
 
 	void checkIndex(int ei)
@@ -125,7 +125,7 @@ public final class Exceptions
 	@Override
 	public int normalizeTo(byte[] bs, int begin)
 	{
-		writeU2(bs, begin, read0u2(beginBi));
+		writeU2(bs, begin, readU2(bytes, beginBi));
 		writeU4(bs, begin + 2, normalizeByteN() - 6);
 		writeU2(bs, begin + 6, exceptionN);
 		if (exceptionCis == null)

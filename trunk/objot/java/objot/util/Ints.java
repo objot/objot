@@ -6,12 +6,13 @@ package objot.util;
 
 public class Ints
 {
-	public int[] ints = Array2.INTS0;
+	public int[] ints;
 	public int beginI;
 	public int end1I;
 
 	public Ints()
 	{
+		ints = Array2.INTS0;
 	}
 
 	public Ints(int[] s)
@@ -40,12 +41,12 @@ public class Ints
 		end1I = s.beginI + end1;
 	}
 
-	public int n()
+	public final int n()
 	{
 		return end1I - beginI;
 	}
 
-	public int lastI()
+	public final int lastI()
 	{
 		return end1I - beginI - 1;
 	}
@@ -114,13 +115,14 @@ public class Ints
 		return o != null && o.getClass() == getClass() && equals((Ints)o);
 	}
 
-	public int readS4(int i)
+	public final int readS4(int i)
 	{
 		Math2.index(i, end1I - beginI);
 		return ints[i + beginI];
 	}
 
-	public int readU4(int i)
+	/** @throws ArithmeticException if negative. */
+	public final int readU4(int i)
 	{
 		Math2.index(i, end1I - beginI);
 		i = ints[i + beginI];
@@ -130,41 +132,29 @@ public class Ints
 		return i;
 	}
 
-	public long readU4ex(int i)
+	public final long readU4ex(int i)
 	{
 		Math2.index(i, end1I - beginI);
 		return ints[i + beginI] & 0xFFFFFFFFL;
 	}
 
-	public long readS8(int i)
+	public final long readS8(int i)
 	{
 		Math2.index(i, end1I - beginI - 1);
 		i += beginI;
 		return (long)ints[i] << 32 | ints[++i] & 0xFFFFFFFFL;
 	}
 
-	public int read0s4(int i)
+	/** @throws ArithmeticException if negative. */
+	public final long readU8(int i)
 	{
-		return ints[i];
-	}
-
-	public int read0u4(int i)
-	{
-		i = ints[i];
-		if (i < 0)
-			throw new ArithmeticException("unsigned quad bytes too large : 0x"
-				+ Integer.toHexString(i));
-		return i;
-	}
-
-	public long read0u4ex(int i)
-	{
-		return ints[i] & 0xFFFFFFFFL;
-	}
-
-	public long read0s8(int i)
-	{
-		return (long)ints[i] << 32 | ints[++i] & 0xFFFFFFFFL;
+		Math2.index(i, end1I - beginI - 1);
+		i += beginI;
+		long l = (long)ints[i] << 32 | ints[++i] & 0xFFFFFFFFL;
+		if (l < 0)
+			throw new ArithmeticException("unsigned octa bytes too large : 0x"
+				+ Long.toHexString(l));
+		return l;
 	}
 
 	public static int readS4(int[] s, int i)
@@ -192,6 +182,16 @@ public class Ints
 		return (long)s[i] << 32 | s[++i] & 0xFFFFFFFFL;
 	}
 
+	/** @throws ArithmeticException if negative. */
+	public static long readU8(int[] s, int i)
+	{
+		long l = (long)s[i] << 32 | s[++i] & 0xFFFFFFFFL;
+		if (l < 0)
+			throw new ArithmeticException("unsigned octa bytes too large : 0x"
+				+ Long.toHexString(l));
+		return l;
+	}
+
 	// ********************************************************************************
 
 	public int copyFrom(int i, int[] src, int srcI, int n)
@@ -201,7 +201,7 @@ public class Ints
 		return i + n;
 	}
 
-	public Ints ensureN(int n)
+	public final Ints ensureN(int n)
 	{
 		n += beginI;
 		if (n < 0)
@@ -210,7 +210,7 @@ public class Ints
 		return this;
 	}
 
-	public Ints addN(int n)
+	public final Ints addN(int n)
 	{
 		n += end1I;
 		if (n < 0)
@@ -220,61 +220,73 @@ public class Ints
 		return this;
 	}
 
-	public void writeS4(int i, int v)
+	public final int writeS4(int i, int v)
 	{
 		Math2.index(i, end1I - beginI);
-		ints[i + beginI] = v;
+		ints[i += beginI] = v;
+		return i;
 	}
 
-	public void writeU4(int i, long v)
+	/** @throws ArithmeticException if not in [0, 4294967296). */
+	public final int writeU4(int i, long v)
 	{
 		if (v >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
 		Math2.index(i, end1I - beginI);
-		ints[i + beginI] = (int)v;
+		ints[i += beginI] = (int)v;
+		return i;
 	}
 
-	public void writeS8(int i, long v)
+	public final int writeS8(int i, long v)
 	{
 		Math2.index(i, end1I - beginI - 1);
 		i += beginI;
-		ints[i] = (int)(v >> 32);
-		ints[++i] = (int)v;
+		ints[i++] = (int)(v >> 32);
+		ints[i++] = (int)v;
+		return i;
 	}
 
-	public void write0s4(int i, int v)
+	/** @throws ArithmeticException if negative. */
+	public final int writeU8(int i, long v)
 	{
-		ints[i] = v;
+		if (v < 0)
+			throw new ArithmeticException("invalid unsigned octa bytes");
+		Math2.index(i, end1I - beginI - 1);
+		i += beginI;
+		ints[i++] = (int)(v >> 32);
+		ints[i++] = (int)v;
+		return i;
 	}
 
-	public void write0u4(int i, long v)
+	public static int writeS4(int[] s, int i, int v)
 	{
-		if (v >> 32 != 0)
-			throw new ArithmeticException("invalid unsigned quad bytes");
-		ints[i] = (int)v;
+		s[i++] = v;
+		return i;
 	}
 
-	public void write0s8(int i, long v)
-	{
-		ints[i] = (int)(v >> 32);
-		ints[++i] = (int)v;
-	}
-
-	public static void writeS4(int[] s, int i, int v)
-	{
-		s[i] = v;
-	}
-
-	public static void writeU4(int[] s, int i, long v)
+	/** @throws ArithmeticException if not in [0, 4294967296). */
+	public static int writeU4(int[] s, int i, long v)
 	{
 		if (v >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
-		s[i] = (int)v;
+		s[i++] = (int)v;
+		return i;
 	}
 
-	public static void writeS8(int[] s, int i, long v)
+	public static int writeS8(int[] s, int i, long v)
 	{
-		s[i] = (int)(v >> 32);
-		s[++i] = (int)v;
+		s[i++] = (int)(v >> 32);
+		s[i++] = (int)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if negative. */
+	public static int writeU8(int[] s, int i, long v)
+	{
+		if (v < 0)
+			throw new ArithmeticException("invalid unsigned octa bytes");
+		s[i++] = (int)(v >> 32);
+		s[i++] = (int)v;
+		return i;
 	}
 }

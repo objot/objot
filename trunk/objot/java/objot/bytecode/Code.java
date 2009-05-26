@@ -37,10 +37,10 @@ public final class Code
 	{
 		super(bs, beginBi_);
 		cons = c;
-		attrNameCi = read0u2(beginBi);
-		stackN = read0u2(beginBi + 6);
-		localN = read0u2(beginBi + 8);
-		addrN0 = addrN = read0u4(beginBi + 10);
+		attrNameCi = readU2(bytes, beginBi);
+		stackN = readU2(bytes, beginBi + 6);
+		localN = readU2(bytes, beginBi + 8);
+		addrN0 = addrN = readU4(bytes, beginBi + 10);
 		if (addrN > 65535)
 			throw new ClassFormatError("too large code");
 		addrBi = beginBi + 14;
@@ -48,20 +48,20 @@ public final class Code
 		catchBi = addrBi + addrN;
 		catchBn = CodeCatchs.readByteN(bytes, catchBi);
 		attrBi = catchBi + catchBn + 2;
-		attrN = read0u2(attrBi - 2);
+		attrN = readU2(bytes, attrBi - 2);
 		int bi = attrBi;
 		for (int an = attrN; an > 0; an--)
 		{
-			int name = read0u2(bi);
+			int name = readU2(bytes, bi);
 			if (linesBi == 0 && cons.equalsUtf(name, Bytecode.CODE_LINES))
 				linesBi = bi;
 			else if (varsBi == 0 && cons.equalsUtf(name, Bytecode.CODE_VARS))
 				varsBi = bi;
 			else if (varSignsBi == 0 && cons.equalsUtf(name, Bytecode.CODE_VARSIGNS))
 				varSignsBi = bi;
-			bi += 6 + read0u4(bi + 2);
+			bi += 6 + readU4(bytes, bi + 2);
 		}
-		if (bi - beginBi - 6 != read0u4(beginBi + 2))
+		if (bi - beginBi - 6 != readU4(bytes, beginBi + 2))
 			throw new ClassFormatError("inconsistent attribute length");
 		end1Bi = bi;
 	}
@@ -290,7 +290,7 @@ public final class Code
 		bbi += 2;
 		for (int an = attrN; an > 0; an--)
 		{
-			int bn = 6 + read0u4(bi + 2);
+			int bn = 6 + readU4(bytes, bi + 2);
 			if (bi == linesBi && lines != null)
 				bbi = lines.normalizeTo(bs, bbi);
 			else if (bi == varsBi && vars != null)

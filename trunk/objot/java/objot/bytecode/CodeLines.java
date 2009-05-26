@@ -20,9 +20,9 @@ public final class CodeLines
 	public CodeLines(byte[] bs, int beginBi_)
 	{
 		super(bs, beginBi_);
-		lineN = read0u2(beginBi + 6);
+		lineN = readU2(bytes, beginBi + 6);
 		end1Bi = beginBi + 8 + (lineN << 2);
-		if (end1Bi - beginBi - 6 != read0u4(beginBi + 2))
+		if (end1Bi - beginBi - 6 != readU4(bytes, beginBi + 2))
 			throw new ClassFormatError("inconsistent attribute length");
 	}
 
@@ -40,8 +40,8 @@ public final class CodeLines
 		int bi = beginBi + 8;
 		for (int i = 0; i < lineN; i++)
 		{
-			beginAds[i] = read0u2(bi);
-			lines[i] = read0u2(bi + 2);
+			beginAds[i] = readU2(bytes, bi);
+			lines[i] = readU2(bytes, bi + 2);
 			bi += 4;
 		}
 	}
@@ -123,7 +123,7 @@ public final class CodeLines
 	@Override
 	public int normalizeTo(byte[] bs, int begin)
 	{
-		writeU2(bs, begin, read0u2(beginBi));
+		writeU2(bs, begin, readU2(bytes, beginBi));
 		writeS4(bs, begin + 2, normalizeByteN() - 6);
 		writeU2(bs, begin + 6, lineN);
 		if (beginAds == null)

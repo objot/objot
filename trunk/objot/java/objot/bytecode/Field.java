@@ -39,30 +39,30 @@ public final class Field
 	{
 		super(bs, beginBi_);
 		cons = c;
-		setModifier(read0u2(beginBi));
-		nameCi = read0u2(beginBi + 2);
-		descCi = read0u2(beginBi + 4);
-		attrN = read0u2(beginBi + 6);
+		setModifier(readU2(bytes, beginBi));
+		nameCi = readU2(bytes, beginBi + 2);
+		descCi = readU2(bytes, beginBi + 4);
+		attrN = readU2(bytes, beginBi + 6);
 		attrBi = beginBi + 8;
 		int bi = attrBi;
 		for (int an = attrN; an > 0; an--)
 		{
-			int name = read0u2(bi);
+			int name = readU2(bytes, bi);
 			if (signatureBi == 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
 			{
 				signatureBi = bi;
-				signatureCi = read0u2(bi + 6);
+				signatureCi = readU2(bytes, bi + 6);
 			}
 			else if (constantBi == 0 && cons.equalsUtf(name, Bytecode.CONSTANT_VALUE))
 			{
 				constantBi = bi;
-				constantCi = read0u2(bi + 6);
+				constantCi = readU2(bytes, bi + 6);
 			}
 			else if (annosBi == 0 && cons.equalsUtf(name, Bytecode.ANNOS))
 				annosBi = bi;
 			else if (annoHidesBi == 0 && cons.equalsUtf(name, Bytecode.ANNOHIDES))
 				annoHidesBi = bi;
-			bi += 6 + read0u4(bi + 2);
+			bi += 6 + readU4(bytes, bi + 2);
 		}
 		end1Bi = bi;
 	}
@@ -73,10 +73,10 @@ public final class Field
 		super(null, 0);
 		cons = c;
 		ensureByteN(8);
-		write0u2(0, 0); // modifier
-		write0u2(2, 0); // nameCi
-		write0u2(4, 0); // descCi
-		write0u2(6, 0); // attrN
+		writeU2(bytes, 0, 0); // modifier
+		writeU2(bytes, 2, 0); // nameCi
+		writeU2(bytes, 4, 0); // descCi
+		writeU2(bytes, 6, 0); // attrN
 		end1Bi = 8;
 	}
 
@@ -85,17 +85,17 @@ public final class Field
 		super(null, 0);
 		cons = c;
 		ensureByteN(16);
-		write0u2(0, 0); // modifier
-		write0u2(2, 0); // nameCi
-		write0u2(4, 0); // descCi
+		writeU2(bytes, 0, 0); // modifier
+		writeU2(bytes, 2, 0); // nameCi
+		writeU2(bytes, 4, 0); // descCi
 		attrN = 1;
-		write0u2(6, attrN); // attrN
+		writeU2(bytes, 6, attrN); // attrN
 		attrBi = 8;
 		constantBi = 8;
 		constantCi = constantCi_;
-		write0u2(8, cons.putUtf(Bytecode.CONSTANT_VALUE)); // attr name ci
-		write0u4(10, 2); // attr length
-		write0u2(14, constantCi);
+		writeU2(bytes, 8, cons.putUtf(Bytecode.CONSTANT_VALUE)); // attr name ci
+		writeU4(bytes, 10, 2); // attr length
+		writeU2(bytes, 14, constantCi);
 		end1Bi = 16;
 	}
 
@@ -237,7 +237,7 @@ public final class Field
 		begin += 8;
 		for (int an = attrN; an > 0; an--)
 		{
-			int bn = 6 + read0u4(bi + 2);
+			int bn = 6 + readU4(bytes, bi + 2);
 			if (bi == signatureBi)
 			{
 				System.arraycopy(bytes, bi, bs, begin, 6);

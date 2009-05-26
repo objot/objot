@@ -45,9 +45,9 @@ public final class Bytecode
 	public Bytecode(byte[] bs, int beginBi_, int end1Bi_)
 	{
 		super(bs, beginBi_);
-		if (read0s4(beginBi) != 0xCAFEBABE)
+		if (readS4(bytes, beginBi) != 0xCAFEBABE)
 			throw new ClassFormatError("invalid magic number");
-		if ((read0u2(beginBi + 4) | read0u2(beginBi + 6) << 16) > 50 << 16)
+		if ((readU2(bytes, beginBi + 4) | readU2(bytes, beginBi + 6) << 16) > 50 << 16)
 			throw new ClassFormatError("unsupported bytecode version");
 		end1Bi = end1Bi_;
 		if (end1Bi <= beginBi)
@@ -66,17 +66,17 @@ public final class Bytecode
 	{
 		super(null, 0);
 		ensureByteN(24);
-		write0s4(0, 0xCAFEBABE);
-		write0u2(4, 0); // minor verson
-		write0u2(6, 49); // major version
-		write0u2(8, 1); // constantN
-		write0u2(10, 0); // modifier
-		write0u2(12, 0); // classCi
-		write0u2(14, 0); // superCi
-		write0u2(16, 0); // interfaceN
-		write0u2(18, 0); // fieldN
-		write0u2(20, 0); // procN
-		write0u2(22, 0); // attrN
+		writeS4(bytes, 0, 0xCAFEBABE);
+		writeU2(bytes, 4, 0); // minor verson
+		writeU2(bytes, 6, 49); // major version
+		writeU2(bytes, 8, 1); // constantN
+		writeU2(bytes, 10, 0); // modifier
+		writeU2(bytes, 12, 0); // classCi
+		writeU2(bytes, 14, 0); // superCi
+		writeU2(bytes, 16, 0); // interfaceN
+		writeU2(bytes, 18, 0); // fieldN
+		writeU2(bytes, 20, 0); // procN
+		writeU2(bytes, 22, 0); // attrN
 		end1Bi = 24;
 		cons = new Constants(bytes, 8);
 		head = new Head(cons, bytes, cons.end1Bi);
@@ -101,15 +101,15 @@ public final class Bytecode
 		if (attrBi > 0)
 			return;
 		attrBi = getProcs().end1Bi + 2;
-		attrN = read0u2(attrBi - 2);
+		attrN = readU2(bytes, attrBi - 2);
 		int bi = attrBi;
 		for (int an = attrN; an > 0; an--)
 		{
-			int name = read0u2(bi);
+			int name = readU2(bytes, bi);
 			if (signatureBi == 0 && cons.equalsUtf(name, SIGNATURE))
 			{
 				signatureBi = bi;
-				signatureCi = read0u2(bi + 6);
+				signatureCi = readU2(bytes, bi + 6);
 			}
 			else if (annosBi == 0 && cons.equalsUtf(name, ANNOS))
 				annosBi = bi;
@@ -117,7 +117,7 @@ public final class Bytecode
 				annoHidesBi = bi;
 			else if (innerClassBi == 0 && cons.equalsUtf(name, INNER_CLASS))
 				innerClassBi = bi;
-			bi += 6 + read0u4(bi + 2);
+			bi += 6 + readU4(bytes, bi + 2);
 		}
 		if (bi != end1Bi)
 			throw new ClassFormatError("invalid bytecode length " + bi + " " + end1Bi);
@@ -206,7 +206,7 @@ public final class Bytecode
 		if (annoHides != null)
 			n += annoHides.normalizeByteN() - annoHides.byteN0();
 		if (innerClassBi < 0)
-			n -= 6 + read0u4(2 - innerClassBi);
+			n -= 6 + readU4(bytes, 2 - innerClassBi);
 		return n;
 	}
 
@@ -246,7 +246,7 @@ public final class Bytecode
 		begin += 2;
 		for (int an = attrN; an > 0; an--)
 		{
-			int bn = 6 + read0u4(bi + 2);
+			int bn = 6 + readU4(bytes, bi + 2);
 			if (bi == annosBi && annos != null)
 				begin = annos.normalizeTo(bs, begin);
 			else if (bi == annoHidesBi && annoHides != null)
