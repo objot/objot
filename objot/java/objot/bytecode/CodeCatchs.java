@@ -29,7 +29,7 @@ public final class CodeCatchs
 	{
 		super(bs, beginBi_);
 		cons = c;
-		catchN = read0u2(beginBi);
+		catchN = readU2(bytes, beginBi);
 		end1Bi = beginBi + 2 + (catchN << 3);
 	}
 
@@ -49,10 +49,10 @@ public final class CodeCatchs
 		int bi = beginBi + 2;
 		for (int i = 0; i < catchN; i++)
 		{
-			beginAds[i] = read0u2(bi);
-			end1Ads[i] = read0u2(bi + 2);
-			catchAds[i] = read0u2(bi + 4);
-			typeCis[i] = read0u2(bi + 6);
+			beginAds[i] = readU2(bytes, bi);
+			end1Ads[i] = readU2(bytes, bi + 2);
+			catchAds[i] = readU2(bytes, bi + 4);
+			typeCis[i] = readU2(bytes, bi + 6);
 			bi += 8;
 		}
 	}

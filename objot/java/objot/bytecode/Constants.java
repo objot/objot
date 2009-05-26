@@ -44,13 +44,13 @@ public final class Constants
 	public Constants(byte[] bs, int beginBi_)
 	{
 		super(bs, beginBi_);
-		conN0 = conN = read0u2(beginBi);
+		conN0 = conN = readU2(bytes, beginBi);
 		if (conN <= 0)
 			throw new ClassFormatError("invalid constants amount");
 		int bi = beginBi + 2;
 		for (int ci = 1; ci < conN; ci++)
 		{
-			byte t = read0s1(bi);
+			byte t = bytes[bi];
 			if (t == TAG_LONG || t == TAG_DOUBLE)
 				if (ci < conN)
 					ci++; // stupid specification ass
@@ -76,12 +76,12 @@ public final class Constants
 	/** Including the tag byte. */
 	int readConByteN(int bi)
 	{
-		switch (read0s1(bi))
+		switch (bytes[bi])
 		{
 		case TAG_UTF:
-			int l = read0u2(bi + 1);
+			int l = readU2(bytes, bi + 1);
 			for (int i = bi + 3; i < bi + l; i++)
-				if (read0s1(i) == 0)
+				if (bytes[i] == 0)
 					throw new ClassFormatError("invalid utf constant");
 			return 1 + 2 + l;
 		case TAG_INT:
@@ -112,7 +112,7 @@ public final class Constants
 		for (int ci = 2; ci < conN; ci++)
 		{
 			bis[ci] = bis[ci - 1] + readConByteN(bis[ci - 1]);
-			byte t = read0s1(bis[ci - 1]);
+			byte t = bytes[bis[ci - 1]];
 			if (t == TAG_LONG || t == TAG_DOUBLE)
 			{
 				bis[ci + 1] = bis[ci];
@@ -133,14 +133,14 @@ public final class Constants
 	{
 		checkIndex(ci);
 		readBis();
-		return read0s1(bis[ci]);
+		return bytes[bis[ci]];
 	}
 
 	public byte getTag(int ci, byte tag)
 	{
 		checkIndex(ci);
 		readBis();
-		if (tag != read0s1(bis[ci]))
+		if (tag != bytes[bis[ci]])
 			throw new ClassCastException();
 		return tag;
 	}
@@ -169,7 +169,7 @@ public final class Constants
 	public int getUtfByteN(int ci)
 	{
 		getTag(ci, TAG_UTF);
-		return read0u2(bis[ci] + 1);
+		return readU2(bytes, bis[ci] + 1);
 	}
 
 	public int getUtfBegin(int ci)
@@ -181,37 +181,37 @@ public final class Constants
 	public int getUtfEnd1(int ci)
 	{
 		getTag(ci, TAG_UTF);
-		return bis[ci] + 3 + read0u2(bis[ci] + 1);
+		return bis[ci] + 3 + readU2(bytes, bis[ci] + 1);
 	}
 
 	public int getInt(int ci)
 	{
 		getTag(ci, TAG_INT);
-		return read0s4(bis[ci] + 1);
+		return readS4(bytes, bis[ci] + 1);
 	}
 
 	public long getLong(int ci)
 	{
 		getTag(ci, TAG_LONG);
-		return read0s8(bis[ci] + 1);
+		return readS8(bytes, bis[ci] + 1);
 	}
 
 	public float getFloat(int ci)
 	{
 		getTag(ci, TAG_FLOAT);
-		return Float.intBitsToFloat(read0s4(bis[ci] + 1));
+		return Float.intBitsToFloat(readS4(bytes, bis[ci] + 1));
 	}
 
 	public double getDouble(int ci)
 	{
 		getTag(ci, TAG_DOUBLE);
-		return Double.longBitsToDouble(read0s8(bis[ci] + 1));
+		return Double.longBitsToDouble(readS8(bytes, bis[ci] + 1));
 	}
 
 	int getUtfRef(byte tag, int ci)
 	{
 		getTag(ci, tag);
-		return read0u2(bis[ci] + 1);
+		return readU2(bytes, bis[ci] + 1);
 	}
 
 	public int getClass(int ci)
@@ -227,19 +227,19 @@ public final class Constants
 	int getClassNameDescClass(byte tag, int ci)
 	{
 		getTag(ci, tag);
-		return getClass(read0u2(bis[ci] + 1));
+		return getClass(readU2(bytes, bis[ci] + 1));
 	}
 
 	int getClassNameDescName(byte tag, int ci)
 	{
 		getTag(ci, tag);
-		return getNameDescName(read0u2(bis[ci] + 3));
+		return getNameDescName(readU2(bytes, bis[ci] + 3));
 	}
 
 	int getClassNameDescDesc(byte tag, int ci)
 	{
 		getTag(ci, tag);
-		return getNameDescDesc(read0u2(bis[ci] + 3));
+		return getNameDescDesc(readU2(bytes, bis[ci] + 3));
 	}
 
 	public int getFieldClass(int ci)
@@ -295,7 +295,7 @@ public final class Constants
 	public int getNameDescDesc(int ci)
 	{
 		getTag(ci, TAG_NAMEDESC);
-		return read0u2(bis[ci] + 3);
+		return readU2(bytes, bis[ci] + 3);
 	}
 
 	// ********************************************************************************
@@ -303,43 +303,45 @@ public final class Constants
 	public boolean equalsUtf(int ci, Bytes utf)
 	{
 		return getTag(ci) == TAG_UTF
-			&& utf.equals(bytes, bis[ci] + 3, bis[ci] + 3 + read0u2(bis[ci] + 1));
+			&& utf.equals(bytes, bis[ci] + 3, bis[ci] + 3 + readU2(bytes, bis[ci] + 1));
 	}
 
 	public boolean startsWithUtf(int ci, Bytes utf)
 	{
-		return getTag(ci) == TAG_UTF && read0u2(bis[ci] + 1) >= utf.byteN()
+		return getTag(ci) == TAG_UTF && readU2(bytes, bis[ci] + 1) >= utf.byteN()
 			&& utf.equals(bytes, bis[ci] + 3, bis[ci] + 3 + utf.byteN());
 	}
 
 	public boolean equalsInt(int ci, int v)
 	{
-		return getTag(ci) == TAG_INT && read0s4(bis[ci] + 1) == v;
+		return getTag(ci) == TAG_INT && readS4(bytes, bis[ci] + 1) == v;
 	}
 
 	public boolean equalsLong(int ci, long v)
 	{
-		return getTag(ci) == TAG_LONG && read0s8(bis[ci] + 1) == v;
+		return getTag(ci) == TAG_LONG && readS8(bytes, bis[ci] + 1) == v;
 	}
 
 	public boolean equalsFloat(int ci, float v)
 	{
-		return getTag(ci) == TAG_FLOAT && Float.intBitsToFloat(read0s4(bis[ci] + 1)) == v;
+		return getTag(ci) == TAG_FLOAT
+			&& Float.intBitsToFloat(readS4(bytes, bis[ci] + 1)) == v;
 	}
 
 	public boolean equalsDouble(int ci, double v)
 	{
-		return getTag(ci) == TAG_LONG && Double.longBitsToDouble(read0s8(bis[ci] + 1)) == v;
+		return getTag(ci) == TAG_LONG
+			&& Double.longBitsToDouble(readS8(bytes, bis[ci] + 1)) == v;
 	}
 
 	boolean equalsRef(byte tag, int ci, int refCi)
 	{
-		return getTag(ci) == tag && read0u2(bis[ci] + 1) == refCi;
+		return getTag(ci) == tag && readU2(bytes, bis[ci] + 1) == refCi;
 	}
 
 	boolean equalsRefUtf(byte tag, int ci, Bytes utf)
 	{
-		return getTag(ci) == tag && equalsUtf(read0u2(bis[ci] + 1), utf);
+		return getTag(ci) == tag && equalsUtf(readU2(bytes, bis[ci] + 1), utf);
 	}
 
 	public boolean equalsClass(int ci, int nameCi)
@@ -364,20 +366,20 @@ public final class Constants
 
 	boolean equalsRef2(byte tag, int ci, int ref1Ci, int ref2Ci)
 	{
-		return getTag(ci) == tag && read0u2(bis[ci] + 1) == ref1Ci
-			&& read0u2(bis[ci] + 3) == ref2Ci;
+		return getTag(ci) == tag && readU2(bytes, bis[ci] + 1) == ref1Ci
+			&& readU2(bytes, bis[ci] + 3) == ref2Ci;
 	}
 
 	boolean equalsClassNameDesc(byte tag, int ci, int classNameCi, int nameCi, int descCi)
 	{
-		return getTag(ci) == tag && equalsClass(read0u2(bis[ci] + 1), classNameCi)
-			&& equalsNameDesc(read0u2(bis[ci] + 3), nameCi, descCi);
+		return getTag(ci) == tag && equalsClass(readU2(bytes, bis[ci] + 1), classNameCi)
+			&& equalsNameDesc(readU2(bytes, bis[ci] + 3), nameCi, descCi);
 	}
 
 	boolean equalsClassNameDesc(byte tag, int ci, Bytes className, Bytes name, Bytes desc)
 	{
-		return getTag(ci) == tag && equalsClass(read0u2(bis[ci] + 1), className)
-			&& equalsNameDesc(read0u2(bis[ci] + 3), name, desc);
+		return getTag(ci) == tag && equalsClass(readU2(bytes, bis[ci] + 1), className)
+			&& equalsNameDesc(readU2(bytes, bis[ci] + 3), name, desc);
 	}
 
 	public boolean equalsField(int ci, int classNameCi, int nameDescCi)
@@ -432,8 +434,8 @@ public final class Constants
 
 	public boolean equalsNameDesc(int ci, Bytes name, Bytes desc)
 	{
-		return getTag(ci) == TAG_NAMEDESC && equalsUtf(read0u2(bis[ci] + 1), name)
-			&& equalsUtf(read0u2(bis[ci] + 3), desc);
+		return getTag(ci) == TAG_NAMEDESC && equalsUtf(readU2(bytes, bis[ci] + 1), name)
+			&& equalsUtf(readU2(bytes, bis[ci] + 3), desc);
 	}
 
 	/** @return the constant index, negative if nothing found. */
@@ -767,7 +769,7 @@ public final class Constants
 		if (tag == TAG_LONG || tag == TAG_DOUBLE)
 			bis[conN++] = end1Bi; // stupid specification
 		bis[conN++] = end1Bi;
-		write0s1(end1Bi, tag);
+		bytes[end1Bi] = tag;
 		end1Bi += bn;
 		return end1Bi - bn;
 	}
@@ -785,14 +787,14 @@ public final class Constants
 				bis[i++] += d;
 		}
 		end1Bi += d;
-		write0u2(bis[ci] + 1, utf.byteN());
+		writeU2(bytes, bis[ci] + 1, utf.byteN());
 		utf.copyTo(0, bytes, bis[ci] + 3, utf.byteN());
 	}
 
 	public int addUtf(Bytes utf)
 	{
 		int bi = add(TAG_UTF, 3 + utf.byteN());
-		write0u2(bi + 1, utf.byteN());
+		writeU2(bytes, bi + 1, utf.byteN());
 		utf.copyTo(0, bytes, bi + 3, utf.byteN());
 		return conN - 1;
 	}
@@ -837,12 +839,13 @@ public final class Constants
 	{
 		getTag(ci, TAG_INT);
 		ensureN(conN, end1Bi);
-		write0s4(bis[ci] + 1, v);
+		writeS4(bytes, bis[ci] + 1, v);
 	}
 
 	public int addInt(int v)
 	{
-		write0s4(add(TAG_INT, 5) + 1, v);
+		int bi = add(TAG_INT, 5);
+		writeS4(bytes, bi + 1, v);
 		return conN - 1;
 	}
 
@@ -858,12 +861,13 @@ public final class Constants
 	{
 		getTag(ci, TAG_LONG);
 		ensureN(conN, end1Bi);
-		write0s8(bis[ci] + 1, v);
+		writeS8(bytes, bis[ci] + 1, v);
 	}
 
 	public int addLong(long v)
 	{
-		write0s8(add(TAG_LONG, 9) + 1, v);
+		int bi = add(TAG_LONG, 9);
+		writeS8(bytes, bi + 1, v);
 		return conN - 2; // stupid specification
 	}
 
@@ -879,12 +883,13 @@ public final class Constants
 	{
 		getTag(ci, TAG_FLOAT);
 		ensureN(conN, end1Bi);
-		write0s4(bis[ci] + 1, Float.floatToRawIntBits(v));
+		writeS4(bytes, bis[ci] + 1, Float.floatToRawIntBits(v));
 	}
 
 	public int addFloat(float v)
 	{
-		write0s4(add(TAG_FLOAT, 5) + 1, Float.floatToRawIntBits(v));
+		int bi = add(TAG_FLOAT, 5);
+		writeS4(bytes, bi + 1, Float.floatToRawIntBits(v));
 		return conN - 1;
 	}
 
@@ -900,12 +905,13 @@ public final class Constants
 	{
 		getTag(ci, TAG_DOUBLE);
 		ensureN(conN, end1Bi);
-		write0s8(bis[ci] + 1, Double.doubleToRawLongBits(v));
+		writeS8(bytes, bis[ci] + 1, Double.doubleToRawLongBits(v));
 	}
 
 	public int addDouble(double v)
 	{
-		write0s8(add(TAG_DOUBLE, 9) + 1, Double.doubleToRawLongBits(v));
+		int bi = add(TAG_DOUBLE, 9);
+		writeS8(bytes, bi + 1, Double.doubleToRawLongBits(v));
 		return conN - 2; // stupid specification
 	}
 
@@ -922,13 +928,14 @@ public final class Constants
 		getTag(ci, tag);
 		getTag(refCi, refTag);
 		ensureN(conN, end1Bi);
-		write0u2(bis[ci] + 1, refCi);
+		writeU2(bytes, bis[ci] + 1, refCi);
 	}
 
 	int addRef(byte tag, int refCi, byte refTag)
 	{
 		getTag(refCi, refTag);
-		write0u2(add(tag, 3) + 1, refCi);
+		int bi = add(tag, 3);
+		writeU2(bytes, bi + 1, refCi);
 		return conN - 1;
 	}
 
@@ -1007,8 +1014,8 @@ public final class Constants
 		getTag(ref1Ci, ref1Tag);
 		getTag(ref2Ci, ref2Tag);
 		ensureN(conN, end1Bi);
-		write0u2(bis[ci] + 1, ref1Ci);
-		write0u2(bis[ci] + 3, ref2Ci);
+		writeU2(bytes, bis[ci] + 1, ref1Ci);
+		writeU2(bytes, bis[ci] + 3, ref2Ci);
 	}
 
 	int addRef2(byte tag, int ref1Ci, byte ref1Tag, int ref2Ci, byte ref2Tag)
@@ -1016,8 +1023,8 @@ public final class Constants
 		getTag(ref1Ci, ref1Tag);
 		getTag(ref2Ci, ref2Tag);
 		int bi = add(tag, 5);
-		write0u2(bi + 1, ref1Ci);
-		write0u2(bi + 3, ref2Ci);
+		writeU2(bytes, bi + 1, ref1Ci);
+		writeU2(bytes, bi + 3, ref2Ci);
 		return conN - 1;
 	}
 

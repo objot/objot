@@ -25,10 +25,10 @@ public class Head
 	{
 		super(bs, beginBi_);
 		cons = c;
-		setModifier(read0u2(beginBi));
-		classCi = read0u2(beginBi + 2);
-		superCi = read0u2(beginBi + 4);
-		interfaceN = read0u2(beginBi + 6);
+		setModifier(readU2(bytes, beginBi));
+		classCi = readU2(bytes, beginBi + 2);
+		superCi = readU2(bytes, beginBi + 4);
+		interfaceN = readU2(bytes, beginBi + 6);
 		end1Bi = beginBi + 8 + (interfaceN << 1);
 	}
 
@@ -58,7 +58,7 @@ public class Head
 			return;
 		interfaceCis = new int[allocN(interfaceN)];
 		for (int i = 0; i < interfaceN; i++)
-			interfaceCis[i] = read0u2(beginBi + 8 + (i << 1));
+			interfaceCis[i] = readU2(bytes, beginBi + 8 + (i << 1));
 	}
 
 	void checkIndex(int ii)

@@ -10,12 +10,13 @@ import java.io.InputStream;
 
 public class Bytes
 {
-	public byte[] bytes = Array2.BYTES0;
+	public byte[] bytes;
 	public int beginBi;
 	public int end1Bi;
 
 	public Bytes()
 	{
+		bytes = Array2.BYTES0;
 	}
 
 	public Bytes(byte[] bs)
@@ -46,15 +47,16 @@ public class Bytes
 
 	public Bytes(InputStream i, boolean close) throws IOException
 	{
+		bytes = Array2.BYTES0;
 		inputFull(i, close);
 	}
 
-	public int byteN()
+	public final int byteN()
 	{
 		return end1Bi - beginBi;
 	}
 
-	public int lastI()
+	public final int lastI()
 	{
 		return end1Bi - beginBi - 1;
 	}
@@ -123,35 +125,35 @@ public class Bytes
 		return o != null && o.getClass() == getClass() && equals((Bytes)o);
 	}
 
-	public byte readS1(int i)
+	public final byte readS1(int i)
 	{
 		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		return bytes[i];
 	}
 
-	public int readU1(int i)
+	public final int readU1(int i)
 	{
 		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
 		return bytes[i] & 0xFF;
 	}
 
-	public short readS2(int i)
+	public final short readS2(int i)
 	{
 		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		return (short)(bytes[i] << 8 | bytes[i + 1] & 0xFF);
 	}
 
-	public int readU2(int i)
+	public final int readU2(int i)
 	{
 		Math2.index(i, end1Bi - beginBi - 1);
 		i += beginBi;
 		return bytes[i] << 8 & 0xFF00 | bytes[i + 1] & 0xFF;
 	}
 
-	public int readS4(int i)
+	public final int readS4(int i)
 	{
 		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
@@ -159,19 +161,20 @@ public class Bytes
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
 	}
 
-	public int readU4(int i)
+	/** @throws ArithmeticException if negative. */
+	public final int readU4(int i)
 	{
 		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
-		i = bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
-			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
+		i = bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 | (bytes[i + 2] & 0xFF) << 8
+			| bytes[i + 3] & 0xFF;
 		if (i < 0)
 			throw new ArithmeticException("unsigned quad bytes too large : 0x"
 				+ Integer.toHexString(i));
 		return i;
 	}
 
-	public long readU4ex(int i)
+	public final long readU4ex(int i)
 	{
 		Math2.index(i, end1Bi - beginBi - 3);
 		i += beginBi;
@@ -179,7 +182,7 @@ public class Bytes
 			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF);
 	}
 
-	public long readS8(int i)
+	public final long readS8(int i)
 	{
 		Math2.index(i, end1Bi - beginBi - 7);
 		i += beginBi;
@@ -189,54 +192,19 @@ public class Bytes
 				| (bytes[i + 6] & 0xFF) << 8 | bytes[i + 7] & 0xFF) & 0xFFFFFFFFL;
 	}
 
-	public byte read0s1(int i)
+	/** @throws ArithmeticException if negative. */
+	public final long readU8(int i)
 	{
-		return bytes[i];
-	}
-
-	public int read0u1(int i)
-	{
-		return bytes[i] & 0xFF;
-	}
-
-	public short read0s2(int i)
-	{
-		return (short)(bytes[i] << 8 | bytes[i + 1] & 0xFF);
-	}
-
-	public int read0u2(int i)
-	{
-		return bytes[i] << 8 & 0xFF00 | bytes[i + 1] & 0xFF;
-	}
-
-	public int read0s4(int i)
-	{
-		return bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
-			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
-	}
-
-	public int read0u4(int i)
-	{
-		i = bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
-			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF;
-		if (i < 0)
-			throw new ArithmeticException("unsigned quad bytes too large : 0x"
-				+ Integer.toHexString(i));
-		return i;
-	}
-
-	public long read0u4ex(int i)
-	{
-		return (bytes[i] & 0xFFL) << 24 | ((bytes[i + 1] & 0xFF) << 16 //
-			| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF);
-	}
-
-	public long read0s8(int i)
-	{
-		return (long)(bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
+		Math2.index(i, end1Bi - beginBi - 7);
+		i += beginBi;
+		long l = (long)(bytes[i] << 24 | (bytes[i + 1] & 0xFF) << 16 //
 			/**/| (bytes[i + 2] & 0xFF) << 8 | bytes[i + 3] & 0xFF) << 32 //
 			| (bytes[i + 4] << 24 | (bytes[i + 5] & 0xFF) << 16 //
 				| (bytes[i + 6] & 0xFF) << 8 | bytes[i + 7] & 0xFF) & 0xFFFFFFFFL;
+		if (l < 0)
+			throw new ArithmeticException("unsigned octa bytes too large : 0x"
+				+ Long.toHexString(l));
+		return l;
 	}
 
 	public static byte readS1(byte[] bs, int i)
@@ -290,6 +258,19 @@ public class Bytes
 				| (bs[i + 6] & 0xFF) << 8 | bs[i + 7] & 0xFF) & 0xFFFFFFFFL;
 	}
 
+	/** @throws ArithmeticException if negative. */
+	public static long readU8(byte[] bs, int i)
+	{
+		long l = (long)(bs[i] << 24 | (bs[i + 1] & 0xFF) << 16 //
+			/**/| (bs[i + 2] & 0xFF) << 8 | bs[i + 3] & 0xFF) << 32 //
+			| (bs[i + 4] << 24 | (bs[i + 5] & 0xFF) << 16 //
+				| (bs[i + 6] & 0xFF) << 8 | bs[i + 7] & 0xFF) & 0xFFFFFFFFL;
+		if (l < 0)
+			throw new ArithmeticException("unsigned octa bytes too large : 0x"
+				+ Long.toHexString(l));
+		return l;
+	}
+
 	// ********************************************************************************
 
 	public int copyFrom(int bi, byte[] src, int srcBi, int bn)
@@ -324,7 +305,7 @@ public class Bytes
 		}
 	}
 
-	public Bytes ensureByteN(int n)
+	public final Bytes ensureByteN(int n)
 	{
 		n += beginBi;
 		if (n < 0)
@@ -333,7 +314,7 @@ public class Bytes
 		return this;
 	}
 
-	public Bytes addByteN(int n)
+	public final Bytes addByteN(int n)
 	{
 		n += end1Bi;
 		if (n < 0)
@@ -343,247 +324,227 @@ public class Bytes
 		return this;
 	}
 
-	public void writeS1(int i, byte v)
+	public final int writeS1(int i, byte v)
 	{
 		Math2.index(i, end1Bi - beginBi);
 		i += beginBi;
-		bytes[i] = v;
-	}
-
-	public void writeS1(int i, int v)
-	{
-		if (v << 24 >> 24 != v)
-			throw new ArithmeticException("invalid signed byte");
-		Math2.index(i, end1Bi - beginBi);
-		i += beginBi;
-		bytes[i] = (byte)v;
-	}
-
-	public void writeU1(int i, int v)
-	{
-		if (v >> 8 != 0)
-			throw new ArithmeticException("invalid unsigned byte");
-		Math2.index(i, end1Bi - beginBi);
-		i += beginBi;
-		bytes[i] = (byte)v;
-	}
-
-	public void writeS2(int i, short v)
-	{
-		Math2.index(i, end1Bi - beginBi - 1);
-		i += beginBi;
-		bytes[i] = (byte)(v >> 8);
-		bytes[i + 1] = (byte)v;
-	}
-
-	public void writeS2(int i, int v)
-	{
-		if (v << 16 >> 16 != v)
-			throw new ArithmeticException("invalid signed dual bytes");
-		Math2.index(i, end1Bi - beginBi - 1);
-		i += beginBi;
-		bytes[i] = (byte)(v >> 8);
-		bytes[i + 1] = (byte)v;
-	}
-
-	public void writeU2(int i, int v)
-	{
-		if (v >> 16 != 0)
-			throw new ArithmeticException("invalid unsigned dual bytes");
-		Math2.index(i, end1Bi - beginBi - 1);
-		i += beginBi;
-		bytes[i] = (byte)(v >> 8);
-		bytes[i + 1] = (byte)v;
-	}
-
-	public void writeS4(int i, int v)
-	{
-		Math2.index(i, end1Bi - beginBi - 3);
-		i += beginBi;
-		bytes[i] = (byte)(v >> 24);
-		bytes[i + 1] = (byte)(v >> 16);
-		bytes[i + 2] = (byte)(v >> 8);
-		bytes[i + 3] = (byte)v;
-	}
-
-	public void writeU4(int i, long v_)
-	{
-		if (v_ >> 32 != 0)
-			throw new ArithmeticException("invalid unsigned quad bytes");
-		Math2.index(i, end1Bi - beginBi - 3);
-		i += beginBi;
-		int v = (int)v_;
-		bytes[i] = (byte)(v >> 24);
-		bytes[i + 1] = (byte)(v >> 16);
-		bytes[i + 2] = (byte)(v >> 8);
-		bytes[i + 3] = (byte)v;
-	}
-
-	public void writeS8(int i, long v)
-	{
-		Math2.index(i, end1Bi - beginBi - 7);
-		i += beginBi;
-		int v4 = (int)(v >> 32);
-		bytes[i] = (byte)(v4 >> 24);
-		bytes[i + 1] = (byte)(v4 >> 16);
-		bytes[i + 2] = (byte)(v4 >> 8);
-		bytes[i + 3] = (byte)v4;
-		v4 = (int)v;
-		bytes[i + 4] = (byte)(v4 >> 24);
-		bytes[i + 5] = (byte)(v4 >> 16);
-		bytes[i + 6] = (byte)(v4 >> 8);
-		bytes[i + 7] = (byte)v4;
-	}
-
-	public void write0s1(int i, byte v)
-	{
-		bytes[i] = v;
-	}
-
-	public void write0s1(int i, int v)
-	{
-		if (v << 24 >> 24 != v)
-			throw new ArithmeticException("invalid signed byte");
-		bytes[i] = (byte)v;
-	}
-
-	public void write0u1(int i, int v)
-	{
-		if (v >> 8 != 0)
-			throw new ArithmeticException("invalid unsigned byte");
-		bytes[i] = (byte)v;
-	}
-
-	public void write0s2(int i, short v)
-	{
-		bytes[i] = (byte)(v >> 8);
-		bytes[i + 1] = (byte)v;
-	}
-
-	public void write0s2(int i, int v)
-	{
-		if (v << 16 >> 16 != v)
-			throw new ArithmeticException("invalid signed dual bytes");
-		bytes[i] = (byte)(v >> 8);
-		bytes[i + 1] = (byte)v;
-	}
-
-	public void write0u2(int i, int v)
-	{
-		if (v >> 16 != 0)
-			throw new ArithmeticException("invalid unsigned dual bytes");
-		bytes[i] = (byte)(v >> 8);
-		bytes[i + 1] = (byte)v;
-	}
-
-	public void write0s4(int i, int v)
-	{
-		bytes[i] = (byte)(v >> 24);
-		bytes[i + 1] = (byte)(v >> 16);
-		bytes[i + 2] = (byte)(v >> 8);
-		bytes[i + 3] = (byte)v;
-	}
-
-	public void write0u4(int i, long v_)
-	{
-		if (v_ >> 32 != 0)
-			throw new ArithmeticException("invalid unsigned quad bytes");
-		int v = (int)v_;
-		bytes[i] = (byte)(v >> 24);
-		bytes[i + 1] = (byte)(v >> 16);
-		bytes[i + 2] = (byte)(v >> 8);
-		bytes[i + 3] = (byte)v;
-	}
-
-	public void write0s8(int i, long v)
-	{
-		int v4 = (int)(v >> 32);
-		bytes[i] = (byte)(v4 >> 24);
-		bytes[i + 1] = (byte)(v4 >> 16);
-		bytes[i + 2] = (byte)(v4 >> 8);
-		bytes[i + 3] = (byte)v4;
-		v4 = (int)v;
-		bytes[i + 4] = (byte)(v4 >> 24);
-		bytes[i + 5] = (byte)(v4 >> 16);
-		bytes[i + 6] = (byte)(v4 >> 8);
-		bytes[i + 7] = (byte)v4;
-	}
-
-	public static void writeS1(byte[] bs, int i, byte v)
-	{
-		bs[i] = v;
+		bytes[i++] = v;
+		return i;
 	}
 
 	/** @throws ArithmeticException if not in [-128, 128). */
-	public static void writeS1(byte[] bs, int i, int v)
+	public final int writeS1(int i, int v)
 	{
-		if (v << 24 >> 24 != v)
+		if ((byte)v != v)
 			throw new ArithmeticException("invalid signed byte");
-		bs[i] = (byte)v;
+		Math2.index(i, end1Bi - beginBi);
+		i += beginBi;
+		bytes[i++] = (byte)v;
+		return i;
 	}
 
 	/** @throws ArithmeticException if not in [0, 256). */
-	public static void writeU1(byte[] bs, int i, int v)
+	public final int writeU1(int i, int v)
 	{
 		if (v >> 8 != 0)
 			throw new ArithmeticException("invalid unsigned byte");
-		bs[i] = (byte)v;
+		Math2.index(i, end1Bi - beginBi);
+		i += beginBi;
+		bytes[i++] = (byte)v;
+		return i;
 	}
 
-	public static void writeS2(byte[] bs, int i, short v)
+	public final int writeS2(int i, short v)
 	{
-		bs[i] = (byte)(v >> 8);
-		bs[i + 1] = (byte)v;
+		Math2.index(i, end1Bi - beginBi - 1);
+		i += beginBi;
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
 	}
 
 	/** @throws ArithmeticException if not in [-32768, 32768). */
-	public static void writeS2(byte[] bs, int i, int v)
+	public final int writeS2(int i, int v)
 	{
-		if (v << 16 >> 16 != v)
+		if ((short)v != v)
 			throw new ArithmeticException("invalid signed dual bytes");
-		bs[i] = (byte)(v >> 8);
-		bs[i + 1] = (byte)v;
+		Math2.index(i, end1Bi - beginBi - 1);
+		i += beginBi;
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
 	}
 
 	/** @throws ArithmeticException if not in [0, 65536). */
-	public static void writeU2(byte[] bs, int i, int v)
+	public final int writeU2(int i, int v)
 	{
 		if (v >> 16 != 0)
 			throw new ArithmeticException("invalid unsigned dual bytes");
-		bs[i] = (byte)(v >> 8);
-		bs[i + 1] = (byte)v;
+		Math2.index(i, end1Bi - beginBi - 1);
+		i += beginBi;
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
 	}
 
-	public static void writeS4(byte[] bs, int i, int v)
+	public final int writeS4(int i, int v)
 	{
-		bs[i] = (byte)(v >> 24);
-		bs[i + 1] = (byte)(v >> 16);
-		bs[i + 2] = (byte)(v >> 8);
-		bs[i + 3] = (byte)v;
+		Math2.index(i, end1Bi - beginBi - 3);
+		i += beginBi;
+		bytes[i++] = (byte)(v >> 24);
+		bytes[i++] = (byte)(v >> 16);
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
 	}
 
-	public static void writeU4(byte[] bs, int i, long v_)
+	/** @throws ArithmeticException if not in [0, 4294967296). */
+	public final int writeU4(int i, long v_)
+	{
+		if (v_ >> 32 != 0)
+			throw new ArithmeticException("invalid unsigned quad bytes");
+		Math2.index(i, end1Bi - beginBi - 3);
+		i += beginBi;
+		int v = (int)v_;
+		bytes[i++] = (byte)(v >> 24);
+		bytes[i++] = (byte)(v >> 16);
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
+	}
+
+	public final int writeS8(int i, long v)
+	{
+		Math2.index(i, end1Bi - beginBi - 7);
+		i += beginBi;
+		bytes[i++] = (byte)(v >> 56);
+		bytes[i++] = (byte)(v >> 48);
+		bytes[i++] = (byte)(v >> 40);
+		bytes[i++] = (byte)(v >> 32);
+		bytes[i++] = (byte)(v >> 24);
+		bytes[i++] = (byte)(v >> 16);
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if negative. */
+	public final int writeU8(int i, long v)
+	{
+		if (v < 0)
+			throw new ArithmeticException("invalid unsigned octa bytes");
+		Math2.index(i, end1Bi - beginBi - 7);
+		i += beginBi;
+		bytes[i++] = (byte)(v >> 56);
+		bytes[i++] = (byte)(v >> 48);
+		bytes[i++] = (byte)(v >> 40);
+		bytes[i++] = (byte)(v >> 32);
+		bytes[i++] = (byte)(v >> 24);
+		bytes[i++] = (byte)(v >> 16);
+		bytes[i++] = (byte)(v >> 8);
+		bytes[i++] = (byte)v;
+		return i;
+	}
+
+	public static int writeS1(byte[] bs, int i, byte v)
+	{
+		bs[i++] = v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if not in [-128, 128). */
+	public static int writeS1(byte[] bs, int i, int v)
+	{
+		if ((byte)v != v)
+			throw new ArithmeticException("invalid signed byte");
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if not in [0, 256). */
+	public static int writeU1(byte[] bs, int i, int v)
+	{
+		if (v >> 8 != 0)
+			throw new ArithmeticException("invalid unsigned byte");
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	public static int writeS2(byte[] bs, int i, short v)
+	{
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if not in [-32768, 32768). */
+	public static int writeS2(byte[] bs, int i, int v)
+	{
+		if ((short)v != v)
+			throw new ArithmeticException("invalid signed dual bytes");
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if not in [0, 65536). */
+	public static int writeU2(byte[] bs, int i, int v)
+	{
+		if (v >> 16 != 0)
+			throw new ArithmeticException("invalid unsigned dual bytes");
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	public static int writeS4(byte[] bs, int i, int v)
+	{
+		bs[i++] = (byte)(v >> 24);
+		bs[i++] = (byte)(v >> 16);
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if not in [0, 4294967296). */
+	public static int writeU4(byte[] bs, int i, long v_)
 	{
 		if (v_ >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
 		int v = (int)v_;
-		bs[i] = (byte)(v >> 24);
-		bs[i + 1] = (byte)(v >> 16);
-		bs[i + 2] = (byte)(v >> 8);
-		bs[i + 3] = (byte)v;
+		bs[i++] = (byte)(v >> 24);
+		bs[i++] = (byte)(v >> 16);
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
 	}
 
-	public static void writeS8(byte[] bs, int i, long v)
+	public static int writeS8(byte[] bs, int i, long v)
 	{
-		int v4 = (int)(v >> 32);
-		bs[i] = (byte)(v4 >> 24);
-		bs[i + 1] = (byte)(v4 >> 16);
-		bs[i + 2] = (byte)(v4 >> 8);
-		bs[i + 3] = (byte)v4;
-		v4 = (int)v;
-		bs[i + 4] = (byte)(v4 >> 24);
-		bs[i + 5] = (byte)(v4 >> 16);
-		bs[i + 6] = (byte)(v4 >> 8);
-		bs[i + 7] = (byte)v4;
+		bs[i++] = (byte)(v >> 56);
+		bs[i++] = (byte)(v >> 48);
+		bs[i++] = (byte)(v >> 40);
+		bs[i++] = (byte)(v >> 32);
+		bs[i++] = (byte)(v >> 24);
+		bs[i++] = (byte)(v >> 16);
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if negative. */
+	public static int writeU8(byte[] bs, int i, long v)
+	{
+		if (v < 0)
+			throw new ArithmeticException("invalid unsigned octa bytes");
+		bs[i++] = (byte)(v >> 56);
+		bs[i++] = (byte)(v >> 48);
+		bs[i++] = (byte)(v >> 40);
+		bs[i++] = (byte)(v >> 32);
+		bs[i++] = (byte)(v >> 24);
+		bs[i++] = (byte)(v >> 16);
+		bs[i++] = (byte)(v >> 8);
+		bs[i++] = (byte)v;
+		return i;
 	}
 }

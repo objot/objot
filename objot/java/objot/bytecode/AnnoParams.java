@@ -27,17 +27,17 @@ public final class AnnoParams
 		super(bs, beginBi_);
 		cons = c;
 		hided = hided_;
-		paramN = read0u1(beginBi + 6);
+		paramN = readU1(bytes, beginBi + 6);
 		annoNs = Array2.newInts(paramN);
 		int bi = beginBi + 7;
 		for (int i = 0; i < paramN; i++)
 		{
-			annoNs[i] = read0u2(bi);
+			annoNs[i] = readU2(bytes, bi);
 			bi += 2;
 			for (int n = annoNs[i]; n > 0; n--)
 				bi += Annotation.readByteN(bytes, bi);
 		}
-		if (bi - beginBi - 6 != read0u4(beginBi + 2))
+		if (bi - beginBi - 6 != readU4(bytes, beginBi + 2))
 			throw new ClassFormatError("inconsistent attribute length");
 		end1Bi = bi;
 	}
@@ -199,7 +199,7 @@ public final class AnnoParams
 			System.arraycopy(bytes, beginBi, bs, begin, byteN0());
 			return begin + byteN0();
 		}
-		writeU2(bs, begin, read0u2(beginBi));
+		writeU2(bs, begin, readU2(bytes, beginBi));
 		writeU1(bs, begin + 6, paramN);
 		int bi = begin + 7;
 		for (int gi = 0; gi < paramN; gi++)

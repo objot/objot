@@ -63,8 +63,8 @@ public final class Annotation
 	{
 		super(bs, beginBi_);
 		cons = c;
-		descCi = read0u2(beginBi);
-		propN = read0u2(beginBi + 2);
+		descCi = readU2(bytes, beginBi);
+		propN = readU2(bytes, beginBi + 2);
 		end1Bi = beginBi + readByteN(bytes, beginBi);
 	}
 
@@ -102,7 +102,7 @@ public final class Annotation
 	{
 		checkIndex(pi);
 		readPropBis();
-		return read0u2(propBis[pi]);
+		return readU2(bytes, propBis[pi]);
 	}
 
 	public int getPropValueBi(int pi)

@@ -59,20 +59,20 @@ public final class Procedure
 	{
 		super(bs, beginBi_);
 		cons = c;
-		modifier = read0u2(beginBi);
-		setNameCi(read0u2(beginBi + 2));
-		descCi = read0u2(beginBi + 4);
+		modifier = readU2(bytes, beginBi);
+		setNameCi(readU2(bytes, beginBi + 2));
+		descCi = readU2(bytes, beginBi + 4);
 		paramN = -1;
-		attrN = read0u2(beginBi + 6);
+		attrN = readU2(bytes, beginBi + 6);
 		attrBi = beginBi + 8;
 		int bi = attrBi;
 		for (int an = attrN; an > 0; an--)
 		{
-			int name = read0u2(bi);
+			int name = readU2(bytes, bi);
 			if (signatureBi == 0 && cons.equalsUtf(name, Bytecode.SIGNATURE))
 			{
 				signatureBi = bi;
-				signatureCi = read0u2(bi + 6);
+				signatureCi = readU2(bytes, bi + 6);
 			}
 			else if (annosBi == 0 && cons.equalsUtf(name, Bytecode.ANNOS))
 				annosBi = bi;
@@ -86,7 +86,7 @@ public final class Procedure
 				exceptionsBi = bi;
 			else if (codeBi == 0 && cons.equalsUtf(name, Bytecode.CODE))
 				codeBi = bi;
-			bi += 6 + read0u4(bi + 2);
+			bi += 6 + readU4(bytes, bi + 2);
 		}
 		end1Bi = bi;
 	}
@@ -109,44 +109,44 @@ public final class Procedure
 		super(null, 0);
 		cons = c;
 		ensureByteN(60);
-		write0u2(0, 0); // modifier
-		write0u2(2, 0); // nameCi
-		write0u2(4, 0); // descCi
+		writeU2(bytes, 0, 0); // modifier
+		writeU2(bytes, 2, 0); // nameCi
+		writeU2(bytes, 4, 0); // descCi
 		paramN = -1;
 		attrN = anno ? 4 : 2;
-		write0u2(6, attrN);
+		writeU2(bytes, 6, attrN);
 		attrBi = 8;
 		int i = attrBi;
 		exceptionsBi = i;
-		write0u2(i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
-		write0u4(i + 2, 2); // attr length
+		writeU2(bytes, i, cons.putUtf(Bytecode.EXCEPTIONS)); // attr name ci
+		writeU4(bytes, i + 2, 2); // attr length
 		i += 6;
-		write0u2(i, 0); // exceptionN
+		writeU2(bytes, i, 0); // exceptionN
 		i += 2;
 		if (anno)
 		{
 			annosBi = i;
-			write0u2(i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
-			write0u4(i + 2, 2); // attr length
+			writeU2(bytes, i, cons.putUtf(Bytecode.ANNOS)); // attr name ci
+			writeU4(bytes, i + 2, 2); // attr length
 			i += 6;
-			write0u2(i, 0); // annoN
+			writeU2(bytes, i, 0); // annoN
 			i += 2;
 			annoHidesBi = i;
-			write0u2(i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
-			write0u4(i + 2, 2); // attr length
+			writeU2(bytes, i, cons.putUtf(Bytecode.ANNOHIDES)); // attr name ci
+			writeU4(bytes, i + 2, 2); // attr length
 			i += 6;
-			write0u2(i, 0); // annoHideN
+			writeU2(bytes, i, 0); // annoHideN
 			i += 2;
 		}
 		codeBi = i;
-		write0u2(i, cons.putUtf(Bytecode.CODE)); // attr name ci
-		write0u4(i + 2, 12); // attr length
+		writeU2(bytes, i, cons.putUtf(Bytecode.CODE)); // attr name ci
+		writeU4(bytes, i + 2, 12); // attr length
 		i += 6;
-		write0u2(i, 0); // stackN
-		write0u2(i + 2, 0); // localN
-		write0u4(i + 4, 0); // addrN and ins
-		write0u2(i + 8, 0); // catchN
-		write0u2(i + 10, 0); // attrN
+		writeU2(bytes, i, 0); // stackN
+		writeU2(bytes, i + 2, 0); // localN
+		writeU4(bytes, i + 4, 0); // addrN and ins
+		writeU2(bytes, i + 8, 0); // catchN
+		writeU2(bytes, i + 10, 0); // attrN
 		i += 12;
 		end1Bi = i;
 	}
@@ -463,7 +463,7 @@ public final class Procedure
 	public void setNameCi(int v)
 	{
 		nameCi = v;
-		modifier = Mod2.get(modifier, v > 0 ? cons.read0s1(cons.getUtfBegin(v)) : '\0');
+		modifier = Mod2.get(modifier, v > 0 ? cons.bytes[cons.getUtfBegin(v)] : '\0');
 	}
 
 	public void setDescCi(int v)
@@ -517,7 +517,7 @@ public final class Procedure
 		begin += 8;
 		for (int an = attrN; an > 0; an--)
 		{
-			int bn = 6 + read0u4(bi + 2);
+			int bn = 6 + readU4(bytes, bi + 2);
 			if (bi == signatureBi)
 			{
 				System.arraycopy(bytes, bi, bs, begin, 6);

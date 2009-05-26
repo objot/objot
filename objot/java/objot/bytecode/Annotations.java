@@ -24,11 +24,11 @@ public final class Annotations
 		super(bs, beginBi_);
 		cons = c;
 		hided = hided_;
-		annoN = read0u2(beginBi + 6);
+		annoN = readU2(bytes, beginBi + 6);
 		int bi = beginBi + 8;
 		for (int i = 0; i < annoN; i++)
 			bi += Annotation.readByteN(bytes, bi);
-		if (bi - beginBi - 6 != read0u4(beginBi + 2))
+		if (bi - beginBi - 6 != readU4(bytes, beginBi + 2))
 			throw new ClassFormatError("inconsistent attribute length");
 		end1Bi = bi;
 	}
@@ -179,7 +179,7 @@ public final class Annotations
 			System.arraycopy(bytes, beginBi, bs, begin, byteN0());
 			return begin + byteN0();
 		}
-		writeU2(bs, begin, read0u2(beginBi));
+		writeU2(bs, begin, readU2(bytes, beginBi));
 		writeU2(bs, begin + 6, annoN);
 		int bi = begin + 8;
 		for (int i = 0; i < annoN; i++)

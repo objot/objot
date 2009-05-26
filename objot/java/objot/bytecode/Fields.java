@@ -22,7 +22,7 @@ public final class Fields
 	{
 		super(bs, beginBi_);
 		cons = c;
-		fieldN = read0u2(beginBi);
+		fieldN = readU2(bytes, beginBi);
 		int bi = beginBi + 2;
 		for (int i = 0; i < fieldN; i++)
 			bi = Field.readEnd1Bi(bytes, bi);

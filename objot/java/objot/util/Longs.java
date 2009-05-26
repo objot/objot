@@ -40,12 +40,12 @@ public class Longs
 		end1I = s.beginI + end1;
 	}
 
-	public int n()
+	public final int n()
 	{
 		return end1I - beginI;
 	}
 
-	public int lastI()
+	public final int lastI()
 	{
 		return end1I - beginI - 1;
 	}
@@ -115,20 +115,36 @@ public class Longs
 		return o != null && o.getClass() == getClass() && equals((Longs)o);
 	}
 
-	public long readS8(int i)
+	public final long readS8(int i)
 	{
 		Math2.index(i, end1I - beginI);
 		return longs[i + beginI];
 	}
 
-	public long read0s8(int i)
+	/** @throws ArithmeticException if negative. */
+	public final long readU8(int i)
 	{
-		return longs[i];
+		Math2.index(i, end1I - beginI);
+		long l = longs[i + beginI];
+		if (l < 0)
+			throw new ArithmeticException("unsigned octa bytes too large : 0x"
+				+ Long.toHexString(l));
+		return l;
 	}
 
 	public static long readS8(long[] s, int i)
 	{
 		return s[i];
+	}
+
+	/** @throws ArithmeticException if negative. */
+	public static long readU8(long[] s, int i)
+	{
+		long l = s[i];
+		if (l < 0)
+			throw new ArithmeticException("unsigned octa bytes too large : 0x"
+				+ Long.toHexString(l));
+		return l;
 	}
 
 	// ********************************************************************************
@@ -140,7 +156,7 @@ public class Longs
 		return i + n;
 	}
 
-	public Longs ensureN(int n)
+	public final Longs ensureN(int n)
 	{
 		n += beginI;
 		if (n < 0)
@@ -149,7 +165,7 @@ public class Longs
 		return this;
 	}
 
-	public Longs addN(int n)
+	public final Longs addN(int n)
 	{
 		n += end1I;
 		if (n < 0)
@@ -159,19 +175,35 @@ public class Longs
 		return this;
 	}
 
-	public void writeS8(int i, long v)
+	public final int writeS8(int i, long v)
 	{
 		Math2.index(i, end1I - beginI);
-		longs[i + beginI] = v;
+		longs[i += beginI] = v;
+		return i;
 	}
 
-	public void write0s8(int i, long v)
+	/** @throws ArithmeticException if negative. */
+	public final int writeU8(int i, long v)
 	{
-		longs[i] = v;
+		if (v < 0)
+			throw new ArithmeticException("invalid unsigned octa bytes");
+		Math2.index(i, end1I - beginI);
+		longs[i += beginI] = v;
+		return i;
 	}
 
-	public static void writeS8(long[] s, int i, long v)
+	public static int writeS8(long[] s, int i, long v)
 	{
-		s[i] = v;
+		s[i++] = v;
+		return i;
+	}
+
+	/** @throws ArithmeticException if negative. */
+	public static int writeU8(long[] s, int i, long v)
+	{
+		if (v < 0)
+			throw new ArithmeticException("invalid unsigned octa bytes");
+		s[i++] = v;
+		return i;
 	}
 }
