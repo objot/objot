@@ -158,7 +158,7 @@ public class Chars
 	{
 		Math2.index(i, end1I - beginI - 3);
 		i += beginI;
-		return (long)(chars[i] << 16 | chars[i + 1]) << 32 //
+		return (long)chars[i] << 16 | (long)chars[i + 1] << 32 //
 			| (long)chars[i + 2] << 16 | chars[i + 3];
 	}
 
@@ -167,7 +167,7 @@ public class Chars
 	{
 		Math2.index(i, end1I - beginI - 3);
 		i += beginI;
-		long l = (long)(chars[i] << 16 | chars[i + 1]) << 32 //
+		long l = (long)chars[i] << 48 | (long)chars[i + 1] << 32 //
 			| (long)chars[i + 2] << 16 | chars[i + 3];
 		if (l < 0)
 			throw new ArithmeticException("unsigned octa bytes too large : 0x"
@@ -197,13 +197,13 @@ public class Chars
 
 	public static long readS8(char[] s, int i)
 	{
-		return (long)(s[i] << 16 | s[i + 1]) << 32 | (long)s[i + 2] << 16 | s[i + 3];
+		return (long)s[i] << 48 | (long)s[i + 1] << 32 | (long)s[i + 2] << 16 | s[i + 3];
 	}
 
 	/** @throws ArithmeticException if negative. */
 	public static long readU8(char[] s, int i)
 	{
-		long l = (long)(s[i] << 16 | s[i + 1]) << 32 | (long)s[i + 2] << 16 | s[i + 3];
+		long l = (long)s[i] << 48 | (long)s[i + 1] << 32 | (long)s[i + 2] << 16 | s[i + 3];
 		if (l < 0)
 			throw new ArithmeticException("unsigned octa bytes too large : 0x"
 				+ Long.toHexString(l));
@@ -224,6 +224,12 @@ public class Chars
 	public final CharSequence subSequence(int start, int end)
 	{
 		return new Chars(this, start, end);
+	}
+
+	@Override
+	public String toString()
+	{
+		return new String(chars, beginI, end1I - beginI);
 	}
 
 	// ********************************************************************************
@@ -296,7 +302,7 @@ public class Chars
 	{
 		Math2.index(i, end1I - beginI - 1);
 		i += beginI;
-		chars[i++] = (char)(v >> 8);
+		chars[i++] = (char)(v >> 16);
 		chars[i++] = (char)v;
 		return i;
 	}
@@ -308,7 +314,7 @@ public class Chars
 			throw new ArithmeticException("invalid unsigned quad bytes");
 		Math2.index(i, end1I - beginI - 1);
 		i += beginI;
-		chars[i++] = (char)(v >> 8);
+		chars[i++] = (char)(v >> 16);
 		chars[i++] = (char)v;
 		return i;
 	}
@@ -370,7 +376,7 @@ public class Chars
 
 	public static int writeS4(char[] s, int i, int v)
 	{
-		s[i++] = (char)(v >> 8);
+		s[i++] = (char)(v >> 16);
 		s[i++] = (char)v;
 		return i;
 	}
@@ -380,7 +386,7 @@ public class Chars
 	{
 		if (v >> 32 != 0)
 			throw new ArithmeticException("invalid unsigned quad bytes");
-		s[i++] = (char)(v >> 8);
+		s[i++] = (char)(v >> 16);
 		s[i++] = (char)v;
 		return i;
 	}

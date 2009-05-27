@@ -122,12 +122,7 @@ public class Objects<T>
 		return objs[i + beginI];
 	}
 
-	public T read0(int i)
-	{
-		return objs[i];
-	}
-
-	public static <T>T readS8(T[] s, int i)
+	public static <T>T read(T[] s, int i)
 	{
 		return s[i];
 	}
@@ -164,11 +159,6 @@ public class Objects<T>
 	{
 		Math2.index(i, end1I - beginI);
 		objs[i + beginI] = v;
-	}
-
-	public void write0(int i, T v)
-	{
-		objs[i] = v;
 	}
 
 	public static <T>void write(T[] s, int i, T v)
