@@ -7,19 +7,23 @@ import java.util.HashSet;
 
 import objot.codec.Codec;
 
+import org.junit.Assert;
+import org.junit.Test;
 
-public class Test1
+
+public class TestCodec
+	extends Assert
 {
-	public static void main(String[] args) throws Exception
-	{
-		Codec codec = new Codec();
-		CharSequence s = codec.enc(new Date(), null);
-		System.out.println(codec.dec(s.toString().toCharArray(), null, null));
+	Codec codec = new Codec();
+	A x;
+	B y;
+	Object[] z;
 
-		A x = new A();
+	{
+		x = new A();
 		x.a2 = "\n\\20sss\tasd$@#%$%3423qwerty";
 		x.d = new Date(54321);
-		B y = new B();
+		y = new B();
 		y.a1 = Integer.MIN_VALUE / 2000;
 		y.a2 = true;
 		y.a3 = 34e-5f;
@@ -37,7 +41,7 @@ public class Test1
 		y.a9.add("unique1");
 		y.a9.add("unique2");
 		y.a10 = 23e+100;
-		Object[] z = new Object[] { y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
+		z = new Object[] { y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
@@ -55,18 +59,41 @@ public class Test1
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
 			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y,
-			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
+			y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y, y };
 		z[0] = z;
+	}
 
-		s = codec.enc(z, null);
+	@Test
+	public void single() throws Exception
+	{
+		Date d = new Date();
+		CharSequence s = codec.enc(new Date(), null);
+		assertEquals(d, codec.dec(s.toString().toCharArray(), null, null));
+	}
+
+	@Test
+	public void normal() throws Exception
+	{
+		CharSequence s = codec.enc(z, null);
 		Object o = codec.dec(s.toString().toCharArray(), null, null);
 		CharSequence s2 = codec.enc(o, Object.class);
 		if (s.length() != s2.length())
-			throw new Exception("length error: " + s.length() + " " + s2.length());
+			fail("length error: " + s.length() + " " + s2.length());
 		for (int i = 0; i < s.length(); i++)
 			if (s.charAt(i) != s2.charAt(i))
-				throw new Exception("data error at " + i + ": " + s.charAt(i) + " "
-					+ s2.charAt(i));
-		System.out.println("ok");
+				fail("data error at " + i + ": " + s.charAt(i) + " " + s2.charAt(i));
+	}
+
+	@Test
+	public void fast() throws Exception
+	{
+		CharSequence s = codec.encFast(z, null);
+		Object o = codec.decFast(s.toString().toCharArray(), null, null);
+		CharSequence s2 = codec.encFast(o, Object.class);
+		if (s.length() != s2.length())
+			fail("length error: " + s.length() + " " + s2.length());
+		for (int i = 0; i < s.length(); i++)
+			if (s.charAt(i) != s2.charAt(i))
+				fail("data error at " + i + ": " + s.charAt(i) + " " + s2.charAt(i));
 	}
 }
