@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import objot.util.Array2;
+import objot.util.Chars;
 import objot.util.Class2;
 import objot.util.Mod2;
 
@@ -42,7 +43,7 @@ public class Codec
 	 */
 	public StringBuilder enc(Object o, Object ruleKey) throws Exception
 	{
-		return new Encoder(this, ruleKey, null).go(o);
+		return new Encoder(this, ruleKey, false, null, null).go(o);
 	}
 
 	/**
@@ -51,7 +52,25 @@ public class Codec
 	 */
 	public StringBuilder enc(Object o, Object ruleKey, StringBuilder s) throws Exception
 	{
-		return new Encoder(this, ruleKey, s).go(o);
+		return new Encoder(this, ruleKey, false, s, null).go(o);
+	}
+
+	/**
+	 * @param o the whole encoded data graph must keep unchanged since the references
+	 *            detection is not thread safe
+	 */
+	public Chars encFast(Object o, Object ruleKey) throws Exception
+	{
+		return new Encoder(this, ruleKey, true, null, null).goFast(o);
+	}
+
+	/**
+	 * @param o the whole encoded data graph must keep unchanged since the references
+	 *            detection is not thread safe
+	 */
+	public Chars encFast(Object o, Object ruleKey, Chars s) throws Exception
+	{
+		return new Encoder(this, ruleKey, true, null, s).goFast(o);
 	}
 
 	/**
@@ -71,6 +90,25 @@ public class Codec
 		throws Exception
 	{
 		return new Decoder(this, ruleKey, s, sBegin, sEnd1).go(cla);
+	}
+
+	/**
+	 * @param cla null is Object.class
+	 * @param ruleKey null is Object.class
+	 */
+	public <T>T decFast(char[] s, Class<T> cla, Object ruleKey) throws Exception
+	{
+		return new Decoder(this, ruleKey, s, 0, s.length).goFast(cla);
+	}
+
+	/**
+	 * @param cla null is Object.class
+	 * @param ruleKey null is Object.class
+	 */
+	public <T>T decFast(char[] s, int sBegin, int sEnd1, Class<T> cla, Object ruleKey)
+		throws Exception
+	{
+		return new Decoder(this, ruleKey, s, sBegin, sEnd1).goFast(cla);
 	}
 
 	/**
@@ -110,6 +148,13 @@ public class Codec
 		return l;
 	}
 
+	/**
+	 * use Integer, Long, Double or Float if expected non-primitive class is Number or
+	 * Object while decoding a number, null by default which prefer Integer to Long and to
+	 * Double
+	 */
+	protected Class<? extends Number> numCla;
+
 	/** If use array to present list when list type is undetermined, true by default */
 	protected boolean arrayForList = true;
 
@@ -135,8 +180,8 @@ public class Codec
 			+ " not found or not decodable");
 	}
 
-	/** pick up the property value if {@link #undecodable} doesn't throw */
-	protected void lostValue(Object o, String prop, Object ruleKey, Object value)
+	/** pick up the undecoded property if {@link #undecodable} doesn't throw */
+	protected void undecodeValue(Object o, String prop, Object ruleKey, Object value)
 		throws Exception
 	{
 	}
