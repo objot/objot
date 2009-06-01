@@ -89,15 +89,16 @@ public class Array2
 	@SuppressWarnings("unchecked")
 	public static <T>T[] news(Class<T> component, int length)
 	{
-		return (T[])Array.newInstance(component, length);
+		return component == Object.class ? (T[])new Object[length] //
+			: (T[])Array.newInstance(component, length);
 	}
 
 	/** @return new allocated 1-dimension array */
 	@SuppressWarnings("unchecked")
 	public static <T>T[] news(T[] s, int length)
 	{
-		return (T[])(s.getClass() == Object[].class ? new Object[length] //
-			: Array.newInstance(s.getClass().getComponentType(), length));
+		return s.getClass() == Object[].class ? (T[])new Object[length] //
+			: (T[])Array.newInstance(s.getClass().getComponentType(), length);
 	}
 
 	/** @return the array, or a reused empty array if the array is null */
