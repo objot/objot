@@ -5,6 +5,7 @@
 package objot.codec;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import objot.bytecode.Bytecode;
@@ -159,6 +160,18 @@ public abstract class Clazz
 		y.getProcs().addProc(p);
 	}
 
+	private static final Method M_intValue = Class2.declaredMethod1(Integer.class, "intValue");
+	private static final Method M_byteValue = Class2.declaredMethod1(Byte.class, "byteValue");
+	private static final Method M_shortValue = Class2.declaredMethod1(Short.class,
+		"shortValue");
+	private static final Method M_longValue = Class2.declaredMethod1(Long.class, "longValue");
+	private static final Method M_boolValue = Class2.declaredMethod1(Boolean.class,
+		"booleanValue");
+	private static final Method M_floatValue = Class2.declaredMethod1(Float.class,
+		"floatValue");
+	private static final Method M_doubleValue = Class2.declaredMethod1(Double.class,
+		"doubleValue");
+
 	private static void makeEncode(Bytecode y, Property[] es, int classCi, int encsCi,
 		int ableCi, int nameCi)
 	{
@@ -178,6 +191,13 @@ public abstract class Clazz
 		int floatCi = p.cons.addProc(Encoder.M_valueFloat);
 		int doubleCi = p.cons.addProc(Encoder.M_valueDouble);
 		int objCi = p.cons.addProc(Encoder.M_valueObject);
+		int intVCi = p.cons.addProc(M_intValue);
+		int byteVCi = p.cons.addProc(M_byteValue);
+		int shortVCi = p.cons.addProc(M_shortValue);
+		int longVCi = p.cons.addProc(M_longValue);
+		int boolVCi = p.cons.addProc(M_boolValue);
+		int floatVCi = p.cons.addProc(M_floatValue);
+		int doubleVCi = p.cons.addProc(M_doubleValue);
 		Property e;
 		for (int i = 0; i < es.length; i++)
 		{
@@ -198,7 +218,7 @@ public abstract class Clazz
 				s.insU2(GETFIELD, p.cons.addField(e.field));
 			else
 				s.insU2(INVOKEVIRTUAL, p.cons.addProc(e.method));
-			if (e.cla == int.class)
+			if (e.cla == int.class || e.cla == byte.class || e.cla == short.class)
 				s.insU2(INVOKEVIRTUAL, intCi);
 			else if (e.cla == long.class)
 				s.insU2(INVOKEVIRTUAL, longCi);
@@ -208,11 +228,43 @@ public abstract class Clazz
 				s.insU2(INVOKEVIRTUAL, floatCi);
 			else if (e.cla == double.class)
 				s.insU2(INVOKEVIRTUAL, doubleCi);
-			else
+			else if (e.cla == Integer.class)
 			{
-				s.insBox(e.cla);
-				s.insU2(INVOKEVIRTUAL, objCi);
+				s.insU2(INVOKEVIRTUAL, intVCi);
+				s.insU2(INVOKEVIRTUAL, intCi);
 			}
+			else if (e.cla == Byte.class)
+			{
+				s.insU2(INVOKEVIRTUAL, byteVCi);
+				s.insU2(INVOKEVIRTUAL, intCi);
+			}
+			else if (e.cla == Short.class)
+			{
+				s.insU2(INVOKEVIRTUAL, shortVCi);
+				s.insU2(INVOKEVIRTUAL, intCi);
+			}
+			else if (e.cla == Long.class)
+			{
+				s.insU2(INVOKEVIRTUAL, longVCi);
+				s.insU2(INVOKEVIRTUAL, longCi);
+			}
+			else if (e.cla == Boolean.class)
+			{
+				s.insU2(INVOKEVIRTUAL, boolVCi);
+				s.insU2(INVOKEVIRTUAL, boolCi);
+			}
+			else if (e.cla == Float.class)
+			{
+				s.insU2(INVOKEVIRTUAL, floatVCi);
+				s.insU2(INVOKEVIRTUAL, floatCi);
+			}
+			else if (e.cla == Double.class)
+			{
+				s.insU2(INVOKEVIRTUAL, doubleVCi);
+				s.insU2(INVOKEVIRTUAL, doubleCi);
+			}
+			else
+				s.insU2(INVOKEVIRTUAL, objCi);
 			s.jumpHere(if0);
 		}
 		s.ins0(RETURN);
