@@ -535,7 +535,7 @@ public final class Encoder
 			double d = ((Number)v).doubleValue();
 			int v4, b12, b28;
 			if ((v4 = (int)d) == d)
-				if ((b12 = v4 << 4 >> 20) == v4)
+				if ((b12 = v4 << 20 >> 20) == v4)
 					cs[cx++] = (char)('\u1000' | b12 & 4095); // 12s
 				else if ((b28 = v4 << 4 >> 4) == v4)
 				{
