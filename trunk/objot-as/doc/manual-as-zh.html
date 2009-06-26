@@ -108,7 +108,7 @@
 <p>可以设置参数，表示指定哪些key时需要编码动态属性，作为编码规则。
 与各个参数都不相同的key，则禁止编码动态属性。不指定参数，表示任何key时，都需要编码。
 
-<p>参数是字符串，必须符合xml的属性格式。
+<p>参数是字符串，必须符合xml的attribute格式。
 
 <p><b>特别注意：[Enc]和[EncDynamic]必须在编译时指定保留，否则编译后的文件将不包含这两个metadata。</b>
 编译参数：<code>-compiler.keep-as3-metadata Enc EncDynamic</code>。
@@ -141,7 +141,7 @@
 初始化。默认是
 <pre>// 获取类的metadata
 // 如果有[EncDynamic]，则生成相关的信息，供encDynamic()使用。
-// 如果有[Enc]，则生成相关信息，以便作用于标记属性的每个[Enc]
+// 如果有[Enc]，则生成相关信息，以便作用于每个属性的[Enc]
 // 获取每个属性的metadata
 // 如果有[EncDynamic]，则抛出异常
 // 如果有[Enc]，对于static，writeonly的属性，抛出异常

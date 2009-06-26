@@ -6,7 +6,6 @@ package objot.codec
 {
 import flash.utils.Dictionary;
 
-import objot.util.Cast;
 import objot.util.Class2;
 import objot.util.Err;
 import objot.util.Meta;
