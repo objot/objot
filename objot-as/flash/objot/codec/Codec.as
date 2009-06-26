@@ -8,7 +8,6 @@ import flash.utils.Dictionary;
 import flash.utils.getDefinitionByName;
 import flash.utils.getQualifiedClassName;
 
-import objot.util.Class2;
 import objot.util.Err;
 import objot.util.String2;
 
