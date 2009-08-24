@@ -21,9 +21,9 @@ import objot.util.Math2;
 
 final class Decoder
 {
-	private Codec codec;
-	private Object ruleKey;
-	private char[] bs;
+	private final Codec codec;
+	private final Object ruleKey;
+	private final char[] bs;
 	private int begin;
 	private int end1;
 	private int bx;
@@ -317,7 +317,7 @@ final class Decoder
 	{
 		String name = str();
 		bxy();
-		Object o = codec.byName(name);
+		Object o = codec.byName(name, ruleKey);
 		Class<?> cla = o instanceof Class ? (Class<?>)o : o.getClass();
 		Clazz z = codec.clazz(cla);
 		o = cla == o ? z.object(codec) : o;
@@ -613,7 +613,7 @@ final class Decoder
 	Object objectFast(int ref, final int len, Class<?> cla0) throws Exception
 	{
 		String name = new String(bs, begin, n(len));
-		Object o = codec.byName(name);
+		Object o = codec.byName(name, ruleKey);
 		Class<?> cla = o instanceof Class ? (Class<?>)o : o.getClass();
 		Clazz z = codec.clazz(cla);
 		o = cla == o ? z.object(codec) : o;

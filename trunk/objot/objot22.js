@@ -17,8 +17,7 @@ $S = function (x) {
 }
 
 /** false or version number */
-$ie = navigator.userAgent.search('MSIE')
-$ie = $ie >= 0 && +navigator.userAgent.charAt($ie + 5)
+$ie = ($ie = navigator.userAgent.search('MSIE')) >= 0 && +navigator.userAgent.charAt($ie + 5)
 /** Gecko|Opera|Safari */
 $fos = !$ie
 
@@ -473,7 +472,7 @@ $dom.show = function (v) {
  * @param This the "this" in handler, false for this dom element, === true for (new handler)
  * @param args the arguments for handler, false for the event object which
  *   "target" is source dom element, "which" is key code, "stop()" to cancel bubble
- * @param old replaced by handler
+ * @param old to be detached
  * @return this */
 $dom.attach = function (type, handler, This, args, old) {
 	old && this.detach(type, old)
@@ -931,4 +930,4 @@ location.params = function (emptyName) {
 	}
 	return p
 }
-$ie && (location.$load = location.reload, location.reload = function () { location.$load() })
+$ie && (location.$load = location.reload, location.reload = function() { location.$load() })
