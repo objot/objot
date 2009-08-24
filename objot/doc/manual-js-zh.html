@@ -251,7 +251,7 @@ $B = $dom($D.body)</h5>
 绑定事件。type为事件名，不含on前缀。handler为事件响应函数。
 This为handler的this，若false，则为本节点，若===true，则new handler。
 args为handler的参数，若false，则为事件对象。
-old为被替换的handler（先dettach old再attach handler），可以忽略。
+old为被替换的handler（先detach old再attach handler），可以忽略。
 返回本节点。
 一个事件名可以绑定多个handler，调用顺序与绑定相反。
 

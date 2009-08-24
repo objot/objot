@@ -115,9 +115,10 @@ public class Codec
 	 * Get object or class by name, must be thread safe, {@link HashMap} for "" by default
 	 * 
 	 * @param name may be ""
+	 * @param ruleKey not null
 	 * @return object, or class which nullary constructor will be called
 	 */
-	protected Object byName(String name) throws Exception
+	protected Object byName(String name, Object ruleKey) throws Exception
 	{
 		if (name.length() == 0)
 			return HashMap.class;
@@ -128,9 +129,10 @@ public class Codec
 	 * Get object or class name, must be thread safe, "" for {@link HashMap} by default
 	 * 
 	 * @param c the object class
+	 * @param ruleKey not null
 	 * @return could be ""
 	 */
-	protected String name(Object o, Class<?> c) throws Exception
+	protected String name(Object o, Class<?> c, Object ruleKey) throws Exception
 	{
 		if (o instanceof HashMap)
 			return "";
@@ -143,7 +145,7 @@ public class Codec
 	 */
 	protected long beLong(long l) throws Exception
 	{
-		if (l < -4503599627370496L || l > 4503599627370496L) // 2^52, for Javascript
+		if (l < -9007199254740991L || l > 9007199254740991L) // 53bit, for Javascript
 			throw new RuntimeException("getting integer out of range " + l);
 		return l;
 	}

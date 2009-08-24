@@ -36,7 +36,7 @@ public class Models
 		String modelPrefix = Class2.packageName(Id.class).concat(".");
 
 		@Override
-		protected Object byName(String name) throws Exception
+		protected Object byName(String name, Object ruleKey) throws Exception
 		{
 			if (name.length() == 0)
 				return HashMap.class;
@@ -45,7 +45,7 @@ public class Models
 
 		/** include {@link Err} and {@link Errs} */
 		@Override
-		protected String name(Object o, Class<?> c) throws Exception
+		protected String name(Object o, Class<?> c, Object ruleKey) throws Exception
 		{
 			if (o instanceof HashMap)
 				return "";

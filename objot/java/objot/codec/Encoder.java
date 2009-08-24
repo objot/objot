@@ -481,7 +481,7 @@ public final class Encoder
 	private void objectNormal(Object o) throws Exception
 	{
 		split().append('{');
-		split().append(codec.name(o, o.getClass()));
+		split().append(codec.name(o, o.getClass(), ruleKey));
 		ref(o);
 		codec.clazz(o.getClass()).encode(this, o, ruleKey);
 		if (o instanceof Map)
@@ -755,7 +755,7 @@ public final class Encoder
 	@SuppressWarnings("unchecked")
 	private void objectFast(Object o) throws Exception
 	{
-		String nm = codec.name(o, o.getClass());
+		String nm = codec.name(o, o.getClass(), ruleKey);
 		int ref = ref(o, 1), n = nm.length();
 		cs = Array2.ensureN(cs, cx + 2 + n);
 		if (ref < 512 && n < 32)
