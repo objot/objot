@@ -709,10 +709,10 @@ final class Decoder
 					break;
 				case 1: // \u2000
 					v = false;
-					continue;
+					break;
 				case 2: // \u4000
 					v = true;
-					continue;
+					break;
 				case 3: // \u6000 16s
 					numl = readS2();
 					v = Num(0, Object.class);
