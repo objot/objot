@@ -253,7 +253,14 @@ public final class Encoder
 		if (fast)
 			value(name, (double)v);
 		else
-			split(split().append(name)).append(v);
+		{
+			int v4 = (int)v;
+			split().append(name);
+			if (v4 == v)
+				split().append(v4);
+			else
+				split().append(v);
+		}
 	}
 
 	static final Method M_valueDouble = Class2.declaredMethod(Encoder.class, "value",
@@ -287,7 +294,14 @@ public final class Encoder
 			}
 		}
 		else
-			split(split().append(name)).append(v);
+		{
+			int v4 = (int)v;
+			split().append(name);
+			if (v4 == v)
+				split().append(v4);
+			else
+				split().append(v);
+		}
 	}
 
 	static final Method M_valueObject = Class2.declaredMethod(Encoder.class, "value",
@@ -382,6 +396,9 @@ public final class Encoder
 			split().append(',');
 			return;
 		}
+		float f;
+		double d;
+		int v4;
 		if (v instanceof Clob)
 			v = ((Clob)v).getSubString(1,
 				(int)Math.min(((Clob)v).length(), Integer.MAX_VALUE));
@@ -396,9 +413,15 @@ public final class Encoder
 		else if (v instanceof Boolean)
 			split().append((Boolean)v ? '>' : '<');
 		else if (v instanceof Double)
-			split().append((double)(Double)v);
+			if ((d = (Double)v) == (v4 = (int)d))
+				split().append(v4);
+			else
+				split().append(d);
 		else if (v instanceof Float)
-			split().append((float)(Float)v);
+			if ((f = (Float)v) == (v4 = (int)f))
+				split().append(v4);
+			else
+				split().append(f);
 		else if (v instanceof Long)
 			split().append(codec.beLong((Long)v));
 		else if (v instanceof Number)
