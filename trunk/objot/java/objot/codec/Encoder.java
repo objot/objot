@@ -797,6 +797,7 @@ public final class Encoder
 					value(pv.getKey(), pv.getValue());
 				else
 					throw new RuntimeException("property name is null");
+		cs = Array2.ensureN(cs, cx + 1);
 		cs[cx++] = '\uFFFF';
 	}
 }
