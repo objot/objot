@@ -362,7 +362,7 @@ $dom.add = function (index) {
 	return this
 }
 /** remove children, or remove self if no argument,
- * or remove len children from Math.max(index, 0), or remove to last if !(len > 0) 
+ * or remove len children from Math.max(index, 0), or remove to last if !(len > 0)
  * or replaced by second argument if index === true
  * @return this */
 $dom.rem = function (index, len) {
@@ -620,7 +620,7 @@ $http.form = function (url, time, req, done, data, form) {
 		}
 		if (e == on || r.readyState == 'complete')
 			(b = b.firstChild).id == 'objot' ? stop(on, 0, $dom(b).tx())
-				: stop(on, 900, $http.n200) 
+				: stop(on, 900, $http.n200)
 		else
 			time > 0 && new Date() - r.$t > time && stop(on, 1, $http.time)
 	}
@@ -731,7 +731,7 @@ $.disable = function (d, v) {
 	r = v === 0 ? !r : v
 	var rr = d.tagName.toLowerCase()
 	rr = rr == 'textarea' || rr == 'input' && d.type == 'text'
-		? (d.disabled = false, d.readOnly = r) : d.disabled = r 
+		? (d.disabled = false, d.readOnly = r) : d.disabled = r
 	return d
 }
 /** add css rule. @param selector, style... */
@@ -756,7 +756,7 @@ $.css = function () {
  * @param prog if show the upload progress
  * @return the box */
 $Http = function (box, h, show, prog) {
-	h.$t0 = box, h.$0 = $Http.done 
+	h.$t0 = box, h.$0 = $Http.done
 	box.des(0).cla(0, 'Err').cla('Http').add(
 		$s('c', 'Http-icon', 'title', h.$hint + '. stop?', 'dblclick', h, 0, 0, 'des', h))
 		.add(show ? $s('c', 'Http-text').tx(h.$hint) : 0)
@@ -784,7 +784,7 @@ $Http.stop = '. stop?'
  * @return the box */
 $Err = function (box, err, show, noStack) {
 	err = err instanceof Errs ? err.hints.join('\n') : err instanceof Err ? err.hint : $(err)
-	noStack || $Err.noStack && noStack === undefined  
+	noStack || $Err.noStack && noStack === undefined
 		|| $fos && (err = err + '\n' + $.throwStack())
 	show == null && (show = $Err.onHint)
 	box.des(0).add($s('c', 'Err-icon'))
@@ -877,7 +877,7 @@ Array.prototype.index = function (Do, This)  {
 	} else
 		for (var x = 0; x < this.length; x++)
 			if (Do(This, this[x], x, this))
-				return x		
+				return x
 	return -1
 }
 /** slight different with Firefox forEach() */
@@ -900,7 +900,7 @@ Array.prototype.byProp = function (propName) {
 		s[i] = this[i][propName]
 	return s
 }
-/** @return whether equal length and equal elements */ 
+/** @return whether equal length and equal elements */
 Array.prototype.equal = function (a) {
 	if (a == null || this.length != a.length)
 		return false
