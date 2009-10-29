@@ -79,7 +79,7 @@ $enc = function (o, ruleKey) {
 		s = [o instanceof Array ? '[' : ($.o(o), '{')]
 		s.clazz = $.f(ruleKey), s.refX = 0
 		try {
-			$enc.ref(o), o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1)
+			$enc.ref(o, s.clazz), o instanceof Array ? $enc.l(o, s, 1) : $enc.o(o, s, 1)
 		} catch(e) {
 			try { $enc.unref(o) } catch(f) {}
 			throw e
@@ -88,29 +88,47 @@ $enc = function (o, ruleKey) {
 	}
 	return s.join('\x10')
 }
-	$enc.ref = function (o, ox) {
+	$enc.ref = function (o, k, v, n, enc, c, g) {
 		if (o[''] = '' in o)
 			return
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x++)
-				typeof (ox = o[x]) != 'string' ?
-				ox instanceof Object && (ox instanceof Date || $enc.ref(ox)) // func
-				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10')
-		else if (!o.constructor.$name)
-			$throw($S(o.constructor) + ' class not ready')
-		else for (var x in o)
+				typeof (v = o[x]) != 'string' ?
+				v instanceof Object && (v instanceof Date || $enc.ref(v, k)) // func
+				: v.indexOf('\x10') < 0 || $throw($S(v) + ' must NOT contain \\x10')
+		else if (!(n = o.constructor).$name)
+			$throw($S(n) + ' class not ready')
+		else
+		P: {
+			if (enc = n.$encs)
+				for (c = k, g = enc.length - 2; g >= 0; g -= 2)
+					if (c == enc[g] || c.prototype instanceof enc[g]) {
+						if (enc = enc[g + 1]) {
+
+		for (n = 0; n < enc.length; n++)
+			if ((x = enc[n]) in o)
+				typeof (v = o[x]) != 'string' ?
+				v == null || typeof v != 'object' || v instanceof Date || $enc.ref(v, k)
+				: v.indexOf('\x10') < 0 || $throw($S(v) + ' must NOT contain \\x10')
+
+							break P
+						}
+						break
+					}
+		for (var x in o)
 			if (o.hasOwnProperty(x))
-				typeof (ox = o[x]) != 'string' ?
-				ox == null || typeof ox != 'object' || ox instanceof Date || $enc.ref(ox)
-				: ox.indexOf('\x10') < 0 || $throw($S(ox) + ' must NOT contain \\x10')
+				typeof (v = o[x]) != 'string' ?
+				v == null || typeof v != 'object' || v instanceof Date || $enc.ref(v, k)
+				: v.indexOf('\x10') < 0 || $throw($S(v) + ' must NOT contain \\x10')
+		}
 	}
-	$enc.unref = function (o, ox) {
+	$enc.unref = function (o, v) {
 		delete o['']
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x++)
-				o && o[''] != null && $enc.unref(ox)
+				o && o[''] != null && $enc.unref(v)
 		else for (var x in o)
-			o.hasOwnProperty(x) && (ox = o[x]) && ox[''] != null && $enc.unref(ox)
+			o.hasOwnProperty(x) && (v = o[x]) && v[''] != null && $enc.unref(v)
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length)
@@ -136,7 +154,7 @@ $enc = function (o, ruleKey) {
 					if (c == enc[g] || c.prototype instanceof enc[g]) {
 						if (enc = enc[g + 1]) {
 
-		for (p, n = 0; n < enc.length; n++)
+		for (n = 0; n < enc.length; n++)
 			if ((p = enc[n]) in o && (t = typeof (v = o[p])) != 'function')
 				s[x++] = p,
 				s[x++] = v == null ? ',' : v === false ? '<' : v === true ? '>'
