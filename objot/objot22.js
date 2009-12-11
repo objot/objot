@@ -37,8 +37,8 @@ $class = function (codec, ctor, sup, proto) {
 	c.$name && $throw('duplicate class ' + ctor)
 	if (sup) {
 		$.f(sup).$name || $throw('super class ' + (sup.name || $S(sup)) + ' not ready')
-		c.prototype = $.copy(new sup.$ctor, c.prototype)
-		c.prototype.constructor = c
+		;(c.prototype = $.copy(new sup.$ctor, c.prototype)).constructor = c
+		c.$sup = sup
 	}
 	$.ctor(c).$name = ctor
 	if (c.prototype.constructor != c)
@@ -846,7 +846,7 @@ $Pop = function (inner) {
 
 /** @return equal, or if both NaN */
 Number.prototype.equal = function (n) {
-	return this == n || isNaN(this) && isNaN(n)
+	return this == n || this !== this && n !== n
 }
 
 /** @return indexOf(), or length if not found */
