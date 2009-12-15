@@ -88,7 +88,7 @@ $enc = function (o, ruleKey) {
 	}
 	return s.join('\x10')
 }
-	$enc.ref = function (o, k, v, n, enc, c, g) {
+	$enc.ref = function (o, k, v, n, enc, g) {
 		if (o[''] = '' in o)
 			return
 		if (o instanceof Array)
@@ -101,8 +101,8 @@ $enc = function (o, ruleKey) {
 		else
 		P: {
 			if (enc = n.$encs)
-				for (c = k, g = enc.length - 2; g >= 0; g -= 2)
-					if (c == enc[g] || c.prototype instanceof enc[g]) {
+				for (g = enc.length - 2; g >= 0; g -= 2)
+					if (k == enc[g] || k.prototype instanceof enc[g]) {
 						if (enc = enc[g + 1]) {
 
 		for (n = 0; n < enc.length; n++)
@@ -126,9 +126,9 @@ $enc = function (o, ruleKey) {
 		delete o['']
 		if (o instanceof Array)
 			for (var x = 0; x < o.length; x++)
-				o && o[''] != null && $enc.unref(v)
+				(v = o[x]) && o[''] != null && $enc.unref(v)
 		else for (var x in o)
-			o.hasOwnProperty(x) && (v = o[x]) && v[''] != null && $enc.unref(v)
+			(v = o[x]) && v[''] != null && $enc.unref(v)
 	}
 	$enc.l = function (o, s, x) {
 		s[x++] = String(o.length)
