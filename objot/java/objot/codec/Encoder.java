@@ -156,7 +156,7 @@ public final class Encoder
 				for (int i = objs.length - 1; i >= 0; i--)
 					if ((o = objs[i]) != null)
 					{
-						x = System.identityHashCode(o) >> 4 & mask;
+						x = System.identityHashCode(o) >> 3 & mask;
 						while (os[x] != null)
 							x = x + 1 & mask;
 						os[x] = o;
