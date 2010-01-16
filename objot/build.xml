@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <!--
 //
-// Copyright 2007-2009 Qianyan Cai
+// Copyright 2007-2010 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 -->
@@ -50,7 +50,7 @@
 				<attribute name="Implementation-Title" value="objot-java" />
 				<attribute name="Implementation-Version" value="${.version}" />
 				<attribute name="Implementation-Vendor" value="Qianyan Cai" />
-				<attribute name="Implementation-URL" value="http://objot.info" />
+				<attribute name="Implementation-URL" value="http://objot.com" />
 				<attribute name="License" value="GNU Lesser General Public License version 2.1" />
 			</manifest>
 		</jar>

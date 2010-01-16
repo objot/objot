@@ -1,3 +1,41 @@
+== Objot version 22 ==
+
+Objot is a lightweight service oriented library for efficient web development,
+ based on Java 5, Javascript, Actionscript 3 etc.
+
+Supports Firefox 3, Firefox 2, IE 7, IE 6, Opera 9.5 and Safari 3.1 and Adobe 
+ Flash Player 9
+
+Improvements
+  * an optional fast binary codec format for Java only
+  * Codec.name and Codec.byName support rule key
+  * Codec.newList and Codec.undecodable
+  * $enc.ref and $enc.unref support rule key
+  * bug fixes
+  * minor improvements
+
+
+== Objot 版本 22 ==
+
+Objot是一个面向服务的轻量级web开发库，可以根据需要和其他框架组合。
+服务器部署业务数据，部署业务逻辑Service；浏览器及Flash部署视图，部署操作逻辑，与Service交互。
+交互的数据、流程由开发者定义，用Objot实现。
+
+Objot支持Java 5、Javascript、Actionscript 3，
+支持Firefox 3、Firefox 2、IE 7、IE 6、Opera 9.5、Safari 3.1、Adobe Flash Player
+ 9。
+
+包含一个在线聊天的范例。
+
+改进：
+  * 可选的针对Java的快速二进制编码格式
+  * Codec.name和Codec.byName支持编码规则
+  * Codec.newList和Codec.undecodable
+  * $enc.ref和$enc.unref支持编码规则
+  * 错误修复
+  * 细节改进
+
+
 == Objot version 21 ==
 
 Objot is a lightweight service oriented library for efficient web development,
@@ -25,6 +63,7 @@ Improvements
 Todo
   * IOC: provider mode
   * AOP: inherit all annotations from target methods
+
 
 == Objot 版本 21 ==
 
