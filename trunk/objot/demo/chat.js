@@ -1,10 +1,10 @@
 //
-// Copyright 2007-2009 Qianyan Cai
+// Copyright 2007-2010 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 
 onerror = function(m, f, l) {
-	alert('Error! You could report the following details to http://objot.info\n\n'
+	alert('Error! You could report the following details to http://objot.com\n\n'
 		+ m + '\n' + $.throwStack(f, l));
 	return true;
 }
