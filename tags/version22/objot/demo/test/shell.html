@@ -1,0 +1,26 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Copyright 2007-2010 Qianyan Cai
+// Under the terms of the GNU Lesser General Public License version 2.1
+//
+-->
+<html>
+<head>
+<meta name=Content-Type content="text/html; charset=UTF-8" http-equiv=Content-Type>
+</head>
+<body>
+<script src=../../objot22.js></script>
+<script>
+function run(e) {
+	eval(e.target.previousSibling.tx())
+}
+$B.add(
+	$lns('cols', 80, 'rows', 10), $bn('click', run).tx('run'), $br(),
+	$lns('cols', 80, 'rows', 10), $bn('click', run).tx('run'), $br(),
+	$lns('cols', 80, 'rows', 10), $bn('click', run).tx('run'), $br(),
+	$br()
+)
+</script>
+</body>
+</html>

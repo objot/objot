@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+//
+// Copyright 2007-2010 Qianyan Cai
+// Under the terms of the GNU Lesser General Public License version 2.1
+//
+-->
+<!-- requirement: add property 'flex.home' to Ant preference in workspace -->
+<project name="objot-as" default="all">
+
+	<property name=".version" value="22" />
+
+	<property name=":" value="${path.separator}" />
+	<property name=".source.flash" value="flash" />
+	<property name=".archive" value="objot-as-${.version}.swc" />
+	<property name=".lib.player" value="${flex.home}/frameworks/libs/player/9/playerglobal.swc" />
+
+	<target name="flash">
+		<java classpath="${flex.home}/lib" jar="${flex.home}/lib/compc.jar" fork="true">
+			<arg value="-load-config=build.config.xml" />
+			<arg value="-external-library-path=${.lib.player}" />
+			<arg value="-include-sources=${.source.flash}/objot" />
+			<arg value="-output=${.archive}" />
+		</java>
+	</target>
+
+	<target name="all" depends="flash" />
+
+</project>

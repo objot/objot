@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Strict//EN">
+<!--
+//
+// Copyright 2007-2010 Qianyan Cai
+// Under the terms of the GNU Lesser General Public License version 2.1
+//
+-->
+<html>
+<head>
+<meta name="Content-Type" content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<title>Objot 版本22 Actionscript端手册</title>
+<style>
+	body	{ padding:0; margin:3ex; background:white; line-height:1.4; font-family:sans-serif; }
+	h2		{ margin:3em 0 1em; padding:0 0 0.2ex; border-bottom:0.5ex solid #bcf; color:#730; }
+	h3		{ margin:3em 0 1em; padding:0 0 0.1ex 1em; border-bottom:0.3ex solid #cdf; color:#730; }
+	h4		{ margin:2em 0 1em 3ex; padding:0; color:#015; }
+	h5		{ margin:2em 0 1em 3ex; padding:0; color:#032; }
+	a:link		{ color: #04e; text-decoration:none; }
+	a:visited	{ color: #60c; text-decoration:none; }
+	a:hover		{ background:#ddf; }
+	table	{ margin:0 3ex 1em; background:#f6f6f6; }
+	td		{ padding:0 1ex 0.3ex; border-bottom:1px solid #dd8; }
+	pre		{ margin:1ex 2ex; padding:0.6ex; border:1px solid #cc6; background:#f2f2f2; line-height:1.2; }
+</style>
+</head>
+<body>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h1	align=center><a href=http://objot.com>Objot</a> 版本22 Actionscript端手册</h1>
+<hr>
+
+<p>版权所有2007-2010蔡倩彦，采用GNU LGPL版本2.1许可模式。
+
+<p>关于Java端开发请参考<a href=manual-java-zh.html>《Objot 版本22 Java端手册》</a>。
+关于Javascript端开发请参考<a href=manual-js-zh.html>《Objot 版本22 Javascript端手册》</a>。
+
+
+<ul>
+	<li><a href=#codec>数据编解码</a></li>
+	<li><a href=#util>辅助功能</a></li>
+</ul>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2 id=codec>数据编解码</h2>
+
+<p>参考<a href=manual-java-zh.html#codec>《Objot 版本22 Java端手册》数据编解码</a>。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.codec.<i>Codec</i></h3>
+
+<p>编解码。
+
+<h5>public function <i>enc</i>(o:Object, ruleKey:Object):String</h5>
+编码，使用的规则与 每个编码的数据 及ruleKey相关。
+
+<h5>public function <i>dec</i>(str:String):Object</h5>
+解码。暂不支持解码规则。
+
+<h5>protected function <i>name</i>(o:Object, c:Class):String</h5>
+编码时指定名字。
+<code>c = o.constructor as Class</code>，既可给每个类，也可以给每个对象指定不同的名字。
+默认是：<pre>return c == Object || c == null ? '' : getQualifiedClassName(c);</pre>
+
+<h5>protected function <i>byName</i>(name:String):Object</h5>
+解码时，根据名字得到对象（注意，返回对象的类，也不会自动调用构造方法，这与Java端不同）。默认是：
+<pre>return name == '' ? {} : new (getDefinitionByName(name));</pre>
+
+<h5>public function <i>clazz</i>(cf:Object):Rule</h5>
+分析一个类，返回编码规则。既可能在编码时被动调用，也可以主动调用。默认是：
+<pre>// 查找this.rules，若已经分析过，则直接返回分析结果
+// 创建Rule对象
+// 如果cf是Function，调用Rule.initFunc，否则调用Rule.initClass
+// 将结果放入this.rules，并返回
+</pre>
+
+<h5>protected var <i>rules</i>:Dictionary;</h5>
+保存生成的编码规则。
+
+<h5>public function <i>Codec</i>(sameRule:Codec = null)</h5>
+构造方法。若sameRule为null，编码规则独立于其他Codec对象，否则编码规则和sameRule共用，并保持相同。
+
+<!--****************************************************************************************-->
+
+<h3>[<i>Enc</i>]</h3>
+
+<p>标记在类、属性（variable、accessor）上的metadata，表示需要编码。
+
+<p>可以设置参数，表示指定哪些key时需要编码，作为编码规则。
+与各个参数都不相同的key，则禁止编码。不指定参数，表示任何key时，都需要编码。
+
+<p>标记在类上的[Enc]，其规则附加在各属性的[Enc]上。
+
+<p>参数是字符串，必须符合xml的attribute格式。
+
+<!--****************************************************************************************-->
+
+<h3>[<i>EncDynamic</i>]</h3>
+
+<p>标记在类上的metadata，表示动态属性需要编码。
+
+<p>可以设置参数，表示指定哪些key时需要编码动态属性，作为编码规则。
+与各个参数都不相同的key，则禁止编码动态属性。不指定参数，表示任何key时，都需要编码。
+
+<p>参数是字符串，必须符合xml的attribute格式。
+
+<p><b>特别注意：[Enc]和[EncDynamic]必须在编译时指定保留，否则编译后的文件将不包含这两个metadata。</b>
+编译参数：<code>-compiler.keep-as3-metadata Enc EncDynamic</code>。
+或者配置文件：
+<pre>&lt;compiler&gt;
+&lt;keep-as3-metadata&gt;
+	&lt;name&gt;Enc&lt;/name&gt;
+	&lt;name&gt;EncDynamic&lt;/name&gt;
+&lt;/keep-as3-metadata&gt;
+&lt;/compiler&gt;
+</pre>
+
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.codec.<i>Rule</i></h3>
+
+<p>编码规则。默认是分析metadata，生成相关数据。
+
+<h5>public function <i>encProps</i>(ruleKey:Object):Array</h5>
+指定key时，需要编码的属性名的数组。
+
+<h5>public function <i>encDynamic</i>(ruleKey:Object):Boolean</h5>
+指定key时，是否需要编码动态属性。
+
+<h5>public function initFunc(f:Function):void</h5>
+初始化。默认是对任何key，需要编码动态属性。
+
+<h5>public function initClass(c:Class):void</h5>
+初始化。默认是
+<pre>// 获取类的metadata
+// 如果有[EncDynamic]，则生成相关的信息，供encDynamic()使用。
+// 如果有[Enc]，则生成相关信息，以便作用于每个属性的[Enc]
+// 获取每个属性的metadata
+// 如果有[EncDynamic]，则抛出异常
+// 如果有[Enc]，对于static，writeonly的属性，抛出异常
+// 否则生成相关信息，供encProps()使用。
+</pre>
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+<h2 id=util>辅助功能</h2>
+
+<p>参见源代码。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.util.<i>Array2</i></h3>
+
+<p>与xml转换。与object的name/value转换。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.util.<i>Cast</i></h3>
+
+<p>对Array、Boolean、Date、Number、String、XML、XMLList等做无convert的严格类型转换。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.util.<i>Class2</i></h3>
+
+<p>初始化类，并得到类定义等相关信息。
+
+<p>父类。判断是否父类。判断是否父类或接口。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.util.<i>Err, Errs</i></h3>
+
+<p>对异常的封装，与Java端对应。
+
+<p>抛出Error的方法，以便放入表达式中。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.util.<i>Meta, MetaArg, Metas, Method, Param, Prop</i></h3>
+
+<p>类定义等信息。
+
+<!--****************************************************************************************-->
+
+<h3>public class objot.util.<i>String2</i></h3>
+
+<p>将对象转换成字符串，并限制长度。
+
+
+<!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
+
+
+</body>
+</html>

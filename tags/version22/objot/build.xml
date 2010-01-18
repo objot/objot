@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<!--
+//
+// Copyright 2007-2010 Qianyan Cai
+// Under the terms of the GNU Lesser General Public License version 2.1
+//
+-->
+<project name="objot-java" default="doc">
+
+	<property name=".version" value="22" />
+
+	<property name=":" value="${path.separator}" />
+	<property name=".source.java" value="java" />
+	<property name=".source.demo" value="demo" />
+	<property name=".source.test" value="test" />
+	<property name=".library" value="WEB-INF" />
+	<property name=".target.compile" value="WEB-INF/classes" />
+	<property name=".target.doc.api" value="doc/api" />
+	<property name=".archive" value="objot-java-${.version}.jar" />
+
+	<target name="java.compile">
+		<delete dir="${.target.compile}" />
+		<mkdir dir="${.target.compile}" />
+		<javac srcdir="${.source.java}"
+		       destdir="${.target.compile}"
+		       fork="true"
+		       target="1.5"
+		       source="1.5"
+		       debug="true"
+		       optimize="true"
+		       debuglevel="lines,vars,source"
+		       deprecation="true"
+		       failonerror="true">
+			<compilerarg value="-Xlint:unchecked" />
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.library}" />
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="java" depends="java.compile">
+		<delete file="${.archive}" />
+		<jar jarfile="${.archive}" compress="true" basedir="${.target.compile}">
+			<include name="objot/**/*.class" />
+			<manifest>
+				<attribute name="Comment" value="contains source code" />
+				<attribute name="Specification-Title" value="objot-java" />
+				<attribute name="Specification-Version" value="${.version}" />
+				<attribute name="Specification-Vendor" value="Qianyan Cai" />
+				<attribute name="Implementation-Title" value="objot-java" />
+				<attribute name="Implementation-Version" value="${.version}" />
+				<attribute name="Implementation-Vendor" value="Qianyan Cai" />
+				<attribute name="Implementation-URL" value="http://objot.com" />
+				<attribute name="License" value="GNU Lesser General Public License version 2.1" />
+			</manifest>
+		</jar>
+		<jar jarfile="${.archive}"
+		     compress="true"
+		     basedir="${.source.java}"
+		     update="true">
+			<include name="objot/**/*.java" />
+		</jar>
+	</target>
+
+	<target name="doc" depends="java">
+		<delete dir="${.target.doc.api}" />
+		<mkdir dir="${.target.doc.api}" />
+		<javadoc sourcepath="${.source.java}"
+		         access="protected"
+		         author="true"
+		         destdir="${.target.doc.api}"
+		         locale="en"
+		         nodeprecated="false"
+		         nodeprecatedlist="false"
+		         noindex="false"
+		         nonavbar="false"
+		         notree="false"
+		         packagenames="objot.**.**.**.**,java.**.**.**.**,javax.**.**.**.**"
+		         splitindex="true"
+		         use="true"
+		         verbose="false"
+		         version="true">
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.library}" />
+			</classpath>
+		</javadoc>
+	</target>
+
+	<target name="demo" depends="java">
+		<javac srcdir="${.source.demo}"
+		       destdir="${.target.compile}"
+		       fork="true"
+		       target="1.5"
+		       source="1.5"
+		       debug="true"
+		       debuglevel="lines,vars,source"
+		       optimize="true"
+		       deprecation="true"
+		       failonerror="true">
+			<compilerarg value="-Xlint:unchecked" />
+			<classpath>
+				<fileset includes="**/*.jar" dir="${.library}" />
+			</classpath>
+		</javac>
+		<copy todir="${.target.compile}">
+			<fileset includes="*.properties" dir="${.source.demo}" />
+		</copy>
+	</target>
+
+	<target name="test" depends="demo">
+		<!-- junit 4 library is in eclipse -->
+	</target>
+
+	<target name="all" depends="java,demo,test,doc" />
+
+</project>
