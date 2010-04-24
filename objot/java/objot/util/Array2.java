@@ -389,7 +389,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			long midVal = a[mid];
 			if (midVal < key)
 				low = mid + 1;
@@ -413,7 +413,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			int midVal = a[mid];
 			if (midVal < key)
 				low = mid + 1;
@@ -437,7 +437,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			short midVal = a[mid];
 			if (midVal < key)
 				low = mid + 1;
@@ -461,7 +461,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			char midVal = a[mid];
 			if (midVal < key)
 				low = mid + 1;
@@ -485,7 +485,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			byte midVal = a[mid];
 			if (midVal < key)
 				low = mid + 1;
@@ -509,7 +509,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			double midVal = a[mid];
 			int cmp;
 			if (midVal < key)
@@ -546,7 +546,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			float midVal = a[mid];
 			int cmp;
 			if (midVal < key)
@@ -585,7 +585,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			int cmp = ((Comparable)a[mid]).compareTo(key);
 			if (cmp < 0)
 				low = mid + 1;
@@ -614,7 +614,7 @@ public class Array2
 		int high = end1 - 1;
 		while (low <= high)
 		{
-			int mid = (low + high) >> 1;
+			int mid = (low + high) >>> 1;
 			T midVal = a[mid];
 			int cmp = c.compare(midVal, key);
 			if (cmp < 0)
