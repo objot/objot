@@ -296,6 +296,7 @@ public class Array2
 	}
 
 	/** Search the array in [begin, end1). */
+	@SuppressWarnings("all")
 	public static int search(double[] s, int begin, int end1, double key)
 	{
 		Math2.range(begin, end1, s.length);
@@ -319,6 +320,7 @@ public class Array2
 	}
 
 	/** Search the array in [begin, end1). */
+	@SuppressWarnings("all")
 	public static int search(float[] s, int begin, int end1, float key)
 	{
 		Math2.range(begin, end1, s.length);
