@@ -44,6 +44,8 @@ public class Property
 			listElem = Class2.typeParamClass(field != null ? field.getGenericType() : //
 				enc ? method.getGenericReturnType() : method.getGenericParameterTypes()[0],
 				0, Object.class);
+		else
+			listElem = Object.class;
 	}
 
 	/**
