@@ -208,8 +208,8 @@ public abstract class Container
 	 *    1: return this; // {@link Container}
 	 *   -2:
 	 *    2: return oss[2][0]; // static object
-	 *    5:
-	 *   -5: return o5; // {@link Inject.Set}
+	 *   -5:
+	 *    5: return o5; // {@link Inject.Set}
 	 *
 	 *    3: if (o3 != null) return o3; // {@link Inject.Single}
 	 *   -3: B o = new B(...);
@@ -218,8 +218,8 @@ public abstract class Container
 	 *         else // multi {@link Inject.Single} by circular injection
 	 *           throw new {@link ClassCircularityError}("B");
 	 *       ...
-	 *    4:
-	 *   -4: A o = new A((A1)get0(41), get0(-42), (A3)oss[4][1]);
+	 *   -4:
+	 *    4: A o = new A((A1)get0(41), get0(-42), (A3)oss[4][1]);
 	 *      o.x = (A4)get0(44);
 	 *      o.y = (A5)oss[4][2];
 	 *      o.p((A6)o46);
@@ -231,7 +231,7 @@ public abstract class Container
 	 *    6: Container n = parent; int j; // {@link Inject.Parent}
 	 *       while ((j = n.index(X26.class)) == 0) // less stack usage than recursive
 	 *         n = n.parent;
-	 *       if (i > 0) return n.get0(-j);
+	 *       if (i > 0) return n.get0(-j); // for {@link #getNew}
 	 *       Object o = n.get0(j);
 	 *       return j > 0 ? o6 = o : o; 
 	 *   default: return null; // never happen
