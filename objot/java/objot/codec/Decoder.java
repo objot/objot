@@ -333,7 +333,7 @@ final class Decoder
 			bxy();
 			refs[ref] = o;
 		}
-		for (char c; chr() != '}'; bxy())
+		for (char c; bx != by; bxy())
 		{
 			String n = str();
 			bxy();
@@ -412,6 +412,9 @@ final class Decoder
 					m.put(n, v);
 			}
 		}
+		bxy();
+		if (chr() != '}')
+			throw new RuntimeException("termination unexpected");
 		return o;
 	}
 
