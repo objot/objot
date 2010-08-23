@@ -513,7 +513,7 @@ public final class Encoder
 					valueNormal(pv.getKey(), pv.getValue());
 				else
 					throw new RuntimeException("property name is null");
-		split().append('}');
+		split(split()).append('}');
 	}
 
 	private void ref(Object o)

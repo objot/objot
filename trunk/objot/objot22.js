@@ -178,7 +178,7 @@ $enc = function (o, ruleKey) {
 					: v instanceof Array ? (x = $enc.l(v, s, x), '[')
 					: (x = $enc.o(v, s, x), '{')
 		}
-		s[x++] = '}'
+		s[x++] = '', s[x++] = '}'
 		return x
 	}
 
@@ -224,7 +224,7 @@ $dec = function (s, byName, ok) {
 	$dec.o = function (s, x, p, v) {
 		var o = s.n(s[x++])
 		s[x] === ':' && ($dec.r[s[++x]] = o, x++)
-		while (x >= s.length ? $throw('} expected but end') : (p = s[x++]) != '}')
+		while (x < s.length && (p = s[x++]) != '')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break; case ',': o[p] = null; break
 				case '<': o[p] = false; break; case '>': o[p] = true; break
@@ -234,6 +234,7 @@ $dec = function (s, byName, ok) {
 				case '=': o[p] = $dec.r[s[x++]]; break; case 'NaN': o[p] = NaN; break
 				default: isNaN(o[p] = +v) && $throw('illegal number ' + $S(v))
 			}
+		if (s[x++] != '}') throw '} expected but end'
 		s.o = o, s.ok && s.ok(o)
 		return x
 	}
