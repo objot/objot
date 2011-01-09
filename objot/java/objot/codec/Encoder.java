@@ -135,8 +135,8 @@ public final class Encoder
 	 */
 	private int ref(Object o, int r)
 	{
-		int x = System.identityHashCode(o) >> 3 & mask;
-		for (; objs[x] != null; x = x + 1 & mask)
+		int x = System.identityHashCode(o) % mask;
+		for (; objs[x] != null; x = (x + 1) % mask)
 			if (o == objs[x])
 				if (r == 0)
 					return refs[x];
@@ -156,9 +156,9 @@ public final class Encoder
 				for (int i = objs.length - 1; i >= 0; i--)
 					if ((o = objs[i]) != null)
 					{
-						x = System.identityHashCode(o) >> 3 & mask;
+						x = System.identityHashCode(o) % mask;
 						while (os[x] != null)
-							x = x + 1 & mask;
+							x = (x + 1) % mask;
 						os[x] = o;
 						rs[x] = refs[i];
 					}
@@ -435,10 +435,10 @@ public final class Encoder
 			int ref;
 			if (objs == null)
 			{
-				objs = new Object[256];
-				refs = new int[256];
-				mask = 255;
-				threshold = 192;
+				objs = new Object[128];
+				refs = new int[128];
+				mask = 127;
+				threshold = 96;
 				if (ref(v, -1) >= 0)
 					refsDo(v); // first reference
 			}
@@ -658,10 +658,10 @@ public final class Encoder
 			int ref;
 			if (objs == null)
 			{
-				objs = new Object[256];
-				refs = new int[256];
-				mask = 255;
-				threshold = 192;
+				objs = new Object[128];
+				refs = new int[128];
+				mask = 127;
+				threshold = 96;
 				if (ref(v, -1) >= 0)
 					refsDo(v); // first reference
 			}
