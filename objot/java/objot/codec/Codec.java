@@ -145,7 +145,7 @@ public class Codec
 	 */
 	protected long beLong(long l) throws Exception
 	{
-		if (l < -9007199254740991L || l > 9007199254740991L) // 53bit, for Javascript
+		if (l < -9007199254740992L || l > 9007199254740991L) // 53bit, for Javascript
 			throw new RuntimeException("getting integer out of range " + l);
 		return l;
 	}
