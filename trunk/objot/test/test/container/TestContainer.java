@@ -48,7 +48,7 @@ public class TestContainer
 			@Override
 			protected Object forBind(Class<?> c, Bind b) throws Exception
 			{
-				return c == X.class ? b.cla(ParentSingle.class) : b;
+				return c == X.class ? b.cla(ParentSingle.class) : null;
 			}
 		}.create(null);
 		Factory f = new Factory()
@@ -87,7 +87,7 @@ public class TestContainer
 						return b.cla(Single2.class);
 					else if (((Member)fp).getName().equals("n"))
 						return b.cla(New2.class);
-				return b;
+				return null;
 			}
 		};
 		con0 = f.create(parent);
@@ -213,8 +213,12 @@ public class TestContainer
 		assertSame(o2, o3.t);
 		Single o4 = con.get(Single.class);
 		assertNull(o4.t);
+		Single o5 = con.getNew(Single.class);
+		assertSame(o2, o5.t);
 
 		conLazy.set(Set.class, o2);
+		assertSame(o2, conLazy.get(Single.class).t);
+		conLazy.set(Set.class, null);
 		assertSame(o2, conLazy.get(Single.class).t);
 	}
 

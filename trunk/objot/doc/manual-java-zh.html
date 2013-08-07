@@ -513,7 +513,7 @@ Weaver w = new Weaver(/* 配置中列举的全部aspect */) {
 <!--@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-->
 
 
-<h2>IOC</h2>
+<h2 id=container>IOC</h2>
 
 <p>Objot提供了轻量的基于bytecode的高效容器来实现IOC。
 合成子类后，创建容器没有reflection，没有线程同步，注入过程中也没有hash计算，效率很高。
@@ -559,7 +559,7 @@ Weaver w = new Weaver(/* 配置中列举的全部aspect */) {
 
 <h5>public final &lt;T&gt;T <i>get</i>(Class&lt;T&gt; c)</h5>
 获取某个类的对象。对于Container.class，返回本容器。
-如果本容器没有绑定此类，则递归到父容器。只有一种情况非线程安全。
+如果本容器没有绑定此类，则递归到父容器。从lazy容器或lazy父容器中获得single对象非线程安全，其他情况线程安全。
 
 <h5>public final &lt;T&gt;T <i>getNew</i>(Class&lt;T&gt; c)</h5>
 获取某个类的对象。对于Container.class，则创建副本，共享父容器。对于single模式，则创建新对象。
