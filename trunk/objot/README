@@ -14,6 +14,7 @@ Improvements
   * bug fixes
   * minor improvements
 
+
 == Objot 版本 22 ==
 
 Objot是一个面向服务的轻量级web开发库，可以根据需要和其他框架组合。
@@ -62,6 +63,7 @@ Improvements
 Todo
   * IOC: provider mode
   * AOP: inherit all annotations from target methods
+
 
 == Objot 版本 21 ==
 
