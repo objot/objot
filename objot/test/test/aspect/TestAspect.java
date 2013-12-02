@@ -53,6 +53,7 @@ public class TestAspect
 	@Test
 	public void ctor() throws Exception
 	{
+		A.ctor = 0;
 		Constructor<X> c = weaved.getConstructor(Object.class);
 		X x = c.newInstance("new");
 		assertEquals("new", x.result);
@@ -128,11 +129,11 @@ public class TestAspect
 	{
 		a = X.P.Double.a;
 		X x = weaved.newInstance();
-		assertEquals(2e200, x.Double(2e200, 40));
+		assertEquals(2e200, x.Double(2e200, 40), Double.NEGATIVE_INFINITY);
 		assertEquals(a.name0, a.name);
 		assertNull(a.except);
 		assertEquals(40, x.b);
-		assertEquals(2e200, x.d);
+		assertEquals(2e200, x.d, 1);
 		assertEquals(x.d, x.result);
 	}
 
@@ -145,7 +146,7 @@ public class TestAspect
 		assertEquals(a.name0, a.name);
 		assertNull(a.except);
 		assertEquals(0, x.b);
-		assertEquals(Double.NaN, x.d);
+		assertTrue(x.d != x.d);
 		assertEquals("objot", x.e);
 		assertEquals(x.e, x.result);
 	}
