@@ -37,6 +37,7 @@ public class CodecServlet
 	/** round container with global parent */
 	protected Container con;
 
+	@Override
 	public final void init(ServletConfig c) throws ServletException
 	{
 		try
@@ -66,6 +67,7 @@ public class CodecServlet
 		}
 	}
 
+	@Override
 	public void destroy()
 	{
 		config.getServletContext().log(
@@ -73,16 +75,19 @@ public class CodecServlet
 				+ handler.getClass().getName() + " ################================\n\n");
 	}
 
+	@Override
 	public ServletConfig getServletConfig()
 	{
 		return config;
 	}
 
+	@Override
 	public String getServletInfo()
 	{
 		return getClass().getName();
 	}
 
+	@Override
 	public void service(ServletRequest hReq, ServletResponse hResp)
 		throws ServletException, IOException
 	{

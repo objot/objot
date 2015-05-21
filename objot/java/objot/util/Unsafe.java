@@ -80,11 +80,6 @@ public final class Unsafe
 		return o.defineClass(arg0, arg1, arg2, arg3, arg4, arg5);
 	}
 
-	public static Class defineClass(String arg0, byte[] arg1, int arg2, int arg3)
-	{
-		return o.defineClass(arg0, arg1, arg2, arg3);
-	}
-
 	public static void ensureClassInitialized(Class arg0)
 	{
 		o.ensureClassInitialized(arg0);

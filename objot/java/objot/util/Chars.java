@@ -210,17 +210,20 @@ public class Chars
 		return l;
 	}
 
+	@Override
 	public final char charAt(int i)
 	{
 		Math2.index(i, end1I - beginI);
 		return chars[i];
 	}
 
+	@Override
 	public final int length()
 	{
 		return end1I - beginI;
 	}
 
+	@Override
 	public final CharSequence subSequence(int start, int end)
 	{
 		return new Chars(this, start, end);

@@ -8,6 +8,7 @@ import objot.container.Container;
 import objot.container.Inject;
 
 
+@SuppressWarnings("javadoc")
 public interface X
 {
 	@Inject.New

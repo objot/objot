@@ -163,6 +163,7 @@ public class TestDo
 		if (mode == BAG)
 			Arrays.sort(s, new Comparator<Id<?>>()
 			{
+				@Override
 				public int compare(Id<?> a, Id<?> b)
 				{
 					if (a == null)
@@ -181,6 +182,7 @@ public class TestDo
 		else if (mode == SET)
 			Arrays.sort(s, new Comparator<Id<?>>()
 			{
+				@Override
 				public int compare(Id<?> a, Id<?> b)
 				{
 					if (a == b)

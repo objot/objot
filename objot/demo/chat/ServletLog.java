@@ -125,103 +125,121 @@ public class ServletLog
 		}
 	}
 
+	@Override
 	public final void trace(Object message)
 	{
 		if (Level.trace.ordinal() >= level)
 			log(Level.trace, message, null);
 	}
 
+	@Override
 	public final void trace(Object message, Throwable t)
 	{
 		if (Level.trace.ordinal() >= level)
 			log(Level.trace, message, t);
 	}
 
+	@Override
 	public final void debug(Object message)
 	{
 		if (Level.debug.ordinal() >= level)
 			log(Level.debug, message, null);
 	}
 
+	@Override
 	public final void debug(Object message, Throwable t)
 	{
 		if (Level.debug.ordinal() >= level)
 			log(Level.debug, message, t);
 	}
 
+	@Override
 	public final void info(Object message)
 	{
 		if (Level.info.ordinal() >= level)
 			log(Level.info, message, null);
 	}
 
+	@Override
 	public final void info(Object message, Throwable t)
 	{
 		if (Level.info.ordinal() >= level)
 			log(Level.info, message, t);
 	}
 
+	@Override
 	public final void warn(Object message)
 	{
 		if (Level.warn.ordinal() >= level)
 			log(Level.warn, message, null);
 	}
 
+	@Override
 	public final void warn(Object message, Throwable t)
 	{
 		if (Level.warn.ordinal() >= level)
 			log(Level.warn, message, t);
 	}
 
+	@Override
 	public final void error(Object message)
 	{
 		if (Level.error.ordinal() >= level)
 			log(Level.error, message, null);
 	}
 
+	@Override
 	public final void error(Object message, Throwable t)
 	{
 		if (Level.error.ordinal() >= level)
 			log(Level.error, message, t);
 	}
 
+	@Override
 	public final void fatal(Object message)
 	{
 		if (Level.fatal.ordinal() >= level)
 			log(Level.fatal, message, null);
 	}
 
+	@Override
 	public final void fatal(Object message, Throwable t)
 	{
 		if (Level.fatal.ordinal() >= level)
 			log(Level.fatal, message, t);
 	}
 
+	@Override
 	public final boolean isTraceEnabled()
 	{
 		return Level.trace.ordinal() >= level;
 	}
 
+	@Override
 	public final boolean isDebugEnabled()
 	{
 		return Level.debug.ordinal() >= level;
 	}
 
+	@Override
 	public final boolean isInfoEnabled()
 	{
 		return Level.info.ordinal() >= level;
 	}
 
+	@Override
 	public final boolean isWarnEnabled()
 	{
 		return Level.warn.ordinal() >= level;
 	}
 
+	@Override
 	public final boolean isErrorEnabled()
 	{
 		return Level.error.ordinal() >= level;
 	}
 
+	@Override
 	public final boolean isFatalEnabled()
 	{
 		return Level.fatal.ordinal() >= level;

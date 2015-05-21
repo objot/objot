@@ -23,7 +23,7 @@ import org.hibernate.validator.ValidatorClass;
 
 @ValidatorClass(BeText.V.class)
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.METHOD, ElementType.FIELD })
 @Documented
 public @interface BeText
 {
@@ -40,11 +40,13 @@ public @interface BeText
 	{
 		BeText anno;
 
+		@Override
 		public void initialize(BeText a)
 		{
 			anno = a;
 		}
 
+		@Override
 		public boolean isValid(Object value)
 		{
 			String v;
@@ -53,8 +55,8 @@ public @interface BeText
 			else if (value instanceof Clob)
 				try
 				{
-					v = ((Clob)value).getSubString(1, (int)Math.min(((Clob)value).length(),
-						Integer.MAX_VALUE));
+					v = ((Clob)value).getSubString(1,
+						(int)Math.min(((Clob)value).length(), Integer.MAX_VALUE));
 				}
 				catch (SQLException e)
 				{
@@ -75,6 +77,7 @@ public @interface BeText
 			return true;
 		}
 
+		@Override
 		@SuppressWarnings("unchecked")
 		public void apply(Property p)
 		{

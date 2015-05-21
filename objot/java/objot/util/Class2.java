@@ -86,7 +86,7 @@ public class Class2
 
 	/**
 	 * Primitive class to box class.
-	 * 
+	 *
 	 * @param boxVoid whether box void.class to Void.class
 	 * @return the box class
 	 * @throws ClassCastException if this class is not primitive, or if this class is void
@@ -118,7 +118,7 @@ public class Class2
 
 	/**
 	 * Box class to primitive class.
-	 * 
+	 *
 	 * @param unboxVoid whether unbox Void.class to void.class
 	 * @return the primitive class
 	 * @throws ClassCastException if this is not primitive box class, or if this is Void
@@ -150,7 +150,7 @@ public class Class2
 
 	/**
 	 * Try to convert primitive class to box class.
-	 * 
+	 *
 	 * @param boxVoid whether box void.class to Void.class
 	 * @return the box class, or original class if not primitive
 	 */
@@ -180,7 +180,7 @@ public class Class2
 
 	/**
 	 * Try to conver box class to primitive class.
-	 * 
+	 *
 	 * @param unboxVoid whether unbox Void.class to void.class
 	 * @return the primitive class, or original class if not box
 	 */
@@ -577,6 +577,7 @@ public class Class2
 	{
 		return AccessController.doPrivileged(new PrivilegedAction<T>()
 		{
+			@Override
 			public T run()
 			{
 				o.setAccessible(true);
@@ -631,7 +632,7 @@ public class Class2
 
 	/**
 	 * get all classes in a package
-	 * 
+	 *
 	 * @param c one of classes in the package
 	 */
 	public static ArrayList<Class<?>> packageClasses(Class<?> c) throws Exception

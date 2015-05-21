@@ -78,21 +78,25 @@ public class Parameter
 		return null;
 	}
 
+	@Override
 	public Class<?> getDeclaringClass()
 	{
 		return proc.getDeclaringClass();
 	}
 
+	@Override
 	public int getModifiers()
 	{
 		return 0;
 	}
 
+	@Override
 	public String getName()
 	{
 		return "param" + index;
 	}
 
+	@Override
 	public boolean isSynthetic()
 	{
 		return false;

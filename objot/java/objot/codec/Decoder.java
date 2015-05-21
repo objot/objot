@@ -94,68 +94,81 @@ final class Decoder
 	{
 		return new Clob()
 		{
+			@Override
 			public InputStream getAsciiStream()
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public Reader getCharacterStream()
 			{
 				return new StringReader(s);
 			}
 
+			@Override
 			@SuppressWarnings("all")
 			public Reader getCharacterStream(long pos, long length)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public String getSubString(long pos, int length)
 			{
 				int x = (int)Math.min(pos - 1, Integer.MAX_VALUE);
 				return s.substring(x, x + length);
 			}
 
+			@Override
 			public long length()
 			{
 				return s.length();
 			}
 
+			@Override
 			public long position(String search, long start)
 			{
 				return s.indexOf(search, (int)Math.min(start - 1, Integer.MAX_VALUE));
 			}
 
+			@Override
 			public long position(Clob search, long start)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public OutputStream setAsciiStream(long pos)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public Writer setCharacterStream(long pos)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public int setString(long pos, String str)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public int setString(long pos, String str, int offset, int len)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public void truncate(long len)
 			{
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			@SuppressWarnings("all")
 			public void free()
 			{

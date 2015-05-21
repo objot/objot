@@ -92,49 +92,58 @@ public class Models
 
 		conf.setNamingStrategy(new NamingStrategy()
 		{
+			@Override
 			public String classToTableName(String entity)
 			{
 				return StringHelper.unqualify(entity);
 			}
 
+			@Override
 			public String propertyToColumnName(String property)
 			{
 				return StringHelper.unqualify(property);
 			}
 
+			@Override
 			public String tableName(String table)
 			{
 				return table;
 			}
 
+			@Override
 			public String columnName(String column)
 			{
 				return column;
 			}
 
+			@Override
 			public String collectionTableName(String ownerEntity, String ownerTable,
 				String associatedEntity, String associatedTable, String property)
 			{
 				return ownerTable + "_" + StringHelper.unqualify(property);
 			}
 
+			@Override
 			public String joinKeyColumnName(String joinedColumn, String joinedTable)
 			{
 				return joinedColumn;
 			}
 
+			@Override
 			public String foreignKeyColumnName(String property, String propertyEntity,
 				String propertyTable, String referencedColumn)
 			{
 				return property != null ? StringHelper.unqualify(property) : propertyTable;
 			}
 
+			@Override
 			public String logicalColumnName(String column, String property)
 			{
 				return StringHelper.isEmpty(column) ? StringHelper.unqualify(property)
 					: column;
 			}
 
+			@Override
 			public String logicalCollectionTableName(String table, String ownerTable,
 				String associatedTable, String property)
 			{
@@ -143,6 +152,7 @@ public class Models
 				return ownerTable + "_" + StringHelper.unqualify(property);
 			}
 
+			@Override
 			public String logicalCollectionColumnName(String column, String property,
 				String referencedColumn)
 			{

@@ -58,7 +58,7 @@ public class DoChat
 
 	/**
 	 * also persist SO
-	 * 
+	 *
 	 * @return with {@link Chat#datime}
 	 */
 	@Service
@@ -82,56 +82,67 @@ public class DoChat
 			s.in = c.in;
 			s.image = new Blob()
 			{
+				@Override
 				public long length()
 				{
 					return b.byteN();
 				}
 
+				@Override
 				public void truncate(long pos)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public byte[] getBytes(long pos, int len)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public int setBytes(long pos, byte[] bytes)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public int setBytes(long pos, byte[] bytes, int i, int j)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public long position(byte[] bytes, long pos)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public InputStream getBinaryStream()
 				{
 					in.reset();
 					return in;
 				}
 
+				@Override
 				public OutputStream setBinaryStream(long pos)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public long position(Blob blob, long pos)
 				{
 					throw new UnsupportedOperationException();
 				}
 
+				@Override
 				public void free()
 				{
 				}
 
+				@Override
 				public InputStream getBinaryStream(long pos, long length)
 				{
 					throw new UnsupportedOperationException();
