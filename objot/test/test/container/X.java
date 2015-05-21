@@ -125,7 +125,7 @@ public interface X
 		public static class Ctor
 		{
 			@Inject
-			public Ctor(SingleCircular _)
+			public Ctor(SingleCircular o)
 			{
 			}
 		}

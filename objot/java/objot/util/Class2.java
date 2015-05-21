@@ -651,9 +651,9 @@ public class Class2
 			if ( !path.isDirectory())
 				throw new Exception(path + " must be directory");
 			// iterate on all classes in the package
-			for (String _: path.list())
-				if (_.endsWith(".class"))
-					clas.add(Class.forName(p + "." + _.substring(0, _.lastIndexOf('.'))));
+			for (String m: path.list())
+				if (m.endsWith(".class"))
+					clas.add(Class.forName(p + "." + m.substring(0, m.lastIndexOf('.'))));
 		}
 		else if (url.getProtocol().equals("jar"))
 		{

@@ -67,8 +67,8 @@ public class Chat
 	}
 
 	@Dec
-	public void text(Clob _)
+	public void text(Clob o)
 	{
-		text = _;
+		text = o;
 	}
 }

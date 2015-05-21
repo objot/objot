@@ -39,7 +39,7 @@ public class DoChat
 	@Transac.Readonly
 	public List<Chat> read(Chat c) throws Exception
 	{
-		Criteria<Chat> _ = data.criteria(Chat.class);
+		Criteria<Chat> t = data.criteria(Chat.class);
 		User me = new User().id(sess.me);
 
 		Criterion out = Restrictions.eq("out", me);
@@ -50,10 +50,10 @@ public class DoChat
 		if (c.out != null)
 			in = Restrictions.and(in, // chats to me
 				Restrictions.eq("out", c.out));
-		_.add(Restrictions.or(out, in));
+		t.add(Restrictions.or(out, in));
 		if (c.datime != null)
-			_.add(Restrictions.gt("datime", c.datime));
-		return _.addOrder(Order.asc("datime")).list();
+			t.add(Restrictions.gt("datime", c.datime));
+		return t.addOrder(Order.asc("datime")).list();
 	}
 
 	/**
@@ -67,10 +67,10 @@ public class DoChat
 		c.out = new User().id(sess.me);
 		validate(c);
 
-		Criteria<?> _ = data.criteria(User.class).setProjection(Projections.rowCount());
-		_.add(Restrictions.idEq(c.in.id));
-		_.createCriteria("friends").add(Restrictions.idEq(c.out.id));
-		if ((Integer)_.uniqueResult() == 0)
+		Criteria<?> t = data.criteria(User.class).setProjection(Projections.rowCount());
+		t.add(Restrictions.idEq(c.in.id));
+		t.createCriteria("friends").add(Restrictions.idEq(c.out.id));
+		if ((Integer)t.uniqueResult() == 0)
 			throw err("You must be his/her friend");
 		c.datime = new Date();
 		while (smiley != null && smiley.available() > 0)
