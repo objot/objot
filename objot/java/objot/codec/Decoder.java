@@ -107,7 +107,6 @@ final class Decoder
 			}
 
 			@Override
-			@SuppressWarnings("all")
 			public Reader getCharacterStream(long pos, long length)
 			{
 				throw new UnsupportedOperationException();
@@ -169,7 +168,6 @@ final class Decoder
 			}
 
 			@Override
-			@SuppressWarnings("all")
 			public void free()
 			{
 			}

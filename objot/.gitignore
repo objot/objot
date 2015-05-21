@@ -1,0 +1,6 @@
+doc/api/
+WEB-INF/classes/
+WEB-INF/lib/
+/*.jar
+.DS_Store
+*/.DS_Store

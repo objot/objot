@@ -16,7 +16,7 @@ import objot.util.Class2;
 public abstract class Aspect
 {
 	/**
-	 * keyword "this" is the weaved object (== target object) not this asepct. Return must
+	 * keyword "this" is the weaved object (== target object) not this aspect. Return must
 	 * be after {@link Target#invoke()}
 	 */
 	protected abstract void aspect() throws Throwable;
