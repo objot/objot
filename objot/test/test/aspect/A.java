@@ -45,7 +45,6 @@ class A
 class A1
 	extends Aspect
 {
-
 	A1()
 	{
 		A.ctor++;

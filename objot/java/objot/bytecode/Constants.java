@@ -34,6 +34,9 @@ public final class Constants
 	/** interface procedure */
 	public static final byte TAG_IPROC = 11;
 	public static final byte TAG_NAMEDESC = 12;
+	public static final byte TAG_MHANDLE = 15;
+	public static final byte TAG_MTYPE = 16;
+	public static final byte TAG_INVOKED = 18;
 
 	int byteN0;
 	/** index [1, N) excluding 0. */
@@ -97,6 +100,12 @@ public final class Constants
 		case TAG_CPROC:
 		case TAG_IPROC:
 		case TAG_NAMEDESC:
+			return 1 + 2 + 2;
+		case TAG_MHANDLE:
+			return 1 + 1 + 2;
+		case TAG_MTYPE:
+			return 1 + 2;
+		case TAG_INVOKED:
 			return 1 + 2 + 2;
 		}
 		throw new ClassFormatError("invalid constant info tag");
@@ -1218,9 +1227,9 @@ public final class Constants
 
 	public int addField(Constants cons, int ci)
 	{
-		return addField(addClass(addUtf(cons, cons.getFieldClass(ci))), addNameDesc(addUtf(
-			cons, cons.getFieldName(ci)), //
-			addUtf(cons, cons.getFieldDesc(ci))));
+		return addField(addClass(addUtf(cons, cons.getFieldClass(ci))),
+			addNameDesc(addUtf(cons, cons.getFieldName(ci)), //
+				addUtf(cons, cons.getFieldDesc(ci))));
 	}
 
 	public int putField(Constants cons, int ci)
@@ -1232,9 +1241,9 @@ public final class Constants
 
 	public int addCproc(Constants cons, int ci)
 	{
-		return addCproc(addClass(addUtf(cons, cons.getCprocClass(ci))), addNameDesc(addUtf(
-			cons, cons.getCprocName(ci)), //
-			addUtf(cons, cons.getCprocDesc(ci))));
+		return addCproc(addClass(addUtf(cons, cons.getCprocClass(ci))),
+			addNameDesc(addUtf(cons, cons.getCprocName(ci)), //
+				addUtf(cons, cons.getCprocDesc(ci))));
 	}
 
 	public int putCproc(Constants cons, int ci)
@@ -1246,9 +1255,9 @@ public final class Constants
 
 	public int addIproc(Constants cons, int ci)
 	{
-		return addIproc(addClass(addUtf(cons, cons.getIprocClass(ci))), addNameDesc(addUtf(
-			cons, cons.getIprocName(ci)), //
-			addUtf(cons, cons.getIprocDesc(ci))));
+		return addIproc(addClass(addUtf(cons, cons.getIprocClass(ci))),
+			addNameDesc(addUtf(cons, cons.getIprocName(ci)), //
+				addUtf(cons, cons.getIprocDesc(ci))));
 	}
 
 	public int putIproc(Constants cons, int ci)

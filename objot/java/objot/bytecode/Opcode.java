@@ -146,6 +146,7 @@ public final class Opcode
 	public static final byte IMUL = 104;
 	public static final byte INEG = 116;
 	public static final byte INSTANCEOF = (byte)193;
+	public static final byte INVOKEDYNAMIC = (byte)186;
 	public static final byte INVOKEINTERFACE = (byte)185;
 	public static final byte INVOKESPECIAL = (byte)183;
 	public static final byte INVOKESTATIC = (byte)184;
@@ -494,6 +495,8 @@ public final class Opcode
 			return "INEG";
 		case INSTANCEOF:
 			return "INSTANCEOF";
+		case INVOKEDYNAMIC:
+			return "INVOKEDYNAMIC";
 		case INVOKEINTERFACE:
 			return "INVOKEINTERFACE";
 		case INVOKESPECIAL:
@@ -734,6 +737,11 @@ public final class Opcode
 			out.print(Bytes.readU1(bs, bi + 1));
 			out.print(" by ");
 			out.println(bs[bi + 2]);
+			return;
+		case INVOKEDYNAMIC:
+			out.print(' ');
+			Constants.print(cons, out, Bytes.readU2(bs, bi + 1), verbose);
+			out.println(" with unknown stacks");
 			return;
 		case INVOKEINTERFACE:
 			out.print(' ');
@@ -1077,6 +1085,7 @@ public final class Opcode
 		case MULTIANEWARRAY:
 			return 4;
 		case GOTO4:
+		case INVOKEDYNAMIC:
 		case INVOKEINTERFACE:
 		case JSR4:
 			return 5;

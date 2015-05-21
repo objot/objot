@@ -47,7 +47,7 @@ public final class Bytecode
 		super(bs, beginBi_);
 		if (readS4(bytes, beginBi) != 0xCAFEBABE)
 			throw new ClassFormatError("invalid magic number");
-		if ((readU2(bytes, beginBi + 4) | readU2(bytes, beginBi + 6) << 16) > 50 << 16)
+		if ((readU2(bytes, beginBi + 4) | readU2(bytes, beginBi + 6) << 16) > 52 << 16)
 			throw new ClassFormatError("unsupported bytecode version");
 		end1Bi = end1Bi_;
 		if (end1Bi <= beginBi)
@@ -214,6 +214,7 @@ public final class Bytecode
 	public int normalizeTo(byte[] bs, int begin)
 	{
 		System.arraycopy(bytes, 0, bs, begin, 8);
+		writeU2(bs, begin + 6, 49);
 		int bi = cons.end1Bi;
 		begin = cons.normalizeTo(bs, begin + 8);
 
