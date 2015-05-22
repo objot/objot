@@ -1,5 +1,5 @@
 //
-// Copyright 2007-2010 Qianyan Cai
+// Copyright 2007-2015 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 package objot.container;
