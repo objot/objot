@@ -1,3 +1,46 @@
+== Objot version 23 ==
+
+Objot is a lightweight service oriented library for efficient web development,
+ based on Java 6, Javascript, Actionscript 3 etc.
+
+Supports Firefox 3, Firefox 2, IE 7, IE 6, Opera 9.5 and Safari 3.1 and Adobe 
+ Flash Player 9
+
+Improvements
+  * read Java 8 bytecode but still generate Java 5 bytecode 
+  * fix: codec format error if Map key is }
+  * fix: integer overflow of binary search
+  * minor fixes
+  * minor improvements
+  * built on at least Java 6
+
+Todo
+  * Javascript codec supporting a kind of Lua codec format
+
+== Objot 版本 23 ==
+
+Objot是一个面向服务的轻量级web开发库，可以根据需要和其他框架组合。
+服务器部署业务数据，部署业务逻辑Service；浏览器及Flash部署视图，部署操作逻辑，与Service交互。
+交互的数据、流程由开发者定义，用Objot实现。
+
+Objot支持Java 6、Javascript、Actionscript 3，
+支持Firefox 3、Firefox 2、IE 7、IE 6、Opera 9.5、Safari 3.1、Adobe Flash Player
+ 9。
+
+包含一个在线聊天的范例。
+
+改进：
+  * 读取Java 8字节码，生成Java 5字节码 
+  * 修复Map key为}时编码格式的错误
+  * 修复二分查找中的整数溢出错误
+  * 错误修复
+  * 细节改进
+  * Java 6以上编译
+
+后续改进：
+  * 支持一种Lua编码格式的编码器
+
+
 == Objot version 22 ==
 
 Objot is a lightweight service oriented library for efficient web development,
