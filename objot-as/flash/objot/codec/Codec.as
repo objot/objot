@@ -1,5 +1,5 @@
 //
-// Copyright 2007-2010 Qianyan Cai
+// Copyright 2007-2015 Qianyan Cai
 // Under the terms of the GNU Lesser General Public License version 2.1
 //
 package objot.codec
@@ -208,7 +208,7 @@ public class Codec
 					else
 						s[x++] = '{', x = encO(v, s, x);
 				}
-		s[x++] = '}';
+		s[x++] = '', s[x++] = '}';
 		return x;
 	}
 
@@ -272,7 +272,7 @@ public class Codec
 		var o:Object = byName(s[x++]), p:Object, v:Object;
 		if (s[x] === ':')
 			decRefs[s[++x]] = o, x++;
-		while (x >= s.length ? Err.th('} expected but end') : (p = s[x++]) !== '}')
+		while (x < s.length && (p = s[x++]) !== '')
 			switch (v = s[x++]) {
 				case '': o[p] = s[x++]; break;
 				case ',': o[p] = null; break;
@@ -285,6 +285,7 @@ public class Codec
 				case 'NaN': o[p] = NaN; break;
 				default: isNaN(o[p] = Number(v)) && Err.th('illegal number ' + String2.s(v));
 			}
+		if (s[x++] != '}') throw '} expected but end';
 		decoded(s.o = o);
 		return x;
 	}
