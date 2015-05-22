@@ -7,7 +7,7 @@
 -->
 <project name="objot-java" default="doc">
 
-	<property name=".version" value="22" />
+	<property name=".version" value="23" />
 
 	<property name=":" value="${path.separator}" />
 	<property name=".source.java" value="java" />
@@ -24,8 +24,8 @@
 		<javac srcdir="${.source.java}"
 		       destdir="${.target.compile}"
 		       fork="true"
-		       target="1.5"
-		       source="1.5"
+		       target="1.6"
+		       source="1.6"
 		       debug="true"
 		       optimize="true"
 		       debuglevel="lines,vars,source"
@@ -90,8 +90,8 @@
 		<javac srcdir="${.source.demo}"
 		       destdir="${.target.compile}"
 		       fork="true"
-		       target="1.5"
-		       source="1.5"
+		       target="1.6"
+		       source="1.6"
 		       debug="true"
 		       debuglevel="lines,vars,source"
 		       optimize="true"
