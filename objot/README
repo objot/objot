@@ -7,7 +7,7 @@ Supports Firefox 3, Firefox 2, IE 7, IE 6, Opera 9.5 and Safari 3.1 and Adobe
  Flash Player 9
 
 Improvements
-  * read Java 8 bytecode but still generate Java 5 bytecode 
+  * read Java 8 bytecode but still generate Java 5 bytecode
   * fix: codec format error if Map key is }
   * fix: integer overflow of binary search
   * minor fixes
