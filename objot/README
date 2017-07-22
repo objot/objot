@@ -30,7 +30,7 @@ Objot支持Java 6、Javascript、Actionscript 3，
 包含一个在线聊天的范例。
 
 改进：
-  * 读取Java 8字节码，生成Java 5字节码 
+  * 读取Java 8字节码，生成Java 5字节码
   * 修复Map key为}时编码格式的错误
   * 修复二分查找中的整数溢出错误
   * 错误修复
